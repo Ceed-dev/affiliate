@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import BarChart from "../components/BarChart";
 
 function Dashboard() {
   return (
@@ -56,14 +57,8 @@ function Dashboard() {
               Affiliate sign ups
             </h2>
           </div>
-          <div className="h-96 w-full px-4">
-            <div className="flex justify-center items-end h-full border-t border-gray-300">
-              <div
-                className="w-4 bg-[#3B82F6] h-full"
-                style={{ marginBottom: "-1px" }}
-              ></div>
-            </div>
-            <div className="h-[100px] bg-orange-300 w-full">hello</div>
+          <div className="px-10 py-5">
+            <BarChart />
           </div>
         </div>
         <div className="mb-4">
