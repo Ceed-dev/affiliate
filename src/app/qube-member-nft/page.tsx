@@ -119,15 +119,15 @@ function AffiliatePage() {
         <div className="flex flex-row gap-20">
           <div className="h-[100px] w-full text-gray-500 p-5 rounded-lg shadow-md">
             <p>Referrals</p>
-            <span className="text-3xl text-black">0</span> from 1 visit
+            <span className="text-2xl text-black">1</span> from 1 visit
           </div>
           <div className="h-[100px] w-full text-gray-500 p-5 rounded-lg shadow-md">
             <p>Purchased</p>
-            <span className="text-3xl text-black">0 USDC</span> by 0 purchasers
+            <span className="text-2xl text-black">50 USDC</span> by 1 purchasers
           </div>
           <div className="h-[100px] w-full text-gray-500 p-5 rounded-lg shadow-md">
-            <p>Earned (1 USDC)</p>
-            <p className="text-3xl text-black">0 USDC</p>
+            <p>Earned (USDC)</p>
+            <p className="text-2xl text-black">15 USDC</p>
           </div>
         </div>
         <div className="border rounded-lg shadow-md mt-10">
@@ -135,9 +135,14 @@ function AffiliatePage() {
             <p className="flex-1">Address</p>
             <p className="flex-1">Purchased</p>
             <p className="flex-1">USDC Paid</p>
-            <p className="flex-1">Your Share (1 USDC)</p>
+            <p className="flex-1">Your Share (USDC)</p>
           </div>
-          <p className="px-10 py-5 text-sm text-gray-500">You haven't referred any users yet.</p>
+          <div className="flex flex-row px-10 py-3 shadow-sm">
+            <p className="flex-1">0xf1f...998a</p>
+            <p className="flex-1">✅</p>
+            <p className="flex-1">50</p>
+            <p className="flex-1">15</p>
+          </div>
         </div>
       </div>}
 
