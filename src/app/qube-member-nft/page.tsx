@@ -20,7 +20,7 @@ function AffiliatePage() {
   const [buttonLabel, setButtonLabel] = useState("Copy");
 
   const copyTextToClipboard = async () => {
-    const text = "http://localhost:3000/test-nft-collection/referee?r=kelsin";
+    const text = "http://localhost:3000/qube-member-nft/referee?r=kelsin";
     try {
       await navigator.clipboard.writeText(text);
       setButtonLabel("Copied!");
@@ -86,7 +86,7 @@ function AffiliatePage() {
           {address && <div className="flex justify-center items-center bg-[#F3F4F6] rounded-lg p-2 mb-4 gap-5">
             <input
               type="text"
-              value="http://localhost:3000/test-nft-collection/referee?r=kelsin"
+              value="http://localhost:3000/qube-member-nft/referee?r=kelsin"
               readOnly
               className="font-roboto text-sm bg-transparent outline-none w-full"
             />

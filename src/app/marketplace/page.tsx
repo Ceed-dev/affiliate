@@ -12,7 +12,7 @@ function Marketplace() {
       avatarUrl: "/qube.png",
       imageUrl: "/background.jpg",
       reward: "15 USDC",
-      projectUrl: "/test-nft-collection",
+      projectUrl: "/qube-member-nft",
     },
     {
       name: "Pixels",
