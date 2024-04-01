@@ -62,7 +62,7 @@ function RefereePage() {
         {address && (
           <button 
             className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
-            onClick={() => window.open("https://testnets.opensea.io/collection/test-nft-collection-28?search[toggles][0]=IS_LISTED", "_blank")}
+            onClick={() => window.open("https://testnets.opensea.io/collection/qube-member-nft?search[toggles][0]=IS_LISTED", "_blank")}
           >
             Continue with next steps
           </button>
