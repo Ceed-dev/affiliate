@@ -44,7 +44,7 @@ function AffiliatePage() {
                 alt="Qube"
               />
             </div>
-            <h1 className="text-3xl font-semibold px-10 py-5">Test NFT Collection</h1>
+            <h1 className="text-3xl font-semibold px-10 py-5">Qube</h1>
           </div>
           <div className="flex flex-row items-center gap-5">
             <div className="w-16 h-16 bg-white rounded-full shadow-md flex items-center justify-center">
@@ -77,10 +77,10 @@ function AffiliatePage() {
 
       <div className="flex flex-row w-full justify-center gap-32">
         <div className="w-1/3 border rounded-lg shadow-md p-6 text-lg">
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+          Qube is an decentralized affiliate network for gaming.
         </div>
         <div className="p-6 border rounded-lg shadow-md h-min">
-          <h2 className="text-lg font-semibold text-gray-900">Earn 1 USDC for each successful referral</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Earn 15 USDC for each successful referral</h2>
           <p className="text-gray-600 pb-4">{address ? "Share your link with other and start earning!" : "Join the project to start referring others."}</p>
 
           {address && <div className="flex justify-center items-center bg-[#F3F4F6] rounded-lg p-2 mb-4 gap-5">
