@@ -7,54 +7,50 @@ import Link from "next/link";
 function Marketplace() {
   const projects = [
     {
-      name: "Test NFT Collection",
-      description:
-        "Blockchain Analytics that help you invest with confidence. Discover and instantly Trade over 3M+ tokens with Flooz.xyz",
+      name: "Qube member NFT",
+      description: "Qubeは分散型のアフィリエイトネットワークです。",
       avatarUrl: "/qube.png",
       imageUrl: "/background.jpg",
-      reward: "1 USDC",
+      reward: "15 USDC",
       projectUrl: "/test-nft-collection",
     },
     {
-      name: "ShareMint Affiliate Program",
+      name: "Pixels",
       description:
-        "ShareMint turns your community into your most effective salesforce",
-      avatarUrl: "/vercel.png",
+        "Pixels is an interoperable web3 farming game. Make your home in a world of unlimited adventure. Master skills and play with friends. Build new communities and enjoy a new style of gameplay! Explore, make friends and build the most amazing farming empire.",
+      avatarUrl: "/pixels.png",
       imageUrl: "/background.jpg",
       reward: "1 USDC",
       projectUrl: "/marketplace",
     },
     {
-      name: "Ledger Affiliate Program",
-      description:
-        "Create unique referral links that invite your audience to shop for Ledger products, the world's leading solutions to self-custody and manage your crypto assets securely.",
-      avatarUrl: "/vercel.png",
+      name: "Matr1x",
+      description: "MATR1X is an innovative cultural and entertainment platform combining Web3 + Artificial Intelligence (AI) + eSports. Its purpose is to bring revolution in technological innovation to the global game and digital content industry via blockchain and AI technology.",
+      avatarUrl: "/matr1x.png",
       imageUrl: "/background.jpg",
       reward: "1 USDC",
       projectUrl: "/marketplace",
     },
     {
-      name: "Binance Affiliate Program",
-      description:
-        "Join the Binance Affiliate Program and earn special rewards when you introduce new users to Binance, the world's leading cryptocurrency exchange.",
-      avatarUrl: "/vercel.png",
+      name: "StarryNift",
+      description: "StarryNift is a co-creation metaverse, bringing players immersive 3D virtual experiences where they can Play, Create and Socialize. Our Mission: Expand Metaverse Horizons with innovative & diverse use cases to accelerate Web3 adoption.",
+      avatarUrl: "/starrynift.png",
       imageUrl: "/background.jpg",
       reward: "1 USDC",
       projectUrl: "/marketplace",
     },
     {
-      name: "Inbox Zero",
-      description: "Clean up your email inbox in minutes with AI assistance.",
-      avatarUrl: "/vercel.png",
+      name: "motoDEX",
+      description: "MotoDEX is a NFT game, competition of multi-level racing on motorcycles on high-speed tracks with unlimited opportunities for players. motoDEX is a project that is developing by leaps and bounds.",
+      avatarUrl: "/motodex.png",
       imageUrl: "/background.jpg",
       reward: "1 USDC",
       projectUrl: "/marketplace",
     },
     {
-      name: "Awaken Tax",
-      description:
-        "Awaken is the first tax software built for web3. Awaken gives you the crypto reports that you need.",
-      avatarUrl: "/vercel.png",
+      name: "OasChoice",
+      description: "Earn Free OAS everyday! Quiz game for predicting the price of OAS! Tweet the results and get 10x the votes power!",
+      avatarUrl: "/oaschoice.png",
       imageUrl: "/background.jpg",
       reward: "1 USDC",
       projectUrl: "/marketplace",
@@ -85,8 +81,9 @@ function Marketplace() {
                     alt={`${project.name} image`}
                   />
                   <div className="absolute top-8 px-10 w-full flex flex-row items-center justify-between">
-                    <div className="w-16 h-16 bg-white rounded-full shadow-md flex justify-center items-center" >
+                    <div className="shadow-md flex justify-center items-center rounded-full" >
                       <Image
+                        className="bg-white rounded-full h-16 w-16 object-fill"
                         src={project.avatarUrl}
                         width={50}
                         height={50}
