@@ -6,7 +6,7 @@ export default function Projects() {
       <div className="flex flex-row justify-between items-center mb-10">
         <h1 className="text-2xl font-semibold">Your Projects</h1>
         <Link 
-          href="/create-project" 
+          href="/projects/create-project" 
           className="bg-sky-500 text-white py-2 px-3 text-sm rounded-md transition duration-300 ease-in-out transform hover:scale-105"
         >
           + New Project
