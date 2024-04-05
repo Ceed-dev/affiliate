@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 
-export default function Home() {
+import { StatusBarComponent } from "../../components/statusbar/StatusBarComponent";
+
+export default function CreateProject() {
   const [step, setStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(3);
   const [formTitle, setFormTitle] = useState("Project Details");
   const [projectName, setProjectName] = useState("");
   const [slug, setSlug] = useState("my-project");
@@ -40,52 +43,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+    <div className="min-h-screen flex flex-col">
 
-      <div className="flex items-center space-x-2 p-5">
-        <div
-          className={`w-[100px] h-[40px] rounded-full ${
-            step >= 1
-              ? "bg-[#3B82F6] text-white"
-              : "bg-[#E5E7EB] text-[#9CA3AF]"
-          } flex items-center justify-center`}
-        >
-          <span>1</span>
-        </div>
-        <p>Details</p>
-        <div
-          className={`w-full h-1 ${
-            step > 1 ? "bg-[#3B82F6]" : "bg-[#E5E7EB]"
-          }`}
-        />
-        <div
-          className={`w-[100px] h-[40px] rounded-full ${
-            step >= 2
-              ? "bg-[#3B82F6] text-white"
-              : "bg-[#E5E7EB] text-[#9CA3AF]"
-          } flex items-center justify-center`}
-        >
-          <span>2</span>
-        </div>
-        <p>Affiliates</p>
-        <div
-          className={`w-full h-1 ${
-            step > 2 ? "bg-[#3B82F6]" : "bg-[#E5E7EB]"
-          }`}
-        />
-        <div
-          className={`w-[100px] h-[40px] rounded-full ${
-            step >= 3
-              ? "bg-[#3B82F6] text-white"
-              : "bg-[#E5E7EB] text-[#9CA3AF]"
-          } flex items-center justify-center`}
-        >
-          <span>3</span>
-        </div>
-        <p>Complete</p>
-      </div>
-
-      <div className="border-t border-gray-300 my-4"></div>
+      <StatusBarComponent currentStep={currentStep} />
 
       <div className="w-full max-w-4xl m-auto bg-white p-8 rounded-lg shadow">
 
