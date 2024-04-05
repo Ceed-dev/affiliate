@@ -1,5 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+
+import {
+  ConnectWallet,
+  lightTheme,
+} from "@thirdweb-dev/react";
 
 export default function Onboarding() {
   return (
@@ -24,7 +31,22 @@ export default function Onboarding() {
         />
         <h1 className="text-3xl font-bold">Welcome to Qube</h1>
         <p>Sign in to continue</p>
-        <button className="bg-sky-600 text-white text-sm py-3 px-20 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Sign in</button>
+        
+        <ConnectWallet
+          className="bg-sky-600 text-white text-sm py-3 px-20 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+          theme={lightTheme({
+            colors: {
+              accentButtonBg: "#247bff",
+              primaryButtonBg: "#009dff",
+              primaryButtonText: "#ffffff",
+            },
+          })}
+          btnTitle={"Sign in"}
+          modalTitle={"Log in or Sign up"}
+          // auth={{ loginOptional: false }}
+          modalSize={"compact"}
+        />  
+
       </div>
     </div>
   );
