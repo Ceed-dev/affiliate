@@ -4,7 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 
 import { StatusBarComponent } from "../../components/statusbar/StatusBarComponent";
-import { ProjectDetailsForm } from "../../components/createProject/ProjectDetailsForm";
+import { 
+  ProjectDetailsForm,
+  AffiliatesForm
+} from "../../components/createProject";
 
 export default function CreateProject() {
   const [projectData, setProjectData] = useState({
@@ -24,7 +27,6 @@ export default function CreateProject() {
     twitterUrl: "",
     instagramUrl: ""
   });
-  const tokenOptions = ["USDC", "USDT", "MATIC"];
 
   const nextStep = () => {
     setProjectData(prev => ({
@@ -33,7 +35,7 @@ export default function CreateProject() {
     }));
   };
 
-  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setProjectData(prev => ({
       ...prev,
       [field]: event.target.value
@@ -41,7 +43,7 @@ export default function CreateProject() {
     console.log("projectData: ", projectData);
   };
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
 
   const [step, setStep] = useState(1);
   const [formTitle, setFormTitle] = useState("Project Details");
@@ -140,73 +142,16 @@ export default function CreateProject() {
         />
       }
 
-      {currentStep === 2 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
-
-        <h1 className="text-xl mb-5">Affiliates</h1>
-
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <h2>Token</h2>
-            <select
-              value={selectedToken}
-              onChange={(e) => setSelectedToken(e.target.value)}
-              className="w-full p-2 border border-[#D1D5DB] rounded-lg outline-none"
-            >
-              {tokenOptions.map((token, index) => (
-                <option key={index} value={token}>
-                  {token}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2>Reward Amount</h2>
-            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
-                Token Units:
-              </span>
-              <input
-                type="number"
-                value={rewardAmount}
-                onChange={(e) => setRewardAmount(e.target.value)}
-                className="w-full outline-none"
-                min="1"
-                step="1"
-                placeholder="Enter token units"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2>Redirect URL</h2>
-            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
-                URL:
-              </span>
-              <input
-                type="url"
-                value={redirectUrl}
-                onChange={(e) => setRedirectUrl(e.target.value)}
-                className="w-full outline-none"
-                placeholder="Enter the redirect URL"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2>Initial Deposit</h2>
-            <button
-              onClick={handleDeposit}
-              className="w-2/3 mx-auto h-12 bg-sky-500 text-white rounded-lg p-2 outline-none transition duration-300 ease-in-out transform hover:scale-105"
-              type="button"
-            >
-              Deposit to Escrow
-            </button>
-          </div>
-        </div>
-
-      </div>}
+      {currentStep === 2 &&
+        <AffiliatesForm 
+          data={{
+            selectedToken: projectData.selectedToken,
+            rewardAmount: projectData.rewardAmount,
+            redirectUrl: projectData.redirectUrl
+          }}
+          handleChange={handleChange}
+        />
+      }
 
       {currentStep === 3 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
