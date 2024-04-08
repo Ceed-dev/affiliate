@@ -20,6 +20,7 @@ export default function CreateProject() {
   const [selectedToken, setSelectedToken] = useState("");
   const tokenOptions = ["USDC", "USDT", "MATIC"];
   const [tokenAmount, setTokenAmount] = useState("");
+  const [redirectUrl, setRedirectUrl] = useState("");
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
@@ -132,6 +133,22 @@ export default function CreateProject() {
                 min="1"
                 step="1"
                 placeholder="Enter token units"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2>Redirect URL</h2>
+            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
+              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+                URL:
+              </span>
+              <input
+                type="url"
+                value={redirectUrl}
+                onChange={(e) => setRedirectUrl(e.target.value)}
+                className="w-full outline-none"
+                placeholder="Enter the redirect URL"
               />
             </div>
           </div>
