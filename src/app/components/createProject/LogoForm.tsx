@@ -1,6 +1,8 @@
 import React from "react";
 import Image from "next/image";
 
+import { NextButton } from "./NextButton";
+
 type LogoFormProps = {
   data: {
     logoPreview: string,
@@ -8,12 +10,14 @@ type LogoFormProps = {
   };
   handleImageChange: (field: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (field: "logo" | "cover") => () => void;
+  nextStep: () => void;
 };
 
 export const LogoForm: React.FC<LogoFormProps> = ({
   data,
   handleImageChange,
-  removeImage
+  removeImage,
+  nextStep
 }) => {
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -78,6 +82,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           />
         </div>
       </div>
+      <NextButton onClick={nextStep} />
     </div>
   );
 };

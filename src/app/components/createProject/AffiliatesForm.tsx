@@ -1,5 +1,6 @@
 import React from "react";
 
+import { NextButton } from "./NextButton";
 import { tokenOptions } from "../../constants/tokenOptions";
 
 type AffiliatesFormProps = {
@@ -9,11 +10,13 @@ type AffiliatesFormProps = {
     redirectUrl: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  nextStep: () => void;
 };
 
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
-  handleChange
+  handleChange,
+  nextStep
 }) => {
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -82,6 +85,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </button>
         </div>
       </div>
+
+      <NextButton onClick={nextStep} />
 
     </div>
   );

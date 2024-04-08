@@ -1,5 +1,8 @@
 import React from "react";
 
+import { NextButton } from "./NextButton";
+import next from "next";
+
 type SocialLinksFormProps = {
   data: {
     websiteUrl: string;
@@ -8,11 +11,13 @@ type SocialLinksFormProps = {
     instagramUrl: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+  nextStep: () => void;
 };
 
 export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   data,
-  handleChange
+  handleChange,
+  nextStep
 }) => {
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -65,6 +70,8 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
         </div>
 
       </div>
+
+      <NextButton onClick={nextStep} />
 
     </div>
   );
