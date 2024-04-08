@@ -1,17 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 
 import { StatusBarComponent } from "../../components/statusbar/StatusBarComponent";
 import { 
   ProjectDetailsForm,
-  AffiliatesForm
+  AffiliatesForm,
+  LogoForm
 } from "../../components/createProject";
 
 export default function CreateProject() {
   const [projectData, setProjectData] = useState({
-    currentStep: 1,
     projectName: "",
     slug: "my-project",
     description: "",
@@ -19,20 +18,33 @@ export default function CreateProject() {
     rewardAmount: "",
     redirectUrl: "",
     logo: "",
-    logoPreview: "",
-    coverImage: "",
-    coverPreview: "",
+    cover: "",
     websiteUrl: "",
     discordUrl: "",
     twitterUrl: "",
     instagramUrl: ""
   });
 
-  const nextStep = () => {
-    setProjectData(prev => ({
-      ...prev,
-      currentStep: prev.currentStep === 4 ? 4 : prev.currentStep + 1
-    }));
+  const [previewData, setPreviewData] = useState({
+    logoPreview: "",
+    coverPreview: ""
+  });
+
+  const handleImageChange = (type: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewData(prev => ({ ...prev, [`${type}Preview`]: reader.result as string }));
+        setProjectData(prev => ({ ...prev, [type]: file }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const removeImage = (type: "logo" | "cover") => () => {
+    setPreviewData(prev => ({ ...prev, [`${type}Preview`]: "" }));
+    setProjectData(prev => ({ ...prev, [type]: "" }));
   };
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -43,7 +55,7 @@ export default function CreateProject() {
     console.log("projectData: ", projectData);
   };
 
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(3);
 
   const [step, setStep] = useState(1);
   const [formTitle, setFormTitle] = useState("Project Details");
@@ -153,69 +165,16 @@ export default function CreateProject() {
         />
       }
 
-      {currentStep === 3 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
-
-        <h1 className="text-xl mb-5">Logo & Cover Image</h1>
-
-        <p className="text-gray-400 mb-5">Upload a logo and cover image for your project. It displays with a height of 192px and full screen width.</p>
-
-        <div className="relative mb-[75px]">
-          <div className="h-[192px] w-full">
-            <label htmlFor="cover-upload" className="cursor-pointer block h-full">
-              {coverPreview ? (
-                <>
-                  <Image src={coverPreview} alt="Cover Preview" layout="fill" objectFit="cover" className="rounded-lg" />
-                  <button 
-                    type="button"
-                    onClick={removeCoverImage}
-                    className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-lg transition-opacity"
-                  >
-                    <Image src="/trash.png" alt="trash.png" height={50} width={50} />
-                  </button>
-                </>
-              ) : (
-                <p className="bg-blue-50 hover:bg-gray-500 hover:text-white h-full flex justify-center items-center text-xl rounded-lg">
-                  Upload Cover
-                </p>
-              )}
-            </label>
-            <input
-              id="cover-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleCoverChange}
-              className="hidden"
-            />
-          </div>
-          <div className="absolute left-10 -bottom-[75px]">
-            <label htmlFor="logo-upload" className="cursor-pointer">
-              {logoPreview ? (
-                <>
-                  <Image src={logoPreview} alt="Logo Preview" width={150} height={150} className="object-cover rounded-full border-4 border-white" />
-                  <button 
-                    type="button"
-                    onClick={removeLogoImage}
-                    className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-full transition-opacity"
-                  >
-                    <Image src="/trash.png" alt="trash.png" height={50} width={50} />
-                  </button>
-                </>
-              ) : (
-                <p className="bg-blue-50 hover:bg-gray-500 hover:text-white h-[150px] w-[150px] flex justify-center items-center text-md rounded-full border-4 border-white">
-                  Upload Image
-                </p>
-              )}
-            </label>
-            <input
-              id="logo-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleLogoChange}
-              className="hidden"
-            />
-          </div>
-        </div>
-      </div>}
+      {currentStep === 3 &&
+        <LogoForm
+          data={{
+            logoPreview: previewData.logoPreview,
+            coverPreview: previewData.coverPreview
+          }}
+          handleImageChange={handleImageChange}
+          removeImage={(type) => removeImage(type)}
+        />
+      }
 
       {currentStep === 4 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
