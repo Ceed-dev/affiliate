@@ -4,23 +4,53 @@ import { useState } from "react";
 import Image from "next/image";
 
 import { StatusBarComponent } from "../../components/statusbar/StatusBarComponent";
+import { ProjectDetailsForm } from "../../components/createProject/ProjectDetailsForm";
 
 export default function CreateProject() {
+  const [projectData, setProjectData] = useState({
+    currentStep: 1,
+    projectName: "",
+    slug: "my-project",
+    description: "",
+    selectedToken: "",
+    rewardAmount: "",
+    redirectUrl: "",
+    logo: "",
+    logoPreview: "",
+    coverImage: "",
+    coverPreview: "",
+    websiteUrl: "",
+    discordUrl: "",
+    twitterUrl: "",
+    instagramUrl: ""
+  });
+  const tokenOptions = ["USDC", "USDT", "MATIC"];
+
+  const nextStep = () => {
+    setProjectData(prev => ({
+      ...prev,
+      currentStep: prev.currentStep === 4 ? 4 : prev.currentStep + 1
+    }));
+  };
+
+  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setProjectData(prev => ({
+      ...prev,
+      [field]: event.target.value
+    }));
+    console.log("projectData: ", projectData);
+  };
+
+  const [currentStep, setCurrentStep] = useState(1);
+
   const [step, setStep] = useState(1);
-  const [currentStep, setCurrentStep] = useState(4);
   const [formTitle, setFormTitle] = useState("Project Details");
   const [projectName, setProjectName] = useState("");
   const [slug, setSlug] = useState("my-project");
   const [description, setDescription] = useState("");
-  const [rewardType, setRewardType] = useState("fixedAmount");
-  const [affiliateReward, setAffiliateReward] = useState("");
-  const [referralsRequired, setReferralsRequired] = useState("");
-  const [purchasePrice, setPurchasePrice] = useState("");
-  const [contractAddress, setContractAddress] = useState("");
 
   const [selectedToken, setSelectedToken] = useState("");
-  const tokenOptions = ["USDC", "USDT", "MATIC"];
-  const [tokenAmount, setTokenAmount] = useState("");
+  const [rewardAmount, setRewardAmount] = useState("");
   const [redirectUrl, setRedirectUrl] = useState("");
 
   const handleSubmit = (event: any) => {
@@ -99,48 +129,16 @@ export default function CreateProject() {
 
       <StatusBarComponent currentStep={currentStep} />
 
-      {currentStep === 1 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
-
-        <h1 className="text-xl mb-5">Project Details</h1>
-
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <h2>Project name</h2>
-            <input
-              type="text"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2>Slug</h2>
-            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-              <span className="text-[#6B7280] bg-gray-100 p-2 mr-1">
-                https://www.0xqube.xyz/
-              </span>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="w-full outline-none text-sm"
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-col gap-2">
-            <h2>Description</h2>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full outline-none p-2 border border-[#D1D5DB] rounded-lg h-24"
-              placeholder="BAYC is a collection of 10,000 Bored Ape NFTs — unique digital collectibles living on the Ethereum blockchain."
-            />
-          </div>
-        </div>
-
-      </div>}
+      {currentStep === 1 &&
+        <ProjectDetailsForm
+          data={{
+            projectName: projectData.projectName,
+            slug: projectData.slug,
+            description: projectData.description
+          }}
+          handleChange={handleChange}
+        />
+      }
 
       {currentStep === 2 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
@@ -170,8 +168,8 @@ export default function CreateProject() {
               </span>
               <input
                 type="number"
-                value={tokenAmount}
-                onChange={(e) => setTokenAmount(e.target.value)}
+                value={rewardAmount}
+                onChange={(e) => setRewardAmount(e.target.value)}
                 className="w-full outline-none"
                 min="1"
                 step="1"
