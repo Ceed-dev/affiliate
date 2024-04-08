@@ -7,7 +7,7 @@ import { StatusBarComponent } from "../../components/statusbar/StatusBarComponen
 
 export default function CreateProject() {
   const [step, setStep] = useState(1);
-  const [currentStep, setCurrentStep] = useState(3);
+  const [currentStep, setCurrentStep] = useState(4);
   const [formTitle, setFormTitle] = useState("Project Details");
   const [projectName, setProjectName] = useState("");
   const [slug, setSlug] = useState("my-project");
@@ -88,6 +88,11 @@ export default function CreateProject() {
     setCoverImage(null);
     setCoverPreview("");
   }
+
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [discordUrl, setDiscordUrl] = useState("");
+  const [twitterUrl, setTwitterUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
 
   return (
     <div className="flex flex-col">
@@ -269,194 +274,60 @@ export default function CreateProject() {
         </div>
       </div>}
 
-      {/* <div className="w-full max-w-4xl m-auto bg-white p-8 rounded-lg shadow">
+      {currentStep === 4 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
-        <h1 className="text-xl font-semibold mb-5">{formTitle}</h1>
+        <h1 className="text-xl mb-5">Socials</h1>
 
-        <form onSubmit={handleSubmit}>
-          {step === 1 && (
-            <div>
-              <div className="mb-4">
-                <label
-                  htmlFor="project-name"
-                  className="block mb-2 text-sm font-roboto text-[#121212]"
-                >
-                  Project name
-                </label>
-                <input
-                  type="text"
-                  id="project-name"
-                  name="projectName"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm font-roboto"
-                />
-              </div>
-              <div className="mb-4 relative rounded-lg border border-[#D1D5DB] p-2 flex items-center">
-                <span className="text-sm font-roboto text-[#6B7280] mr-1">
-                  https://0xqube.xyz/
-                </span>
-                <input
-                  type="text"
-                  id="slug"
-                  name="slug"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  className="w-full bg-transparent outline-none text-sm font-roboto"
-                />
-              </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="description"
-                  className="block mb-2 text-sm font-roboto text-[#121212]"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm font-roboto h-24 resize-none"
-                  placeholder="BAYC is a collection of 10,000 Bored Ape NFTs — unique digital collectibles living on the Ethereum blockchain."
-                ></textarea>
-                <div className="mt-1 text-xs font-roboto text-[#6B7280]">
-                  Displayed to affiliates and users. Supports markdown
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="flex flex-col gap-5">
 
-          {step === 2 && (
-            <div>
-              <div className="mb-4">
-                <p className="mb-2 text-sm font-roboto text-[#121212]">
-                  How do you want to reward affiliates?
-                </p>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="rewardType"
-                      value="fixedAmount"
-                      checked={rewardType === "fixedAmount"}
-                      onChange={() => setRewardType("fixedAmount")}
-                      className="text-[#2563EB]"
-                    />
-                    <span className="ml-2 text-sm font-roboto text-[#121212]">
-                      Fixed Amount
-                    </span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="rewardType"
-                      value="revenueShare"
-                      checked={rewardType === "revenueShare"}
-                      onChange={() => setRewardType("revenueShare")}
-                      className="text-[#2563EB]"
-                    />
-                    <span className="ml-2 text-sm font-roboto text-[#121212]">
-                      Revenue Share
-                    </span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="rewardType"
-                      value="tiered"
-                      checked={rewardType === "tiered"}
-                      onChange={() => setRewardType("tiered")}
-                      className="text-[#2563EB]"
-                    />
-                    <span className="ml-2 text-sm font-roboto text-[#121212]">
-                      Tiered
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="affiliate-reward"
-                  className="block mb-2 text-sm font-roboto text-[#121212]"
-                >
-                  Affiliate reward
-                </label>
-                <input
-                  type="text"
-                  id="affiliate-reward"
-                  name="affiliateReward"
-                  value={affiliateReward}
-                  onChange={(e) => setAffiliateReward(e.target.value)}
-                  className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm font-roboto"
-                  placeholder="0"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="referrals-required"
-                  className="block mb-2 text-sm font-roboto text-[#121212]"
-                >
-                  Referrals required to unlock
-                </label>
-                <input
-                  type="text"
-                  id="referrals-required"
-                  name="referralsRequired"
-                  value={referralsRequired}
-                  onChange={(e) => setReferralsRequired(e.target.value)}
-                  className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm font-roboto"
-                />
-              </div>
-              <div className="mb-6">
-                <div className="mb-4">
-                  <label
-                    htmlFor="contract-address"
-                    className="block mb-2 text-sm font-roboto text-[#121212]"
-                  >
-                    Contract Address
-                  </label>
-                  <input
-                    type="text"
-                    id="contract-address"
-                    name="contractAddress"
-                    value={contractAddress}
-                    onChange={(e) => setContractAddress(e.target.value)}
-                    className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm font-roboto"
-                    placeholder="0xkw02jnf..."
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="purchase-price"
-                    className="block mb-2 text-sm font-roboto text-[#121212]"
-                  >
-                    Purchase Price
-                  </label>
-                  <input
-                    type="text"
-                    id="purchase-price"
-                    name="purchasePrice"
-                    value={purchasePrice}
-                    onChange={(e) => setPurchasePrice(e.target.value)}
-                    className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm font-roboto"
-                    placeholder="≋"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="bg-[#2563EB] text-white rounded-lg px-6 py-2 font-roboto text-sm"
-            >
-              {step === 3 ? "Go To Affiliate Page" : "Next"}
-            </button>
+          <div className="flex flex-col gap-2">
+            <h2>Website</h2>
+            <input
+              type="url"
+              placeholder="https://mysite.com"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
           </div>
-        </form>
-      </div> */}
+
+          <div className="flex flex-col gap-2">
+            <h2>Discord</h2>
+            <input
+              type="url"
+              placeholder="https://discord.gg/my-group"
+              value={discordUrl}
+              onChange={(e) => setDiscordUrl(e.target.value)}
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2>Twitter</h2>
+            <input
+              type="url"
+              placeholder="https://twitter.com/my-twitter"
+              value={twitterUrl}
+              onChange={(e) => setTwitterUrl(e.target.value)}
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2>Instagram</h2>
+            <input
+              type="url"
+              placeholder="https://instagram.com/my-insta"
+              value={instagramUrl}
+              onChange={(e) => setInstagramUrl(e.target.value)}
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
+          </div>
+
+        </div>
+
+      </div>}
+
     </div>
   );
 }
