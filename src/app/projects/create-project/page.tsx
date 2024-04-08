@@ -11,6 +11,12 @@ import {
 } from "../../components/createProject";
 
 export default function CreateProject() {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const nextStep = () => {
+    setCurrentStep(currentStep < 4 ? currentStep + 1 : 4);
+  };
+
   const [projectData, setProjectData] = useState({
     projectName: "",
     slug: "my-project",
@@ -55,8 +61,6 @@ export default function CreateProject() {
     setProjectData(prev => ({ ...prev, [type]: "" }));
   };
 
-  const [currentStep, setCurrentStep] = useState(1);
-
   const renderForm = () => {
     switch (currentStep) {
       case 1:
@@ -68,6 +72,7 @@ export default function CreateProject() {
               description: projectData.description
             }}
             handleChange={handleChange}
+            nextStep={nextStep}
           />
         );
       case 2:
@@ -79,6 +84,7 @@ export default function CreateProject() {
               redirectUrl: projectData.redirectUrl
             }}
             handleChange={handleChange}
+            nextStep={nextStep}
           />
         );
       case 3:
@@ -90,6 +96,7 @@ export default function CreateProject() {
             }}
             handleImageChange={handleImageChange}
             removeImage={(type) => removeImage(type)}
+            nextStep={nextStep}
           />
         );
       case 4:
@@ -102,6 +109,7 @@ export default function CreateProject() {
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}
+            nextStep={nextStep}
           />
         );
       default:

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { NextButton } from "./NextButton";
+
 type ProjectDetailsFormProps = {
   data: {
     projectName: string;
@@ -7,11 +9,13 @@ type ProjectDetailsFormProps = {
     description: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  nextStep: () => void;
 };
 
 export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   data,
-  handleChange
+  handleChange,
+  nextStep
 }) => {
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -56,6 +60,8 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
         </div>
 
       </div>
+
+      <NextButton onClick={nextStep} />
 
     </div>
   );
