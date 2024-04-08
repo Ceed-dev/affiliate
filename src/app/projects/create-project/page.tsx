@@ -6,7 +6,7 @@ import { StatusBarComponent } from "../../components/statusbar/StatusBarComponen
 
 export default function CreateProject() {
   const [step, setStep] = useState(1);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [formTitle, setFormTitle] = useState("Project Details");
   const [projectName, setProjectName] = useState("");
   const [slug, setSlug] = useState("my-project");
@@ -16,6 +16,10 @@ export default function CreateProject() {
   const [referralsRequired, setReferralsRequired] = useState("");
   const [purchasePrice, setPurchasePrice] = useState("");
   const [contractAddress, setContractAddress] = useState("");
+
+  const [selectedToken, setSelectedToken] = useState("");
+  const tokenOptions = ["USDC", "USDT", "MATIC"];
+  const [tokenAmount, setTokenAmount] = useState("");
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
@@ -40,6 +44,10 @@ export default function CreateProject() {
         }
       });
     }
+  };
+
+  const handleDeposit = () => {
+    console.log("Deposit action initiated");
   };
 
   return (
@@ -85,6 +93,58 @@ export default function CreateProject() {
               className="w-full outline-none p-2 border border-[#D1D5DB] rounded-lg h-24"
               placeholder="BAYC is a collection of 10,000 Bored Ape NFTs — unique digital collectibles living on the Ethereum blockchain."
             />
+          </div>
+        </div>
+
+      </div>}
+
+      {currentStep === 2 && <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
+
+        <h1 className="text-xl mb-5">Affiliates</h1>
+
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <h2>Token</h2>
+            <select
+              value={selectedToken}
+              onChange={(e) => setSelectedToken(e.target.value)}
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg outline-none"
+            >
+              {tokenOptions.map((token, index) => (
+                <option key={index} value={token}>
+                  {token}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2>Reward Amount</h2>
+            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
+              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+                Token Units:
+              </span>
+              <input
+                type="number"
+                value={tokenAmount}
+                onChange={(e) => setTokenAmount(e.target.value)}
+                className="w-full outline-none"
+                min="1"
+                step="1"
+                placeholder="Enter token units"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2>Initial Deposit</h2>
+            <button
+              onClick={handleDeposit}
+              className="w-2/3 mx-auto h-12 bg-sky-500 text-white rounded-lg p-2 outline-none transition duration-300 ease-in-out transform hover:scale-105"
+              type="button"
+            >
+              Deposit to Escrow
+            </button>
           </div>
         </div>
 
