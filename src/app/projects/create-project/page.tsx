@@ -21,7 +21,7 @@ export default function CreateProject() {
     projectName: "",
     slug: "my-project",
     description: "",
-    selectedToken: "",
+    selectedToken: "USDC",
     rewardAmount: "",
     redirectUrl: "",
     logo: "",

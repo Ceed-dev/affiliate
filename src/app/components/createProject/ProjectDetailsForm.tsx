@@ -25,7 +25,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
       <div className="flex flex-col gap-5">
 
         <div className="flex flex-col gap-2">
-          <h2>Project name</h2>
+          <h2>Project name <span className="text-red-500">*</span></h2>
           <input
             type="text"
             value={data.projectName}
@@ -35,7 +35,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2>Slug</h2>
+          <h2>Slug <span className="text-red-500">*</span></h2>
           <div className="rounded-lg border border-[#D1D5DB] flex items-center">
             <span className="text-[#6B7280] bg-gray-100 p-2 mr-1">
               https://www.0xqube.xyz/
@@ -50,7 +50,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
         </div>
         
         <div className="flex flex-col gap-2">
-          <h2>Description</h2>
+          <h2>Description <span className="text-red-500">*</span></h2>
           <textarea
             value={data.description}
             onChange={handleChange("description")}

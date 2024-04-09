@@ -22,7 +22,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
-      <h1 className="text-xl mb-5">Logo & Cover Image</h1>
+      <h1 className="text-xl mb-5">Logo & Cover Image <span className="text-red-500">*</span></h1>
 
       <p className="text-gray-400 mb-5">Upload a logo and cover image for your project. It displays with a height of 192px and full screen width.</p>
 
