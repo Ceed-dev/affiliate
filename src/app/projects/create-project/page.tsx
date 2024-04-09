@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { StatusBarComponent } from "../../components/statusbar/StatusBarComponent";
 import { 
+  StatusBar,
   ProjectDetailsForm,
   AffiliatesForm,
   LogoForm,
@@ -119,7 +119,7 @@ export default function CreateProject() {
 
   return (
     <div className="flex flex-col">
-      <StatusBarComponent currentStep={currentStep} />
+      <StatusBar currentStep={currentStep} />
       {renderForm()}
     </div>
   );
