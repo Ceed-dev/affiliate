@@ -15,6 +15,9 @@ export default function CreateProject() {
 
   const nextStep = () => {
     setCurrentStep(currentStep < 4 ? currentStep + 1 : 4);
+
+    // Debug
+    console.log("projectData:", JSON.stringify(projectData, null, 2));
   };
 
   const [projectData, setProjectData] = useState({
