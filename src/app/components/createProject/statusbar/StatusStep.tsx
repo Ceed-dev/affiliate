@@ -1,13 +1,13 @@
 import React from "react";
 import Image from "next/image";
 
-type StepComponentProps = {
+type StatusStepProps = {
   number: number;
   step: string;
   currentStep: number;
 };
 
-export const StepComponent: React.FC<StepComponentProps> = ({ number, step, currentStep }) => {
+export const StatusStep: React.FC<StatusStepProps> = ({ number, step, currentStep }) => {
   let textStyle = "text-black text-sm";
   if (number > currentStep) {
     textStyle = "text-gray-500 text-sm";
