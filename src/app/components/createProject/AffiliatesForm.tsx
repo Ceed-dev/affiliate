@@ -26,7 +26,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       <div className="flex flex-col gap-5">
         
         <div className="flex flex-col gap-2">
-          <h2>Token</h2>
+          <h2>Token <span className="text-red-500">*</span></h2>
           <select
             value={data.selectedToken}
             onChange={handleChange("selectedToken")}
@@ -41,7 +41,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2>Reward Amount</h2>
+          <h2>Reward Amount <span className="text-red-500">*</span></h2>
           <div className="rounded-lg border border-[#D1D5DB] flex items-center">
             <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
               Token Units:
@@ -59,7 +59,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2>Redirect URL</h2>
+          <h2>Redirect URL <span className="text-red-500">*</span></h2>
           <div className="rounded-lg border border-[#D1D5DB] flex items-center">
             <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
               URL:
