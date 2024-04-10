@@ -25,10 +25,10 @@ export default function CreateProject() {
     slug: "my-project",
     description: "",
     selectedToken: "USDC",
-    rewardAmount: "",
+    rewardAmount: 0,
     redirectUrl: "",
-    logo: "",
-    cover: "",
+    logo: null,
+    cover: null,
     websiteUrl: "",
     discordUrl: "",
     twitterUrl: "",
@@ -40,10 +40,11 @@ export default function CreateProject() {
     coverPreview: ""
   });
 
-  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
     setProjectData(prev => ({
       ...prev,
-      [field]: event.target.value
+      [field]: value
     }));
   };
 
