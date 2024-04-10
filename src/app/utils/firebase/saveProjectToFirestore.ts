@@ -5,7 +5,13 @@ import { uploadImageAndGetURL } from "./uploadImageAndGetURL";
 
 import { ProjectData } from "../../types";
 
-export const saveProjectToFirestore = async (projectData: ProjectData, address: string) => {
+export const saveProjectToFirestore = async (
+  projectData: ProjectData, 
+  address: string,
+  setIsLoading: (isLoading: boolean) => void
+) => {
+  setIsLoading(true);
+
   const now = new Date();
 
   const projectRef = doc(collection(db, "projects"));
@@ -30,5 +36,7 @@ export const saveProjectToFirestore = async (projectData: ProjectData, address: 
     // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
   } catch (e) {
     console.error("Error adding document: ", e);
+  } finally {
+    setIsLoading(false);
   }
 };
