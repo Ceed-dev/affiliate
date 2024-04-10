@@ -17,7 +17,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   handleChange,
   nextStep
 }) => {
-  const isFormComplete = data.projectName.trim() !== "" && data.slug.trim() !== "" && data.description.trim() !== "";
+  const isFormComplete = data.projectName.trim() && data.slug.trim() && data.description.trim() ;
 
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">

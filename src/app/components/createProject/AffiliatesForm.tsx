@@ -18,6 +18,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   handleChange,
   nextStep
 }) => {
+  const isFormComplete = data.selectedToken.trim() && data.rewardAmount.trim() && data.redirectUrl.trim();
+
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
@@ -86,7 +88,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         </div>
       </div>
 
-      <NextButton onClick={nextStep} />
+      <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />
 
     </div>
   );
