@@ -23,7 +23,7 @@ export default function CreateProject() {
   const [currentStep, setCurrentStep] = useState(1);
 
   const nextStep = () => {
-    setCurrentStep(currentStep < 4 ? currentStep + 1 : 4);
+    setCurrentStep(currentStep < 5 ? currentStep + 1 : 5);
 
     // Debug
     console.log("projectData:", JSON.stringify(projectData, null, 2));
@@ -117,6 +117,7 @@ export default function CreateProject() {
           />
         );
       case 4:
+      case 5:
         return (
           <SocialLinksForm
             data={{
@@ -130,7 +131,8 @@ export default function CreateProject() {
               projectData, 
               address as string, 
               setIsLoading,
-              setHideCompleteButton
+              setHideCompleteButton,
+              nextStep
             )}
             isLoading={isLoading}
             hideCompleteButton={hideCompleteButton}

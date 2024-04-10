@@ -11,7 +11,8 @@ export const saveProjectToFirestore = async (
   projectData: ProjectData, 
   address: string,
   setIsLoading: (isLoading: boolean) => void,
-  setHideCompleteButton: (hideCompleteButton: boolean) => void
+  setHideCompleteButton: (hideCompleteButton: boolean) => void,
+  nextStep: () => void
 ) => {
   setIsLoading(true);
 
@@ -36,6 +37,7 @@ export const saveProjectToFirestore = async (
   try {
     await setDoc(projectRef, projectDataToSave);
     setHideCompleteButton(true);
+    nextStep();
     console.log("Document written with ID: ", projectId);
     toast.success("Project saved successfully! Redirecting to the dashboard...");
     // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
