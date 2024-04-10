@@ -16,24 +16,7 @@ import { db } from "../../utils/firebaseConfig";
 import { doc, setDoc, collection } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-type ProjectData = {
-  projectName: string;
-  slug: string;
-  description: string;
-  selectedToken: string;
-  rewardAmount: number;
-  redirectUrl: string;
-  logo: string | null;
-  cover: string | null;
-  websiteUrl: string;
-  discordUrl: string;
-  twitterUrl: string;
-  instagramUrl: string;
-  ownerAddress: string;
-  affiliateAddress: string[];
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { ProjectData } from "../../types/projectData";
 
 export default function CreateProject() {
   const address = useAddress();
