@@ -13,7 +13,8 @@ import {
 } from "../../components/createProject";
 
 import { db } from "../../utils/firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import { doc, setDoc, collection } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 type ProjectData = {
   projectName: string;
@@ -78,12 +79,27 @@ export default function CreateProject() {
     }));
   };
 
+  const uploadImageAndGetURL = async (file: any, projectId: string, imageType: string) => {
+    if (!file) return null;
+    const storage = getStorage();
+    const storageRef = ref(storage, `projectImages/${projectId}/${imageType}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  };
+
   const saveProjectToFirestore = async () => {
     const now = new Date();
+
+    const projectRef = doc(collection(db, "projects"));
+    const projectId = projectRef.id;
+
+    const logoURL = await uploadImageAndGetURL(projectData.logo, projectId, "logo");
+    const coverURL = await uploadImageAndGetURL(projectData.cover, projectId, "cover");
+
     const projectDataToSave = {
       ...projectData,
-      logo: null,
-      cover: null,
+      logo: logoURL,
+      cover: coverURL,
       ownerAddress: address,
       affiliateAddress: [],
       createdAt: now,
@@ -91,8 +107,8 @@ export default function CreateProject() {
     };
 
     try {
-      const docRef = await addDoc(collection(db, "projects"), projectDataToSave);
-      console.log("Document written with ID: ", docRef.id);
+      await setDoc(projectRef, projectDataToSave);
+      console.log("Document written with ID: ", projectId);
       // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
     } catch (e) {
       console.error("Error adding document: ", e);
