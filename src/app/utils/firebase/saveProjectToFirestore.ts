@@ -10,7 +10,8 @@ import { ProjectData } from "../../types";
 export const saveProjectToFirestore = async (
   projectData: ProjectData, 
   address: string,
-  setIsLoading: (isLoading: boolean) => void
+  setIsLoading: (isLoading: boolean) => void,
+  setHideCompleteButton: (hideCompleteButton: boolean) => void
 ) => {
   setIsLoading(true);
 
@@ -34,6 +35,7 @@ export const saveProjectToFirestore = async (
 
   try {
     await setDoc(projectRef, projectDataToSave);
+    setHideCompleteButton(true);
     console.log("Document written with ID: ", projectId);
     toast.success("Project saved successfully! Redirecting to the dashboard...");
     // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
