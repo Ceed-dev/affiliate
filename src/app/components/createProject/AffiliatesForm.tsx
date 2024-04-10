@@ -6,10 +6,10 @@ import { tokenOptions } from "../../constants/tokenOptions";
 type AffiliatesFormProps = {
   data: {
     selectedToken: string;
-    rewardAmount: string;
+    rewardAmount: number;
     redirectUrl: string;
   };
-  handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   nextStep: () => void;
 };
 
@@ -18,7 +18,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   handleChange,
   nextStep
 }) => {
-  const isFormComplete = data.selectedToken.trim() && data.rewardAmount.trim() && data.redirectUrl.trim();
+  const isFormComplete = data.selectedToken.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
 
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -50,8 +50,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             </span>
             <input
               type="number"
-              value={data.rewardAmount}
-              onChange={handleChange("rewardAmount")}
+              value={data.rewardAmount.toString()}
+              onChange={handleChange("rewardAmount", true)}
               className="w-full outline-none"
               min="1"
               step="1"
