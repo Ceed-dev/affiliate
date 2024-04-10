@@ -19,6 +19,8 @@ export const LogoForm: React.FC<LogoFormProps> = ({
   removeImage,
   nextStep
 }) => {
+  const isFormComplete = data.logoPreview.trim() && data.coverPreview.trim();
+
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
 
@@ -82,7 +84,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           />
         </div>
       </div>
-      <NextButton onClick={nextStep} />
+      <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />
     </div>
   );
 };
