@@ -14,7 +14,7 @@ import {
 
 import { db } from "../../utils/firebase/firebaseConfig";
 import { doc, setDoc, collection } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadImageAndGetURL } from "../../utils/firebase/uploadImageAndGetURL";
 
 import { ProjectData } from "../../types/projectData";
 
@@ -60,14 +60,6 @@ export default function CreateProject() {
       ...prev,
       [field]: value
     }));
-  };
-
-  const uploadImageAndGetURL = async (file: any, projectId: string, imageType: string) => {
-    if (!file) return null;
-    const storage = getStorage();
-    const storageRef = ref(storage, `projectImages/${projectId}/${imageType}_${file.name}`);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
   };
 
   const saveProjectToFirestore = async () => {
