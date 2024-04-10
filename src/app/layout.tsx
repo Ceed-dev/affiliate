@@ -10,6 +10,9 @@ import {
   walletConnect,
 } from "@thirdweb-dev/react";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -34,6 +37,7 @@ export default function RootLayout({
       <html lang="en" className="bg-slate-200">
         <body className={inter.className}>
           {children}
+          <ToastContainer position="bottom-right" />
         </body>
       </html>
     </ThirdwebProvider>
