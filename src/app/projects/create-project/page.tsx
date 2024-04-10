@@ -19,6 +19,7 @@ import { ProjectData, ImageType } from "../../types";
 export default function CreateProject() {
   const address = useAddress();
   const [isLoading, setIsLoading] = useState(false);
+  const [hideCompleteButton, setHideCompleteButton] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
   const nextStep = () => {
@@ -128,9 +129,11 @@ export default function CreateProject() {
             nextStep={() => saveProjectToFirestore(
               projectData, 
               address as string, 
-              setIsLoading
+              setIsLoading,
+              setHideCompleteButton
             )}
             isLoading={isLoading}
+            hideCompleteButton={hideCompleteButton}
           />
         );
       default:

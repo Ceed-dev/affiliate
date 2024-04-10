@@ -13,13 +13,15 @@ type SocialLinksFormProps = {
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   nextStep: () => void;
   isLoading: boolean;
+  hideCompleteButton: boolean;
 };
 
 export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   data,
   handleChange,
   nextStep,
-  isLoading
+  isLoading,
+  hideCompleteButton
 }) => {
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -73,11 +75,14 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       </div>
 
-      {isLoading 
-        ? <Image src={"/loading.png"} height={40} width={40} alt="loading.png" className="mx-auto mt-5 animate-spin" />
-        : <NextButton onClick={nextStep} disabled={false} >
-            Complete
-          </NextButton>
+      {!hideCompleteButton &&
+        ( 
+          isLoading 
+            ? <Image src={"/loading.png"} height={40} width={40} alt="loading.png" className="mx-auto mt-5 animate-spin" />
+            : <NextButton onClick={nextStep} disabled={false} >
+                Complete
+              </NextButton>
+        )
       }
 
     </div>
