@@ -12,9 +12,7 @@ import {
   SocialLinksForm
 } from "../../components/createProject";
 
-import { db } from "../../utils/firebase/firebaseConfig";
-import { doc, setDoc, collection } from "firebase/firestore";
-import { uploadImageAndGetURL } from "../../utils/firebase/uploadImageAndGetURL";
+import { saveProjectToFirestore } from "../../utils/firebase";
 
 import { ProjectData } from "../../types/projectData";
 
@@ -60,34 +58,6 @@ export default function CreateProject() {
       ...prev,
       [field]: value
     }));
-  };
-
-  const saveProjectToFirestore = async () => {
-    const now = new Date();
-
-    const projectRef = doc(collection(db, "projects"));
-    const projectId = projectRef.id;
-
-    const logoURL = await uploadImageAndGetURL(projectData.logo, projectId, "logo");
-    const coverURL = await uploadImageAndGetURL(projectData.cover, projectId, "cover");
-
-    const projectDataToSave = {
-      ...projectData,
-      logo: logoURL,
-      cover: coverURL,
-      ownerAddress: address,
-      affiliateAddress: [],
-      createdAt: now,
-      updatedAt: now
-    };
-
-    try {
-      await setDoc(projectRef, projectDataToSave);
-      console.log("Document written with ID: ", projectId);
-      // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
   };
 
   const handleImageChange = (type: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,7 +125,7 @@ export default function CreateProject() {
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}
-            nextStep={saveProjectToFirestore}
+            nextStep={() => saveProjectToFirestore(projectData, address as string)}
           />
         );
       default:
