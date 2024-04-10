@@ -18,7 +18,7 @@ import { ProjectData, ImageType } from "../../types";
 
 export default function CreateProject() {
   const address = useAddress();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
   const nextStep = () => {
@@ -125,7 +125,12 @@ export default function CreateProject() {
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}
-            nextStep={() => saveProjectToFirestore(projectData, address as string)}
+            nextStep={() => saveProjectToFirestore(
+              projectData, 
+              address as string, 
+              setIsLoading
+            )}
+            isLoading={isLoading}
           />
         );
       default:

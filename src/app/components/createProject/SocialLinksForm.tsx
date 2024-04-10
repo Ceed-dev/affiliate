@@ -1,7 +1,7 @@
 import React from "react";
+import Image from "next/image";
 
 import { NextButton } from "./NextButton";
-import next from "next";
 
 type SocialLinksFormProps = {
   data: {
@@ -12,12 +12,14 @@ type SocialLinksFormProps = {
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   nextStep: () => void;
+  isLoading: boolean;
 };
 
 export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   data,
   handleChange,
-  nextStep
+  nextStep,
+  isLoading
 }) => {
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -71,9 +73,12 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       </div>
 
-      <NextButton onClick={nextStep} disabled={false} >
-        Complete
-      </NextButton>
+      {isLoading 
+        ? <Image src={"/loading.png"} height={40} width={40} alt="loading.png" className="mx-auto mt-5 animate-spin" />
+        : <NextButton onClick={nextStep} disabled={false} >
+            Complete
+          </NextButton>
+      }
 
     </div>
   );
