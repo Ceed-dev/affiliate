@@ -71,7 +71,9 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       </div>
 
-      <NextButton onClick={nextStep} />
+      <NextButton onClick={nextStep} disabled={false} >
+        Complete
+      </NextButton>
 
     </div>
   );
