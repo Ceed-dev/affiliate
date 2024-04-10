@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { useAddress } from "@thirdweb-dev/react";
+
 import { 
   StatusBar,
   ProjectDetailsForm,
@@ -10,7 +12,31 @@ import {
   SocialLinksForm
 } from "../../components/createProject";
 
+import { db } from "../../utils/firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+
+type ProjectData = {
+  projectName: string;
+  slug: string;
+  description: string;
+  selectedToken: string;
+  rewardAmount: number;
+  redirectUrl: string;
+  logo: string | null;
+  cover: string | null;
+  websiteUrl: string;
+  discordUrl: string;
+  twitterUrl: string;
+  instagramUrl: string;
+  ownerAddress: string;
+  affiliateAddress: string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export default function CreateProject() {
+  const address = useAddress();
+
   const [currentStep, setCurrentStep] = useState(1);
 
   const nextStep = () => {
@@ -20,7 +46,7 @@ export default function CreateProject() {
     console.log("projectData:", JSON.stringify(projectData, null, 2));
   };
 
-  const [projectData, setProjectData] = useState({
+  const [projectData, setProjectData] = useState<ProjectData>({
     projectName: "",
     slug: "my-project",
     description: "",
@@ -32,7 +58,11 @@ export default function CreateProject() {
     websiteUrl: "",
     discordUrl: "",
     twitterUrl: "",
-    instagramUrl: ""
+    instagramUrl: "",
+    ownerAddress: "",
+    affiliateAddress: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
   });
 
   const [previewData, setPreviewData] = useState({
@@ -46,6 +76,27 @@ export default function CreateProject() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const saveProjectToFirestore = async () => {
+    const now = new Date();
+    const projectDataToSave = {
+      ...projectData,
+      logo: null,
+      cover: null,
+      ownerAddress: address,
+      affiliateAddress: [],
+      createdAt: now,
+      updatedAt: now
+    };
+
+    try {
+      const docRef = await addDoc(collection(db, "projects"), projectDataToSave);
+      console.log("Document written with ID: ", docRef.id);
+      // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   };
 
   const handleImageChange = (type: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,7 +164,7 @@ export default function CreateProject() {
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}
-            nextStep={nextStep}
+            nextStep={saveProjectToFirestore}
           />
         );
       default:
