@@ -12,7 +12,7 @@ import {
   SocialLinksForm
 } from "../../components/createProject";
 
-import { db } from "../../utils/firebaseConfig";
+import { db } from "../../utils/firebase/firebaseConfig";
 import { doc, setDoc, collection } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
