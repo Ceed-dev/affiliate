@@ -14,7 +14,7 @@ import {
 
 import { saveProjectToFirestore } from "../../utils/firebase";
 
-import { ProjectData } from "../../types/projectData";
+import { ProjectData, ImageType } from "../../types";
 
 export default function CreateProject() {
   const address = useAddress();
@@ -60,7 +60,7 @@ export default function CreateProject() {
     }));
   };
 
-  const handleImageChange = (type: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (type: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       const reader = new FileReader();
@@ -72,7 +72,7 @@ export default function CreateProject() {
     }
   };
   
-  const removeImage = (type: "logo" | "cover") => () => {
+  const removeImage = (type: ImageType) => () => {
     setPreviewData(prev => ({ ...prev, [`${type}Preview`]: "" }));
     setProjectData(prev => ({ ...prev, [type]: "" }));
   };

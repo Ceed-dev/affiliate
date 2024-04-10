@@ -3,7 +3,7 @@ import { doc, setDoc, collection } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { uploadImageAndGetURL } from "./uploadImageAndGetURL";
 
-import { ProjectData } from "../../types/projectData";
+import { ProjectData } from "../../types";
 
 export const saveProjectToFirestore = async (projectData: ProjectData, address: string) => {
   const now = new Date();
