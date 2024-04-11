@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 import { doc, setDoc, collection } from "firebase/firestore";
 
@@ -12,7 +13,8 @@ export const saveProjectToFirestore = async (
   address: string,
   setIsLoading: (isLoading: boolean) => void,
   setHideCompleteButton: (hideCompleteButton: boolean) => void,
-  nextStep: () => void
+  nextStep: () => void,
+  router: AppRouterInstance
 ) => {
   setIsLoading(true);
 
@@ -39,7 +41,9 @@ export const saveProjectToFirestore = async (
     setHideCompleteButton(true);
     nextStep();
     console.log("Document written with ID: ", projectId);
-    toast.success("Project saved successfully! Redirecting to the dashboard...");
+    toast.success("Project saved successfully! Redirecting to the dashboard...", {
+      onClose: () => router.push(`/projects/${projectId}`)
+    });
     // 保存後に何かユーザーへのフィードバックを提供するか、または他のページへリダイレクト等
   } catch (e) {
     console.error("Error adding document: ", e);
