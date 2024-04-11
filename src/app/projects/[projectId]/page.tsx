@@ -1,10 +1,16 @@
 "use client";
 
 import React from "react";
+
 import BarChart from "../../components/BarChart";
+import { NavBar } from "../../components/dashboard/NavBar";
 
 function Dashboard() {
   return (
+    <>
+
+    <NavBar />
+
     <div className="min-h-screen bg-[#F8FAFC] px-40 py-20">
       <div className="px-8 py-5">
         <div className="flex flex-col sm:flex-row sm:justify-between">
@@ -149,6 +155,7 @@ function Dashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
