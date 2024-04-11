@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import BarChart from "../components/BarChart";
+import BarChart from "../../components/BarChart";
 
 function Dashboard() {
   return (
