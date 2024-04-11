@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAddress } from "@thirdweb-dev/react";
 
@@ -17,6 +18,7 @@ import { saveProjectToFirestore } from "../../utils/firebase";
 import { ProjectData, ImageType } from "../../types";
 
 export default function CreateProject() {
+  const router = useRouter();
   const address = useAddress();
   const [isLoading, setIsLoading] = useState(false);
   const [hideCompleteButton, setHideCompleteButton] = useState(false);
@@ -132,7 +134,8 @@ export default function CreateProject() {
               address as string, 
               setIsLoading,
               setHideCompleteButton,
-              nextStep
+              nextStep,
+              router
             )}
             isLoading={isLoading}
             hideCompleteButton={hideCompleteButton}
