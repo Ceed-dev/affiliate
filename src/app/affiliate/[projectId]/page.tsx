@@ -38,10 +38,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [buttonLabel, setButtonLabel] = useState("Copy");
 
-  const copyTextToClipboard = async () => {
-    const text = "http://localhost:3000/qube-member-nft/referee?r=kelsin";
+  const copyLinkToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(REFERRAL_LINK);
       setButtonLabel("Copied!");
       setTimeout(() => setButtonLabel("Copy"), 2000);
     } catch (err) {
@@ -49,35 +48,40 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
+  // TODO: Fix
+  const REFERRAL_LINK = `http://localhost:3000/affiliate/${params.projectId}/referee?r=kelsin`;
+
   return (
     <div className="flex flex-col">
 
       {/* Header */}
       <ProjectHeader projectData={projectData} loading={loading} />
 
-      <div className="flex flex-row w-full justify-center gap-32">
-        <div className="w-1/3 border rounded-lg shadow-md p-6 text-lg">
-          Qube is an decentralized affiliate network for gaming.
+      <div className="w-2/3 flex flex-row mx-auto gap-10">
+        <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loading ? "animate-pulse" : ""}`}>
+          {projectData?.description}
         </div>
-        <div className="p-6 border rounded-lg shadow-md h-min">
-          <h2 className="text-lg font-semibold text-gray-900">Earn 15 USDC for each successful referral</h2>
-          <p className="text-gray-600 pb-4">{address ? "Share your link with other and start earning!" : "Join the project to start referring others."}</p>
+        <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
+          <h2 className="text-lg font-semibold text-gray-900">Earn {projectData?.rewardAmount || <span className="text-gray-500">Loading...</span>} {projectData?.selectedToken} for each successful referral</h2>
+          <p className="text-gray-600 pb-4">{address ? "Share your link with others and start earning!" : "Join the project to start referring others."}</p>
 
-          {address && <div className="flex justify-center items-center bg-[#F3F4F6] rounded-lg p-2 mb-4 gap-5">
-            <input
-              type="text"
-              value="http://localhost:3000/qube-member-nft/referee?r=kelsin"
-              readOnly
-              className="font-roboto text-sm bg-transparent outline-none w-full"
-            />
-            <button
-              type="button"
-              className="text-sm text-[#2563EB] bg-transparent hover:underline"
-              onClick={copyTextToClipboard}
-            >
-              {buttonLabel}
-            </button>
-          </div>}
+          {address && 
+            <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
+              <input
+                type="text"
+                value={REFERRAL_LINK}
+                readOnly
+                className="font-roboto text-sm bg-transparent outline-none w-full"
+              />
+              <button
+                type="button"
+                className="text-sm text-[#2563EB] font-bold bg-transparent hover:underline"
+                onClick={copyLinkToClipboard}
+              >
+                {buttonLabel}
+              </button>
+            </div>
+          }
 
           <div className="flex flex-col justify-stretch mt-4">
             <ConnectWallet
