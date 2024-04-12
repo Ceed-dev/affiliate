@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { toast } from "react-toastify";
+
 import {
   ConnectWallet,
   lightTheme,
@@ -42,9 +44,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     try {
       await navigator.clipboard.writeText(REFERRAL_LINK);
       setButtonLabel("Copied!");
+      toast.info("Link copied to clipboard!");
       setTimeout(() => setButtonLabel("Copy"), 2000);
     } catch (err) {
       console.error("Failed to copy: ", err);
+      toast.error("Failed to copy link. Please try again.");
     }
   };
 
