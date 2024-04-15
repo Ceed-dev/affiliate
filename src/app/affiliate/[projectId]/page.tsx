@@ -52,8 +52,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
-  // TODO: Fix
-  const REFERRAL_LINK = `http://localhost:3000/affiliate/${params.projectId}/referee?r=kelsin`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const REFERRAL_LINK = `${baseUrl}/affiliate/${params.projectId}/referee?r=kelsin`;
 
   return (
     <div className="flex flex-col">
