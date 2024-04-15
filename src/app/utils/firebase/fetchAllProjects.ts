@@ -16,6 +16,7 @@ export async function fetchAllProjects(): Promise<ProjectData[]> {
       if (isValidProjectData(data)) {
         projects.push({
           ...data,
+          id: doc.id,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
         });
