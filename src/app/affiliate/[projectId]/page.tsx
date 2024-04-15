@@ -4,24 +4,27 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { toast } from "react-toastify";
-
 import {
   ConnectWallet,
   lightTheme,
   useAddress,
   WalletInstance
 } from "@thirdweb-dev/react";
+import { toast } from "react-toastify";
 import { ProjectData } from "../../types";
-
+import { ProjectHeader } from "../../components/affiliate";
 import { fetchProjectData, joinProject } from "../../utils/firebase";
 
-import { ProjectHeader } from "../../components/affiliate";
-
 export default function Affiliate({ params }: { params: { projectId: string } }) {
+  const address = useAddress();
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [referralId, setReferralId] = useState<string | null>(null);
+  const [buttonLabel, setButtonLabel] = useState("Copy");
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const REFERRAL_LINK = `${baseUrl}/affiliate/${params.projectId}/referee?r=${referralId}`;
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -37,10 +40,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       });
   }, [params.projectId]);
 
-  const address = useAddress();
-
-  const [buttonLabel, setButtonLabel] = useState("Copy");
-
   const copyLinkToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(REFERRAL_LINK);
@@ -52,9 +51,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       toast.error("Failed to copy link. Please try again.");
     }
   };
-
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const REFERRAL_LINK = `${baseUrl}/affiliate/${params.projectId}/referee?r=kelsin`;
 
   return (
     <div className="flex flex-col">
@@ -106,8 +102,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   }
                   const walletAddress = await wallet.getAddress();
                   const referralId = await joinProject(params.projectId, walletAddress);
-                  // joinProject関数が成功した場合、リファラルIDが返されるので、それを使って何かしらの処理を行う
                   console.log("Referral ID: ", referralId);
+                  setReferralId(referralId);
                 } catch (error) {
                   console.error("Failed to join project: ", error);
                   // エラーハンドリング
