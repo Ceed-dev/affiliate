@@ -2,6 +2,7 @@ import { db } from "./firebaseConfig";
 import { doc, getDoc, getDocs, setDoc, addDoc, collection, query, where } from "firebase/firestore";
 import { UserData, ReferralData } from "../../types";
 import { toast } from "react-toastify";
+import { getExistingReferralId } from "./getExistingReferralId";
 
 export async function joinProject(projectId: string, walletAddress: string): Promise<string> {
   const userDocRef = doc(db, "users", walletAddress);
@@ -41,30 +42,6 @@ export async function joinProject(projectId: string, walletAddress: string): Pro
     console.error("Failed to join project: ", error);
     toast.error("Failed to join project");
     throw new Error("Failed to join project");
-  }
-}
-
-async function getExistingReferralId(walletAddress: string, projectId: string): Promise<string> {
-  // 既存のリファラルIDを検索して返すロジックを実装
-  try {
-    // referralsコレクションから特定のプロジェクトIDとウォレットアドレスに関連するドキュメントを検索
-    const referralsCol = collection(db, "referrals");
-    const q = query(referralsCol, 
-                    where("affiliateWallet", "==", walletAddress),
-                    where("projectId", "==", projectId));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      // 該当するリファラルIDを返す
-      return querySnapshot.docs[0].id; // 最初のマッチしたドキュメントのIDを返す
-    } else {
-      toast.error("No referral ID found for your account.");
-      throw new Error("No referral ID found for the given wallet address and project ID.");
-    }
-  } catch (error) {
-    console.error("Error fetching existing referral ID: ", error);
-    toast.error("Failed to fetch referral ID. Please try again.");
-    throw new Error("Failed to fetch existing referral ID");
   }
 }
 
