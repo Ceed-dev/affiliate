@@ -10,10 +10,11 @@ import {
   ConnectWallet,
   lightTheme,
   useAddress,
+  WalletInstance
 } from "@thirdweb-dev/react";
 import { ProjectData } from "../../types";
 
-import { fetchProjectData } from "../../utils/firebase";
+import { fetchProjectData, joinProject } from "../../utils/firebase";
 
 import { ProjectHeader } from "../../components/affiliate";
 
@@ -97,6 +98,21 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               modalSize={"compact"}
               modalTitleIconUrl={""}
               showThirdwebBranding={false}
+              onConnect={async (wallet: WalletInstance) => {
+                try {
+                  if (!projectData) {
+                    // プロジェクトデータがまだ読み込まれていない場合は、読み込みを待つ
+                    return;
+                  }
+                  const walletAddress = await wallet.getAddress();
+                  const referralId = await joinProject(params.projectId, walletAddress);
+                  // joinProject関数が成功した場合、リファラルIDが返されるので、それを使って何かしらの処理を行う
+                  console.log("Referral ID: ", referralId);
+                } catch (error) {
+                  console.error("Failed to join project: ", error);
+                  // エラーハンドリング
+                }
+              }}
             />
           </div>
 

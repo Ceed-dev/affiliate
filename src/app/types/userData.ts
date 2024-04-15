@@ -1,7 +1,7 @@
 export type UserData = {
-  walletAddress: string;
+  walletAddress?: string;
   joinedProjectIds: string[];
-  referralCounts: number;
+  conversions: number;
   createdAt: Date;
   updatedAt: Date;
 };
