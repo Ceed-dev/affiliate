@@ -45,7 +45,6 @@ export default function CreateProject() {
     twitterUrl: "",
     instagramUrl: "",
     ownerAddress: "",
-    affiliateAddress: [],
     createdAt: new Date(),
     updatedAt: new Date()
   });

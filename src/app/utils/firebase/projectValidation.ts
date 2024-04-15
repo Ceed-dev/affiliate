@@ -17,7 +17,6 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     typeof data.twitterUrl === "string" &&
     typeof data.instagramUrl === "string" &&
     typeof data.ownerAddress === "string" &&
-    Array.isArray(data.affiliateAddress) &&
     data.createdAt.toDate() instanceof Date &&
     data.updatedAt.toDate() instanceof Date
   );

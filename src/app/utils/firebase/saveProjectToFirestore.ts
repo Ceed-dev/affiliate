@@ -31,7 +31,6 @@ export const saveProjectToFirestore = async (
     logo: logoURL,
     cover: coverURL,
     ownerAddress: address,
-    affiliateAddress: [],
     createdAt: now,
     updatedAt: now
   };
