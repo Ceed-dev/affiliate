@@ -1,4 +1,5 @@
 export type ProjectData = {
+  id?: string;
   projectName: string;
   slug: string;
   description: string;

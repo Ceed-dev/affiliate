@@ -39,7 +39,7 @@ export default function Marketplace() {
         </div>
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
-            <div>{project.projectName}</div>
+            <div>ID: {project.id}, Name: {project.projectName}</div>
             // <Link href={project.projectUrl} key={index}>
             //   <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105">
             //     <div className="w-full h-16 bg-gray-200 mb-10 relative">

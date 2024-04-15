@@ -12,6 +12,7 @@ export async function fetchProjectData(projectId: string): Promise<ProjectData> 
       const data = docSnap.data();
       const projectData = {
         ...data,
+        id: docSnap.id,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
       } as ProjectData;
