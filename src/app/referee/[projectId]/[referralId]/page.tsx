@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { ProjectData } from "../../types";
-import { fetchProjectData } from "../../utils/firebase";
-import { ProjectHeader } from "../../components/affiliate";
+import { ProjectData } from "../../../types";
+import { fetchProjectData } from "../../../utils/firebase";
+import { ProjectHeader } from "../../../components/affiliate";
 
-export default function Referee({ params }: { params: { projectId: string } }) {
+export default function Referee({ params }: { params: { projectId: string, referralId: string } }) {
   const router = useRouter();
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function Referee({ params }: { params: { projectId: string } }) {
 
   useEffect(() => {
     toast.info("Redirecting...", {
-      onClose: () => router.push("https://google.com")
+      // onClose: () => router.push("https://google.com")
     });
   }, [router]);
 
