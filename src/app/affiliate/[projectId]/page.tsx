@@ -24,7 +24,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [buttonLabel, setButtonLabel] = useState("Copy");
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const REFERRAL_LINK = `${baseUrl}/affiliate/${params.projectId}/referee?r=${referralId}`;
+  const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
 
   useEffect(() => {
     fetchProjectData(params.projectId)
