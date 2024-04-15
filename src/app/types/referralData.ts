@@ -2,7 +2,7 @@ export type ReferralData = {
   id?: string;
   affiliateWallet: string;
   projectId: string;
-  joinedAt: Date;
-  earnings: number;
+  createdAt: Date;
   conversions: number;
+  earnings: number;
 };
