@@ -12,11 +12,13 @@ export default function Referee({ params }: { params: { projectId: string, refer
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [redirectLink, setRedirectLink] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
       .then(data => {
         setProjectData(data);
+        setRedirectLink(`${data.redirectUrl}?r=${params.referralId}`);
         setLoading(false);
       })
       .catch(error => {
@@ -28,10 +30,12 @@ export default function Referee({ params }: { params: { projectId: string, refer
   }, [params.projectId]);
 
   useEffect(() => {
-    toast.info("Redirecting...", {
-      // onClose: () => router.push("https://google.com")
-    });
-  }, [router]);
+    if (redirectLink) {
+      toast.info("Redirecting...", {
+        onClose: () => router.push(redirectLink)
+      });
+    }
+  }, [router, redirectLink]);
 
   return (
     <div className="flex flex-col">
