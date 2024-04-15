@@ -13,7 +13,6 @@ export type ProjectData = {
   twitterUrl: string;
   instagramUrl: string;
   ownerAddress: string;
-  affiliateAddress: string[];
   createdAt: Date;
   updatedAt: Date;
 };
