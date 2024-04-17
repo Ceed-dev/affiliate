@@ -1,8 +1,10 @@
 import { ethers } from "ethers";
 
-export async function withdrawFromEscrow(escrowContract: ethers.Contract, tokenAddress: string, recipientAddress: string, amount: ethers.BigNumberish): Promise<void> {
+export async function withdrawFromEscrow(escrowContract: ethers.Contract, tokenAddress: string, recipientAddress: string, amount: number): Promise<void> {
   try {
-    const tx = await escrowContract.withdraw(tokenAddress, recipientAddress, amount);
+    const amountInWei = ethers.utils.parseUnits(amount.toString(), 6);
+
+    const tx = await escrowContract.withdraw(tokenAddress, recipientAddress, amountInWei);
     console.log(`Transaction hash: ${tx.hash}`);
 
     await tx.wait();

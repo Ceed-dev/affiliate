@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchProjectData, fetchReferralData } from "../../utils/firebase";
+import { 
+  initializeSigner,
+  connectEscrowContract,
+  withdrawFromEscrow
+} from "../../utils/escrow";
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +36,26 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // サイナーを初期化
+    const signer = initializeSigner(
+      `${process.env.WALLET_PRIVATE_KEY}`,
+      `${process.env.PROVIDER_URL}`
+    );
+
+    // エスクローコントラクトに接続
+    const escrowContract = connectEscrowContract(
+      `${process.env.ESCROW_CONTRACT_ADDRESS}`,
+      signer
+    );
+
+    // エスクローから引き出す
+    await withdrawFromEscrow(
+      escrowContract,
+      "0xe5502c6a5a6e4Aa86ACc87Aa3aAAD1B87BCFFA93",
+      referralData.affiliateWallet,
+      projectData.rewardAmount
+    );
 
     // 成功した場合はリクエストが正常に処理されたことを返す
     return NextResponse.json(
