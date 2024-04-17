@@ -1,5 +1,7 @@
 import { initializeSigner } from "./initializeSigner";
+import { connectEscrowContract } from "./connectEscrowContract";
 
 export {
-  initializeSigner
+  initializeSigner,
+  connectEscrowContract
 }
