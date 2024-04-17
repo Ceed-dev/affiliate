@@ -1,5 +1,4 @@
 import { DocumentData } from "firebase/firestore";
-
 import { ProjectData } from "../../types";
 
 export function isValidProjectData(data: DocumentData): data is ProjectData {

@@ -1,5 +1,4 @@
 import { doc, getDoc } from "firebase/firestore";
-
 import { db } from "./firebaseConfig";
 import { isValidProjectData } from "./projectValidation";
 import { ProjectData } from "../../types";
