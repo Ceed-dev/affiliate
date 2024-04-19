@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     );
 
     // エスクローから引き出す
-    await withdrawFromEscrow(
+    const txhash = await withdrawFromEscrow(
       escrowContract,
       projectData.selectedToken,
       projectData.rewardAmount,
@@ -59,7 +59,11 @@ export async function POST(request: NextRequest) {
 
     // 成功した場合はリクエストが正常に処理されたことを返す
     return NextResponse.json(
-      { message: `Conversion successful : ${referral}` },
+      { 
+        message: "Conversion successful",
+        referralId: referral,
+        txhash: txhash
+      },
       { status: 200 }
     );
   } catch (error) {
