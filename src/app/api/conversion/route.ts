@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
     // エスクローから引き出す
     await withdrawFromEscrow(
       escrowContract,
-      "0x9b5f49000d02479d1300e041fff1d74f49588749",
-      referralData.affiliateWallet,
-      projectData.rewardAmount
+      projectData.selectedToken,
+      projectData.rewardAmount,
+      referralData.affiliateWallet
     );
 
     // 成功した場合はリクエストが正常に処理されたことを返す
