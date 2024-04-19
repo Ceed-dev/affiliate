@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
       escrowContract,
       projectData.selectedToken,
       projectData.rewardAmount,
+      projectData.ownerAddress,
       referralData.affiliateWallet
     );
 
