@@ -1,16 +1,16 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ProjectData } from "../../types";
+import { ProjectData } from "../types";
 
 type ProjectCardProps = {
   project: ProjectData;
+  linkUrl: string;
 };
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) => {
   return (
-    <Link href={`${baseUrl}/affiliate/${project.id}`}>
+    <Link href={linkUrl}>
       <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105">
         <div className="w-full h-16 bg-gray-200 mb-10 relative">
           <Image
