@@ -7,8 +7,10 @@ import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
 import { ProjectData } from "../types";
 import { fetchProjectsByOwner } from "../utils/firebase";
+import { ProjectCard } from "../components/ProjectCard";
 
 export default function Projects() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const address = useAddress();
   const [projects, setProjects] = useState<ProjectData[] | []>([]);
   const [loading, setLoading] = useState(true);
@@ -45,16 +47,22 @@ export default function Projects() {
           <p className="text-gray-500 font-semibold text-lg">Loading...</p>
         </div>
       }
-      {projects.length === 0
+      {!loading && projects.length === 0
         ?
           <div className="text-center mt-10">
             <p className="text-sm">No projects</p>
             <p className="text-sm text-gray-500">Get started by creating a new project.</p>
           </div>
         : 
-          (projects.map((project: ProjectData) => (
-            <div key={project.id}>{project.id}</div>
-          )))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project: ProjectData) => (
+              <ProjectCard 
+                key={project.id} 
+                project={project} 
+                linkUrl={`${baseUrl}/projects/${project.id}`} 
+              />
+            ))}
+          </div>
       }
     </div>
   );

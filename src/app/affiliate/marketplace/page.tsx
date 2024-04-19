@@ -5,9 +5,10 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ProjectData } from "../../types";
 import { fetchAllProjects } from "../../utils/firebase";
-import { ProjectCard } from "../../components/marketplace/ProjectCard";
+import { ProjectCard } from "../../components/ProjectCard";
 
 export default function Marketplace() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const [projects, setProjects] = useState<ProjectData[] | []>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,7 +44,11 @@ export default function Marketplace() {
           : 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  linkUrl={`${baseUrl}/affiliate/${project.id}`} 
+                />
               ))}
             </div>
         }
