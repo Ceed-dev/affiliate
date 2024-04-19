@@ -41,6 +41,7 @@ export default function Onboarding() {
               primaryButtonText: "#ffffff",
             },
           })}
+          switchToActiveChain={true}
           btnTitle={"Sign in"}
           modalTitle={"Log in or Sign up"}
           // auth={{ loginOptional: false }}

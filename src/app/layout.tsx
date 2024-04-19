@@ -9,6 +9,7 @@ import {
   coinbaseWallet,
   walletConnect,
 } from "@thirdweb-dev/react";
+import { PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <ThirdwebProvider
-      activeChain="mumbai"
+      activeChain={PolygonAmoyTestnet}
       clientId="57b58ed3058432b8220286445c2b302d"
       supportedWallets={[
         metamaskWallet({ recommended: true }),
