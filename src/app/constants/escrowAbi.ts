@@ -1,104 +1,100 @@
 export const escrowABI = [
   {
-    "type": "constructor",
-    "name": "",
     "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    "type": "event",
-    "name": "OwnershipTransferred",
+    "anonymous": false,
     "inputs": [
       {
-        "type": "address",
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOwner",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "type": "address",
-        "name": "newOwner",
         "indexed": true,
-        "internalType": "address"
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
       }
     ],
-    "outputs": [],
-    "anonymous": false
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
-    "type": "event",
-    "name": "Withdrawal",
+    "anonymous": false,
     "inputs": [
       {
-        "type": "address",
+        "indexed": true,
+        "internalType": "address",
         "name": "tokenAddress",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "type": "address",
+        "indexed": true,
+        "internalType": "address",
         "name": "to",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "type": "uint256",
-        "name": "amount",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
-    "outputs": [],
-    "anonymous": false
+    "name": "Withdrawal",
+    "type": "event"
   },
   {
-    "type": "function",
-    "name": "owner",
     "inputs": [],
+    "name": "owner",
     "outputs": [
       {
-        "type": "address",
+        "internalType": "address",
         "name": "",
-        "internalType": "address"
+        "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "transferOwnership",
     "inputs": [
       {
-        "type": "address",
+        "internalType": "address",
         "name": "newOwner",
-        "internalType": "address"
+        "type": "address"
       }
     ],
+    "name": "transferOwnership",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "withdraw",
     "inputs": [
       {
-        "type": "address",
+        "internalType": "address",
         "name": "tokenAddress",
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "type": "address",
+        "internalType": "address",
         "name": "to",
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "type": "uint256",
+        "internalType": "uint256",
         "name": "amount",
-        "internalType": "uint256"
+        "type": "uint256"
       }
     ],
+    "name": "withdraw",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ];

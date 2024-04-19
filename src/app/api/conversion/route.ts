@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     // エスクローから引き出す
     await withdrawFromEscrow(
       escrowContract,
-      "0xe5502c6a5a6e4Aa86ACc87Aa3aAAD1B87BCFFA93",
+      "0x9b5f49000d02479d1300e041fff1d74f49588749",
       referralData.affiliateWallet,
       projectData.rewardAmount
     );
@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "An error has occured" }, 
       { status: 500 }
