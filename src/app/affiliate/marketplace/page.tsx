@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { fetchAllProjects } from "../utils/firebase";
-import { toast } from "react-toastify";
-import { ProjectData } from "../types";
 import Image from "next/image";
-import { ProjectCard } from "../components/marketplace/ProjectCard";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { ProjectData } from "../../types";
+import { fetchAllProjects } from "../../utils/firebase";
+import { ProjectCard } from "../../components/marketplace/ProjectCard";
 
 export default function Marketplace() {
   const [projects, setProjects] = useState<ProjectData[] | []>([]);
