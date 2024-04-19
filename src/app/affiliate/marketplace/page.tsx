@@ -25,7 +25,7 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen">
-      <div className="py-20 px-36">
+      <div className="pt-10 pb-20 px-36">
         <div className="text-left">
           <h2 className="text-3xl leading-9 font-extrabold text-[#121212] sm:text-4xl sm:leading-10">
             Marketplace
