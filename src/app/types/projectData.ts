@@ -10,7 +10,7 @@ export type ProjectData = {
   cover: string | null;
   websiteUrl: string;
   discordUrl: string;
-  twitterUrl: string;
+  xUrl: string;
   instagramUrl: string;
   ownerAddress: string;
   createdAt: Date;
