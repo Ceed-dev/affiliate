@@ -42,7 +42,7 @@ export default function CreateProject() {
     cover: null,
     websiteUrl: "",
     discordUrl: "",
-    twitterUrl: "",
+    xUrl: "",
     instagramUrl: "",
     ownerAddress: "",
     createdAt: new Date(),
@@ -124,7 +124,7 @@ export default function CreateProject() {
             data={{
               websiteUrl: projectData.websiteUrl,
               discordUrl: projectData.discordUrl,
-              twitterUrl: projectData.twitterUrl,
+              xUrl: projectData.xUrl,
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}

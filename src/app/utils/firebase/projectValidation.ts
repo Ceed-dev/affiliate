@@ -13,7 +13,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     (data.cover === null || typeof data.cover === "string") &&
     typeof data.websiteUrl === "string" &&
     typeof data.discordUrl === "string" &&
-    typeof data.twitterUrl === "string" &&
+    typeof data.xUrl === "string" &&
     typeof data.instagramUrl === "string" &&
     typeof data.ownerAddress === "string" &&
     data.createdAt.toDate() instanceof Date &&
