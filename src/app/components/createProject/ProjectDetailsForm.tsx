@@ -5,7 +5,6 @@ import { NextButton } from "./NextButton";
 type ProjectDetailsFormProps = {
   data: {
     projectName: string;
-    slug: string;
     description: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -17,7 +16,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   handleChange,
   nextStep
 }) => {
-  const isFormComplete = data.projectName.trim() && data.slug.trim() && data.description.trim() ;
+  const isFormComplete = data.projectName.trim() && data.description.trim() ;
 
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -36,21 +35,6 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2>Slug <span className="text-red-500">*</span></h2>
-          <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-            <span className="text-[#6B7280] bg-gray-100 p-2 mr-1">
-              https://www.0xqube.xyz/
-            </span>
-            <input
-              type="text"
-              value={data.slug}
-              onChange={handleChange("slug")}
-              className="w-full outline-none text-sm"
-            />
-          </div>
-        </div>
-        
         <div className="flex flex-col gap-2">
           <h2>Description <span className="text-red-500">*</span></h2>
           <textarea

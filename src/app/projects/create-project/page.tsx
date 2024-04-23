@@ -33,7 +33,6 @@ export default function CreateProject() {
 
   const [projectData, setProjectData] = useState<ProjectData>({
     projectName: "",
-    slug: "my-project",
     description: "",
     selectedToken: "USDC",
     rewardAmount: 0,
@@ -86,7 +85,6 @@ export default function CreateProject() {
           <ProjectDetailsForm
             data={{
               projectName: projectData.projectName,
-              slug: projectData.slug,
               description: projectData.description
             }}
             handleChange={handleChange}
