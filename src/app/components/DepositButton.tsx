@@ -1,7 +1,6 @@
 import React from "react";
 import ethers from "ethers";
-import { erc20ABI } from "../constants/erc20Abi";
-import { escrowABI } from "../constants/escrowAbi";
+import { erc20ABI, escrowABI } from "../constants/abi";
 
 export const DepositButton: React.FC = () => {
   const tokenAddress = "0x9b5f49000d02479d1300e041fff1d74f49588749";
