@@ -4,7 +4,6 @@ import { ProjectData } from "../../types";
 export function isValidProjectData(data: DocumentData): data is ProjectData {
   return (
     typeof data.projectName === "string" &&
-    typeof data.slug === "string" &&
     typeof data.description === "string" &&
     typeof data.selectedToken === "string" &&
     typeof data.rewardAmount === "number" &&

@@ -1,7 +1,6 @@
 export type ProjectData = {
   id?: string;
   projectName: string;
-  slug: string;
   description: string;
   selectedToken: string;
   rewardAmount: number;
