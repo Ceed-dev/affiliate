@@ -2,13 +2,25 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import {
   ConnectWallet,
   lightTheme,
+  useAddress
 } from "@thirdweb-dev/react";
 
 export default function Onboarding() {
+  const router = useRouter();
+  const address = useAddress();
+
+  useEffect(() => {
+    if (address) {
+      router.push("/projects");
+    }
+  });
+
   return (
     <div className="flex flex-col items-center min-h-screen gap-[100px]">
       <div className="w-2/3 flex mt-5">
