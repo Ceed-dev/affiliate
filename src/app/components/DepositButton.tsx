@@ -1,13 +1,13 @@
 import React from "react";
 import ethers from "ethers";
 import { erc20ABI, escrowABI } from "../constants/abi";
+import { initializeSigner } from "../utils/escrow";
 
 export const DepositButton: React.FC = () => {
   const tokenAddress = "0x9b5f49000d02479d1300e041fff1d74f49588749";
   const escrowAddress = "0x0CF4afA255F208DF4846b324c3e6b5A1E1e6A534";
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
+  const signer = initializeSigner(`${process.env.PROVIDER_URL}`);
 
   const tokenContract = new ethers.Contract(tokenAddress, erc20ABI, signer);
   const escrowContract = new ethers.Contract(escrowAddress, escrowABI, signer);
