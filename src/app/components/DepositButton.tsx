@@ -1,20 +1,23 @@
 import React from "react";
 import { initializeSigner, Escrow, ERC20 } from "../utils/contracts";
 
-const USDC_ADDRESS = "0x9b5f49000d02479d1300e041fff1d74f49588749";
+type DepositButtonProps = {
+  tokenAddress: string;
+  depositAmount: number;
+};
 
-export const DepositButton: React.FC = () => {
+export const DepositButton: React.FC<DepositButtonProps> = ({tokenAddress, depositAmount}) => {
   const signer = initializeSigner(`${process.env.PROVIDER_URL}`);
   const escrow = new Escrow(signer);
-  const erc20 = new ERC20(USDC_ADDRESS, signer);
+  const erc20 = new ERC20(tokenAddress, signer);
 
-  const approveToken = async (amount: number) => {
+  const approveToken = async () => {
     try {
       const beforeAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
       console.log(`Current allowance before is ${beforeAllowance} tokens.`);
 
-      if (parseFloat(beforeAllowance) < amount) {
-        const txhash = await erc20.approve(escrow.address, amount);
+      if (parseFloat(beforeAllowance) < depositAmount) {
+        const txhash = await erc20.approve(escrow.address, depositAmount);
         console.log(`Approval transaction hash: ${txhash}`);
         const afterAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
         console.log(`Current allowance after is ${afterAllowance} tokens.`);
@@ -27,10 +30,10 @@ export const DepositButton: React.FC = () => {
     }
   };
 
-  const depositTokens = async (amount: number) => {
+  const depositTokens = async () => {
     try {
       const decimals = await erc20.getDecimals();
-      const txhash = await escrow.deposit(USDC_ADDRESS, amount, decimals);
+      const txhash = await escrow.deposit(tokenAddress, depositAmount, decimals);
       console.log("Deposit transaction hash:", txhash);
     } catch (error) {
       console.error("Deposit failed:", error);
@@ -38,9 +41,8 @@ export const DepositButton: React.FC = () => {
   };
 
   const handleDeposit = async () => {
-    const amount = 100;
-    await approveToken(amount);
-    await depositTokens(amount);
+    await approveToken();
+    await depositTokens();
   };
 
   return (
