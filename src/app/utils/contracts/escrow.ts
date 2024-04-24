@@ -3,12 +3,14 @@ import { escrowABI } from "../../constants/abi";
 
 export class Escrow {
   private contract: ethers.Contract;
+  public address: string;
 
   constructor(signer: ethers.Signer) {
     const contractAddress = `${process.env.ESCROW_CONTRACT_ADDRESS}`;
     if (!ethers.utils.isAddress(contractAddress)) {
       throw new Error("Invalid contract address.");
     }
+    this.address = contractAddress;
     this.contract = new ethers.Contract(contractAddress, escrowABI, signer);
   }
 

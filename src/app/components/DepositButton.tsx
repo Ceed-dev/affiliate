@@ -1,44 +1,36 @@
 import React from "react";
-import ethers from "ethers";
-import { erc20ABI, escrowABI } from "../constants/abi";
-import { initializeSigner } from "../utils/contracts";
+import { initializeSigner, Escrow, ERC20 } from "../utils/contracts";
+
+const USDC_ADDRESS = "0x9b5f49000d02479d1300e041fff1d74f49588749";
 
 export const DepositButton: React.FC = () => {
-  const tokenAddress = "0x9b5f49000d02479d1300e041fff1d74f49588749";
-  const escrowAddress = "0x0CF4afA255F208DF4846b324c3e6b5A1E1e6A534";
-
   const signer = initializeSigner(`${process.env.PROVIDER_URL}`);
-
-  const tokenContract = new ethers.Contract(tokenAddress, erc20ABI, signer);
-  const escrowContract = new ethers.Contract(escrowAddress, escrowABI, signer);
+  const escrow = new Escrow(signer);
+  const erc20 = new ERC20(USDC_ADDRESS, signer);
 
   const approveToken = async (amount: number) => {
     try {
-      const beforeAllowance = await tokenContract.allowance(await signer.getAddress(), escrowAddress);
-      console.log(`Current allowance before is ${ethers.utils.formatUnits(beforeAllowance, 6)} tokens.`);
+      const beforeAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
+      console.log(`Current allowance before is ${beforeAllowance} tokens.`);
 
-      const txResponse = await tokenContract.approve(escrowAddress, ethers.utils.parseUnits(amount.toString(), 6));
-      await txResponse.wait();
+      const txhash = await erc20.approve(escrow.address, amount);
 
-      const afterAllowance = await tokenContract.allowance(await signer.getAddress(), escrowAddress);
-      console.log(`Current allowance after is ${ethers.utils.formatUnits(afterAllowance, 6)} tokens.`);
+      const afterAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
+      console.log(`Current allowance after is ${afterAllowance} tokens.`);
+      console.log(`Approval transaction hash: ${txhash}`);
     } catch (error) {
-      console.error('Approval failed:', error);
-      alert('Approval failed. See console for more details.');
-      throw error; // Stop the execution if approval fails
+      console.error("Approval failed:", error);
+      throw error;
     }
   };
 
   const depositTokens = async (amount: number) => {
     try {
-      const formattedAmount = ethers.utils.parseUnits(amount.toString(), 6);
-      const txResponse = await escrowContract.deposit(tokenAddress, formattedAmount);
-      const receipt = await txResponse.wait();
-      console.log('Deposit transaction receipt:', receipt);
-      alert('Deposit successful!');
+      const decimals = await erc20.getDecimals();
+      const txhash = await escrow.deposit(USDC_ADDRESS, amount, decimals);
+      console.log("Deposit transaction hash:", txhash);
     } catch (error) {
-      console.error('Deposit failed:', error);
-      alert('Deposit failed. See console for more details.');
+      console.error("Deposit failed:", error);
     }
   };
 
