@@ -9,7 +9,7 @@ type DepositButtonProps = {
 };
   
 export const DepositButton: React.FC<DepositButtonProps> = ({tokenAddress, depositAmount}) => {
-  const signer = initializeSigner(`${process.env.NEXT_PUBLIC_PROVIDER_URL}`);
+  const signer = initializeSigner();
   const escrow = new Escrow(signer);
   const erc20 = new ERC20(tokenAddress, signer);
 
