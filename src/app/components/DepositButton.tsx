@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 import { initializeSigner, Escrow, ERC20 } from "../utils/contracts";
 
 type DepositButtonProps = {
@@ -27,14 +28,14 @@ export const DepositButton: React.FC<DepositButtonProps> = ({tokenAddress, depos
         console.log(`Approval transaction hash: ${txhash}`);
         const afterAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
         console.log(`Current allowance after is ${afterAllowance} tokens.`);
-        setDepositStatus("Tokens approved.");
+        toast.info("Tokens approved.");
       } else {
         console.log("Approval not necessary, sufficient allowance already granted.");
-        setDepositStatus("Approval not necessary, sufficient allowance already granted.");
+        toast.info("Approval not necessary, sufficient allowance already granted.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Approval failed:", error);
-      throw error;
+      toast.error(`Approval failed: ${error.message}`);
     }
   };
 
@@ -44,9 +45,10 @@ export const DepositButton: React.FC<DepositButtonProps> = ({tokenAddress, depos
       const decimals = await erc20.getDecimals();
       const txhash = await escrow.deposit(tokenAddress, depositAmount, decimals);
       console.log("Deposit transaction hash:", txhash);
-      setDepositStatus("Tokens deposited successfully.");
-    } catch (error) {
+      toast.info("Tokens deposited successfully.");
+    } catch (error: any) {
       console.error("Deposit failed:", error);
+      toast.error(`Deposit failed: ${error.message}`);
     }
   };
 
