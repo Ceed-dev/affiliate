@@ -13,11 +13,14 @@ export const DepositButton: React.FC = () => {
       const beforeAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
       console.log(`Current allowance before is ${beforeAllowance} tokens.`);
 
-      const txhash = await erc20.approve(escrow.address, amount);
-
-      const afterAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
-      console.log(`Current allowance after is ${afterAllowance} tokens.`);
-      console.log(`Approval transaction hash: ${txhash}`);
+      if (parseFloat(beforeAllowance) < amount) {
+        const txhash = await erc20.approve(escrow.address, amount);
+        console.log(`Approval transaction hash: ${txhash}`);
+        const afterAllowance = await erc20.getAllowance(await signer.getAddress(), escrow.address);
+        console.log(`Current allowance after is ${afterAllowance} tokens.`);
+      } else {
+        console.log("Approval not necessary, sufficient allowance already granted.");
+      }
     } catch (error) {
       console.error("Approval failed:", error);
       throw error;
