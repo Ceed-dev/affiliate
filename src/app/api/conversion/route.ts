@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // サイナーを初期化
     const signer = initializeSigner(
-      `${process.env.PROVIDER_URL}`,
+      `${process.env.NEXT_PUBLIC_PROVIDER_URL}`,
       `${process.env.WALLET_PRIVATE_KEY}`
     );
 
