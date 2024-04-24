@@ -33,7 +33,6 @@ export default function CreateProject() {
 
   const [projectData, setProjectData] = useState<ProjectData>({
     projectName: "",
-    slug: "my-project",
     description: "",
     selectedToken: "USDC",
     rewardAmount: 0,
@@ -42,7 +41,7 @@ export default function CreateProject() {
     cover: null,
     websiteUrl: "",
     discordUrl: "",
-    twitterUrl: "",
+    xUrl: "",
     instagramUrl: "",
     ownerAddress: "",
     createdAt: new Date(),
@@ -86,7 +85,6 @@ export default function CreateProject() {
           <ProjectDetailsForm
             data={{
               projectName: projectData.projectName,
-              slug: projectData.slug,
               description: projectData.description
             }}
             handleChange={handleChange}
@@ -124,7 +122,7 @@ export default function CreateProject() {
             data={{
               websiteUrl: projectData.websiteUrl,
               discordUrl: projectData.discordUrl,
-              twitterUrl: projectData.twitterUrl,
+              xUrl: projectData.xUrl,
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}

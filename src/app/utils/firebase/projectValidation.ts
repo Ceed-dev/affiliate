@@ -4,7 +4,6 @@ import { ProjectData } from "../../types";
 export function isValidProjectData(data: DocumentData): data is ProjectData {
   return (
     typeof data.projectName === "string" &&
-    typeof data.slug === "string" &&
     typeof data.description === "string" &&
     typeof data.selectedToken === "string" &&
     typeof data.rewardAmount === "number" &&
@@ -13,7 +12,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     (data.cover === null || typeof data.cover === "string") &&
     typeof data.websiteUrl === "string" &&
     typeof data.discordUrl === "string" &&
-    typeof data.twitterUrl === "string" &&
+    typeof data.xUrl === "string" &&
     typeof data.instagramUrl === "string" &&
     typeof data.ownerAddress === "string" &&
     data.createdAt.toDate() instanceof Date &&

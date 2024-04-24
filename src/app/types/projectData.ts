@@ -1,7 +1,6 @@
 export type ProjectData = {
   id?: string;
   projectName: string;
-  slug: string;
   description: string;
   selectedToken: string;
   rewardAmount: number;
@@ -10,7 +9,7 @@ export type ProjectData = {
   cover: string | null;
   websiteUrl: string;
   discordUrl: string;
-  twitterUrl: string;
+  xUrl: string;
   instagramUrl: string;
   ownerAddress: string;
   createdAt: Date;

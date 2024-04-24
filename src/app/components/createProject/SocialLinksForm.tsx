@@ -7,7 +7,7 @@ type SocialLinksFormProps = {
   data: {
     websiteUrl: string;
     discordUrl: string;
-    twitterUrl: string;
+    xUrl: string;
     instagramUrl: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -52,12 +52,12 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2>Twitter</h2>
+          <h2>X</h2>
           <input
             type="url"
             placeholder="https://twitter.com/my-twitter"
-            value={data.twitterUrl}
-            onChange={handleChange("twitterUrl")}
+            value={data.xUrl}
+            onChange={handleChange("xUrl")}
             className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
           />
         </div>
