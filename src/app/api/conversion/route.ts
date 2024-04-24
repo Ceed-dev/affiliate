@@ -34,10 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // サイナーを初期化
-    const signer = initializeSigner(
-      `${process.env.NEXT_PUBLIC_PROVIDER_URL}`,
-      `${process.env.WALLET_PRIVATE_KEY}`
-    );
+    const signer = initializeSigner(`${process.env.WALLET_PRIVATE_KEY}`);
 
     const USDC_ADDRESS = "0x9b5f49000d02479d1300e041fff1d74f49588749";
     const erc20 = new ERC20(USDC_ADDRESS, signer);
