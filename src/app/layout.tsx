@@ -38,7 +38,7 @@ export default function RootLayout({
       <html lang="en" className="bg-slate-200">
         <body className={inter.className}>
           {children}
-          <ToastContainer position="bottom-right" />
+          <ToastContainer position="bottom-right" autoClose={3000} />
         </body>
       </html>
     </ThirdwebProvider>
