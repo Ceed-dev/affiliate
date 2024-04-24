@@ -6,7 +6,7 @@ export class Escrow {
   public address: string;
 
   constructor(signer: ethers.Signer) {
-    const contractAddress = `${process.env.ESCROW_CONTRACT_ADDRESS}`;
+    const contractAddress = `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`;
     if (!ethers.utils.isAddress(contractAddress)) {
       throw new Error("Invalid contract address.");
     }
