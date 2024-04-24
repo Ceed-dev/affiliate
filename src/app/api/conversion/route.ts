@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchProjectData, fetchReferralData } from "../../utils/firebase";
-import { 
-  initializeSigner,
-  connectEscrowContract,
-  withdrawFromEscrow
-} from "../../utils/escrow";
+import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,17 +39,15 @@ export async function POST(request: NextRequest) {
       `${process.env.WALLET_PRIVATE_KEY}`
     );
 
-    // エスクローコントラクトに接続
-    const escrowContract = connectEscrowContract(
-      `${process.env.ESCROW_CONTRACT_ADDRESS}`,
-      signer
-    );
+    const USDC_ADDRESS = "0x9b5f49000d02479d1300e041fff1d74f49588749";
+    const erc20 = new ERC20(USDC_ADDRESS, signer);
+    const decimals = await erc20.getDecimals();
 
-    // エスクローから引き出す
-    const txhash = await withdrawFromEscrow(
-      escrowContract,
-      projectData.selectedToken,
+    const escrow = new Escrow(signer);
+    const txhash = await escrow.withdraw(
+      USDC_ADDRESS,
       projectData.rewardAmount,
+      decimals,
       projectData.ownerAddress,
       referralData.affiliateWallet
     );
