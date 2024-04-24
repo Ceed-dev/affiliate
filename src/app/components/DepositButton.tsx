@@ -4,7 +4,7 @@ import { initializeSigner, Escrow, ERC20 } from "../utils/contracts";
 const USDC_ADDRESS = "0x9b5f49000d02479d1300e041fff1d74f49588749";
 
 export const DepositButton: React.FC = () => {
-  const signer = initializeSigner(`${process.env.PROVIDER_URL}`);
+  const signer = initializeSigner(`${process.env.NEXT_PUBLIC_PROVIDER_URL}`);
   const escrow = new Escrow(signer);
   const erc20 = new ERC20(USDC_ADDRESS, signer);
 
