@@ -5,4 +5,5 @@ export type ReferralData = {
   createdAt: Date;
   conversions: number;
   earnings: number;
+  lastConversionDate: Date | null;
 };
