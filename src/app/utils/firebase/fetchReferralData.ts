@@ -1,6 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { isValidReferralData } from "./referralValidation";
+import { isValidReferralData } from "../validations";
 import { ReferralData } from "../../types";
 
 export async function fetchReferralData(referralId: string): Promise<ReferralData> {
