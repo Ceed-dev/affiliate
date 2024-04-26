@@ -10,6 +10,7 @@ export async function processRewardPaymentTransaction(
   const now = new Date();
 
   const projectRef = doc(db, "projects", projectId);
+  const referralRef = doc(db, "referrals", referralId);
   const transactionRef = doc(db, `referrals/${referralId}/paymentTransactions`, transactionHash);
 
   try {
@@ -18,14 +19,23 @@ export async function processRewardPaymentTransaction(
       if (!projectDoc.exists()) {
         throw new Error(`Project with ID ${projectId} not found`);
       }
-
       const projectData = projectDoc.data();
-      const newTotalPaidOut = (projectData.totalPaidOut || 0) + amount;
-      const newLastPaymentDate = now;
+
+      const referralDoc = await transaction.get(referralRef);
+      if (!referralDoc.exists()) {
+        throw new Error(`Referral with ID ${referralId} not found`);
+      }
+      const referralData = referralDoc.data();
 
       transaction.update(projectRef, {
-        totalPaidOut: newTotalPaidOut,
-        lastPaymentDate: newLastPaymentDate
+        totalPaidOut: projectData.totalPaidOut + amount,
+        lastPaymentDate: now
+      });
+
+      transaction.update(referralRef, {
+        conversions: referralData.conversions + 1,
+        earnings: referralData.earnings + amount,
+        lastConversionDate: now
       });
 
       transaction.set(transactionRef, {
