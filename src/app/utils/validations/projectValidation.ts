@@ -16,6 +16,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     typeof data.instagramUrl === "string" &&
     typeof data.ownerAddress === "string" &&
     data.createdAt.toDate() instanceof Date &&
-    data.updatedAt.toDate() instanceof Date
+    data.updatedAt.toDate() instanceof Date &&
+    typeof data.totalPaidOut === "number" &&
+    (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date)
   );
 }

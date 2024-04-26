@@ -1,6 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { isValidProjectData } from "./projectValidation";
+import { isValidProjectData } from "../validations";
 import { ProjectData } from "../../types";
 
 export async function fetchProjectData(projectId: string): Promise<ProjectData> {
@@ -14,6 +14,7 @@ export async function fetchProjectData(projectId: string): Promise<ProjectData> 
         id: docSnap.id,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
+        lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null
       } as ProjectData;
       console.log("Document data:", JSON.stringify(projectData, null, 2));
       return projectData;

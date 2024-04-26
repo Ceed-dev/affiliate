@@ -1,6 +1,6 @@
 import { collection, query, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { isValidProjectData } from "./projectValidation";
+import { isValidProjectData } from "../validations";
 import { ProjectData } from "../../types";
 
 export async function fetchProjectsByOwner(ownerAddress: string): Promise<ProjectData[]> {
@@ -13,6 +13,7 @@ export async function fetchProjectsByOwner(ownerAddress: string): Promise<Projec
       const data = doc.data() as ProjectData & {
         createdAt: Timestamp;
         updatedAt: Timestamp;
+        lastPaymentDate: Timestamp | null;
       };
       if (isValidProjectData(data) && data.ownerAddress === ownerAddress) {
         const projectData = {
@@ -20,6 +21,7 @@ export async function fetchProjectsByOwner(ownerAddress: string): Promise<Projec
           id: doc.id,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
+          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null
         } as ProjectData;
         projects.push(projectData);
       }

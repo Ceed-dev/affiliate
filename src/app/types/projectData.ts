@@ -14,4 +14,6 @@ export type ProjectData = {
   ownerAddress: string;
   createdAt: Date;
   updatedAt: Date;
+  totalPaidOut: number;
+  lastPaymentDate: Date | null;
 };

@@ -1,6 +1,6 @@
 import { db } from "./firebaseConfig";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
-import { isValidProjectData } from "./projectValidation";
+import { isValidProjectData } from "../validations";
 import { ProjectData } from "../../types";
 import { toast } from "react-toastify";
 
@@ -12,6 +12,7 @@ export async function fetchAllProjects(): Promise<ProjectData[]> {
       const data = doc.data() as ProjectData & {
         createdAt: Timestamp;
         updatedAt: Timestamp;
+        lastPaymentDate: Timestamp | null;
       };
       if (isValidProjectData(data)) {
         projects.push({
@@ -19,6 +20,7 @@ export async function fetchAllProjects(): Promise<ProjectData[]> {
           id: doc.id,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
+          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null
         });
       }
     });
