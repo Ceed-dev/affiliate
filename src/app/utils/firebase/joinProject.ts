@@ -14,7 +14,6 @@ export async function joinProject(projectId: string, walletAddress: string): Pro
     if (!userDoc.exists()) {
       const newUser: UserData = {
         joinedProjectIds: [projectId],
-        conversions: 0,
         createdAt: new Date(),
         updatedAt: new Date()
       };
