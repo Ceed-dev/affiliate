@@ -45,7 +45,12 @@ export async function POST(request: NextRequest) {
       referralData.affiliateWallet
     );
 
-    await processRewardPaymentTransaction(referralData.projectId, projectData.rewardAmount);
+    await processRewardPaymentTransaction(
+      referralData.projectId, 
+      `${referralData.id}`,
+      projectData.rewardAmount,
+      txhash
+    );
 
     // 成功した場合はリクエストが正常に処理されたことを返す
     return NextResponse.json(

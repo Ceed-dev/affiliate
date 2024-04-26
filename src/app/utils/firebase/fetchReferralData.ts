@@ -13,6 +13,7 @@ export async function fetchReferralData(referralId: string): Promise<ReferralDat
         ...data,
         id: docSnap.id,
         createdAt: data.createdAt.toDate(),
+        lastConversionDate: data.lastConversionDate ? data.lastConversionDate.toDate() : null
       } as ReferralData;
       console.log("Document data:", JSON.stringify(referralData, null, 2));
       return referralData;
