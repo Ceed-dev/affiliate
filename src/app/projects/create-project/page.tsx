@@ -47,6 +47,7 @@ export default function CreateProject() {
     createdAt: new Date(),
     updatedAt: new Date(),
     totalPaidOut: 0,
+    lastPaymentDate: null,
   });
 
   const [previewData, setPreviewData] = useState({

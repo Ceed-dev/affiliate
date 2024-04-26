@@ -15,4 +15,5 @@ export type ProjectData = {
   createdAt: Date;
   updatedAt: Date;
   totalPaidOut: number;
+  lastPaymentDate: Date | null;
 };
