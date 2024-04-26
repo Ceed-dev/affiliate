@@ -1,6 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { isValidProjectData } from "./projectValidation";
+import { isValidProjectData } from "../validations";
 import { ProjectData } from "../../types";
 
 export async function fetchProjectData(projectId: string): Promise<ProjectData> {
