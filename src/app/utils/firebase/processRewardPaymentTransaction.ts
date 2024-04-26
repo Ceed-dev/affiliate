@@ -1,8 +1,16 @@
 import { runTransaction, doc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
-export async function processRewardPaymentTransaction(projectId: string, amount: number) {
+export async function processRewardPaymentTransaction(
+  projectId: string, 
+  referralId: string, 
+  amount: number, 
+  transactionHash: string
+) {
+  const now = new Date();
+
   const projectRef = doc(db, "projects", projectId);
+  const transactionRef = doc(db, `referrals/${referralId}/paymentTransactions`, transactionHash);
 
   try {
     await runTransaction(db, async (transaction) => {
@@ -13,11 +21,15 @@ export async function processRewardPaymentTransaction(projectId: string, amount:
 
       const projectData = projectDoc.data();
       const newTotalPaidOut = (projectData.totalPaidOut || 0) + amount;
-      const newLastPaymentDate = new Date();
+      const newLastPaymentDate = now;
 
       transaction.update(projectRef, {
         totalPaidOut: newTotalPaidOut,
         lastPaymentDate: newLastPaymentDate
+      });
+
+      transaction.set(transactionRef, {
+        timestamp: now
       });
     });
     console.log("Transaction successfully committed!");
