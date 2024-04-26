@@ -45,7 +45,8 @@ export default function CreateProject() {
     instagramUrl: "",
     ownerAddress: "",
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    totalPaidOut: 0,
   });
 
   const [previewData, setPreviewData] = useState({
