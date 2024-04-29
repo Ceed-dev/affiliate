@@ -7,6 +7,7 @@ import { NavBar } from "../../components/dashboard/NavBar";
 import { ProjectData, ReferralData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
+import { formatAddress } from "../../utils/formatAddress";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -170,7 +171,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                 referralData?.map((referral, index) => (
                   <tr key={index} className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                      <p>{referral.affiliateWallet}</p>
+                      <p>{formatAddress(referral.affiliateWallet)}</p>
                     </td>
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                       {referral.earnings}
