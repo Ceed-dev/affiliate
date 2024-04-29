@@ -1,10 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import BarChart from "../../components/BarChart";
 import { NavBar } from "../../components/dashboard/NavBar";
+import { ProjectData } from "../../types";
+import { fetchProjectData } from "../../utils/firebase";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
+  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [loadingProject, setLoadingProject] = useState(true);
+  const [projectError, setProjectError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProjectData(params.projectId)
+      .then(data => {
+        setProjectData(data);
+        setLoadingProject(false);
+      })
+      .catch(error => {
+        const message = (error instanceof Error) ? error.message : "Unknown error";
+        console.error("Error loading the project: ", message);
+        setProjectError(message);
+        setLoadingProject(false);
+      });
+  }, [params.projectId]);
+
   return (
     <>
       <NavBar />
@@ -34,9 +55,12 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
               Total Paid Out
             </h3>
-            <p className="text-3xl leading-8 font-semibold text-gray-900">
-              100 USDC
-            </p>
+            {loadingProject
+              ? <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin mx-auto" /> 
+              : <p className="text-3xl leading-8 font-semibold text-gray-900">
+                  {projectData?.totalPaidOut} {projectData?.selectedToken}
+                </p>
+            }
           </div>
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
