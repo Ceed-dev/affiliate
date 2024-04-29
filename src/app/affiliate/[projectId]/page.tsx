@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { ConnectWallet, lightTheme, useAddress, WalletInstance } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, ReferralData } from "../../types";
+import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { ProjectHeader, ConversionsList } from "../../components/affiliate";
-import { fetchProjectData, fetchReferralData, joinProject} from "../../utils/firebase";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
+import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals } from "../../utils/firebase";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
@@ -16,6 +17,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
+
+  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
 
   const [referralId, setReferralId] = useState<string | null>(null);
   const [buttonLabel, setButtonLabel] = useState("Copy");
@@ -52,6 +56,20 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         });
     }
   }, [referralId]);
+
+  useEffect(() => {
+    if (referralData) {
+      fetchTransactionsForReferrals([referralData], setTransactionData)
+        .then(() => {
+          setLoadingTransactionData(false);
+        })
+        .catch(error => {
+          console.error("Error fetching transactions: ", error.message);
+          toast.error(`Error fetching transactions: ${error.message}`);
+          setLoadingTransactionData(false);
+        });
+    }
+  }, [referralData]);
 
   const copyLinkToClipboard = async () => {
     try {
@@ -153,20 +171,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             />
           </div>
 
-          <ConversionsList transactions={[
-            {
-              transactionHash: "0x599bb98f072b78cdcf6b9330cfe23bcb516e35d4e56ef79ed3e8b2b23b9c2c58",
-              timestamp: new Date()
-            },
-            {
-              transactionHash: "0x6577550cd796928693f4b3051813ba532f14b10078ea610b95c268c1050cab65",
-              timestamp: new Date()
-            },
-            {
-              transactionHash: "0xa91756c46f733a82d79b50b7f158bf96db5e55f4bdb35882c8a823b12d3255fb",
-              timestamp: new Date()
-            }
-          ]} />
+          {loadingTransactionData
+            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
+                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
+              </div>
+            : <ConversionsList transactions={transactionData} />
+          }
         </>
       }
 
