@@ -3,16 +3,20 @@
 import { useState, useEffect } from "react";
 import { ConnectWallet, lightTheme, useAddress, WalletInstance } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData } from "../../types";
+import { ProjectData, ReferralData } from "../../types";
 import { ProjectHeader, ConversionsList } from "../../components/affiliate";
-import { fetchProjectData, joinProject } from "../../utils/firebase";
+import { fetchProjectData, fetchReferralData, joinProject} from "../../utils/firebase";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
+
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingProject, setLoadingProject] = useState(true);
+
+  const [referralData, setReferralData] = useState<ReferralData | null>(null);
+  const [loadingReferral, setLoadingReferral] = useState(true);
+
   const [referralId, setReferralId] = useState<string | null>(null);
   const [buttonLabel, setButtonLabel] = useState("Copy");
 
@@ -23,15 +27,31 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     fetchProjectData(params.projectId)
       .then(data => {
         setProjectData(data);
-        setLoading(false);
+        setLoadingProject(false);
       })
       .catch(error => {
         const message = (error instanceof Error) ? error.message : "Unknown error";
         console.error("Error loading the project: ", message);
-        setError(message);
-        setLoading(false);
+        toast.error(`Error loading the project: ${message}`);
+        setLoadingProject(false);
       });
   }, [params.projectId]);
+
+  useEffect(() => {
+    if (referralId) {
+      fetchReferralData(referralId)
+        .then(data => {
+          setReferralData(data);
+          setLoadingReferral(false);
+        })
+        .catch(error => {
+          const message = (error instanceof Error) ? error.message : "Unknown error";
+          console.error("Error loading the referral: ", message);
+          toast.error(`Error loading the referral: ${message}`);
+          setLoadingReferral(false);
+        });
+    }
+  }, [referralId]);
 
   const copyLinkToClipboard = async () => {
     try {
@@ -49,12 +69,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
 
       {/* Header */}
-      <ProjectHeader projectData={projectData} loading={loading} />
+      <ProjectHeader projectData={projectData} loading={loadingProject} />
 
       {/* Project Description and Action Panel */}
       <div className="w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
         {/* Project Description Container */}
-        <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loading ? "animate-pulse" : ""}`}>
+        <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loadingProject ? "animate-pulse" : ""}`}>
           {projectData?.description}
         </div>
         {/* Join Project and Referral Actions */}
@@ -115,21 +135,21 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
             <StatisticCard
               title="Conversions"
-              loading={false}
-              value={"3"}
+              loading={loadingReferral}
+              value={`${referralData?.conversions}`}
               unit="TIMES"
             />
             <StatisticCard
-              title={`Earnings (${projectData?.selectedToken})`}
-              loading={false}
-              value="9"
+              title="Earnings"
+              loading={loadingReferral}
+              value={`${referralData?.earnings}`}
               unit={`${projectData?.selectedToken}`}
             />
             <StatisticCard
               title="Last Conversion Date"
-              loading={false}
-              value="Mar 27"
-              unit="2024"
+              loading={loadingReferral}
+              value={`${referralData?.lastConversionDate ? referralData.lastConversionDate.toLocaleDateString() : "N/A"}`}
+              unit=""
             />
           </div>
 
