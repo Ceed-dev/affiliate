@@ -4,7 +4,7 @@ import React from "react";
 import BarChart from "../../components/BarChart";
 import { NavBar } from "../../components/dashboard/NavBar";
 
-export default function Dashboard() {
+export default function Dashboard({ params }: { params: { projectId: string } }) {
   return (
     <>
       <NavBar />
