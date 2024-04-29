@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { NavBar, PaymentTransactionsChart } from "../../components/dashboard";
+import { NavBar, PaymentTransactionsChart, StatisticCard } from "../../components/dashboard";
 import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
@@ -110,39 +110,24 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
         {/* Statistic Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
-              Deposit Balance
-            </h3>
-            {loadingDepositBalance
-              ? <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin mx-auto" /> 
-              : <p className="text-3xl leading-8 font-semibold text-gray-900">
-                  {depositBalance} {projectData?.selectedToken}
-                </p>
-            }
-          </div>
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
-              Total Paid Out
-            </h3>
-            {loadingProject
-              ? <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin mx-auto" /> 
-              : <p className="text-3xl leading-8 font-semibold text-gray-900">
-                  {projectData?.totalPaidOut} {projectData?.selectedToken}
-                </p>
-            }
-          </div>
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
-              Total Affiliates
-            </h3>
-            {loadingReferral
-              ? <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin mx-auto" /> 
-              : <p className="text-3xl leading-8 font-semibold text-gray-900">
-                  {referralData?.length || 0} PEOPLE
-                </p>
-            }
-          </div>
+          <StatisticCard
+            title="Deposit Balance"
+            loading={loadingDepositBalance}
+            value={depositBalance}
+            unit={`${projectData?.selectedToken}`}
+          />
+          <StatisticCard
+            title="Total Paid Out"
+            loading={loadingProject}
+            value={`${projectData?.totalPaidOut}`}
+            unit={`${projectData?.selectedToken}`}
+          />
+          <StatisticCard
+            title="Total Affiliates"
+            loading={loadingReferral}
+            value={`${referralData?.length || 0}`}
+            unit="PEOPLE"
+          />
         </div>
 
         {/* Chart */}
