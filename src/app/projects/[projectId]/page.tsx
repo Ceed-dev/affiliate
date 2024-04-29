@@ -6,6 +6,7 @@ import BarChart from "../../components/BarChart";
 import { NavBar } from "../../components/dashboard/NavBar";
 import { ProjectData, ReferralData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId } from "../../utils/firebase";
+import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -15,6 +16,15 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [referralData, setReferralData] = useState<ReferralData[] | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
   const [referralError, setReferralError] = useState<string | null>(null);
+
+  const USDC_ADDRESS = "0x9b5F49000D02479d1300e041FFf1d74F49588749";
+  const signer = initializeSigner();
+  const escrow = new Escrow(signer);
+  const erc20 = new ERC20(USDC_ADDRESS, signer);
+
+  const [depositBalance, setDepositBalance] = useState("0");
+  const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
+  const [depositBalanceError, setDepositBalanceError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -44,6 +54,30 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       });
   }, [params.projectId]);
 
+  useEffect(() => {
+    erc20.getDecimals().then(async decimals => {
+      try {
+        const depositorAddress = await signer.getAddress();
+        const balance = await escrow.getDepositBalance(USDC_ADDRESS, depositorAddress, decimals);
+        const formattedBalance = parseFloat(balance);
+        const displayBalance = formattedBalance % 1 === 0 ? formattedBalance.toString() : balance;
+        setDepositBalance(displayBalance);
+        setLoadingDepositBalance(false);
+      } catch (error) {
+        const message = (error instanceof Error) ? error.message : "Failed to fetch deposit balance";
+        console.error("Error loading deposit balance: ", message);
+        setDepositBalanceError(message);
+        setLoadingDepositBalance(false);
+      }
+    }).catch(error => {
+      const message = (error instanceof Error) ? error.message : "Failed to fetch token decimals";
+      console.error("Error fetching token decimals: ", message);
+      setDepositBalanceError(message);
+      setLoadingDepositBalance(false);
+    });
+  
+  }, [params.projectId, USDC_ADDRESS, signer, erc20, escrow]);
+
   return (
     <>
       <NavBar />
@@ -65,9 +99,12 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
               Deposit Balance
             </h3>
-            <p className="text-3xl leading-8 font-semibold text-gray-900">
-              10000 USDC
-            </p>
+            {loadingDepositBalance
+              ? <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin mx-auto" /> 
+              : <p className="text-3xl leading-8 font-semibold text-gray-900">
+                  {depositBalance} {projectData?.selectedToken}
+                </p>
+            }
           </div>
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
