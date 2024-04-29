@@ -1,5 +1,7 @@
 import { ProjectHeader } from "./ProjectHeader";
+import { ConversionsList } from "./ConversionsList";
 
 export {
-  ProjectHeader
+  ProjectHeader,
+  ConversionsList
 }
