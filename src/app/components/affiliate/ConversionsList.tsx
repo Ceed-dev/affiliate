@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { PaymentTransaction } from "../../types";
 import { formatAddress } from "../../utils/formatAddress";
 
@@ -7,6 +8,11 @@ type ConversionsListProps = {
 };
 
 export const ConversionsList: React.FC<ConversionsListProps> = ({ transactions }) => {
+  const openExplorer = (transactionHash: string) => {
+    const url = `${process.env.NEXT_PUBLIC_EXPLORER_BASE_URL}/tx/${transactionHash}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="bg-white shadow rounded-lg p-10 w-2/3 mx-auto">
       <h2 className="text-lg leading-6 font-medium text-gray-900">
@@ -25,8 +31,13 @@ export const ConversionsList: React.FC<ConversionsListProps> = ({ transactions }
         <tbody className="bg-white divide-y divide-gray-200">
           {transactions.length ? (
             transactions.map((transaction, index) => (
-              <tr key={index} className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+              <tr 
+                key={index} 
+                className="text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                onClick={() => openExplorer(transaction.transactionHash)}
+              >
+                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 flex flex-row gap-3">
+                  <Image src="/new-tab.png" alt="new-tab.png" width={20} height={20} /> 
                   <span className="table-cell xl:hidden">{formatAddress(transaction.transactionHash)}</span>
                   <span className="hidden xl:table-cell">{transaction.transactionHash}</span>
                 </td>
