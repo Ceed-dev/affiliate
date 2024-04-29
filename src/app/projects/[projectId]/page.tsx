@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { NavBar, PaymentTransactionsChart, StatisticCard } from "../../components/dashboard";
+import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
 import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
-import { formatAddress } from "../../utils/formatAddress";
 import { toast } from "react-toastify";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
@@ -142,66 +141,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         </div>
 
         {/* List */}
-        <div className="bg-white shadow rounded-lg p-10">
-
-          <h2 className="text-lg leading-6 font-medium text-gray-900">
-            Affiliates
-          </h2>
-          <p className="text-gray-700 text-sm mb-5">
-            A list of all affiliates.
-          </p>
-
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Earnings ({projectData?.selectedToken})
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Conversions
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                  Last Conversion Date
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                  Creation Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {referralData?.length ? (
-                referralData?.map((referral, index) => (
-                  <tr key={index} className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                      <p>{formatAddress(referral.affiliateWallet)}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                      {referral.earnings}
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                      {referral.conversions}
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
-                      {referral.lastConversionDate ? referral.lastConversionDate.toLocaleDateString() : "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
-                      {referral.createdAt.toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr className="text-gray-500">
-                  <td colSpan={5} className="text-center py-4">
-                    No Referral Data
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AffiliatesList referrals={referralData || []} selectedToken={projectData?.selectedToken || ""} />
 
       </div>
     </>
