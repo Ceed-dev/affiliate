@@ -4,13 +4,17 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import BarChart from "../../components/BarChart";
 import { NavBar } from "../../components/dashboard/NavBar";
-import { ProjectData } from "../../types";
-import { fetchProjectData } from "../../utils/firebase";
+import { ProjectData, ReferralData } from "../../types";
+import { fetchProjectData, fetchReferralsByProjectId } from "../../utils/firebase";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
   const [projectError, setProjectError] = useState<string | null>(null);
+
+  const [referralData, setReferralData] = useState<ReferralData[] | null>(null);
+  const [loadingReferral, setLoadingReferral] = useState(true);
+  const [referralError, setReferralError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -23,6 +27,20 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         console.error("Error loading the project: ", message);
         setProjectError(message);
         setLoadingProject(false);
+      });
+  }, [params.projectId]);
+
+  useEffect(() => {
+    fetchReferralsByProjectId(params.projectId)
+      .then(data => {
+        setReferralData(data);
+        setLoadingReferral(false);
+      })
+      .catch(error => {
+        const message = (error instanceof Error) ? error.message : "Unknown error";
+        console.error("Error loading the project: ", message);
+        setReferralError(message);
+        setLoadingReferral(false);
       });
   }, [params.projectId]);
 
@@ -66,9 +84,12 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
               Total Affiliates
             </h3>
-            <p className="text-3xl leading-8 font-semibold text-gray-900">
-              15 PEOPLE
-            </p>
+            {loadingReferral
+              ? <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin mx-auto" /> 
+              : <p className="text-3xl leading-8 font-semibold text-gray-900">
+                  {referralData?.length || 0} PEOPLE
+                </p>
+            }
           </div>
         </div>
 
@@ -108,40 +129,33 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              <tr className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  <p>0x329...1689</p>
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  20
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  5
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 ">
-                  2024/02/03
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 ">
-                  2024/01/01
-                </td>
-              </tr>
-              <tr className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  <p>0x329...1689</p>
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  20
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  5
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 ">
-                  2024/02/03
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 ">
-                  2024/01/01
-                </td>
-              </tr>
+              {referralData?.length ? (
+                referralData?.map((referral, index) => (
+                  <tr key={index} className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                      <p>{referral.affiliateWallet}</p>
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                      {referral.earnings}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                      {referral.conversions}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                      {referral.lastConversionDate ? referral.lastConversionDate.toLocaleDateString() : "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                      {referral.createdAt.toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr className="text-gray-500">
+                  <td colSpan={5} className="text-center py-4">
+                    No Referral Data
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
