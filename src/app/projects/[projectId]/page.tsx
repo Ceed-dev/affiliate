@@ -153,15 +153,15 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                   User
                 </th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Earnings (USDC)
+                  Earnings ({projectData?.selectedToken})
                 </th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                   Conversions
                 </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Last Conversion Date
                 </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider ">
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Creation Date
                 </th>
               </tr>
@@ -179,10 +179,10 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                       {referral.conversions}
                     </td>
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
                       {referral.lastConversionDate ? referral.lastConversionDate.toLocaleDateString() : "N/A"}
                     </td>
-                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
                       {referral.createdAt.toLocaleDateString()}
                     </td>
                   </tr>
