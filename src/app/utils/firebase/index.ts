@@ -5,6 +5,7 @@ import { fetchProjectsByOwner } from "./fetchProjectsByOwner";
 import { fetchReferralData } from "./fetchReferralData";
 import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
+import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
 
 export {
   saveProjectToFirestore,
@@ -13,5 +14,6 @@ export {
   fetchProjectsByOwner,
   fetchReferralData,
   joinProject,
-  processRewardPaymentTransaction
+  processRewardPaymentTransaction,
+  fetchTransactionsForReferrals
 }
