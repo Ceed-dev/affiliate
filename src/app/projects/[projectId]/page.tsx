@@ -8,15 +8,14 @@ import { ProjectData, ReferralData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 import { formatAddress } from "../../utils/formatAddress";
+import { toast } from "react-toastify";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
-  const [projectError, setProjectError] = useState<string | null>(null);
 
   const [referralData, setReferralData] = useState<ReferralData[] | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
-  const [referralError, setReferralError] = useState<string | null>(null);
 
   const USDC_ADDRESS = "0x9b5F49000D02479d1300e041FFf1d74F49588749";
   const signer = initializeSigner();
@@ -25,7 +24,6 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   const [depositBalance, setDepositBalance] = useState("0");
   const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
-  const [depositBalanceError, setDepositBalanceError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -36,7 +34,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       .catch(error => {
         const message = (error instanceof Error) ? error.message : "Unknown error";
         console.error("Error loading the project: ", message);
-        setProjectError(message);
+        toast.error(`Error loading the project: ${message}`);
         setLoadingProject(false);
       });
   }, [params.projectId]);
@@ -49,8 +47,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       })
       .catch(error => {
         const message = (error instanceof Error) ? error.message : "Unknown error";
-        console.error("Error loading the project: ", message);
-        setReferralError(message);
+        console.error("Error loading the referrals: ", message);
+        toast.error(`Error loading the referrals: ${message}`);
         setLoadingReferral(false);
       });
   }, [params.projectId]);
@@ -67,13 +65,13 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       } catch (error) {
         const message = (error instanceof Error) ? error.message : "Failed to fetch deposit balance";
         console.error("Error loading deposit balance: ", message);
-        setDepositBalanceError(message);
+        toast.error(`Error loading deposit balance: ${message}`);
         setLoadingDepositBalance(false);
       }
     }).catch(error => {
       const message = (error instanceof Error) ? error.message : "Failed to fetch token decimals";
       console.error("Error fetching token decimals: ", message);
-      setDepositBalanceError(message);
+      toast.error(`Error fetching token decimals: ${message}`);
       setLoadingDepositBalance(false);
     });
   
