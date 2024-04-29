@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import BarChart from "../../components/BarChart";
-import { NavBar } from "../../components/dashboard/NavBar";
-import { ProjectData, ReferralData } from "../../types";
-import { fetchProjectData, fetchReferralsByProjectId } from "../../utils/firebase";
+import { NavBar, PaymentTransactionsChart } from "../../components/dashboard";
+import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
+import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 import { formatAddress } from "../../utils/formatAddress";
 import { toast } from "react-toastify";
@@ -24,6 +23,9 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   const [depositBalance, setDepositBalance] = useState("0");
   const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
+
+  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -77,10 +79,24 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   
   }, [params.projectId, USDC_ADDRESS, signer, erc20, escrow]);
 
+  useEffect(() => {
+    if (referralData) {
+      fetchTransactionsForReferrals(referralData, setTransactionData)
+        .then(() => {
+          setLoadingTransactionData(false);
+        })
+        .catch(error => {
+          console.error("Error fetching transactions: ", error.message);
+          toast.error(`Error fetching transactions: ${error.message}`);
+          setLoadingTransactionData(false);
+        });
+    }
+  }, [referralData]);
+
   return (
     <>
       <NavBar />
-      <div className="bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
+      <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
 
         {/* Title */}
         <div className="pt-5">
@@ -131,7 +147,13 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
         {/* Chart */}
         <div className="bg-white p-10 rounded-lg shadow">
-          <BarChart />
+          {loadingTransactionData
+            ? <div className="flex flex-row items-center justify-center gap-5">
+                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <p className="animate-pulse font-semibold text-gray-600">Loading transaction data for chart visualization...</p>
+              </div>
+            : <PaymentTransactionsChart transactions={transactionData} />
+          }
         </div>
 
         {/* List */}
