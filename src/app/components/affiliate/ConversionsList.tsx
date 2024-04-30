@@ -33,7 +33,7 @@ export const ConversionsList: React.FC<ConversionsListProps> = ({ transactions }
             transactions.map((transaction, index) => (
               <tr 
                 key={index} 
-                className="text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                className="text-gray-500 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
                 onClick={() => openExplorer(transaction.transactionHash)}
               >
                 <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 flex flex-row gap-3">
