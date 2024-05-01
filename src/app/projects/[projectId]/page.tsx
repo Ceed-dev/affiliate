@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
 import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
-import { toast } from "react-toastify";
+import { formatBalance } from "../../utils/formatters";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -59,9 +60,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       try {
         const depositorAddress = await signer.getAddress();
         const balance = await escrow.getDepositBalance(USDC_ADDRESS, depositorAddress, decimals);
-        const formattedBalance = parseFloat(balance);
-        const displayBalance = formattedBalance % 1 === 0 ? formattedBalance.toString() : balance;
-        setDepositBalance(displayBalance);
+        setDepositBalance(formatBalance(balance));
         setLoadingDepositBalance(false);
       } catch (error) {
         const message = (error instanceof Error) ? error.message : "Failed to fetch deposit balance";
