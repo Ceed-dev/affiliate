@@ -21,7 +21,10 @@ export default function Home() {
           <p className="text-lg font-semibold">Qube</p>
         </Link>
         
-        <Link href="/onboarding" className="hover:text-gray-500">Sign in</Link>
+        <div className="flex flex-row gap-10">
+          <Link href="/affiliate/marketplace" className="hover:text-gray-500">Marketplace</Link>
+          <Link href="/onboarding" className="hover:text-gray-500">Sign in</Link>
+        </div>
       </header>
 
       <main className="flex flex-col items-center justify-center flex-1 px-20 text-center">
