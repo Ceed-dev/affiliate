@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ConnectWallet, lightTheme, useAddress, WalletInstance } from "@thirdweb-dev/react";
+import { ConnectWallet, lightTheme, useAddress, WalletInstance, useDisconnect } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
 import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { ProjectHeader, ConversionsList } from "../../components/affiliate";
@@ -11,6 +11,7 @@ import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForR
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
+  const disconnect = useDisconnect();
 
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
@@ -26,6 +27,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
+
+  // Automatically disconnect the wallet when the page loads to ensure a clean state for session management.
+  useEffect(() => {
+    disconnect();
+  }, []);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
