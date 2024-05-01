@@ -2,43 +2,80 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
-
-import {
-  ConnectWallet,
-  lightTheme,
-  useAddress,
-  WalletInstance
-} from "@thirdweb-dev/react";
+import { ConnectWallet, lightTheme, useAddress, WalletInstance, useDisconnect } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData } from "../../types";
-import { ProjectHeader } from "../../components/affiliate";
-import { fetchProjectData, joinProject } from "../../utils/firebase";
+import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
+import { ProjectHeader, ConversionsList } from "../../components/affiliate";
+import { StatisticCard } from "../../components/dashboard/StatisticCard";
+import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals } from "../../utils/firebase";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
+  const disconnect = useDisconnect();
+
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingProject, setLoadingProject] = useState(true);
+
+  const [referralData, setReferralData] = useState<ReferralData | null>(null);
+  const [loadingReferral, setLoadingReferral] = useState(true);
+
+  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+
   const [referralId, setReferralId] = useState<string | null>(null);
   const [buttonLabel, setButtonLabel] = useState("Copy");
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
 
+  // Automatically disconnect the wallet when the page loads to ensure a clean state for session management.
+  useEffect(() => {
+    disconnect();
+  }, []);
+
   useEffect(() => {
     fetchProjectData(params.projectId)
       .then(data => {
         setProjectData(data);
-        setLoading(false);
+        setLoadingProject(false);
       })
       .catch(error => {
         const message = (error instanceof Error) ? error.message : "Unknown error";
         console.error("Error loading the project: ", message);
-        setError(message);
-        setLoading(false);
+        toast.error(`Error loading the project: ${message}`);
+        setLoadingProject(false);
       });
   }, [params.projectId]);
+
+  useEffect(() => {
+    if (referralId) {
+      fetchReferralData(referralId)
+        .then(data => {
+          setReferralData(data);
+          setLoadingReferral(false);
+        })
+        .catch(error => {
+          const message = (error instanceof Error) ? error.message : "Unknown error";
+          console.error("Error loading the referral: ", message);
+          toast.error(`Error loading the referral: ${message}`);
+          setLoadingReferral(false);
+        });
+    }
+  }, [referralId]);
+
+  useEffect(() => {
+    if (referralData) {
+      fetchTransactionsForReferrals([referralData], setTransactionData)
+        .then(() => {
+          setLoadingTransactionData(false);
+        })
+        .catch(error => {
+          console.error("Error fetching transactions: ", error.message);
+          toast.error(`Error fetching transactions: ${error.message}`);
+          setLoadingTransactionData(false);
+        });
+    }
+  }, [referralData]);
 
   const copyLinkToClipboard = async () => {
     try {
@@ -53,19 +90,23 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
 
       {/* Header */}
-      <ProjectHeader projectData={projectData} loading={loading} />
+      <ProjectHeader projectData={projectData} loading={loadingProject} />
 
-      <div className="w-2/3 flex flex-row mx-auto gap-10">
-        <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loading ? "animate-pulse" : ""}`}>
+      {/* Project Description and Action Panel */}
+      <div className="w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
+        {/* Project Description Container */}
+        <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loadingProject ? "animate-pulse" : ""}`}>
           {projectData?.description}
         </div>
+        {/* Join Project and Referral Actions */}
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
-          <h2 className="text-lg font-semibold text-gray-900">Earn {projectData?.rewardAmount || <span className="text-gray-500">Loading...</span>} {projectData?.selectedToken} for each successful referral</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Earn {projectData?.rewardAmount || <span className="text-gray-500">Loading...</span>} {projectData?.selectedToken} for each successful referral
+          </h2>
           <p className="text-gray-600 pb-4">{address ? "Share your link with others and start earning!" : "Join the project to start referring others."}</p>
-
           {address && 
             <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
               <input
@@ -83,7 +124,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               </button>
             </div>
           }
-
           <div className="flex flex-col justify-stretch mt-4">
             <ConnectWallet
               theme={lightTheme({
@@ -97,54 +137,55 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               onConnect={async (wallet: WalletInstance) => {
                 try {
                   if (!projectData) {
-                    // プロジェクトデータがまだ読み込まれていない場合は、読み込みを待つ
+                    // If project data is not yet loaded, wait for it to load
                     return;
                   }
                   const walletAddress = await wallet.getAddress();
                   const referralId = await joinProject(params.projectId, walletAddress);
                   console.log("Referral ID: ", referralId);
                   setReferralId(referralId);
-                } catch (error) {
+                } catch (error: any) {
                   console.error("Failed to join project: ", error);
-                  // エラーハンドリング
+                  toast.error(`Failed to join project: ${error.message}`);
                 }
               }}
             />
           </div>
-
         </div>
       </div>
 
-      {/* {address && <div className="w-3/5 mt-10">
-        <div className="flex flex-row gap-20">
-          <div className="h-[100px] w-full text-gray-500 p-5 rounded-lg shadow-md">
-            <p>Referrals</p>
-            <span className="text-2xl text-black">1</span> from 1 visit
+      {address && 
+        <>
+          <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+            <StatisticCard
+              title="Conversions"
+              loading={loadingReferral}
+              value={`${referralData?.conversions}`}
+              unit="TIMES"
+            />
+            <StatisticCard
+              title="Earnings"
+              loading={loadingReferral}
+              value={`${referralData?.earnings}`}
+              unit={`${projectData?.selectedToken}`}
+            />
+            <StatisticCard
+              title="Last Conversion Date"
+              loading={loadingReferral}
+              value={`${referralData?.lastConversionDate ? referralData.lastConversionDate.toLocaleDateString() : "N/A"}`}
+              unit=""
+            />
           </div>
-          <div className="h-[100px] w-full text-gray-500 p-5 rounded-lg shadow-md">
-            <p>Purchased</p>
-            <span className="text-2xl text-black">50 USDC</span> by 1 purchasers
-          </div>
-          <div className="h-[100px] w-full text-gray-500 p-5 rounded-lg shadow-md">
-            <p>Earned (USDC)</p>
-            <p className="text-2xl text-black">15 USDC</p>
-          </div>
-        </div>
-        <div className="border rounded-lg shadow-md mt-10">
-          <div className="flex flex-row px-10 py-3 bg-gray-50 shadow-sm">
-            <p className="flex-1">Address</p>
-            <p className="flex-1">Purchased</p>
-            <p className="flex-1">USDC Paid</p>
-            <p className="flex-1">Your Share (USDC)</p>
-          </div>
-          <div className="flex flex-row px-10 py-3 shadow-sm">
-            <p className="flex-1">0xf1f...998a</p>
-            <p className="flex-1">✅</p>
-            <p className="flex-1">50</p>
-            <p className="flex-1">15</p>
-          </div>
-        </div>
-      </div>} */}
+
+          {loadingTransactionData
+            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
+                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
+              </div>
+            : <ConversionsList transactions={transactionData} />
+          }
+        </>
+      }
 
     </div>
   );
