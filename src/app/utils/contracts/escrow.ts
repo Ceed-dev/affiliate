@@ -14,6 +14,16 @@ export class Escrow {
     this.contract = new ethers.Contract(contractAddress, escrowABI, signer);
   }
 
+  async getDepositBalance(tokenAddress: string, depositorAddress: string, decimals: number): Promise<string> {
+    try {
+      const balance = await this.contract.deposits(tokenAddress, depositorAddress);
+      return ethers.utils.formatUnits(balance, decimals);
+    } catch (error) {
+      console.error("Failed to get deposit balance:", error);
+      throw error;
+    }
+  }
+
   async deposit(tokenAddress: string, amount: number, decimals: number): Promise<string> {
     try {
       const formattedAmount = ethers.utils.parseUnits(amount.toString(), decimals);

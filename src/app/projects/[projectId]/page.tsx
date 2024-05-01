@@ -1,162 +1,149 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
+import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
+import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
+import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
+import { toast } from "react-toastify";
 
-import BarChart from "../../components/BarChart";
-import { NavBar } from "../../components/dashboard/NavBar";
+export default function Dashboard({ params }: { params: { projectId: string } }) {
+  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [loadingProject, setLoadingProject] = useState(true);
 
-function Dashboard() {
+  const [referralData, setReferralData] = useState<ReferralData[] | null>(null);
+  const [loadingReferral, setLoadingReferral] = useState(true);
+
+  const USDC_ADDRESS = "0x9b5F49000D02479d1300e041FFf1d74F49588749";
+  const signer = initializeSigner();
+  const escrow = new Escrow(signer);
+  const erc20 = new ERC20(USDC_ADDRESS, signer);
+
+  const [depositBalance, setDepositBalance] = useState("0");
+  const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
+
+  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+
+  useEffect(() => {
+    fetchProjectData(params.projectId)
+      .then(data => {
+        setProjectData(data);
+        setLoadingProject(false);
+      })
+      .catch(error => {
+        const message = (error instanceof Error) ? error.message : "Unknown error";
+        console.error("Error loading the project: ", message);
+        toast.error(`Error loading the project: ${message}`);
+        setLoadingProject(false);
+      });
+  }, [params.projectId]);
+
+  useEffect(() => {
+    fetchReferralsByProjectId(params.projectId)
+      .then(data => {
+        setReferralData(data);
+        setLoadingReferral(false);
+      })
+      .catch(error => {
+        const message = (error instanceof Error) ? error.message : "Unknown error";
+        console.error("Error loading the referrals: ", message);
+        toast.error(`Error loading the referrals: ${message}`);
+        setLoadingReferral(false);
+      });
+  }, [params.projectId]);
+
+  useEffect(() => {
+    erc20.getDecimals().then(async decimals => {
+      try {
+        const depositorAddress = await signer.getAddress();
+        const balance = await escrow.getDepositBalance(USDC_ADDRESS, depositorAddress, decimals);
+        const formattedBalance = parseFloat(balance);
+        const displayBalance = formattedBalance % 1 === 0 ? formattedBalance.toString() : balance;
+        setDepositBalance(displayBalance);
+        setLoadingDepositBalance(false);
+      } catch (error) {
+        const message = (error instanceof Error) ? error.message : "Failed to fetch deposit balance";
+        console.error("Error loading deposit balance: ", message);
+        toast.error(`Error loading deposit balance: ${message}`);
+        setLoadingDepositBalance(false);
+      }
+    }).catch(error => {
+      const message = (error instanceof Error) ? error.message : "Failed to fetch token decimals";
+      console.error("Error fetching token decimals: ", message);
+      toast.error(`Error fetching token decimals: ${message}`);
+      setLoadingDepositBalance(false);
+    });
+  
+  }, [params.projectId, USDC_ADDRESS, signer, erc20, escrow]);
+
+  useEffect(() => {
+    if (referralData) {
+      fetchTransactionsForReferrals(referralData, setTransactionData)
+        .then(() => {
+          setLoadingTransactionData(false);
+        })
+        .catch(error => {
+          console.error("Error fetching transactions: ", error.message);
+          toast.error(`Error fetching transactions: ${error.message}`);
+          setLoadingTransactionData(false);
+        });
+    }
+  }, [referralData]);
+
   return (
     <>
+      <NavBar />
+      <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
 
-    <NavBar />
-
-    <div className="min-h-screen bg-[#F8FAFC] px-40 py-20">
-      <div className="px-8 py-5">
-        <div className="flex flex-col sm:flex-row sm:justify-between">
-          <div className="mb-4 sm:mb-0">
-            <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
-              Affiliate sign up page
-            </h3>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              The page for affiliates to claim their referral link.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
-                Total Affiliates
-              </h3>
-              <div className="mt-1 text-3xl leading-8 font-semibold text-gray-900">
-                1
-              </div>
-            </div>
-          </div>
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
-                Total Referring Affiliates
-              </h3>
-              <div className="mt-1 text-3xl leading-8 font-semibold text-gray-900">
-                0
-              </div>
-            </div>
-          </div>
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-sm leading-5 font-semibold text-gray-400 tracking-wide uppercase">
-                Total Affiliate Revenue
-              </h3>
-              <div className="mt-1 text-3xl leading-8 font-semibold text-gray-900">
-                0 USDC
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-lg leading-6 font-medium text-gray-900">
-              Affiliate sign ups
-            </h2>
-          </div>
-          <div className="px-10 py-5">
-            <BarChart />
-          </div>
-        </div>
-        <div className="mb-4">
-          <h2 className="text-lg leading-6 font-medium text-gray-900">
-            Affiliates
-          </h2>
-          <p className="mt-1 text-sm text-gray-600">
-            A list of all affiliates.
+        {/* Title */}
+        <div className="pt-5">
+          <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
+            Affiliate sign up page
+          </h3>
+          <p className="text-sm text-[#6B7280]">
+            The page for affiliates to claim their referral link.
           </p>
         </div>
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg p-4 mb-6">
-          <div className="flex items-center mb-4">
-            <div className="relative inline-block text-left mr-auto">
-              <button
-                type="button"
-                className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-                id="options-menu"
-                aria-haspopup="true"
-                aria-expanded="true"
-              >
-                General
-                <svg
-                  className="ml-2 -mr-1 h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-            <button
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#4F46E5] hover:bg-[#4338CA] focus:outline-none"
-              name="export_csv"
-            >
-              Export to CSV
-            </button>
-            <button
-              className="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#10B981] hover:bg-[#059669] focus:outline-none"
-              name="add_affiliate"
-            >
-              Add affiliate
-            </button>
-          </div>
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Invited
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Visits
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Revenue Generated
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Earned (1 USDC)
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
-                  <p>0x329...1689</p>
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                  1
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                  18
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                  0 USDC
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                  0 USDC
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+        {/* Statistic Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <StatisticCard
+            title="Deposit Balance"
+            loading={loadingDepositBalance}
+            value={depositBalance}
+            unit={`${projectData?.selectedToken}`}
+          />
+          <StatisticCard
+            title="Total Paid Out"
+            loading={loadingProject}
+            value={`${projectData?.totalPaidOut}`}
+            unit={`${projectData?.selectedToken}`}
+          />
+          <StatisticCard
+            title="Total Affiliates"
+            loading={loadingReferral}
+            value={`${referralData?.length || 0}`}
+            unit="PEOPLE"
+          />
         </div>
+
+        {/* Chart */}
+        <div className="bg-white p-10 rounded-lg shadow">
+          {loadingTransactionData
+            ? <div className="flex flex-row items-center justify-center gap-5">
+                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <p className="animate-pulse font-semibold text-gray-600">Loading transaction data for chart visualization...</p>
+              </div>
+            : <PaymentTransactionsChart transactions={transactionData} />
+          }
+        </div>
+
+        {/* List */}
+        <AffiliatesList referrals={referralData || []} selectedToken={projectData?.selectedToken || ""} />
+
       </div>
-    </div>
     </>
   );
 }
-
-export default Dashboard;
