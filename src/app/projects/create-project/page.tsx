@@ -34,7 +34,7 @@ export default function CreateProject() {
   const [projectData, setProjectData] = useState<ProjectData>({
     projectName: "",
     description: "",
-    selectedToken: "USDC",
+    selectedTokenAddress: "",
     rewardAmount: 0,
     redirectUrl: "",
     logo: null,
@@ -97,7 +97,7 @@ export default function CreateProject() {
         return (
           <AffiliatesForm 
             data={{
-              selectedToken: projectData.selectedToken,
+              selectedTokenAddress: projectData.selectedTokenAddress,
               rewardAmount: projectData.rewardAmount,
               redirectUrl: projectData.redirectUrl
             }}

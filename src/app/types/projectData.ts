@@ -2,7 +2,7 @@ export type ProjectData = {
   id?: string;
   projectName: string;
   description: string;
-  selectedToken: string;
+  selectedTokenAddress: string;
   rewardAmount: number;
   redirectUrl: string;
   logo: string | null;

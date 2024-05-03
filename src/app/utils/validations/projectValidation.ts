@@ -5,7 +5,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
   return (
     typeof data.projectName === "string" &&
     typeof data.description === "string" &&
-    typeof data.selectedToken === "string" &&
+    typeof data.selectedTokenAddress === "string" &&
     typeof data.rewardAmount === "number" &&
     typeof data.redirectUrl === "string" &&
     (data.logo === null || typeof data.logo === "string") &&
