@@ -39,7 +39,7 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen">
-      <div className="pt-10 pb-20 px-36">
+      <div className="w-2/3 mx-auto pt-10 pb-20">
         <div className="text-left">
           <h2 className="text-3xl leading-9 font-extrabold text-[#121212] sm:text-4xl sm:leading-10">
             Marketplace
@@ -55,7 +55,7 @@ export default function Marketplace() {
               <p className="text-gray-500 font-semibold text-lg">Loading...</p>
             </div>
           : 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {projects.map((project: ExtendedProjectData) => (
                 <ProjectCard 
                   key={project.id} 
