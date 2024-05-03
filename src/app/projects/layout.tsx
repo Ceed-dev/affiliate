@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { useAddress } from "@thirdweb-dev/react";
 
-import { formatAddress } from "../utils/formatAddress";
+import { formatAddress } from "../utils/formatters";
 
 export default function ProjectsLayout({
   children,

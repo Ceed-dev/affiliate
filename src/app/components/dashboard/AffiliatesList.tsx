@@ -1,6 +1,6 @@
 import React from "react";
 import { ReferralData } from "../../types";
-import { formatAddress } from "../../utils/formatAddress";
+import { formatAddress } from "../../utils/formatters";
 
 type AffiliatesListProps = {
   referrals: ReferralData[];

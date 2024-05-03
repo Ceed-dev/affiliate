@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { toast } from "react-toastify";
 import { NextButton } from "./NextButton";
-import { tokenOptions } from "../../constants/tokenOptions";
 import { DepositButton } from "../DepositButton";
+import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { formatBalance } from "../../utils/formatters";
 
 type AffiliatesFormProps = {
   data: {
-    selectedToken: string;
+    selectedTokenAddress: string;
     rewardAmount: number;
     redirectUrl: string;
   };
@@ -18,7 +21,53 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   handleChange,
   nextStep
 }) => {
-  const isFormComplete = data.selectedToken.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
+  const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
+
+  const [tokenSymbol, setTokenSymbol] = useState("");
+  const [tokenBalance, setTokenBalance] = useState("");
+  const [tokenAllowance, setTokenAllowance] = useState("");
+  const [isFetchingTokenDetails, setIsFetchingTokenDetails] = useState(false);
+
+  const initializeTokenStates = () => {
+    setTokenSymbol("");
+    setTokenBalance("");
+    setTokenAllowance("");
+  };
+
+  useEffect(() => {
+    const fetchTokenDetails = async () => {
+      if (data.selectedTokenAddress) {
+        setIsFetchingTokenDetails(true);
+        try {
+          const signer = initializeSigner();
+          const erc20 = new ERC20(data.selectedTokenAddress, signer);
+          const symbol = await erc20.getSymbol();
+          const balance = await erc20.getBalance(await signer.getAddress());
+          const allowance = await erc20.getAllowance(await signer.getAddress(), `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`);
+
+          setTokenSymbol(symbol);
+          setTokenBalance(balance);
+          setTokenAllowance(allowance);
+
+          console.log(JSON.stringify({
+            "Address" : data.selectedTokenAddress,
+            "Symbol" : symbol,
+            "Balance" : balance,
+            "Allowance" : allowance,
+          }, null, 2));
+        } catch (error: any) {
+          console.error(`Error fetching token details: ${error.message}`);
+          toast.error(`Error fetching token details: ${error.message}`);
+          initializeTokenStates();
+        }
+        setIsFetchingTokenDetails(false);
+      } else {
+        initializeTokenStates();
+      }
+    };
+
+    fetchTokenDetails();
+  }, [data.selectedTokenAddress]);
 
   return (
     <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
@@ -29,17 +78,28 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         
         <div className="flex flex-col gap-2">
           <h2>Token <span className="text-red-500">*</span></h2>
-          <select
-            value={data.selectedToken}
-            onChange={handleChange("selectedToken")}
+          <input
+            type="text"
+            value={data.selectedTokenAddress}
+            onChange={handleChange("selectedTokenAddress")}
+            placeholder="Enter token contract address"
             className="w-full p-2 border border-[#D1D5DB] rounded-lg outline-none"
-          >
-            {tokenOptions.map((token, index) => (
-              <option key={index} value={token}>
-                {token}
-              </option>
-            ))}
-          </select>
+          />
+          {isFetchingTokenDetails &&
+            <div className="flex flex-row gap-3">
+              <Image src="/loading.png" alt="loading.png" width={20} height={20} className="animate-spin" /> 
+              <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
+            </div>
+          }
+          {tokenSymbol && tokenBalance && tokenAllowance && 
+            <div className="flex flex-row justify-around">
+              <p><span className="font-semibold">Token:</span> {tokenSymbol}</p>
+              <p>/</p>
+              <p><span className="font-semibold">Balance:</span> {formatBalance(tokenBalance)}</p>
+              <p>/</p>
+              <p><span className="font-semibold">Allowance:</span> {formatBalance(tokenAllowance)}</p>
+            </div>
+          }
         </div>
 
         <div className="flex flex-col gap-2">
