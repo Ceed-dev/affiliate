@@ -16,7 +16,7 @@ export const StatusStep: React.FC<StatusStepProps> = ({ number, step, currentSte
   }
 
   return (
-    <div className="flex flex-row items-center gap-5">
+    <div className="flex flex-row items-center gap-2 md:gap-5">
       {number > 1 && 
         <Image src="/status-arrow.png" height={20} width={20} alt="status-arrow.png" />
       }

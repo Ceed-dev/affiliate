@@ -66,7 +66,7 @@ export default function Projects() {
             <p className="text-sm text-gray-500">Get started by creating a new project.</p>
           </div>
         : 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {projects.map((project: ExtendedProjectData) => (
               <ProjectCard 
                 key={project.id} 

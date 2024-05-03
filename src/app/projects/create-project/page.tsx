@@ -148,7 +148,9 @@ export default function CreateProject() {
   return (
     <div className="flex flex-col">
       <StatusBar currentStep={currentStep} />
-      {renderForm()}
+      <div className="w-11/12 md:w-8/12 xl:w-6/12 mx-auto">
+        {renderForm()}
+      </div>
     </div>
   );
 }

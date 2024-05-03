@@ -24,7 +24,7 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   hideCompleteButton
 }) => {
   return (
-    <div className="bg-white w-2/5 rounded-lg shadow-md p-5 mx-auto mt-10 text-sm">
+    <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
 
       <h1 className="text-xl mb-5">Socials</h1>
 
