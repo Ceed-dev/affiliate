@@ -34,7 +34,7 @@ export default function Onboarding() {
           <p className="text-lg font-semibold">Qube</p>
         </Link>
       </div>
-      <div className="bg-white border-2 border-sky-500 rounded-lg w-1/3 flex flex-col items-center gap-10 py-20">
+      <div className="bg-white border-2 border-sky-500 rounded-lg w-2/3 xl:w-1/3 flex flex-col items-center gap-10 py-20">
         <Image
           src="/qube.png"
           alt="qube.png"
