@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { useAddress } from "@thirdweb-dev/react";
-
 import { formatAddress } from "../utils/formatters";
 
 export default function ProjectsLayout({
@@ -13,6 +14,14 @@ export default function ProjectsLayout({
   children: React.ReactNode;
 }>) {
   const address = useAddress();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!address) {
+      router.push("/onboarding");
+      toast.info("Please connect your wallet.");
+    }
+  }, [address, router]);
 
   return (
     <>
@@ -32,7 +41,7 @@ export default function ProjectsLayout({
         <button
           className="bg-gray-100 text-gray-600 text-sm py-2 px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
         >
-          {formatAddress(address as string)}
+          {address ? formatAddress(address) : "Not connected"}
         </button>
       </div>
       {children}
