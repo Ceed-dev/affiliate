@@ -3,19 +3,32 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { ProjectData } from "../../types";
+import { ProjectData, ExtendedProjectData } from "../../types";
 import { fetchAllProjects } from "../../utils/firebase";
+import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { ProjectCard } from "../../components/ProjectCard";
 
 export default function Marketplace() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const [projects, setProjects] = useState<ProjectData[] | []>([]);
+  const [projects, setProjects] = useState<ExtendedProjectData[] | []>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchTokenSymbols = async (projects: ProjectData[]) => {
+      const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
+      return Promise.all(projects.map(async (project) => {
+        const erc20 = new ERC20(project.selectedTokenAddress, signer);
+        const symbol = await erc20.getSymbol();
+        return { ...project, selectedToken: symbol };
+      }));
+    };
+
     fetchAllProjects()
-      .then(setProjects)
+      .then(async (projects) => {
+        const projectsWithSymbols = await fetchTokenSymbols(projects);
+          setProjects(projectsWithSymbols);
+      })
       .catch(error => {
         const errorMessage = error.message || "An unknown error occurred";
         setError(errorMessage);
@@ -43,7 +56,7 @@ export default function Marketplace() {
             </div>
           : 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
+              {projects.map((project: ExtendedProjectData) => (
                 <ProjectCard 
                   key={project.id} 
                   project={project} 

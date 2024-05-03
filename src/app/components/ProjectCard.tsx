@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ProjectData } from "../types";
+import { ExtendedProjectData } from "../types";
 
 type ProjectCardProps = {
-  project: ProjectData;
+  project: ExtendedProjectData;
   linkUrl: string;
 };
 

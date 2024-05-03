@@ -16,10 +16,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [referralData, setReferralData] = useState<ReferralData[] | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
 
-  const USDC_ADDRESS = "0x9b5F49000D02479d1300e041FFf1d74F49588749";
-  const signer = initializeSigner();
-  const escrow = new Escrow(signer);
-  const erc20 = new ERC20(USDC_ADDRESS, signer);
+  const [tokenSymbol, setTokenSymbol] = useState("");
+  const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
   const [depositBalance, setDepositBalance] = useState("0");
   const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
@@ -56,26 +54,35 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   }, [params.projectId]);
 
   useEffect(() => {
-    erc20.getDecimals().then(async decimals => {
+    if (!projectData) return;
+
+    const fetchTokenDetails = async () => {
       try {
+        const signer = initializeSigner();
+        const escrow = new Escrow(signer);
+        const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
+
+        const [symbol, decimals] = await Promise.all([
+          erc20.getSymbol(),
+          erc20.getDecimals()
+        ]);
+
+        setTokenSymbol(symbol);
+
         const depositorAddress = await signer.getAddress();
-        const balance = await escrow.getDepositBalance(USDC_ADDRESS, depositorAddress, decimals);
+        const balance = await escrow.getDepositBalance(projectData.selectedTokenAddress, depositorAddress, decimals);
         setDepositBalance(formatBalance(balance));
+      } catch (error: any) {
+        console.error("Error fetching token details: ", error);
+        toast.error(`Error fetching token details: ${error.message}`);
+      } finally {
         setLoadingDepositBalance(false);
-      } catch (error) {
-        const message = (error instanceof Error) ? error.message : "Failed to fetch deposit balance";
-        console.error("Error loading deposit balance: ", message);
-        toast.error(`Error loading deposit balance: ${message}`);
-        setLoadingDepositBalance(false);
+        setLoadingTokenSymbol(false);
       }
-    }).catch(error => {
-      const message = (error instanceof Error) ? error.message : "Failed to fetch token decimals";
-      console.error("Error fetching token decimals: ", message);
-      toast.error(`Error fetching token decimals: ${message}`);
-      setLoadingDepositBalance(false);
-    });
-  
-  }, [params.projectId, USDC_ADDRESS, signer, erc20, escrow]);
+    };
+
+    fetchTokenDetails();
+  }, [projectData]);
 
   useEffect(() => {
     if (referralData) {
@@ -110,15 +117,15 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <StatisticCard
             title="Deposit Balance"
-            loading={loadingDepositBalance}
+            loading={loadingDepositBalance || loadingTokenSymbol}
             value={depositBalance}
-            unit={`${projectData?.selectedToken}`}
+            unit={tokenSymbol}
           />
           <StatisticCard
             title="Total Paid Out"
-            loading={loadingProject}
+            loading={loadingProject || loadingTokenSymbol}
             value={`${projectData?.totalPaidOut}`}
-            unit={`${projectData?.selectedToken}`}
+            unit={tokenSymbol}
           />
           <StatisticCard
             title="Total Affiliates"
@@ -140,7 +147,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         </div>
 
         {/* List */}
-        <AffiliatesList referrals={referralData || []} selectedToken={projectData?.selectedToken || ""} />
+        <AffiliatesList referrals={referralData || []} selectedToken={tokenSymbol || ""} />
 
       </div>
     </>

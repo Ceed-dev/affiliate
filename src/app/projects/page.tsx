@@ -5,29 +5,41 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData } from "../types";
+import { ProjectData, ExtendedProjectData } from "../types";
 import { fetchProjectsByOwner } from "../utils/firebase";
+import { initializeSigner, ERC20 } from "../utils/contracts";
 import { ProjectCard } from "../components/ProjectCard";
 
 export default function Projects() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const address = useAddress();
-  const [projects, setProjects] = useState<ProjectData[] | []>([]);
+  const [projects, setProjects] = useState<ExtendedProjectData[] | []>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchTokenSymbols = async (projects: ProjectData[]) => {
+      const signer = initializeSigner();
+      return Promise.all(projects.map(async (project) => {
+        const erc20 = new ERC20(project.selectedTokenAddress, signer);
+        const symbol = await erc20.getSymbol();
+        return { ...project, selectedToken: symbol };
+      }));
+    };
+  
     if (address) {
       fetchProjectsByOwner(address)
-        .then(setProjects)
+        .then(async (projects) => {
+          const projectsWithSymbols = await fetchTokenSymbols(projects);
+          setProjects(projectsWithSymbols);
+        })
         .catch(error => {
           const errorMessage = error.message || "An unknown error occurred";
           setError(errorMessage);
           toast.error(`Error: ${errorMessage}`);
         })
-        .finally(() => setLoading(false)); 
+        .finally(() => setLoading(false));
     }
-    
   }, [address]);
 
   return (
@@ -55,7 +67,7 @@ export default function Projects() {
           </div>
         : 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project: ProjectData) => (
+            {projects.map((project: ExtendedProjectData) => (
               <ProjectCard 
                 key={project.id} 
                 project={project} 

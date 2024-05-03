@@ -8,6 +8,7 @@ import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { ProjectHeader, ConversionsList } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals } from "../../utils/firebase";
+import { initializeSigner, ERC20 } from "../../utils/contracts";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
@@ -24,6 +25,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [referralId, setReferralId] = useState<string | null>(null);
   const [buttonLabel, setButtonLabel] = useState("Copy");
+
+  const [tokenSymbol, setTokenSymbol] = useState("");
+  const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
@@ -46,6 +50,27 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         setLoadingProject(false);
       });
   }, [params.projectId]);
+
+  useEffect(() => {
+    if (!projectData) return;
+
+    const fetchTokenDetails = async () => {
+      try {
+        const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
+        const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
+        const symbol = await erc20.getSymbol();
+
+        setTokenSymbol(symbol);
+      } catch (error: any) {
+        console.error("Error fetching token details: ", error);
+        toast.error(`Error fetching token details: ${error.message}`);
+      } finally {
+        setLoadingTokenSymbol(false);
+      }
+    };
+
+    fetchTokenDetails();
+  }, [projectData]);
 
   useEffect(() => {
     if (referralId) {
@@ -104,7 +129,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         {/* Join Project and Referral Actions */}
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
           <h2 className="text-lg font-semibold text-gray-900">
-            Earn {projectData?.rewardAmount || <span className="text-gray-500">Loading...</span>} {projectData?.selectedToken} for each successful referral
+            Earn {!(projectData?.rewardAmount) || loadingTokenSymbol ? <span className="text-gray-500">Loading...</span> : `${projectData?.rewardAmount} ${tokenSymbol}`} for each successful referral
           </h2>
           <p className="text-gray-600 pb-4">{address ? "Share your link with others and start earning!" : "Join the project to start referring others."}</p>
           {address && 
@@ -165,9 +190,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             />
             <StatisticCard
               title="Earnings"
-              loading={loadingReferral}
+              loading={loadingReferral || loadingTokenSymbol}
               value={`${referralData?.earnings}`}
-              unit={`${projectData?.selectedToken}`}
+              unit={tokenSymbol}
             />
             <StatisticCard
               title="Last Conversion Date"
