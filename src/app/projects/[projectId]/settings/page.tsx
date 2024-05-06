@@ -9,6 +9,7 @@ import {
   ProjectDetailsForm, 
   AffiliatesForm,
   LogoForm,
+  SocialLinksForm,
   NextButton 
 } from "../../../components/createProject";
 import { fetchProjectData } from "../../../utils/firebase";
@@ -130,7 +131,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 description: `${projectData?.description}`
               }}
               handleChange={handleChange}
-              isEditing={true}
             />
             <AffiliatesForm 
               data={{
@@ -148,7 +148,16 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               }}
               handleImageChange={handleImageChange}
               removeImage={(type) => removeImage(type)}
-              isEditing={true}
+            />
+            <SocialLinksForm
+              data={{
+                websiteUrl: `${projectData?.websiteUrl}`,
+                discordUrl: `${projectData?.discordUrl}`,
+                xUrl: `${projectData?.xUrl}`,
+                instagramUrl: `${projectData?.instagramUrl}`
+              }}
+              handleChange={handleChange}
+              hideCompleteButton={true}
             />
             <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges()}>
               Save Changes

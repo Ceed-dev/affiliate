@@ -9,14 +9,12 @@ type ProjectDetailsFormProps = {
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   nextStep?: () => void;
-  isEditing?: boolean;
 };
 
 export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   data,
   handleChange,
   nextStep,
-  isEditing
 }) => {
   const isFormComplete = data.projectName.trim() && data.description.trim() ;
 
@@ -49,7 +47,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
 
       </div>
 
-      {!isEditing && nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
 
     </div>
   );

@@ -11,8 +11,8 @@ type SocialLinksFormProps = {
     instagramUrl: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
-  nextStep: () => void;
-  isLoading: boolean;
+  nextStep?: () => void;
+  isLoading?: boolean;
   hideCompleteButton: boolean;
 };
 
@@ -75,7 +75,7 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       </div>
 
-      {!hideCompleteButton &&
+      {!hideCompleteButton && nextStep &&
         ( 
           isLoading 
             ? <Image src={"/loading.png"} height={40} width={40} alt="loading.png" className="mx-auto mt-5 animate-spin" />

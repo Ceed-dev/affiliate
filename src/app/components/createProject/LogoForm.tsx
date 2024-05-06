@@ -11,7 +11,6 @@ type LogoFormProps = {
   handleImageChange: (field: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (field: "logo" | "cover") => () => void;
   nextStep?: () => void;
-  isEditing?: boolean;
 };
 
 export const LogoForm: React.FC<LogoFormProps> = ({
@@ -19,7 +18,6 @@ export const LogoForm: React.FC<LogoFormProps> = ({
   handleImageChange,
   removeImage,
   nextStep,
-  isEditing
 }) => {
   const isFormComplete = data.logoPreview.trim() && data.coverPreview.trim();
 
@@ -86,7 +84,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           />
         </div>
       </div>
-      {!isEditing && nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
     </div>
   );
 };
