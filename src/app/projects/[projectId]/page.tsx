@@ -100,7 +100,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   return (
     <>
-      <NavBar />
+      <NavBar projectId={params.projectId} />
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
 
         {/* Title */}

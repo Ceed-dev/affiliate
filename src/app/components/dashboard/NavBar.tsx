@@ -1,16 +1,30 @@
-import { toast } from "react-toastify";
+"use client";
 
-export const NavBar = () => {
+import { useRouter, usePathname } from "next/navigation";
+
+type NavBar = {
+  projectId: string;
+}
+
+export const NavBar = ({ projectId }: NavBar) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const isActive = (path: string) => {
+    return pathname === `/projects/${projectId}${path}`;
+  };
+
   return (
     <div className="flex flex-row py-3 px-10 gap-5">
       <button 
-        className="bg-blue-200 rounded-md px-3 py-2 text-blue-600"
+        className={`rounded-md px-3 py-2 ${isActive("") ? "bg-blue-200 text-blue-600" : "text-gray-500 hover:text-black"}`}
+        onClick={() => router.push(`/projects/${projectId}`)}
       >
         Dashboard
       </button>
       <button 
-        className="rounded-md px-3 py-2 text-gray-500 hover:text-black"
-        onClick={() => toast.info("Work in progress...")}
+        className={`rounded-md px-3 py-2 ${isActive("/settings") ? "bg-blue-200 text-blue-600" : "text-gray-500 hover:text-black"}`}
+        onClick={() => router.push(`/projects/${projectId}/settings`)}
       >
         Settings
       </button>

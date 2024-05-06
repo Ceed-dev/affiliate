@@ -13,13 +13,15 @@ type AffiliatesFormProps = {
     redirectUrl: string;
   };
   handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  nextStep: () => void;
+  nextStep?: () => void;
+  isEditing?: boolean;
 };
 
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
-  nextStep
+  nextStep,
+  isEditing
 }) => {
   const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
 
@@ -77,13 +79,14 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       <div className="flex flex-col gap-5">
         
         <div className="flex flex-col gap-2">
-          <h2>Token <span className="text-red-500">*</span></h2>
+          <h2>Token <span className="text-red-500">*</span> {isEditing && <span className="text-gray-500 text-sm">(Not editable)</span>}</h2>
           <input
+            readOnly={isEditing}
             type="text"
             value={data.selectedTokenAddress}
             onChange={handleChange("selectedTokenAddress")}
             placeholder="Enter token contract address"
-            className="w-full p-2 border border-[#D1D5DB] rounded-lg outline-none"
+            className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500" : "bg-white text-black"}`}
           />
           {isFetchingTokenDetails &&
             <div className="flex flex-row gap-3">
@@ -136,13 +139,15 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2>Initial Deposit</h2>
-          <DepositButton tokenAddress="0x9b5f49000d02479d1300e041fff1d74f49588749" depositAmount={100} />
-        </div>
+        {!isEditing && 
+          <div className="flex flex-col gap-2">
+            <h2>Initial Deposit</h2>
+            <DepositButton tokenAddress="0x9b5f49000d02479d1300e041fff1d74f49588749" depositAmount={100} />
+          </div>
+        }
       </div>
 
-      <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />
+      {!isEditing && nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
 
     </div>
   );
