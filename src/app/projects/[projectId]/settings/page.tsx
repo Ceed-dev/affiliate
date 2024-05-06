@@ -12,13 +12,13 @@ import {
   SocialLinksForm,
   NextButton 
 } from "../../../components/createProject";
-import { fetchProjectData } from "../../../utils/firebase";
+import { fetchProjectData, updateProjectInFirestore } from "../../../utils/firebase";
 
 export default function Settings({ params }: { params: { projectId: string } }) {
   const [initialProjectData, setInitialProjectData] = useState<ProjectData | null>(null);
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
-
+  const [isUpdating, setIsUpdating] = useState(false);
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
     coverPreview: ""
@@ -101,14 +101,25 @@ export default function Settings({ params }: { params: { projectId: string } }) 
       projectData.cover
   };
 
-  const handleSaveChanges = () => {
-    if (isFormComplete()) {
-      // Firebaseに保存
+  const handleSaveChanges = async () => {
+    if (isFormComplete() && projectData) {
       console.log("Saving changes...");
-      console.log("Check!!:", JSON.stringify(projectData, null, 2));
-      console.log("logo:", projectData?.logo);
-      console.log("cover:", projectData?.cover);
-      // 実際の保存ロジック
+      try {
+        const updatedData = await updateProjectInFirestore(
+          params.projectId,
+          projectData,
+          setIsUpdating
+        );
+        setProjectData(updatedData);
+        setInitialProjectData(updatedData);
+        setPreviewData({
+          logoPreview: `${updatedData.logo}`,
+          coverPreview: `${updatedData.cover}`
+        });
+      } catch (error: any) {
+        console.error("Failed to save changes:", error);
+        toast.error("Failed to save changes: " + error.message);
+      }
     } else {
       toast.error("Please fill out all required fields.");
     }
@@ -159,8 +170,15 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               handleChange={handleChange}
               hideCompleteButton={true}
             />
-            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges()}>
-              Save Changes
+            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating}>
+              {isUpdating ? (
+                <div className="flex flex-row items-center justify-center gap-5">
+                  <Image src="/loading.png" alt="loading.png" width={30} height={30} className="animate-spin" /> 
+                  <p className="text-gray-500 font-semibold text-lg">Updating...</p>
+                </div>
+              ) : (
+                <p>Save Changes</p>
+              )}
             </NextButton>
           </>
         )}
