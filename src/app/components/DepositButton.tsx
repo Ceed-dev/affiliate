@@ -4,11 +4,12 @@ import { toast } from "react-toastify";
 import { initializeSigner, Escrow, ERC20 } from "../utils/contracts";
 
 type DepositButtonProps = {
+  projectId: string;
   tokenAddress: string;
   depositAmount: number;
 };
   
-export const DepositButton: React.FC<DepositButtonProps> = ({tokenAddress, depositAmount}) => {
+export const DepositButton: React.FC<DepositButtonProps> = ({ projectId, tokenAddress, depositAmount }) => {
   const signer = initializeSigner();
   const escrow = new Escrow(signer);
   const erc20 = new ERC20(tokenAddress, signer);
@@ -42,8 +43,7 @@ export const DepositButton: React.FC<DepositButtonProps> = ({tokenAddress, depos
   const depositTokens = async () => {
     try {
       setDepositStatus("(3/3) Depositing tokens...");
-      const decimals = await erc20.getDecimals();
-      const txhash = await escrow.deposit(tokenAddress, depositAmount, decimals);
+      const txhash = await escrow.deposit(projectId, tokenAddress, depositAmount);
       console.log("Deposit transaction hash:", txhash);
       toast.info("Tokens deposited successfully.");
     } catch (error: any) {

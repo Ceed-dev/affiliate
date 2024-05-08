@@ -61,17 +61,10 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         const signer = initializeSigner();
         const escrow = new Escrow(signer);
         const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
-
-        const [symbol, decimals] = await Promise.all([
-          erc20.getSymbol(),
-          erc20.getDecimals()
-        ]);
-
+        const symbol = await erc20.getSymbol();
         setTokenSymbol(symbol);
-
-        const depositorAddress = await signer.getAddress();
-        const balance = await escrow.getDepositBalance(projectData.selectedTokenAddress, depositorAddress, decimals);
-        setDepositBalance(formatBalance(balance));
+        const projectInfo = await escrow.getProjectInfo(params.projectId);
+        setDepositBalance(projectInfo?.depositAmount ? formatBalance(projectInfo.depositAmount) : "0");
       } catch (error: any) {
         console.error("Error fetching token details: ", error);
         toast.error(`Error fetching token details: ${error.message}`);
