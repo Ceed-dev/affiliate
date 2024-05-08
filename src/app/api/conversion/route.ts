@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const signer = initializeSigner(`${process.env.WALLET_PRIVATE_KEY}`);
+    const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
     const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
     const decimals = await erc20.getDecimals();
     const escrow = new Escrow(signer);
