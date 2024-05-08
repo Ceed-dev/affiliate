@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
+import { initializeSigner, Escrow } from "../../utils/contracts";
 import { 
   fetchProjectData, 
   fetchReferralData,
@@ -33,16 +33,18 @@ export async function POST(request: NextRequest) {
     }
 
     const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
-    const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
-    const decimals = await erc20.getDecimals();
     const escrow = new Escrow(signer);
     const txhash = await escrow.withdraw(
-      projectData.selectedTokenAddress,
+      referralData.projectId,
       projectData.rewardAmount,
-      decimals,
-      projectData.ownerAddress,
       referralData.affiliateWallet
     );
+    if (!txhash) {
+      return NextResponse.json(
+        { error: "Fail to withdraw" },
+        { status: 500 }
+      );
+    }
 
     await processRewardPaymentTransaction(
       referralData.projectId, 

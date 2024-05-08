@@ -142,7 +142,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         {!isEditing && 
           <div className="flex flex-col gap-2">
             <h2>Initial Deposit</h2>
-            <DepositButton tokenAddress="0x9b5f49000d02479d1300e041fff1d74f49588749" depositAmount={100} />
+            <DepositButton projectId="Z4f0JEWUcicaXvm0nimB" tokenAddress="0x9b5f49000d02479d1300e041fff1d74f49588749" depositAmount={50} />
           </div>
         }
       </div>
