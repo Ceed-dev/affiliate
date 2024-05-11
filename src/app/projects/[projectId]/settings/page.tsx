@@ -143,15 +143,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               }}
               handleChange={handleChange}
             />
-            <AffiliatesForm 
-              data={{
-                selectedTokenAddress: `${projectData?.selectedTokenAddress}`,
-                rewardAmount: projectData?.rewardAmount ?? 0,
-                redirectUrl: `${projectData?.redirectUrl}`
-              }}
-              handleChange={handleChange}
-              isEditing={true}
-            />
             <LogoForm
               data={{
                 logoPreview: previewData.logoPreview,
@@ -168,7 +159,14 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 instagramUrl: `${projectData?.instagramUrl}`
               }}
               handleChange={handleChange}
-              hideCompleteButton={true}
+            />
+            <AffiliatesForm 
+              data={{
+                selectedTokenAddress: `${projectData?.selectedTokenAddress}`,
+                rewardAmount: projectData?.rewardAmount ?? 0,
+                redirectUrl: `${projectData?.redirectUrl}`
+              }}
+              handleChange={handleChange}
             />
             <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating}>
               {isUpdating ? (
