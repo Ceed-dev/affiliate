@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { NextButton } from "./NextButton";
-import { DepositButton } from "../DepositButton";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 
@@ -14,15 +13,20 @@ type AffiliatesFormProps = {
   };
   handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   nextStep?: () => void;
-  isEditing?: boolean;
+  isSaving?: boolean;
+  hideButton?: boolean;
+  status?: string;
 };
 
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
   nextStep,
-  isEditing
+  isSaving,
+  hideButton,
+  status
 }) => {
+  const isEditing = nextStep === undefined;
   const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
 
   const [tokenSymbol, setTokenSymbol] = useState("");
@@ -139,15 +143,16 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </div>
         </div>
 
-        {/* {!isEditing && 
-          <div className="flex flex-col gap-2">
-            <h2>Initial Deposit</h2>
-            <DepositButton projectId="Z4f0JEWUcicaXvm0nimB" tokenAddress="0x9b5f49000d02479d1300e041fff1d74f49588749" depositAmount={50} />
-          </div>
-        } */}
       </div>
 
-      {!isEditing && nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && !hideButton &&
+        <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete || (isSaving ?? true)} >
+          <div className="flex flex-row items-center justify-center gap-5">
+            {isSaving && <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />}
+            {status}
+          </div>
+        </NextButton>
+      }
 
     </div>
   );

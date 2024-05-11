@@ -1,6 +1,6 @@
 export const steps = [
   "Details",
-  "Affiliates",
   "Logo",
-  "Socials"
+  "Socials",
+  "Affiliates"
   ];
