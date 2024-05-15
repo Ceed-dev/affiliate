@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-
 import { NextButton } from "./NextButton";
 
 type LogoFormProps = {
@@ -84,7 +83,9 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           />
         </div>
       </div>
+
       {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+
     </div>
   );
 };

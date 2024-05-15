@@ -1,5 +1,4 @@
 import React from "react";
-
 import { NextButton } from "./NextButton";
 
 type ProjectDetailsFormProps = {

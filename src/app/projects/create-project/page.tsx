@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { useAddress } from "@thirdweb-dev/react";
-
+import { toast } from "react-toastify";
 import { 
   StatusBar,
   ProjectDetailsForm,
@@ -12,25 +11,18 @@ import {
   LogoForm,
   SocialLinksForm
 } from "../../components/createProject";
-
-import { saveProjectToFirestore } from "../../utils/firebase";
-
+import { saveProjectToFirestore, deleteProjectFromFirestore } from "../../utils/firebase";
+import { approveToken, depositToken } from "../../utils/contracts";
 import { ProjectData, ImageType } from "../../types";
 
 export default function CreateProject() {
-  const router = useRouter();
   const address = useAddress();
-  const [isLoading, setIsLoading] = useState(false);
-  const [hideCompleteButton, setHideCompleteButton] = useState(false);
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-
-  const nextStep = () => {
-    setCurrentStep(currentStep < 5 ? currentStep + 1 : 5);
-
-    // Debug
-    console.log("projectData:", JSON.stringify(projectData, null, 2));
-  };
-
+  const initialStatus = "Save & Deposit";
+  const [saveAndDepositStatus, setSaveAndDepositStatus] = useState(initialStatus);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hideSaveAndDepositButton, setHideSaveAndDepositButton] = useState(false);
   const [projectData, setProjectData] = useState<ProjectData>({
     projectName: "",
     description: "",
@@ -49,11 +41,12 @@ export default function CreateProject() {
     totalPaidOut: 0,
     lastPaymentDate: null,
   });
-
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
     coverPreview: ""
   });
+
+  const nextStep = () => setCurrentStep(currentStep < 5 ? currentStep + 1 : 5);
 
   const handleChange = (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
@@ -80,6 +73,49 @@ export default function CreateProject() {
     setProjectData(prev => ({ ...prev, [type]: "" }));
   };
 
+  const saveProjectAndDepositToken = async () => {
+    const depositAmount = 10;
+    setIsSaving(true);
+
+    setSaveAndDepositStatus("Saving project to Firestore...");
+    const result = await saveProjectToFirestore(projectData, `${address}`);
+    if (!result) {
+      toast.error("Failed to save project. Please try again.");
+      setSaveAndDepositStatus(initialStatus);
+      setIsSaving(false);
+      return;
+    }
+    const { projectId } = result;
+
+    setSaveAndDepositStatus("Apprcoving tokens...");
+    const approveSuccess = await approveToken(projectData.selectedTokenAddress, depositAmount);
+    if (!approveSuccess) {
+      toast.error("Failed to approve token. Please try again.");
+      setSaveAndDepositStatus(initialStatus);
+      setIsSaving(false);
+      await deleteProjectFromFirestore(projectId);
+      return;
+    }
+
+    setSaveAndDepositStatus("Depositing tokens...");
+    const depositSuccess = await depositToken(projectId, projectData.selectedTokenAddress, depositAmount);
+    if (!depositSuccess) {
+      toast.error("Failed to deposit token. Please try again.");
+      setSaveAndDepositStatus(initialStatus);
+      setIsSaving(false);
+      await deleteProjectFromFirestore(projectId);
+      return;
+    }
+
+    setHideSaveAndDepositButton(true);
+    nextStep();
+    setIsSaving(false);
+
+    toast.success("Project saved successfully! Redirecting to the dashboard...", {
+      onClose: () => router.push(`/projects/${projectId}`)
+    });
+  };
+
   const renderForm = () => {
     switch (currentStep) {
       case 1:
@@ -95,18 +131,6 @@ export default function CreateProject() {
         );
       case 2:
         return (
-          <AffiliatesForm 
-            data={{
-              selectedTokenAddress: projectData.selectedTokenAddress,
-              rewardAmount: projectData.rewardAmount,
-              redirectUrl: projectData.redirectUrl
-            }}
-            handleChange={handleChange}
-            nextStep={nextStep}
-          />
-        );
-      case 3:
-        return (
           <LogoForm
             data={{
               logoPreview: previewData.logoPreview,
@@ -117,8 +141,7 @@ export default function CreateProject() {
             nextStep={nextStep}
           />
         );
-      case 4:
-      case 5:
+      case 3:
         return (
           <SocialLinksForm
             data={{
@@ -128,16 +151,23 @@ export default function CreateProject() {
               instagramUrl: projectData.instagramUrl
             }}
             handleChange={handleChange}
-            nextStep={() => saveProjectToFirestore(
-              projectData, 
-              address as string, 
-              setIsLoading,
-              setHideCompleteButton,
-              nextStep,
-              router
-            )}
-            isLoading={isLoading}
-            hideCompleteButton={hideCompleteButton}
+            nextStep={nextStep}
+          />
+        );
+      case 4:
+      case 5:
+        return (
+          <AffiliatesForm 
+            data={{
+              selectedTokenAddress: projectData.selectedTokenAddress,
+              rewardAmount: projectData.rewardAmount,
+              redirectUrl: projectData.redirectUrl
+            }}
+            handleChange={handleChange}
+            nextStep={saveProjectAndDepositToken}
+            isSaving={isSaving}
+            hideButton={hideSaveAndDepositButton}
+            status={saveAndDepositStatus}
           />
         );
       default:

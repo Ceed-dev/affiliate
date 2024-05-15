@@ -8,6 +8,7 @@ import { fetchReferralsByProjectId } from "./fetchReferralsByProjectId";
 import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
+import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
 
 export {
   saveProjectToFirestore,
@@ -19,5 +20,6 @@ export {
   fetchReferralsByProjectId,
   joinProject,
   processRewardPaymentTransaction,
-  fetchTransactionsForReferrals
+  fetchTransactionsForReferrals,
+  deleteProjectFromFirestore
 }
