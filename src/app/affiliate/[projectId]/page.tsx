@@ -90,35 +90,51 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     fetchTokenDetails();
   }, [projectData]);
 
-  useEffect(() => {
-    if (referralId) {
-      fetchReferralData(referralId)
-        .then(data => {
-          setReferralData(data);
-          setLoadingReferral(false);
-        })
-        .catch(error => {
-          const message = (error instanceof Error) ? error.message : "Unknown error";
-          console.error("Error loading the referral: ", message);
-          toast.error(`Error loading the referral: ${message}`);
-          setLoadingReferral(false);
-        });
-    }
-  }, [referralId]);
+  // TODO: コンバージョンダッシュボードを一時的に非表示するため、リファラルデータを読み込む必要なし。
+  // - Reason: コンバージョンに関してはGoogle Sheetsなどで管理できるため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-15
+  // - Author: shungo0222
+  // - Issue: #306
+  // ===== BEGIN ORIGINAL CODE =====
+  // useEffect(() => {
+  //   if (referralId) {
+  //     fetchReferralData(referralId)
+  //       .then(data => {
+  //         setReferralData(data);
+  //         setLoadingReferral(false);
+  //       })
+  //       .catch(error => {
+  //         const message = (error instanceof Error) ? error.message : "Unknown error";
+  //         console.error("Error loading the referral: ", message);
+  //         toast.error(`Error loading the referral: ${message}`);
+  //         setLoadingReferral(false);
+  //       });
+  //   }
+  // }, [referralId]);
+  // ===== END ORIGINAL CODE =====
 
-  useEffect(() => {
-    if (referralData) {
-      fetchTransactionsForReferrals([referralData], setTransactionData)
-        .then(() => {
-          setLoadingTransactionData(false);
-        })
-        .catch(error => {
-          console.error("Error fetching transactions: ", error.message);
-          toast.error(`Error fetching transactions: ${error.message}`);
-          setLoadingTransactionData(false);
-        });
-    }
-  }, [referralData]);
+  // TODO: コンバージョンダッシュボードを一時的に非表示するため、トランザクションデータを読み込む必要なし。
+  // - Reason: コンバージョンに関してはGoogle Sheetsなどで管理できるため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-15
+  // - Author: shungo0222
+  // - Issue: #306
+  // ===== BEGIN ORIGINAL CODE =====
+  // useEffect(() => {
+  //   if (referralData) {
+  //     fetchTransactionsForReferrals([referralData], setTransactionData)
+  //       .then(() => {
+  //         setLoadingTransactionData(false);
+  //       })
+  //       .catch(error => {
+  //         console.error("Error fetching transactions: ", error.message);
+  //         toast.error(`Error fetching transactions: ${error.message}`);
+  //         setLoadingTransactionData(false);
+  //       });
+  //   }
+  // }, [referralData]);
+  // ===== END ORIGINAL CODE =====
 
   const copyLinkToClipboard = async () => {
     try {
@@ -206,6 +222,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       </div>
 
+      {/*
+      TODO: コンバージョンダッシュボードを一時的に非表示する。
+      - Reason: コンバージョンに関してはGoogle Sheetsなどで管理できるため。
+      - Planned Reversion: 未定。
+      - Date: 2024-05-15
+      - Author: shungo0222
+      - Issue: #306
+      // ===== BEGIN ORIGINAL CODE =====
       {address && 
         <>
           <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
@@ -238,6 +262,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           }
         </>
       }
+      // ===== END ORIGINAL CODE =====
+      */}
 
     </div>
   );
