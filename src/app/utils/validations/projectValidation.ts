@@ -2,6 +2,16 @@ import { DocumentData } from "firebase/firestore";
 import { ProjectData } from "../../types";
 
 export function isValidProjectData(data: DocumentData): data is ProjectData {
+  // Helper function to add validation for `whitelistedAddresses`
+  const isValidWhitelistedAddresses = (addresses: any): boolean => {
+    if (typeof addresses !== "object" || addresses === null) {
+      return false;
+    }
+    return Object.entries(addresses).every(([key, value]) => 
+      typeof key === "string" && typeof value === "string"
+    );
+  };
+
   return (
     typeof data.projectName === "string" &&
     typeof data.description === "string" &&
@@ -18,6 +28,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     data.createdAt.toDate() instanceof Date &&
     data.updatedAt.toDate() instanceof Date &&
     typeof data.totalPaidOut === "number" &&
-    (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date)
+    (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
+    isValidWhitelistedAddresses(data.whitelistedAddresses)
   );
 }

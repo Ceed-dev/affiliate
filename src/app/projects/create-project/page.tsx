@@ -40,6 +40,7 @@ export default function CreateProject() {
     updatedAt: new Date(),
     totalPaidOut: 0,
     lastPaymentDate: null,
+    whitelistedAddresses: {},
   });
   const [previewData, setPreviewData] = useState({
     logoPreview: "",

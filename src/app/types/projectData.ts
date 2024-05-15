@@ -16,4 +16,5 @@ export type ProjectData = {
   updatedAt: Date;
   totalPaidOut: number;
   lastPaymentDate: Date | null;
+  whitelistedAddresses: { [address: string]: string };
 };
