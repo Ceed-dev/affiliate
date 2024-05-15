@@ -29,8 +29,26 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
+  // TODO: Google Formリンク表示機能を一時的に追加。リファラルID機能をコメントアウト。
+  // リダイレクトリンク変数をGoogle Formリンクを保持するための変数として使用。
+  // しかし、将来的にはそれぞれのギルドのウォレットアドレスに対して別々のGoogle Formリンクを
+  // 表示する必要があるため、修正が必要。
+  // - Reason: ギルド向け機能の開発のため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-15
+  // - Author: shungo0222
+  // - Issue: #304
+  // ===== BEGIN ORIGINAL CODE =====
+  // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
+  // ===== END ORIGINAL CODE =====
+  // ===== BEGIN MODIFICATION =====
+  const [REFERRAL_LINK, SET_REFERRAL_LINK] = useState("");
+  useEffect(() => {
+    if (!projectData) return;
+    SET_REFERRAL_LINK(projectData.redirectUrl);
+  }, [projectData]);
+  // ===== END MODIFICATION =====
 
   // Automatically disconnect the wallet when the page loads to ensure a clean state for session management.
   useEffect(() => {
