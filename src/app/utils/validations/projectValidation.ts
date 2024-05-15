@@ -1,5 +1,5 @@
 import { DocumentData } from "firebase/firestore";
-import { ProjectData } from "../../types";
+import { ProjectData, WhitelistedAddress } from "../../types";
 
 export function isValidProjectData(data: DocumentData): data is ProjectData {
   // Helper function to add validation for `whitelistedAddresses`
@@ -8,8 +8,15 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       return false;
     }
     return Object.entries(addresses).every(([key, value]) => 
-      typeof key === "string" && typeof value === "string"
+      typeof key === "string" && isValidWhitelistedAddress(value)
     );
+  };
+
+  // Validate a single address entry against the WhitelistedAddress interface
+  const isValidWhitelistedAddress = (address: any): address is WhitelistedAddress => {
+    return typeof address === "object" &&
+           typeof address.redirectUrl === "string" &&
+           typeof address.rewardAmount === "number";
   };
 
   return (

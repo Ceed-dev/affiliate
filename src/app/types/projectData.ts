@@ -1,3 +1,5 @@
+import { WhitelistedAddress } from ".";
+
 export type ProjectData = {
   id?: string;
   projectName: string;
@@ -16,5 +18,5 @@ export type ProjectData = {
   updatedAt: Date;
   totalPaidOut: number;
   lastPaymentDate: Date | null;
-  whitelistedAddresses: { [address: string]: string };
+  whitelistedAddresses: { [address: string]: WhitelistedAddress };
 };
