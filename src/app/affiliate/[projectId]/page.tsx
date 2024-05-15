@@ -177,21 +177,30 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               modalSize={"compact"}
               modalTitleIconUrl={""}
               showThirdwebBranding={false}
-              onConnect={async (wallet: WalletInstance) => {
-                try {
-                  if (!projectData) {
-                    // If project data is not yet loaded, wait for it to load
-                    return;
-                  }
-                  const walletAddress = await wallet.getAddress();
-                  const referralId = await joinProject(params.projectId, walletAddress);
-                  console.log("Referral ID: ", referralId);
-                  setReferralId(referralId);
-                } catch (error: any) {
-                  console.error("Failed to join project: ", error);
-                  toast.error(`Failed to join project: ${error.message}`);
-                }
-              }}
+              // TODO: Google Formリンク表示機能を一時的に追加。
+              // そのため、リファラルIDを生成・取得する必要はない。
+              // - Reason: ギルド向け機能の開発のため。
+              // - Planned Reversion: 未定。
+              // - Date: 2024-05-15
+              // - Author: shungo0222
+              // - Issue: #305
+              // ===== BEGIN ORIGINAL CODE =====
+              // onConnect={async (wallet: WalletInstance) => {
+              //   try {
+              //     if (!projectData) {
+              //       // If project data is not yet loaded, wait for it to load
+              //       return;
+              //     }
+              //     const walletAddress = await wallet.getAddress();
+              //     const referralId = await joinProject(params.projectId, walletAddress);
+              //     console.log("Referral ID: ", referralId);
+              //     setReferralId(referralId);
+              //   } catch (error: any) {
+              //     console.error("Failed to join project: ", error);
+              //     toast.error(`Failed to join project: ${error.message}`);
+              //   }
+              // }}
+              // ===== END ORIGINAL CODE =====
             />
           </div>
         </div>
