@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { isAddress } from "ethers/lib/utils";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
+import { WhitelistedAddress } from "../../types";
 
 type AffiliatesFormProps = {
   data: {
@@ -17,6 +19,19 @@ type AffiliatesFormProps = {
   hideButton?: boolean;
   status?: string;
 };
+
+// TODO: ホワイトリストに登録されるデータの型を定義。
+// - Reason: ウォレットアドレス・URL・リワード量の3つをそれぞれが保持するため。
+// - Planned Reversion: 未定。
+// - Date: 2024-05-15
+// - Author: shungo0222
+// - Issue: #311
+// ===== BEGIN MODIFICATION =====
+type WhitelistEntry = {
+  address: string;
+  details: WhitelistedAddress;
+}
+// ===== END MODIFICATION =====
 
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
@@ -75,6 +90,70 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     fetchTokenDetails();
   }, [data.selectedTokenAddress]);
 
+  // TODO: ウォレットアドレスのホワイトリスト機能を実装。
+  // - Reason: 特定のギルドのみがプロジェクトに参加でき、別々のGoogle Formリンクと報酬量を表示させるようにするため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-15
+  // - Author: shungo0222
+  // - Issue: #311
+  // ===== BEGIN MODIFICATION =====
+  const [whitelistedEntries, setWhitelistedEntries] = useState<WhitelistEntry[]>([]);
+  const [newAddress, setNewAddress] = useState("");
+  const [newRedirectUrl, setNewRedirectUrl] = useState("");
+  const [newRewardAmount, setNewRewardAmount] = useState(0);
+
+  // Helper function to check if URL is valid
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleAdd = () => {
+    // Validating input values
+    if (!isAddress(newAddress)) {
+      toast.error("Invalid wallet address.");
+      return;
+    }
+    if (!isValidUrl(newRedirectUrl)) {
+      toast.error("Invalid URL.");
+      return;
+    }
+    if (!(newRewardAmount > 0)) {
+      toast.error("Reward amount must be greater than zero.");
+      return;
+    }
+
+    // Check for duplicate addresses
+    const exists = whitelistedEntries.some(entry => entry.address === newAddress);
+    if (exists) {
+      toast.error("Address already exists in the whitelist.");
+      return;
+    }
+
+    const newEntry = {
+      address: newAddress,
+      details: {
+        redirectUrl: newRedirectUrl,
+        rewardAmount: newRewardAmount,
+      }
+    };
+    setWhitelistedEntries([...whitelistedEntries, newEntry]);
+    setNewAddress("");
+    setNewRedirectUrl("");
+    setNewRewardAmount(0);
+    toast.success("New address added to whitelist.");
+  };
+
+  const handleRemove = (addressToRemove: string) => {
+    setWhitelistedEntries(whitelistedEntries.filter(entry => entry.address !== addressToRemove));
+    toast.success(`Address ${addressToRemove} has been removed from the whitelist.`);
+  };
+  // ===== END MODIFICATION =====
+
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
 
@@ -109,6 +188,14 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           }
         </div>
 
+        {/*
+        TODO: プロジェクトに直接紐づく”報酬トークン量”と”リダイレクトURL”のフォームを一時的にコメントアウト。
+        - Reason: ウォレットアドレスのホワイトリストに紐づいて保存するように変更したため。
+        - Planned Reversion: 未定。
+        - Date: 2024-05-15
+        - Author: shungo0222
+        - Issue: #311
+        ===== BEGIN ORIGINAL CODE =====
         <div className="flex flex-col gap-2">
           <h2>Reward Amount <span className="text-red-500">*</span></h2>
           <div className="rounded-lg border border-[#D1D5DB] flex items-center">
@@ -142,6 +229,93 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             />
           </div>
         </div>
+        ===== END ORIGINAL CODE =====
+        */}
+        {/* ===== BEGIN MODIFICATION ===== */}
+        <div className="flex flex-col gap-2">
+          <h2>Whitelist Management <span className="text-red-500">*</span></h2>
+          <div className="w-full border border-[#D1D5DB] rounded-lg outline-none flex flex-col pr-2 bg-white text-black">
+            <div className="flex flex-row">
+              <span className="rounded-tl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                WALLET ADDRESS:
+              </span>
+              <input 
+                value={newAddress} 
+                onChange={e => setNewAddress(e.target.value)} 
+                placeholder="0x1234567890abcdef1234567890abcdef12345678" 
+                className="w-full outline-none" 
+              />
+            </div>
+            <div className="flex flex-row">
+              <span className="w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                REDIRECT URL:
+              </span>
+              <input 
+                value={newRedirectUrl} 
+                onChange={e => setNewRedirectUrl(e.target.value)} 
+                placeholder={process.env.NEXT_PUBLIC_BASE_URL}
+                className="w-full outline-none" 
+              />
+            </div>
+            <div className="flex flex-row">
+              <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                REWARD AMOUNT:
+              </span>
+              <input 
+                type="number" 
+                value={newRewardAmount} 
+                onChange={e => setNewRewardAmount(parseInt(e.target.value, 10))} 
+                placeholder="Reward Amount" 
+                className="w-full outline-none" 
+              />
+            </div>
+          </div>
+          <button 
+            onClick={handleAdd} 
+            className="bg-green-500 hover:scale-105 hover:bg-green-700 text-white p-2 rounded transition-transform duration-300"
+          >
+            Add to Whitelist
+          </button>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Wallet Address</th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Redirect URL</th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
+                  <th className="px-6 py-3 bg-gray-50">Remove</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {whitelistedEntries.length ? (
+                  whitelistedEntries.map(entry => (
+                    <tr key={entry.address}>
+                      <td className="px-6 py-4 overflow-hidden truncate">{entry.address}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">{entry.details.redirectUrl}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">{entry.details.rewardAmount}</td>
+                      <td className="px-6 py-4 text-center">
+                        <button onClick={() => handleRemove(entry.address)}>
+                          <Image 
+                            src="/trash.png" 
+                            alt="trash.png" 
+                            height={20} 
+                            width={20} 
+                            className="transition duration-300 ease-in-out transform hover:scale-125" 
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="text-gray-500">
+                    <td colSpan={4} className="text-center py-4">No Whitelist Data</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* ===== END MODIFICATION ===== */}
 
       </div>
 
