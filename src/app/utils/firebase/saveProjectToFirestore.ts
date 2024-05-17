@@ -28,7 +28,16 @@ export const saveProjectToFirestore = async (
 
     await setDoc(projectRef, projectDataToSave);
     console.log("Document written with ID: ", projectId);
-    toast.success("Project saved successfully! Redirecting to the dashboard...");
+    // TODO: 一時的にプロジェクトデータ保存成功通知を非表示にする。
+    // - Reason: 一時的にトークンのApproveとDeposit機能を無効にして最終的な成功通知は元の関数内に実装してあるため、
+    // ここでのこのステップに関する通知は一時的に非表示にする。
+    // - Planned Reversion: 未定。
+    // - Date: 2024-05-17
+    // - Author: shungo0222
+    // - Issue: #314
+    // ===== BEGIN ORIGINAL CODE =====
+    // toast.success("Project saved to Firestore successfully!");
+    // ===== END ORIGINAL CODE =====
     return { projectId: projectId };
   } catch (error: any) {
     const errorMessage = error.message || "An unknown error occurred while saving the project.";

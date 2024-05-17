@@ -19,7 +19,18 @@ export default function CreateProject() {
   const address = useAddress();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const initialStatus = "Save & Deposit";
+  // TODO: "Deposit"の文言を一時的に取り除く。
+  // - Reason: 一時的に、報酬トークンの支払いはエスクローコントラクトではなくEOAから直接行うため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #314
+  // ===== BEGIN ORIGINAL CODE =====
+  // const initialStatus = "Save & Deposit";
+  // ===== END ORIGINAL CODE =====
+  // ===== BEGIN MODIFICATION =====
+  const initialStatus = "Save";
+  // ===== END MODIFICATION =====
   const [saveAndDepositStatus, setSaveAndDepositStatus] = useState(initialStatus);
   const [isSaving, setIsSaving] = useState(false);
   const [hideSaveAndDepositButton, setHideSaveAndDepositButton] = useState(false);
@@ -103,25 +114,33 @@ export default function CreateProject() {
     }
     const { projectId } = result;
 
-    setSaveAndDepositStatus("Apprcoving tokens...");
-    const approveSuccess = await approveToken(projectData.selectedTokenAddress, depositAmount);
-    if (!approveSuccess) {
-      toast.error("Failed to approve token. Please try again.");
-      setSaveAndDepositStatus(initialStatus);
-      setIsSaving(false);
-      await deleteProjectFromFirestore(projectId);
-      return;
-    }
+    // TODO: トークンのデポジット機能を一時的にコメントアウト。
+    // - Reason: 一時的に、報酬トークンの支払いはエスクローコントラクトではなくEOAから直接行うため。
+    // - Planned Reversion: 未定。
+    // - Date: 2024-05-17
+    // - Author: shungo0222
+    // - Issue: #314
+    // ===== BEGIN ORIGINAL CODE =====
+    // setSaveAndDepositStatus("Apprcoving tokens...");
+    // const approveSuccess = await approveToken(projectData.selectedTokenAddress, depositAmount);
+    // if (!approveSuccess) {
+    //   toast.error("Failed to approve token. Please try again.");
+    //   setSaveAndDepositStatus(initialStatus);
+    //   setIsSaving(false);
+    //   await deleteProjectFromFirestore(projectId);
+    //   return;
+    // }
 
-    setSaveAndDepositStatus("Depositing tokens...");
-    const depositSuccess = await depositToken(projectId, projectData.selectedTokenAddress, depositAmount);
-    if (!depositSuccess) {
-      toast.error("Failed to deposit token. Please try again.");
-      setSaveAndDepositStatus(initialStatus);
-      setIsSaving(false);
-      await deleteProjectFromFirestore(projectId);
-      return;
-    }
+    // setSaveAndDepositStatus("Depositing tokens...");
+    // const depositSuccess = await depositToken(projectId, projectData.selectedTokenAddress, depositAmount);
+    // if (!depositSuccess) {
+    //   toast.error("Failed to deposit token. Please try again.");
+    //   setSaveAndDepositStatus(initialStatus);
+    //   setIsSaving(false);
+    //   await deleteProjectFromFirestore(projectId);
+    //   return;
+    // }
+    // ===== END ORIGINAL CODE =====
 
     setHideSaveAndDepositButton(true);
     nextStep();
