@@ -13,7 +13,7 @@ import {
 } from "../../components/createProject";
 import { saveProjectToFirestore, deleteProjectFromFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
-import { ProjectData, ImageType } from "../../types";
+import { ProjectData, ImageType, WhitelistedAddress } from "../../types";
 
 export default function CreateProject() {
   const address = useAddress();
@@ -56,6 +56,21 @@ export default function CreateProject() {
       [field]: value
     }));
   };
+
+  // TODO: ホワイトリストアドレスを更新する関数。
+  // - Reason: フォーム内で入出力するため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
+  // ===== BEGIN MODIFICATION =====
+  const handleWhitelistChange = (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => {
+    setProjectData(prevData => ({
+      ...prevData,
+      whitelistedAddresses: newWhitelistedAddresses
+    }));
+  };
+  // ===== END MODIFICATION =====
 
   const handleImageChange = (type: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -161,10 +176,30 @@ export default function CreateProject() {
           <AffiliatesForm 
             data={{
               selectedTokenAddress: projectData.selectedTokenAddress,
-              rewardAmount: projectData.rewardAmount,
-              redirectUrl: projectData.redirectUrl
+              // TODO: ホワイトリストアドレスを受け渡す。
+              // - Reason: フォーム内で入出力するため。
+              // - Planned Reversion: 未定。
+              // - Date: 2024-05-17
+              // - Author: shungo0222
+              // - Issue: #313
+              // ===== BEGIN ORIGINAL CODE =====
+              // rewardAmount: projectData.rewardAmount,
+              // redirectUrl: projectData.redirectUrl
+              // ===== END ORIGINAL CODE =====
+              // ===== BEGIN MODIFICATION =====
+              whitelistedAddresses: projectData.whitelistedAddresses
+              // ===== END MODIFICATION =====
             }}
             handleChange={handleChange}
+            // TODO: ホワイトリストアドレスを更新する関数。
+            // - Reason: フォーム内で入出力するため。
+            // - Planned Reversion: 未定。
+            // - Date: 2024-05-17
+            // - Author: shungo0222
+            // - Issue: #313
+            // ===== BEGIN MODIFICATION =====
+            handleWhitelistChange={handleWhitelistChange}
+            // ===== END MODIFICATION =====
             nextStep={saveProjectAndDepositToken}
             isSaving={isSaving}
             hideButton={hideSaveAndDepositButton}
