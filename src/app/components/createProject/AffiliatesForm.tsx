@@ -10,10 +10,30 @@ import { WhitelistedAddress } from "../../types";
 type AffiliatesFormProps = {
   data: {
     selectedTokenAddress: string;
-    rewardAmount: number;
-    redirectUrl: string;
+    // TODO: ホワイトリストアドレスを受け取る。
+    // - Reason: このフォーム内で入出力するため。
+    // - Planned Reversion: 未定。
+    // - Date: 2024-05-17
+    // - Author: shungo0222
+    // - Issue: #313
+    // ===== BEGIN ORIGINAL CODE =====
+    // rewardAmount: number;
+    // redirectUrl: string;
+    // ===== END ORIGINAL CODE =====
+    // ===== BEGIN MODIFICATION =====
+    whitelistedAddresses: { [address: string]: WhitelistedAddress };
+    // ===== END MODIFICATION =====
   };
   handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  // TODO: ホワイトリストアドレスを更新する関数。
+  // - Reason: このフォーム内で入出力するため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
+  // ===== BEGIN MODIFICATION =====
+  handleWhitelistChange: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
+  // ===== END MODIFICATION =====
   nextStep?: () => void;
   isSaving?: boolean;
   hideButton?: boolean;
@@ -36,13 +56,25 @@ type WhitelistEntry = {
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
+  handleWhitelistChange,
   nextStep,
   isSaving,
   hideButton,
   status
 }) => {
   const isEditing = nextStep === undefined;
-  const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
+  // TODO: フォーム入力完了検証変数を更新。
+  // - Reason: ホワイトリストアドレスを含める。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
+  // ===== BEGIN ORIGINAL CODE =====
+  // const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
+  // ===== END ORIGINAL CODE =====
+  // ===== BEGIN MODIFICATION =====
+  const isFormComplete = data.selectedTokenAddress.trim() && Object.keys(data.whitelistedAddresses).length > 0;
+  // ===== END MODIFICATION =====
 
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [tokenBalance, setTokenBalance] = useState("");
@@ -96,8 +128,20 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   // - Date: 2024-05-15
   // - Author: shungo0222
   // - Issue: #311
+  // ===== UPDATE =====
+  // - Additional Modification: ウォレットアドレスのホワイトリスト機能を再修正。
+  // - Reason for Update: 大元のプロジェクトデータ内のwhitelistedAddresses変数とリンクするように修正した。
+  // - Date of Update: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
   // ===== BEGIN MODIFICATION =====
-  const [whitelistedEntries, setWhitelistedEntries] = useState<WhitelistEntry[]>([]);
+  // Use "data.whitelistedAddresses" as initial value
+  const [whitelistedEntries, setWhitelistedEntries] = useState<WhitelistEntry[]>(() =>
+    Object.entries(data.whitelistedAddresses).map(([address, details]) => ({
+      address,
+      details
+    }))
+  );
   const [newAddress, setNewAddress] = useState("");
   const [newRedirectUrl, setNewRedirectUrl] = useState("");
   const [newRewardAmount, setNewRewardAmount] = useState(0);
@@ -113,7 +157,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   };
 
   const handleAdd = () => {
-    // Validating input values
+    // Input validation
     if (!isAddress(newAddress)) {
       toast.error("Invalid wallet address.");
       return;
@@ -126,30 +170,42 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       toast.error("Reward amount must be greater than zero.");
       return;
     }
-
+  
     // Check for duplicate addresses
-    const exists = whitelistedEntries.some(entry => entry.address === newAddress);
+    const exists = Object.keys(data.whitelistedAddresses).includes(newAddress);
     if (exists) {
       toast.error("Address already exists in the whitelist.");
       return;
     }
-
-    const newEntry = {
-      address: newAddress,
-      details: {
-        redirectUrl: newRedirectUrl,
-        rewardAmount: newRewardAmount,
-      }
-    };
-    setWhitelistedEntries([...whitelistedEntries, newEntry]);
+  
+    // Create new entry
+    const newEntry: WhitelistedAddress = { redirectUrl: newRedirectUrl, rewardAmount: newRewardAmount };
+    const updatedEntries = { ...data.whitelistedAddresses, [newAddress]: newEntry };
+  
+    // Update entire project data
+    handleWhitelistChange(updatedEntries);
+  
+    // Also updates local state
+    setWhitelistedEntries(prevEntries => [...prevEntries, { address: newAddress, details: newEntry }]);
+  
+    // Reset input field
     setNewAddress("");
     setNewRedirectUrl("");
     setNewRewardAmount(0);
     toast.success("New address added to whitelist.");
-  };
+  };  
 
   const handleRemove = (addressToRemove: string) => {
-    setWhitelistedEntries(whitelistedEntries.filter(entry => entry.address !== addressToRemove));
+    // Create a new array that excludes the specified address from `whitelistedEntries`
+    setWhitelistedEntries(prevEntries =>
+      prevEntries.filter(entry => entry.address !== addressToRemove)
+    );
+
+    // Delete the address from the original project data
+    const updatedEntries = { ...data.whitelistedAddresses };
+    delete updatedEntries[addressToRemove];
+    handleWhitelistChange(updatedEntries);
+
     toast.success(`Address ${addressToRemove} has been removed from the whitelist.`);
   };
   // ===== END MODIFICATION =====

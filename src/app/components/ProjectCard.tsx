@@ -31,7 +31,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) =>
               />
             </div>
             <p className="font-semibold bg-green-200 px-2 py-1 rounded-md border border-white">
-              {project.rewardAmount} {project.selectedToken}
+              {/*
+              // TODO: 報酬で使われるトークンのシンボルのみを表示する。
+              // - Reason: コネクトされたウォレットアドレスによって報酬トークン量は変動するためここでは非表示。
+              // - Planned Reversion: 未定。
+              // - Date: 2024-05-17
+              // - Author: shungo0222
+              // - Issue: #315
+              ===== BEGIN ORIGINAL CODE =====
+              {project.rewardAmount} {project.selectedToken} 
+              ===== END ORIGINAL CODE =====
+              */}
+              {/* ===== BEGIN MODIFICATION ===== */}
+              {project.selectedToken}
+              {/* ===== END MODIFICATION ===== */}
             </p>
           </div>
         </div>

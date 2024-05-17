@@ -38,6 +38,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   // - Date: 2024-05-15
   // - Author: shungo0222
   // - Issue: #304
+  // ===== UPDATE =====
+  // - Additional Modification: ウォレット接続時に該当のURLを設定する。
+  // - Reason for Update: 接続したユーザーがコピーできるようにするため。
+  // - Date of Update: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #315
   // ===== BEGIN ORIGINAL CODE =====
   // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   // const REFERRAL_LINK = `${baseUrl}/referee/${params.projectId}/${referralId}`;
@@ -45,9 +51,40 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   // ===== BEGIN MODIFICATION =====
   const [REFERRAL_LINK, SET_REFERRAL_LINK] = useState("");
   useEffect(() => {
-    if (!projectData) return;
-    SET_REFERRAL_LINK(projectData.redirectUrl);
-  }, [projectData]);
+    if (address && projectData?.whitelistedAddresses[address]) {
+      // If an address exists in the whitelist, set the redirect URL for that address.
+      SET_REFERRAL_LINK(projectData.whitelistedAddresses[address].redirectUrl);
+    } else {
+      // Reset link if address is not in whitelist
+      SET_REFERRAL_LINK("");
+    }
+  }, [address, projectData?.whitelistedAddresses]);
+  // ===== END MODIFICATION =====
+
+  // TODO: ウォレットがホワイトリスト化されているかどうか、報酬に関するテキストの表示を設定。
+  // - Reason: ウォレットごとに表示内容が異なるため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #315
+  // ===== BEGIN MODIFICATION =====
+  const [isWhitelisted, setIsWhitelisted] = useState(false);
+
+  useEffect(() => {
+    if (address && projectData?.whitelistedAddresses[address]) {
+      setIsWhitelisted(true);
+    } else {
+      setIsWhitelisted(false);
+    }
+  }, [address, projectData?.whitelistedAddresses]);
+
+  const rewardText = loadingTokenSymbol 
+    ? <span className="text-gray-500">Loading...</span> 
+    : (
+        <span className="font-semibold bg-green-200 px-2 py-1 rounded-md shadow-lg">
+          {isWhitelisted && address && projectData?.whitelistedAddresses[address].rewardAmount} {tokenSymbol}
+        </span>
+      );
   // ===== END MODIFICATION =====
 
   // Automatically disconnect the wallet when the page loads to ensure a clean state for session management.
@@ -163,10 +200,10 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         {/* Join Project and Referral Actions */}
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
           <h2 className="text-lg font-semibold text-gray-900">
-            Earn {!(projectData?.rewardAmount) || loadingTokenSymbol ? <span className="text-gray-500">Loading...</span> : `${projectData?.rewardAmount} ${tokenSymbol}`} for each successful referral
+            Earn {rewardText} for each successful referral
           </h2>
-          <p className="text-gray-600 pb-4">{address ? "Share your link with others and start earning!" : "Join the project to start referring others."}</p>
-          {address && 
+          <p className="text-gray-600 pb-4">{isWhitelisted ? "Share your link with others and start earning!" : "Join the project to start referring others."}</p>
+          {isWhitelisted && 
             <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
               <input
                 type="text"
@@ -200,6 +237,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               // - Date: 2024-05-15
               // - Author: shungo0222
               // - Issue: #305
+              // ===== UPDATE =====
+              // - Additional Modification: ウォレット接続時にホワイトリスト内に存在するのかを確認。
+              // - Reason for Update: ホワイトリストされたウォレット以外ははじくため。
+              // - Date of Update: 2024-05-17
+              // - Author: shungo0222
+              // - Issue: #315
               // ===== BEGIN ORIGINAL CODE =====
               // onConnect={async (wallet: WalletInstance) => {
               //   try {
@@ -217,6 +260,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               //   }
               // }}
               // ===== END ORIGINAL CODE =====
+              // ===== BEGIN MODIFICATION =====
+              onConnect={async (wallet: WalletInstance) => {
+                // Check the existence of the whitelist here
+                const walletAddress = await wallet.getAddress();
+                if (!projectData?.whitelistedAddresses[walletAddress]) {
+                  toast.error("Your wallet address is not whitelisted for this project.");
+                  disconnect();
+                  return;
+                }
+              }}
+              // ===== END MODIFICATION =====
             />
           </div>
         </div>
