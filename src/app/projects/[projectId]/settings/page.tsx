@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { ProjectData, ImageType } from "../../../types";
+import { ProjectData, ImageType, WhitelistedAddress } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
   ProjectDetailsForm, 
@@ -84,6 +84,24 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     });
   };
 
+  // TODO: ホワイトリストアドレスを更新する関数。
+  // - Reason: フォーム内で入出力するため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #316
+  // ===== BEGIN MODIFICATION =====
+  const handleWhitelistChange = (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => {
+    setProjectData(prevData => {
+      if (prevData === null) return null;
+      return {
+        ...prevData,
+        whitelistedAddresses: newWhitelistedAddresses
+      }
+    });
+  };
+  // ===== END MODIFICATION =====
+
   const hasChanges = () => {
     if (!initialProjectData || !projectData) return false;
   
@@ -94,11 +112,22 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     return projectData &&
       projectData.projectName.trim() !== "" &&
       projectData.description.trim() !== "" &&
-      projectData.selectedTokenAddress.trim() !== "" &&
-      projectData.rewardAmount > 0 &&
-      projectData.redirectUrl.trim() !== "" &&
       projectData.logo &&
-      projectData.cover
+      projectData.cover &&
+      projectData.selectedTokenAddress.trim() !== "" &&
+      // TODO: リワード量とリダイレクトリンクの検証を取り除いて、ホワイトリストの検証を追加する。
+      // - Reason: ホワイトリストの中でそれぞれのアドレスに紐づいたトークン量とリンクを管理するため。
+      // - Planned Reversion: 未定。
+      // - Date: 2024-05-17
+      // - Author: shungo0222
+      // - Issue: #316
+      // ===== BEGIN ORIGINAL CODE =====
+      // projectData.rewardAmount > 0 &&
+      // projectData.redirectUrl.trim() !== ""
+      // ===== END ORIGINAL CODE =====
+      // ===== BEGIN MODIFICATION =====
+      Object.keys(projectData.whitelistedAddresses || {}).length > 0
+      // ===== END MODIFICATION =====
   };
 
   const handleSaveChanges = async () => {
@@ -163,10 +192,10 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             <AffiliatesForm 
               data={{
                 selectedTokenAddress: `${projectData?.selectedTokenAddress}`,
-                rewardAmount: projectData?.rewardAmount ?? 0,
-                redirectUrl: `${projectData?.redirectUrl}`
+                whitelistedAddresses: projectData?.whitelistedAddresses ?? {}
               }}
               handleChange={handleChange}
+              handleWhitelistChange={handleWhitelistChange}
             />
             <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating}>
               {isUpdating ? (

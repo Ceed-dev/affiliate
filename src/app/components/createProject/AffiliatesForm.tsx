@@ -1,33 +1,80 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { isAddress } from "ethers/lib/utils";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
+import { WhitelistedAddress } from "../../types";
 
 type AffiliatesFormProps = {
   data: {
     selectedTokenAddress: string;
-    rewardAmount: number;
-    redirectUrl: string;
+    // TODO: ホワイトリストアドレスを受け取る。
+    // - Reason: このフォーム内で入出力するため。
+    // - Planned Reversion: 未定。
+    // - Date: 2024-05-17
+    // - Author: shungo0222
+    // - Issue: #313
+    // ===== BEGIN ORIGINAL CODE =====
+    // rewardAmount: number;
+    // redirectUrl: string;
+    // ===== END ORIGINAL CODE =====
+    // ===== BEGIN MODIFICATION =====
+    whitelistedAddresses: { [address: string]: WhitelistedAddress };
+    // ===== END MODIFICATION =====
   };
   handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  // TODO: ホワイトリストアドレスを更新する関数。
+  // - Reason: このフォーム内で入出力するため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
+  // ===== BEGIN MODIFICATION =====
+  handleWhitelistChange: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
+  // ===== END MODIFICATION =====
   nextStep?: () => void;
   isSaving?: boolean;
   hideButton?: boolean;
   status?: string;
 };
 
+// TODO: ホワイトリストに登録されるデータの型を定義。
+// - Reason: ウォレットアドレス・URL・リワード量の3つをそれぞれが保持するため。
+// - Planned Reversion: 未定。
+// - Date: 2024-05-15
+// - Author: shungo0222
+// - Issue: #311
+// ===== BEGIN MODIFICATION =====
+type WhitelistEntry = {
+  address: string;
+  details: WhitelistedAddress;
+}
+// ===== END MODIFICATION =====
+
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
+  handleWhitelistChange,
   nextStep,
   isSaving,
   hideButton,
   status
 }) => {
   const isEditing = nextStep === undefined;
-  const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
+  // TODO: フォーム入力完了検証変数を更新。
+  // - Reason: ホワイトリストアドレスを含める。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
+  // ===== BEGIN ORIGINAL CODE =====
+  // const isFormComplete = data.selectedTokenAddress.trim() && data.rewardAmount > 0 && data.redirectUrl.trim();
+  // ===== END ORIGINAL CODE =====
+  // ===== BEGIN MODIFICATION =====
+  const isFormComplete = data.selectedTokenAddress.trim() && Object.keys(data.whitelistedAddresses).length > 0;
+  // ===== END MODIFICATION =====
 
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [tokenBalance, setTokenBalance] = useState("");
@@ -75,6 +122,94 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     fetchTokenDetails();
   }, [data.selectedTokenAddress]);
 
+  // TODO: ウォレットアドレスのホワイトリスト機能を実装。
+  // - Reason: 特定のギルドのみがプロジェクトに参加でき、別々のGoogle Formリンクと報酬量を表示させるようにするため。
+  // - Planned Reversion: 未定。
+  // - Date: 2024-05-15
+  // - Author: shungo0222
+  // - Issue: #311
+  // ===== UPDATE =====
+  // - Additional Modification: ウォレットアドレスのホワイトリスト機能を再修正。
+  // - Reason for Update: 大元のプロジェクトデータ内のwhitelistedAddresses変数とリンクするように修正した。
+  // - Date of Update: 2024-05-17
+  // - Author: shungo0222
+  // - Issue: #313
+  // ===== BEGIN MODIFICATION =====
+  // Use "data.whitelistedAddresses" as initial value
+  const [whitelistedEntries, setWhitelistedEntries] = useState<WhitelistEntry[]>(() =>
+    Object.entries(data.whitelistedAddresses).map(([address, details]) => ({
+      address,
+      details
+    }))
+  );
+  const [newAddress, setNewAddress] = useState("");
+  const [newRedirectUrl, setNewRedirectUrl] = useState("");
+  const [newRewardAmount, setNewRewardAmount] = useState(0);
+
+  // Helper function to check if URL is valid
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleAdd = () => {
+    // Input validation
+    if (!isAddress(newAddress)) {
+      toast.error("Invalid wallet address.");
+      return;
+    }
+    if (!isValidUrl(newRedirectUrl)) {
+      toast.error("Invalid URL.");
+      return;
+    }
+    if (!(newRewardAmount > 0)) {
+      toast.error("Reward amount must be greater than zero.");
+      return;
+    }
+  
+    // Check for duplicate addresses
+    const exists = Object.keys(data.whitelistedAddresses).includes(newAddress);
+    if (exists) {
+      toast.error("Address already exists in the whitelist.");
+      return;
+    }
+  
+    // Create new entry
+    const newEntry: WhitelistedAddress = { redirectUrl: newRedirectUrl, rewardAmount: newRewardAmount };
+    const updatedEntries = { ...data.whitelistedAddresses, [newAddress]: newEntry };
+  
+    // Update entire project data
+    handleWhitelistChange(updatedEntries);
+  
+    // Also updates local state
+    setWhitelistedEntries(prevEntries => [...prevEntries, { address: newAddress, details: newEntry }]);
+  
+    // Reset input field
+    setNewAddress("");
+    setNewRedirectUrl("");
+    setNewRewardAmount(0);
+    toast.success("New address added to whitelist.");
+  };  
+
+  const handleRemove = (addressToRemove: string) => {
+    // Create a new array that excludes the specified address from `whitelistedEntries`
+    setWhitelistedEntries(prevEntries =>
+      prevEntries.filter(entry => entry.address !== addressToRemove)
+    );
+
+    // Delete the address from the original project data
+    const updatedEntries = { ...data.whitelistedAddresses };
+    delete updatedEntries[addressToRemove];
+    handleWhitelistChange(updatedEntries);
+
+    toast.success(`Address ${addressToRemove} has been removed from the whitelist.`);
+  };
+  // ===== END MODIFICATION =====
+
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
 
@@ -109,6 +244,14 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           }
         </div>
 
+        {/*
+        TODO: プロジェクトに直接紐づく”報酬トークン量”と”リダイレクトURL”のフォームを一時的にコメントアウト。
+        - Reason: ウォレットアドレスのホワイトリストに紐づいて保存するように変更したため。
+        - Planned Reversion: 未定。
+        - Date: 2024-05-15
+        - Author: shungo0222
+        - Issue: #311
+        ===== BEGIN ORIGINAL CODE =====
         <div className="flex flex-col gap-2">
           <h2>Reward Amount <span className="text-red-500">*</span></h2>
           <div className="rounded-lg border border-[#D1D5DB] flex items-center">
@@ -142,6 +285,93 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             />
           </div>
         </div>
+        ===== END ORIGINAL CODE =====
+        */}
+        {/* ===== BEGIN MODIFICATION ===== */}
+        <div className="flex flex-col gap-2">
+          <h2>Whitelist Management <span className="text-red-500">*</span></h2>
+          <div className="w-full border border-[#D1D5DB] rounded-lg outline-none flex flex-col pr-2 bg-white text-black">
+            <div className="flex flex-row">
+              <span className="rounded-tl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                WALLET ADDRESS:
+              </span>
+              <input 
+                value={newAddress} 
+                onChange={e => setNewAddress(e.target.value)} 
+                placeholder="0x1234567890abcdef1234567890abcdef12345678" 
+                className="w-full outline-none" 
+              />
+            </div>
+            <div className="flex flex-row">
+              <span className="w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                REDIRECT URL:
+              </span>
+              <input 
+                value={newRedirectUrl} 
+                onChange={e => setNewRedirectUrl(e.target.value)} 
+                placeholder={process.env.NEXT_PUBLIC_BASE_URL}
+                className="w-full outline-none" 
+              />
+            </div>
+            <div className="flex flex-row">
+              <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                REWARD AMOUNT:
+              </span>
+              <input 
+                type="number" 
+                value={newRewardAmount} 
+                onChange={e => setNewRewardAmount(parseInt(e.target.value, 10))} 
+                placeholder="Reward Amount" 
+                className="w-full outline-none" 
+              />
+            </div>
+          </div>
+          <button 
+            onClick={handleAdd} 
+            className="bg-green-500 hover:scale-105 hover:bg-green-700 text-white p-2 rounded transition-transform duration-300"
+          >
+            Add to Whitelist
+          </button>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Wallet Address</th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Redirect URL</th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
+                  <th className="px-6 py-3 bg-gray-50">Remove</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {whitelistedEntries.length ? (
+                  whitelistedEntries.map(entry => (
+                    <tr key={entry.address}>
+                      <td className="px-6 py-4 overflow-hidden truncate">{entry.address}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">{entry.details.redirectUrl}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">{entry.details.rewardAmount}</td>
+                      <td className="px-6 py-4 text-center">
+                        <button onClick={() => handleRemove(entry.address)}>
+                          <Image 
+                            src="/trash.png" 
+                            alt="trash.png" 
+                            height={20} 
+                            width={20} 
+                            className="transition duration-300 ease-in-out transform hover:scale-125" 
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="text-gray-500">
+                    <td colSpan={4} className="text-center py-4">No Whitelist Data</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* ===== END MODIFICATION ===== */}
 
       </div>
 

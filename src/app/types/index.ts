@@ -4,6 +4,7 @@ import { ImageType } from "./imageType";
 import { ReferralData } from "./referralData";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
+import { WhitelistedAddress } from "./whitelistedAddress";
 
 export type {
   ProjectData,
@@ -11,5 +12,6 @@ export type {
   ImageType,
   ReferralData,
   UserData,
-  PaymentTransaction
+  PaymentTransaction,
+  WhitelistedAddress
 }
