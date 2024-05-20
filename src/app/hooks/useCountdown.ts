@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
 
-export const useCountdown = (targetDate: Date) => {
+export const useCountdown = (targetDate: Date | undefined) => {
   const [timeLeft, setTimeLeft] = useState("");
   
   useEffect(() => {
     const updateCountdown = () => {
+      if (!targetDate) {
+        setTimeLeft("");
+        return;
+      }
+
       const now = new Date();
       const difference = targetDate.getTime() - now.getTime();
       if (difference > 0) {

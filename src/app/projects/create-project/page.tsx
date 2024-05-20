@@ -52,6 +52,15 @@ export default function CreateProject() {
     totalPaidOut: 0,
     lastPaymentDate: null,
     whitelistedAddresses: {},
+    slots: {
+      total: 0,
+      remaining: 0
+    },
+    budget: {
+      total: 0,
+      remaining: 0
+    },
+    deadline: new Date() // ここでは現在の日時を初期値としていますが、適宜調整してください。
   });
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
