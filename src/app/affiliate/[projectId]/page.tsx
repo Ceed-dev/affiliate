@@ -9,6 +9,8 @@ import { ProjectHeader, ConversionsList } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { displayFormattedDateWithTimeZone } from "../../utils/formatters";
+import { useCountdown } from "../../hooks/useCountdown";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
@@ -28,6 +30,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
+
+  const targetDate = new Date("2024-06-20T18:00:00Z");
+  const countdown = useCountdown(targetDate);
 
   // TODO: Google Formリンク表示機能を一時的に追加。リファラルID機能をコメントアウト。
   // リダイレクトリンク変数をGoogle Formリンクを保持するための変数として使用。
@@ -190,6 +195,28 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
       {/* Header */}
       <ProjectHeader projectData={projectData} loading={loadingProject} />
+
+      {/* Project Status Overview */}
+      <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+        <StatisticCard
+          title="Remaining Duration"
+          loading={loadingProject}
+          value={countdown || "Calculating time left..."}
+          unit={`Until ${displayFormattedDateWithTimeZone(targetDate)}`}
+        />
+        <StatisticCard
+          title="Remaining Slots"
+          loading={loadingProject}
+          value="60/100"
+          unit="Slots"
+        />
+        <StatisticCard
+          title="Budget Balance"
+          loading={loadingProject || loadingTokenSymbol}
+          value="200"
+          unit={tokenSymbol}
+        />
+      </div>
 
       {/* Project Description and Action Panel */}
       <div className="w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
