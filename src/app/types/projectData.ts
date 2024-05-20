@@ -27,5 +27,5 @@ export type ProjectData = {
     total: number;
     remaining: number;
   };
-  deadline: Date;
+  deadline: Date | null;
 };

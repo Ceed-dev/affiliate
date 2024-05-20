@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
+import { DateValueType } from "react-tailwindcss-datepicker";
 import { 
   StatusBar,
   ProjectDetailsForm,
@@ -60,7 +61,7 @@ export default function CreateProject() {
       total: 0,
       remaining: 0
     },
-    deadline: new Date() // ここでは現在の日時を初期値としていますが、適宜調整してください。
+    deadline: null
   });
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
@@ -69,12 +70,51 @@ export default function CreateProject() {
 
   const nextStep = () => setCurrentStep(currentStep < 5 ? currentStep + 1 : 5);
 
-  const handleChange = (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
-    setProjectData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  // handleChange is a higher-order function that creates an event handler for form elements.
+  // It takes a `field` string that can include dot notation for nested objects (e.g., "slots.remaining").
+  // `isNumeric` is an optional parameter that when set to true, will parse the input value as an integer.
+  const handleChange = (field: string, isNumeric?: boolean) => 
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      // Parse the event value. If `isNumeric` is true, parse the value as an integer.
+      // If parsing fails or returns NaN, default to 0.
+      const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
+      
+      // Set the new state of project data.
+      setProjectData(prev => {
+        // Split the `field` string into keys for accessing nested properties.
+        const keys = field.split(".");
+
+        // Create a shallow copy of the previous state to maintain immutability.
+        let updated = { ...prev } as any;
+
+        // Traverse the keys to access the correct nested property.
+        // `item` is used to reference the current level of the state object.
+        let item = updated;
+        for (let i = 0; i < keys.length - 1; i++) {
+          item = item[keys[i]];  // Navigate deeper into the nested object.
+        }
+
+        // Set the new value at the final key. This updates the nested property.
+        item[keys[keys.length - 1]] = value;
+
+        // Return the updated state to update the state in React.
+        return updated;
+      });
+    };
+
+  const handleDateChange = (newValue: DateValueType) => {
+    setProjectData(prev => {
+      let deadline = null;
+      if (newValue?.startDate) {
+        const date = new Date(newValue.startDate);
+        date.setHours(23, 59, 59, 999);
+        deadline = date;
+      }
+      return {
+        ...prev,
+        deadline,
+      };
+    });
   };
 
   // TODO: ホワイトリストアドレスを更新する関数。
@@ -167,9 +207,13 @@ export default function CreateProject() {
           <ProjectDetailsForm
             data={{
               projectName: projectData.projectName,
-              description: projectData.description
+              description: projectData.description,
+              totalSlots: projectData.slots.total,
+              totalBudget: projectData.budget.total,
+              deadline: projectData.deadline
             }}
             handleChange={handleChange}
+            handleDateChange={handleDateChange}
             nextStep={nextStep}
           />
         );
