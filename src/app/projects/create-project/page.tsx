@@ -153,8 +153,21 @@ export default function CreateProject() {
     const depositAmount = 10;
     setIsSaving(true);
 
+    // Set remaining values to be equal to total values
+    const updatedProjectData = {
+      ...projectData,
+      slots: {
+        ...projectData.slots,
+        remaining: projectData.slots.total
+      },
+      budget: {
+        ...projectData.budget,
+        remaining: projectData.budget.total
+      }
+    };
+
     setSaveAndDepositStatus("Saving project to Firestore...");
-    const result = await saveProjectToFirestore(projectData, `${address}`);
+    const result = await saveProjectToFirestore(updatedProjectData, `${address}`);
     if (!result) {
       toast.error("Failed to save project. Please try again.");
       setSaveAndDepositStatus(initialStatus);
