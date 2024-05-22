@@ -7,7 +7,9 @@ type ProjectDetailsFormProps = {
     projectName: string;
     description: string;
     totalSlots: number;
+    remainingSlots?: number;
     totalBudget: number;
+    remainingBudget?: number;
     deadline: Date | null;
   };
   handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -21,14 +23,24 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   handleDateChange,
   nextStep,
 }) => {
+  const isEditing = nextStep === undefined;
+
   const isFormComplete = () => {
-    return (
+    const baseComplete =
       data.projectName.trim() !== "" &&
       data.description.trim() !== "" &&
       data.totalSlots > 0 &&
       data.totalBudget > 0 &&
-      data.deadline !== null
-    );
+      data.deadline !== null;
+
+    if (isEditing) {
+      return (
+        baseComplete &&
+        data.remainingSlots !== undefined &&
+        data.remainingBudget !== undefined
+      );
+    }
+    return baseComplete;
   };
 
   // Set tomorrow's date as the minimum date for the datepicker
@@ -83,6 +95,25 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
           />
         </div>
 
+        {isEditing && (
+          <div className="flex flex-col gap-2">
+            <h2>Remaining Slots <span className="text-red-500">*</span></h2>
+            <input
+              type="number"
+              value={data.remainingSlots || 0}
+              onChange={handleChange("slots.remaining", true)}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "+" || e.key === "e") {
+                  e.preventDefault();
+                }
+              }}
+              placeholder="0"
+              min="0"
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
+          </div>
+        )}
+
         <div className="flex flex-col gap-2">
           <h2>Total Budget <span className="text-red-500">*</span></h2>
           <input
@@ -99,6 +130,25 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
             className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
           />
         </div>
+
+        {isEditing && (
+          <div className="flex flex-col gap-2">
+            <h2>Remaining Budget <span className="text-red-500">*</span></h2>
+            <input
+              type="number"
+              value={data.remainingBudget || 0}
+              onChange={handleChange("budget.remaining", true)}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "+" || e.key === "e") {
+                  e.preventDefault();
+                }
+              }}
+              placeholder="0"
+              min="0"
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <h2>Deadline (Time Zone: {userTimeZone} {userUTCOffset}) <span className="text-red-500">*</span></h2>
