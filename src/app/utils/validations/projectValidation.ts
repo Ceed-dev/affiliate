@@ -19,6 +19,19 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
            typeof address.rewardAmount === "number";
   };
 
+  // Additional helper functions for slots and budget
+  const isValidSlots = (slots: any): boolean => {
+    return typeof slots === "object" &&
+           typeof slots.total === "number" &&
+           typeof slots.remaining === "number";
+  };
+
+  const isValidBudget = (budget: any): boolean => {
+    return typeof budget === "object" &&
+           typeof budget.total === "number" &&
+           typeof budget.remaining === "number";
+  };
+
   return (
     typeof data.projectName === "string" &&
     typeof data.description === "string" &&
@@ -36,6 +49,9 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     data.updatedAt.toDate() instanceof Date &&
     typeof data.totalPaidOut === "number" &&
     (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
-    isValidWhitelistedAddresses(data.whitelistedAddresses)
+    isValidWhitelistedAddresses(data.whitelistedAddresses) &&
+    isValidSlots(data.slots) &&
+    isValidBudget(data.budget) &&
+    data.deadline.toDate() instanceof Date
   );
 }
