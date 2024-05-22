@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { DateValueType } from "react-tailwindcss-datepicker";
 import { ProjectData, ImageType, WhitelistedAddress } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
@@ -80,6 +81,22 @@ export default function Settings({ params }: { params: { projectId: string } }) 
       return {
         ...prev,
         [field]: value
+      };
+    });
+  };
+
+  const handleDateChange = (newValue: DateValueType) => {
+    setProjectData(prev => {
+      if (prev === null) return null;
+      let deadline = null;
+      if (newValue?.startDate) {
+        const date = new Date(newValue.startDate);
+        date.setHours(23, 59, 59, 999);
+        deadline = date;
+      }
+      return {
+        ...prev,
+        deadline,
       };
     });
   };
@@ -168,9 +185,13 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             <ProjectDetailsForm
               data={{
                 projectName: `${projectData?.projectName}`,
-                description: `${projectData?.description}`
+                description: `${projectData?.description}`,
+                totalSlots: projectData?.slots.total ?? 0,
+                totalBudget: projectData?.budget.total ?? 0,
+                deadline: projectData?.deadline ?? null
               }}
               handleChange={handleChange}
+              handleDateChange={handleDateChange}
             />
             <LogoForm
               data={{
