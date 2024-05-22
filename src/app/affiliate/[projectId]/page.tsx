@@ -31,7 +31,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
-  const countdown = useCountdown(projectData?.deadline);
+  const countdown = useCountdown(projectData?.deadline ?? undefined);
 
   // TODO: Google Formリンク表示機能を一時的に追加。リファラルID機能をコメントアウト。
   // リダイレクトリンク変数をGoogle Formリンクを保持するための変数として使用。
@@ -201,7 +201,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           title="Remaining Duration"
           loading={loadingProject}
           value={countdown || "Calculating time left..."}
-          unit={`Until ${displayFormattedDateWithTimeZone(projectData?.deadline)}`}
+          unit={`Until ${displayFormattedDateWithTimeZone(projectData?.deadline ?? undefined)}`}
         />
         <StatisticCard
           title="Remaining Slots"
