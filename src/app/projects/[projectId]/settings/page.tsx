@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
+import cloneDeep from "lodash/cloneDeep";
 import { ProjectData, ImageType, WhitelistedAddress } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
@@ -28,8 +29,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   useEffect(() => {
     fetchProjectData(params.projectId)
       .then(data => {
-        setInitialProjectData(data);
-        setProjectData(data);
+        setInitialProjectData(cloneDeep(data));
+        setProjectData(cloneDeep(data));
         setLoadingProject(false);
 
         setPreviewData({
@@ -74,16 +75,37 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     });
   };
 
-  const handleChange = (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
-    setProjectData(prev => {
-      if (prev === null) return null;
-      return {
-        ...prev,
-        [field]: value
-      };
-    });
-  };
+  // handleChange is a higher-order function that creates an event handler for form elements.
+  // It takes a `field` string that can include dot notation for nested objects (e.g., "slots.remaining").
+  // `isNumeric` is an optional parameter that when set to true, will parse the input value as an integer.
+  const handleChange = (field: string, isNumeric?: boolean) => 
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      // Parse the event value. If `isNumeric` is true, parse the value as an integer.
+      // If parsing fails or returns NaN, default to 0.
+      const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
+      
+      // Set the new state of project data.
+      setProjectData(prev => {
+        // Split the `field` string into keys for accessing nested properties.
+        const keys = field.split(".");
+
+        // Create a shallow copy of the previous state to maintain immutability.
+        let updated = { ...prev } as any;
+
+        // Traverse the keys to access the correct nested property.
+        // `item` is used to reference the current level of the state object.
+        let item = updated;
+        for (let i = 0; i < keys.length - 1; i++) {
+          item = item[keys[i]];  // Navigate deeper into the nested object.
+        }
+
+        // Set the new value at the final key. This updates the nested property.
+        item[keys[keys.length - 1]] = value;
+
+        // Return the updated state to update the state in React.
+        return updated;
+      });
+    };
 
   const handleDateChange = (newValue: DateValueType) => {
     setProjectData(prev => {
@@ -187,7 +209,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 projectName: `${projectData?.projectName}`,
                 description: `${projectData?.description}`,
                 totalSlots: projectData?.slots.total ?? 0,
+                remainingSlots: projectData?.slots.remaining,
                 totalBudget: projectData?.budget.total ?? 0,
+                remainingBudget: projectData?.budget.remaining,
                 deadline: projectData?.deadline ?? null
               }}
               handleChange={handleChange}
