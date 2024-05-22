@@ -13,6 +13,7 @@ export async function fetchAllProjects(): Promise<ProjectData[]> {
         createdAt: Timestamp;
         updatedAt: Timestamp;
         lastPaymentDate: Timestamp | null;
+        deadline: Timestamp;
       };
       if (isValidProjectData(data)) {
         projects.push({
@@ -20,7 +21,8 @@ export async function fetchAllProjects(): Promise<ProjectData[]> {
           id: doc.id,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
-          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null
+          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null,
+          deadline: data.deadline.toDate()
         });
       }
     });

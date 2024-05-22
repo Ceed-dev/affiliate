@@ -31,8 +31,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
-  const targetDate = new Date("2024-06-20T18:00:00Z");
-  const countdown = useCountdown(targetDate);
+  const countdown = useCountdown(projectData?.deadline ?? undefined);
 
   // TODO: Google Formリンク表示機能を一時的に追加。リファラルID機能をコメントアウト。
   // リダイレクトリンク変数をGoogle Formリンクを保持するための変数として使用。
@@ -202,18 +201,18 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           title="Remaining Duration"
           loading={loadingProject}
           value={countdown || "Calculating time left..."}
-          unit={`Until ${displayFormattedDateWithTimeZone(targetDate)}`}
+          unit={`Until ${displayFormattedDateWithTimeZone(projectData?.deadline ?? undefined)}`}
         />
         <StatisticCard
           title="Remaining Slots"
           loading={loadingProject}
-          value="60/100"
+          value={`${projectData?.slots.remaining}/${projectData?.slots.total}`}
           unit="Slots"
         />
         <StatisticCard
           title="Budget Balance"
           loading={loadingProject || loadingTokenSymbol}
-          value="200"
+          value={`${projectData?.budget.remaining}/${projectData?.budget.total}`}
           unit={tokenSymbol}
         />
       </div>

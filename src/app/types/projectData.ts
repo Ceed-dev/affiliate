@@ -19,4 +19,13 @@ export type ProjectData = {
   totalPaidOut: number;
   lastPaymentDate: Date | null;
   whitelistedAddresses: { [address: string]: WhitelistedAddress };
+  slots: {
+    total: number;
+    remaining: number;
+  };
+  budget: {
+    total: number;
+    remaining: number;
+  };
+  deadline: Date | null;
 };

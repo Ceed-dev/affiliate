@@ -1,4 +1,8 @@
-export const displayFormattedDateWithTimeZone = (date: Date) => {
+export const displayFormattedDateWithTimeZone = (date: Date | undefined) => {
+  if (!date) {
+    return "Date not set";
+  }
+
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",  // "numeric" or "2-digit"
     month: "long",    // "numeric", "2-digit", "long", "short", "narrow"

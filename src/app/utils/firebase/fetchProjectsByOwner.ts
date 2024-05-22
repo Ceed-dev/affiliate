@@ -14,6 +14,7 @@ export async function fetchProjectsByOwner(ownerAddress: string): Promise<Projec
         createdAt: Timestamp;
         updatedAt: Timestamp;
         lastPaymentDate: Timestamp | null;
+        deadline: Timestamp;
       };
       if (isValidProjectData(data) && data.ownerAddress === ownerAddress) {
         const projectData = {
@@ -21,7 +22,8 @@ export async function fetchProjectsByOwner(ownerAddress: string): Promise<Projec
           id: doc.id,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
-          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null
+          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null,
+          deadline: data.deadline.toDate()
         } as ProjectData;
         projects.push(projectData);
       }

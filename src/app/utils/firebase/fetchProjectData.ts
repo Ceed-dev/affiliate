@@ -14,7 +14,8 @@ export async function fetchProjectData(projectId: string): Promise<ProjectData> 
         id: docSnap.id,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
-        lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null
+        lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null,
+        deadline: data.deadline.toDate()
       } as ProjectData;
       console.log("Document data:", JSON.stringify(projectData, null, 2));
       return projectData;
