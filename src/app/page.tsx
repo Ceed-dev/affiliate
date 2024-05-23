@@ -67,7 +67,7 @@ export default function Home() {
 
         {/* Users' Voices */}
         <section id="voices" className="bg-purple-600 text-white p-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Users' Voices</h1>
+          <h1 className="text-xl md:text-3xl font-bold mb-10">Users&apos; Voices</h1>
           <p className="text-md md:text-xl text-center mb-3">Working with the best teams in web3</p>
           <div className="flex flex-row flex-wrap gap-10 justify-center">
             {logos.map((logo, index) => (
@@ -81,7 +81,7 @@ export default function Home() {
           <h1 className="text-xl md:text-3xl font-bold mb-10">Number of partners</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
-            <p className="text-md md:text-xl">We're growing an amazing network of affiliates to promote the next generation of web3 apps.</p>
+            <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 apps.</p>
             <div className="flex flex-col lg:flex-row shadow-lg rounded-lg bg-slate-50">
               {stats.map((stat, index) => (
                 <>
