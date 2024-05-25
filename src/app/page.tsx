@@ -59,7 +59,7 @@ export default function Home() {
             {features.map((feature, index) => (
               <div key={index} className="flex flex-col gap-5 items-center">
                 <h2 className="text-lg md:text-2xl font-semibold">{feature.title}</h2>
-                <p className="text-md md:text-lg text-center">{feature.description}</p>
+                <p className="text-md md:text-lg">{feature.description}</p>
               </div> 
             ))}
           </div>
@@ -67,18 +67,17 @@ export default function Home() {
 
         {/* Users' Voices */}
         <section id="voices" className="bg-purple-600 text-white p-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Users&apos; Voices</h1>
-          <p className="text-md md:text-xl text-center mb-3">Working with the best teams in web3</p>
+          <p className="text-md text-center mb-3">Working with the best teams in web3</p>
           <div className="flex flex-row flex-wrap gap-10 justify-center">
             {logos.map((logo, index) => (
-              <Image key={index} src={logo} alt={logo} width={100} height={100} />
+              <Image key={index} src={logo} alt={logo} width={120} height={120} />
             ))}
           </div>
         </section>
 
-        {/* Number of partners */}
+        {/* Number of affiliators */}
         <section id="partners" className="p-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of partners</h1>
+          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of affiliators</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
             <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 apps.</p>
@@ -90,7 +89,7 @@ export default function Home() {
                   )}
                   <div className="flex flex-col gap-3 py-5 md:py-10 px-10 md:px-20 items-center">
                     <h3 className="text-4xl font-bold">
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-800">
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-sky-500">
                         {stat.value}
                       </span>
                     </h3>
@@ -123,7 +122,7 @@ export default function Home() {
 
       </main>
 
-      <footer className="bg-purple-600 grid grid-cols-1 lg:grid-cols-5 gap-5 p-20">
+      <footer className="bg-purple-600 grid grid-cols-1 lg:grid-cols-4 gap-5 p-20">
         <div className="lg:col-span-2 flex flex-col items-center gap-3">
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image src="/qube.png" alt="qube.png" width={100} height={100} />
@@ -131,7 +130,7 @@ export default function Home() {
           </Link>
           <div className="flex flex-row gap-5">
             {socialMediaLinks.map((link, index) => (
-              <Link key={index} href={link.url} className="bg-white hover:bg-slate-200 p-3 rounded-full inline-flex justify-center items-center h-14 w-14 hover:shadow-xl">
+              <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 p-3 rounded-full inline-flex justify-center items-center h-14 w-14 hover:shadow-xl">
                 <Image src={link.src} alt={link.alt} width={30} height={30} />
               </Link>
             ))}
@@ -141,7 +140,7 @@ export default function Home() {
           <div key={category} className="flex flex-col items-center lg:items-start gap-5 text-slate-300">
             <h3 className="font-bold text-white text-xl">{category}</h3>
             {links.map(link => (
-              <Link key={link.label} href={link.url} className="hover:text-slate-100 hover:font-semibold">
+              <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-100 hover:font-semibold">
                 {link.label}
               </Link>
             ))}

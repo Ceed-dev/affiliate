@@ -34,28 +34,25 @@ export const features = [
 
 export const stats = [
   { 
-    value: "500+", 
-    label: "Affiliates" 
+    value: "1,000+", 
+    label: "Affiliators" 
   },
   { 
-    value: "1,000,000+", 
-    label: "Network reach" 
+    value: "2,000,000+", 
+    label: "Network Reach" 
   },
   { 
-    value: "$300,000+", 
-    label: "Additional project revenue" 
+    value: "10,000+", 
+    label: "Total Onboarding Users" 
   },
 ];
 
 export const logos = [
-  "/discord.png",
-  "/instagram.png",
-  "/matr1x.png",
-  "/motodex.png",
-  "/oaschoice.png",
-  "/pixels.png",
-  "/qube.png",
-  "/starrynift.png",
+  "/buddy-arena.png",
+  "/world-of-bezogia.png",
+  "/farcana.png",
+  "/starheroes.png",
+  "/gumi.png",
 ];
 
 export const faqs = [
@@ -79,14 +76,9 @@ export const faqs = [
 
 export const socialMediaLinks = [
   { 
-    src: "/instagram.png", 
-    alt: "Instagram",
-    url: "#", 
-  },
-  { 
-    src: "/discord.png", 
-    alt: "Discord",
-    url: "#",
+    src: "/x.png", 
+    alt: "X",
+    url: "https://x.com/0xQube", 
   },
 ];
 
@@ -97,35 +89,21 @@ export const footerLinks = {
       label: "Home",
     },
     {
-      url: "#",
+      url: "https://qube2-succery.vercel.app/corporate",
       label: "About",
     },
     {
-      url: "#",
+      url: "mailto:official@ceed.cloud",
       label: "Contract",
-    },
-  ],
-  "Resources": [
-    {
-      url: "#",
-      label: "Podcast",
-    },
-    {
-      url: "#",
-      label: "Insights",
-    },
-    {
-      url: "#",
-      label: "Affiliate Program",
     },
   ],
   "Legal": [
     {
-      url: "#",
+      url: "https://veroo.notion.site/Terms-and-Conditions-e56f60533a834abbbd1213c6bf0cd36f",
       label: "Terms and Conditions",
     },
     {
-      url: "#",
+      url: "https://veroo.notion.site/Privacy-Policy-4538184bcaee4835a2dedcc464496cdd",
       label: "Privacy Policy",
     },
   ],
