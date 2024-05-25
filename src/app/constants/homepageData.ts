@@ -34,16 +34,16 @@ export const features = [
 
 export const stats = [
   { 
-    value: "500+", 
-    label: "Affiliates" 
+    value: "1,000+", 
+    label: "Affiliators" 
   },
   { 
-    value: "1,000,000+", 
-    label: "Network reach" 
+    value: "2,000,000+", 
+    label: "Network Reach" 
   },
   { 
-    value: "$300,000+", 
-    label: "Additional project revenue" 
+    value: "10,000+", 
+    label: "Total Onboarding Users" 
   },
 ];
 

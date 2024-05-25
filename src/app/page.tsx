@@ -75,9 +75,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Number of partners */}
+        {/* Number of affiliators */}
         <section id="partners" className="p-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of partners</h1>
+          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of affiliators</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
             <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 apps.</p>
@@ -89,7 +89,7 @@ export default function Home() {
                   )}
                   <div className="flex flex-col gap-3 py-5 md:py-10 px-10 md:px-20 items-center">
                     <h3 className="text-4xl font-bold">
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-800">
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-sky-500">
                         {stat.value}
                       </span>
                     </h3>
