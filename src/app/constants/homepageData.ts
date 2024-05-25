@@ -76,14 +76,9 @@ export const faqs = [
 
 export const socialMediaLinks = [
   { 
-    src: "/instagram.png", 
-    alt: "Instagram",
-    url: "#", 
-  },
-  { 
-    src: "/discord.png", 
-    alt: "Discord",
-    url: "#",
+    src: "/x.png", 
+    alt: "X",
+    url: "https://x.com/0xQube", 
   },
 ];
 
@@ -94,35 +89,21 @@ export const footerLinks = {
       label: "Home",
     },
     {
-      url: "#",
+      url: "https://qube2-succery.vercel.app/corporate",
       label: "About",
     },
     {
-      url: "#",
+      url: "mailto:official@ceed.cloud",
       label: "Contract",
-    },
-  ],
-  "Resources": [
-    {
-      url: "#",
-      label: "Podcast",
-    },
-    {
-      url: "#",
-      label: "Insights",
-    },
-    {
-      url: "#",
-      label: "Affiliate Program",
     },
   ],
   "Legal": [
     {
-      url: "#",
+      url: "https://veroo.notion.site/Terms-and-Conditions-e56f60533a834abbbd1213c6bf0cd36f",
       label: "Terms and Conditions",
     },
     {
-      url: "#",
+      url: "https://veroo.notion.site/Privacy-Policy-4538184bcaee4835a2dedcc464496cdd",
       label: "Privacy Policy",
     },
   ],
