@@ -59,7 +59,7 @@ export default function Home() {
             {features.map((feature, index) => (
               <div key={index} className="flex flex-col gap-5 items-center">
                 <h2 className="text-lg md:text-2xl font-semibold">{feature.title}</h2>
-                <p className="text-md md:text-lg text-center">{feature.description}</p>
+                <p className="text-md md:text-lg">{feature.description}</p>
               </div> 
             ))}
           </div>
