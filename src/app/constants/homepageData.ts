@@ -48,14 +48,11 @@ export const stats = [
 ];
 
 export const logos = [
-  "/discord.png",
-  "/instagram.png",
-  "/matr1x.png",
-  "/motodex.png",
-  "/oaschoice.png",
-  "/pixels.png",
-  "/qube.png",
-  "/starrynift.png",
+  "/buddy-arena.png",
+  "/world-of-bezogia.png",
+  "/farcana.png",
+  "/starheroes.png",
+  "/gumi.png",
 ];
 
 export const faqs = [
