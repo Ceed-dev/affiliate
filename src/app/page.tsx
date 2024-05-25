@@ -80,7 +80,7 @@ export default function Home() {
           <h1 className="text-xl md:text-3xl font-bold mb-10">Number of affiliators</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
-            <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 apps.</p>
+            <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 gaming.</p>
             <div className="flex flex-col lg:flex-row shadow-lg rounded-lg bg-slate-50">
               {stats.map((stat, index) => (
                 <>
