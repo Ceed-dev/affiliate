@@ -70,7 +70,7 @@ export default function Home() {
           <p className="text-md text-center mb-3">Working with the best teams in web3</p>
           <div className="flex flex-row flex-wrap gap-10 justify-center">
             {logos.map((logo, index) => (
-              <Image key={index} src={logo} alt={logo} width={100} height={100} />
+              <Image key={index} src={logo} alt={logo} width={120} height={120} />
             ))}
           </div>
         </section>
