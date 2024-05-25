@@ -47,7 +47,7 @@ export default function Home() {
             <h1 className="text-3xl md:text-5xl font-bold">Drive Acquisition, Amplify Revenue</h1>
             <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3  Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
-              Our trusted affiliate network connects you with a vast pool of gaming influencers and content creators across Asia, enabling you to reach and convert your target audience at scale. enabling transparent tracking and automatic distribution of tokenized rewards to drive higher engagement and conversions.
+              Our trusted affiliate network connects you with a vast pool of gaming influencers and guilds across Asia, enabling you to reach and convert your target audience at scale. enabling transparent tracking and automatic distribution of tokenized rewards to drive higher engagement and conversions.
             </p>
           </div>
         </section>

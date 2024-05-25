@@ -24,7 +24,7 @@ export const features = [
   },
   {
     title: "②Unparalleled Reach in Asia",
-    description: "Leverage our extensive network of over 1,000 verified affiliates and publishers across Asia, boasting a collective reach of over 500,000 engaged users in the Web3 space. Partner with top gaming influencers, crypto communities, and content creators to drive highly targeted user acquisition and amplify your brand's visibility within the region.",
+    description: "Leverage our extensive network of over 1,000 verified affiliates and publishers across Asia, boasting a collective reach of over 500,000 engaged users in the Web3 space. Partner with top gaming influencers, crypto communities, and guilds to drive highly targeted user acquisition and amplify your brand's visibility within the region.",
   },
   {
     title: "③Data-Driven Optimization",
