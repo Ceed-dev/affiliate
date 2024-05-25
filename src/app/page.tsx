@@ -67,7 +67,7 @@ export default function Home() {
 
         {/* Users' Voices */}
         <section id="voices" className="bg-purple-600 text-white p-20">
-          <p className="text-md text-center mb-3">Working with the best teams in web3</p>
+          <p className="text-md text-center mb-20">We&apos;re in a good company</p>
           <div className="flex flex-row flex-wrap gap-10 justify-center">
             {logos.map((logo, index) => (
               <Image key={index} src={logo} alt={logo} width={120} height={120} />
