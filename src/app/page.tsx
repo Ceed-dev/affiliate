@@ -47,7 +47,7 @@ export default function Home() {
             <h1 className="text-3xl md:text-5xl font-bold">Drive Acquisition, Amplify Revenue</h1>
             <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3  Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
-              Our trusted affiliate network connects you with a vast pool of gaming influencers and content creators across Asia, enabling you to reach and convert your target audience at scale. enabling transparent tracking and automatic distribution of tokenized rewards to drive higher engagement and conversions.
+              Our trusted affiliate network connects you with a vast pool of gaming influencers and guilds across Asia, enabling you to reach and convert your target audience at scale, transparent tracking and automatic distribution of tokenized rewards to drive higher engagement and conversions.
             </p>
           </div>
         </section>
@@ -67,7 +67,7 @@ export default function Home() {
 
         {/* Users' Voices */}
         <section id="voices" className="bg-purple-600 text-white p-20">
-          <p className="text-md text-center mb-3">Working with the best teams in web3</p>
+          <p className="text-md text-center mb-20">We&apos;re in a good company</p>
           <div className="flex flex-row flex-wrap gap-10 justify-center">
             {logos.map((logo, index) => (
               <Image key={index} src={logo} alt={logo} width={120} height={120} />
@@ -80,7 +80,7 @@ export default function Home() {
           <h1 className="text-xl md:text-3xl font-bold mb-10">Number of affiliators</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
-            <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 apps.</p>
+            <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 gaming.</p>
             <div className="flex flex-col lg:flex-row shadow-lg rounded-lg bg-slate-50">
               {stats.map((stat, index) => (
                 <>
