@@ -88,10 +88,10 @@ export const footerLinks = {
       url: "#",
       label: "Home",
     },
-    {
-      url: "https://qube2-succery.vercel.app/corporate",
-      label: "About",
-    },
+    // {
+    //   url: "https://qube2-succery.vercel.app/corporate",
+    //   label: "About",
+    // },
     {
       url: "mailto:official@ceed.cloud",
       label: "Contract",
