@@ -1,12 +1,10 @@
 import { WhitelistedAddress } from ".";
 
-export type ProjectData = {
+type BaseProjectData = {
   id?: string;
   projectName: string;
   description: string;
   selectedTokenAddress: string;
-  rewardAmount: number;
-  redirectUrl: string;
   logo: string | null;
   cover: string | null;
   websiteUrl: string;
@@ -16,8 +14,10 @@ export type ProjectData = {
   ownerAddress: string;
   createdAt: Date;
   updatedAt: Date;
-  totalPaidOut: number;
-  lastPaymentDate: Date | null;
+};
+
+export type DirectPaymentProjectData = BaseProjectData & {
+  projectType: "DirectPayment";
   whitelistedAddresses: { [address: string]: WhitelistedAddress };
   slots: {
     total: number;
@@ -29,3 +29,13 @@ export type ProjectData = {
   };
   deadline: Date | null;
 };
+
+export type EscrowPaymentProjectData = BaseProjectData & {
+  projectType: "EscrowPayment";
+  rewardAmount: number;
+  redirectUrl: string;
+  totalPaidOut: number;
+  lastPaymentDate: Date | null;
+};
+
+export type ProjectData = DirectPaymentProjectData | EscrowPaymentProjectData;

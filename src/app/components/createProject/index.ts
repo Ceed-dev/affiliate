@@ -1,4 +1,5 @@
 import { StatusBar } from "./statusbar/StatusBar";
+import { ProjectTypeSelectionForm } from "./ProjectTypeSelectionForm";
 import { ProjectDetailsForm } from "./ProjectDetailsForm";
 import { AffiliatesForm } from "./AffiliatesForm";
 import { LogoForm } from "./LogoForm";
@@ -7,6 +8,7 @@ import { NextButton } from "./NextButton";
 
 export {
   StatusBar,
+  ProjectTypeSelectionForm,
   ProjectDetailsForm,
   AffiliatesForm,
   LogoForm,
