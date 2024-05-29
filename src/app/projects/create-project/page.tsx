@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import { 
   StatusBar,
+  ProjectTypeSelectionForm,
   ProjectDetailsForm,
   AffiliatesForm,
   LogoForm,
@@ -14,61 +15,73 @@ import {
 } from "../../components/createProject";
 import { saveProjectToFirestore, deleteProjectFromFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
-import { ProjectData, ImageType, WhitelistedAddress } from "../../types";
+import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
 
 export default function CreateProject() {
   const address = useAddress();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  // TODO: "Deposit"の文言を一時的に取り除く。
-  // - Reason: 一時的に、報酬トークンの支払いはエスクローコントラクトではなくEOAから直接行うため。
-  // - Planned Reversion: 未定。
-  // - Date: 2024-05-17
-  // - Author: shungo0222
-  // - Issue: #314
-  // ===== BEGIN ORIGINAL CODE =====
-  // const initialStatus = "Save & Deposit";
-  // ===== END ORIGINAL CODE =====
-  // ===== BEGIN MODIFICATION =====
-  const initialStatus = "Save";
-  // ===== END MODIFICATION =====
-  const [saveAndDepositStatus, setSaveAndDepositStatus] = useState(initialStatus);
+  const [initialStatus, setInitialStatus] = useState<string>("");
+  const [saveAndDepositStatus, setSaveAndDepositStatus] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [hideSaveAndDepositButton, setHideSaveAndDepositButton] = useState(false);
-  const [projectData, setProjectData] = useState<ProjectData>({
-    projectName: "",
-    description: "",
-    selectedTokenAddress: "",
-    rewardAmount: 0,
-    redirectUrl: "",
-    logo: null,
-    cover: null,
-    websiteUrl: "",
-    discordUrl: "",
-    xUrl: "",
-    instagramUrl: "",
-    ownerAddress: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    totalPaidOut: 0,
-    lastPaymentDate: null,
-    whitelistedAddresses: {},
-    slots: {
-      total: 0,
-      remaining: 0
-    },
-    budget: {
-      total: 0,
-      remaining: 0
-    },
-    deadline: null
-  });
+  const [projectType, setProjectType] = useState<ProjectType | null>(null);
+  const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
     coverPreview: ""
   });
 
-  const nextStep = () => setCurrentStep(currentStep < 5 ? currentStep + 1 : 5);
+  const nextStep = () => setCurrentStep(currentStep < 6 ? currentStep + 1 : 6);
+
+  const handleProjectTypeChange = (type: ProjectType) => {
+    setProjectType(type);
+
+    const status = type === "DirectPayment" ? "Save" : "Save & Deposit";
+    setInitialStatus(status);
+    setSaveAndDepositStatus(status);
+
+    const commonData = {
+      projectName: "",
+      description: "",
+      selectedTokenAddress: "",
+      logo: null,
+      cover: null,
+      websiteUrl: "",
+      discordUrl: "",
+      xUrl: "",
+      instagramUrl: "",
+      ownerAddress: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    if (type === "DirectPayment") {
+      setProjectData({
+        ...commonData,
+        projectType: "DirectPayment",
+        whitelistedAddresses: {},
+        slots: {
+          total: 0,
+          remaining: 0,
+        },
+        budget: {
+          total: 0,
+          remaining: 0,
+        },
+        deadline: null,
+      } as DirectPaymentProjectData);
+    } else if (type === "EscrowPayment") {
+      setProjectData({
+        ...commonData,
+        projectType: "EscrowPayment",
+        rewardAmount: 0,
+        redirectUrl: "",
+        totalPaidOut: 0,
+        lastPaymentDate: null,
+      } as EscrowPaymentProjectData);
+    }
+  };
 
   // handleChange is a higher-order function that creates an event handler for form elements.
   // It takes a `field` string that can include dot notation for nested objects (e.g., "slots.remaining").
@@ -81,6 +94,8 @@ export default function CreateProject() {
       
       // Set the new state of project data.
       setProjectData(prev => {
+        if (!prev) return prev;
+
         // Split the `field` string into keys for accessing nested properties.
         const keys = field.split(".");
 
@@ -91,6 +106,9 @@ export default function CreateProject() {
         // `item` is used to reference the current level of the state object.
         let item = updated;
         for (let i = 0; i < keys.length - 1; i++) {
+          if (!item[keys[i]]) {
+            item[keys[i]] = {};  // Ensure the nested object exists.
+          }
           item = item[keys[i]];  // Navigate deeper into the nested object.
         }
 
@@ -104,6 +122,8 @@ export default function CreateProject() {
 
   const handleDateChange = (newValue: DateValueType) => {
     setProjectData(prev => {
+      if (!prev) return prev;
+
       let deadline = null;
       if (newValue?.startDate) {
         const date = new Date(newValue.startDate);
@@ -117,20 +137,16 @@ export default function CreateProject() {
     });
   };
 
-  // TODO: ホワイトリストアドレスを更新する関数。
-  // - Reason: フォーム内で入出力するため。
-  // - Planned Reversion: 未定。
-  // - Date: 2024-05-17
-  // - Author: shungo0222
-  // - Issue: #313
-  // ===== BEGIN MODIFICATION =====
   const handleWhitelistChange = (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => {
-    setProjectData(prevData => ({
-      ...prevData,
-      whitelistedAddresses: newWhitelistedAddresses
-    }));
+    setProjectData(prevData => {
+      if (!prevData) return prevData;
+  
+      return {
+        ...prevData,
+        whitelistedAddresses: newWhitelistedAddresses
+      };
+    });
   };
-  // ===== END MODIFICATION =====
 
   const handleImageChange = (type: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -138,7 +154,14 @@ export default function CreateProject() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewData(prev => ({ ...prev, [`${type}Preview`]: reader.result as string }));
-        setProjectData(prev => ({ ...prev, [type]: file }));
+        setProjectData(prev => {
+          if (!prev) return prev;
+  
+          return {
+            ...prev,
+            [type]: file
+          };
+        });
       };
       reader.readAsDataURL(file);
     }
@@ -146,25 +169,41 @@ export default function CreateProject() {
   
   const removeImage = (type: ImageType) => () => {
     setPreviewData(prev => ({ ...prev, [`${type}Preview`]: "" }));
-    setProjectData(prev => ({ ...prev, [type]: "" }));
+    setProjectData(prev => {
+      if (!prev) return prev;
+  
+      return {
+        ...prev,
+        [type]: ""
+      };
+    });
   };
 
   const saveProjectAndDepositToken = async () => {
-    const depositAmount = 10;
+    if (!projectData) {
+      toast.error("Project data is not available. Please try again.");
+      return;
+    }
+
     setIsSaving(true);
 
+    let updatedProjectData: ProjectData = projectData;
+
     // Set remaining values to be equal to total values
-    const updatedProjectData = {
-      ...projectData,
-      slots: {
-        ...projectData.slots,
-        remaining: projectData.slots.total
-      },
-      budget: {
-        ...projectData.budget,
-        remaining: projectData.budget.total
-      }
-    };
+    if (projectType === "DirectPayment") {
+      const directPaymentData = projectData as DirectPaymentProjectData;
+      updatedProjectData = {
+        ...directPaymentData,
+        slots: {
+          ...directPaymentData.slots,
+          remaining: directPaymentData.slots.total
+        },
+        budget: {
+          ...directPaymentData.budget,
+          remaining: directPaymentData.budget.total
+        }
+      };
+    }
 
     setSaveAndDepositStatus("Saving project to Firestore...");
     const result = await saveProjectToFirestore(updatedProjectData, `${address}`);
@@ -176,33 +215,29 @@ export default function CreateProject() {
     }
     const { projectId } = result;
 
-    // TODO: トークンのデポジット機能を一時的にコメントアウト。
-    // - Reason: 一時的に、報酬トークンの支払いはエスクローコントラクトではなくEOAから直接行うため。
-    // - Planned Reversion: 未定。
-    // - Date: 2024-05-17
-    // - Author: shungo0222
-    // - Issue: #314
-    // ===== BEGIN ORIGINAL CODE =====
-    // setSaveAndDepositStatus("Apprcoving tokens...");
-    // const approveSuccess = await approveToken(projectData.selectedTokenAddress, depositAmount);
-    // if (!approveSuccess) {
-    //   toast.error("Failed to approve token. Please try again.");
-    //   setSaveAndDepositStatus(initialStatus);
-    //   setIsSaving(false);
-    //   await deleteProjectFromFirestore(projectId);
-    //   return;
-    // }
-
-    // setSaveAndDepositStatus("Depositing tokens...");
-    // const depositSuccess = await depositToken(projectId, projectData.selectedTokenAddress, depositAmount);
-    // if (!depositSuccess) {
-    //   toast.error("Failed to deposit token. Please try again.");
-    //   setSaveAndDepositStatus(initialStatus);
-    //   setIsSaving(false);
-    //   await deleteProjectFromFirestore(projectId);
-    //   return;
-    // }
-    // ===== END ORIGINAL CODE =====
+    if (projectType === "EscrowPayment") {
+      const depositAmount = 10; //TODO: Fix later
+  
+      setSaveAndDepositStatus("Approving tokens...");
+      const approveSuccess = await approveToken(projectData.selectedTokenAddress, depositAmount);
+      if (!approveSuccess) {
+        toast.error("Failed to approve token. Please try again.");
+        setSaveAndDepositStatus(initialStatus);
+        setIsSaving(false);
+        await deleteProjectFromFirestore(projectId);
+        return;
+      }
+  
+      setSaveAndDepositStatus("Depositing tokens...");
+      const depositSuccess = await depositToken(projectId, projectData.selectedTokenAddress, depositAmount);
+      if (!depositSuccess) {
+        toast.error("Failed to deposit token. Please try again.");
+        setSaveAndDepositStatus(initialStatus);
+        setIsSaving(false);
+        await deleteProjectFromFirestore(projectId);
+        return;
+      }
+    }
 
     setHideSaveAndDepositButton(true);
     nextStep();
@@ -217,20 +252,30 @@ export default function CreateProject() {
     switch (currentStep) {
       case 1:
         return (
+          <ProjectTypeSelectionForm
+            handleProjectTypeChange={handleProjectTypeChange}
+            nextStep={nextStep}
+          />
+        );
+      case 2:
+        return (
           <ProjectDetailsForm
             data={{
-              projectName: projectData.projectName,
-              description: projectData.description,
-              totalSlots: projectData.slots.total,
-              totalBudget: projectData.budget.total,
-              deadline: projectData.deadline
+              projectType: projectType!,
+              projectName: projectData?.projectName ?? "",
+              description: projectData?.description ?? "",
+              ...(projectType === "DirectPayment" && {
+                totalSlots: (projectData as DirectPaymentProjectData).slots.total,
+                totalBudget: (projectData as DirectPaymentProjectData).budget.total,
+                deadline: (projectData as DirectPaymentProjectData).deadline,
+              }),
             }}
             handleChange={handleChange}
             handleDateChange={handleDateChange}
             nextStep={nextStep}
           />
         );
-      case 2:
+      case 3:
         return (
           <LogoForm
             data={{
@@ -242,49 +287,32 @@ export default function CreateProject() {
             nextStep={nextStep}
           />
         );
-      case 3:
+      case 4:
         return (
           <SocialLinksForm
             data={{
-              websiteUrl: projectData.websiteUrl,
-              discordUrl: projectData.discordUrl,
-              xUrl: projectData.xUrl,
-              instagramUrl: projectData.instagramUrl
+              websiteUrl: projectData?.websiteUrl ?? "",
+              discordUrl: projectData?.discordUrl ?? "",
+              xUrl: projectData?.xUrl ?? "",
+              instagramUrl: projectData?.instagramUrl ?? ""
             }}
             handleChange={handleChange}
             nextStep={nextStep}
           />
         );
-      case 4:
       case 5:
+      case 6:
         return (
           <AffiliatesForm 
             data={{
-              selectedTokenAddress: projectData.selectedTokenAddress,
-              // TODO: ホワイトリストアドレスを受け渡す。
-              // - Reason: フォーム内で入出力するため。
-              // - Planned Reversion: 未定。
-              // - Date: 2024-05-17
-              // - Author: shungo0222
-              // - Issue: #313
-              // ===== BEGIN ORIGINAL CODE =====
-              // rewardAmount: projectData.rewardAmount,
-              // redirectUrl: projectData.redirectUrl
-              // ===== END ORIGINAL CODE =====
-              // ===== BEGIN MODIFICATION =====
-              whitelistedAddresses: projectData.whitelistedAddresses
-              // ===== END MODIFICATION =====
+              projectType: projectType!,
+              selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
+              whitelistedAddresses: projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
+              rewardAmount: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined,
+              redirectUrl: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
             }}
             handleChange={handleChange}
-            // TODO: ホワイトリストアドレスを更新する関数。
-            // - Reason: フォーム内で入出力するため。
-            // - Planned Reversion: 未定。
-            // - Date: 2024-05-17
-            // - Author: shungo0222
-            // - Issue: #313
-            // ===== BEGIN MODIFICATION =====
-            handleWhitelistChange={handleWhitelistChange}
-            // ===== END MODIFICATION =====
+            handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             nextStep={saveProjectAndDepositToken}
             isSaving={isSaving}
             hideButton={hideSaveAndDepositButton}
