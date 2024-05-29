@@ -11,8 +11,15 @@ type ProjectCardProps = {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) => {
   return (
     <Link href={linkUrl}>
-      <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105">
+      <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-visible transition duration-300 ease-in-out transform hover:scale-105">
         <div className="w-full h-16 bg-gray-200 mb-10 relative">
+          <Image
+            className="absolute -top-4 -right-4 bg-white border-2 border-slate-300 rounded-full shadow-lg"
+            src={project.projectType === "DirectPayment" ? "/direct-payment.png" : "/escrow-payment.png"}
+            width={50}
+            height={50}
+            alt="Project Type Icon"
+          />
           <Image
             className="w-full h-full object-cover"
             src={project.cover as string}
