@@ -71,7 +71,7 @@ export default function Projects() {
               <ProjectCard 
                 key={project.id} 
                 project={project} 
-                linkUrl={`${baseUrl}/projects/${project.id}`} 
+                linkUrl={`${baseUrl}/projects/${project.id}${project.projectType === "DirectPayment" ? "/settings" : ""}`} 
               />
             ))}
           </div>

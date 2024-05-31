@@ -197,7 +197,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
   return (
     <>
-      <NavBar projectId={params.projectId} />
+      <NavBar projectId={params.projectId} projectType={projectData?.projectType!} />
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-32 lg:px-60 xl:px-96 pt-1 pb-10">
         {loadingProject ? (
           <div className="flex flex-row items-center justify-center gap-5 mt-20">
