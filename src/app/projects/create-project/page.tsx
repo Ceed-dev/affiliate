@@ -271,7 +271,7 @@ export default function CreateProject() {
               }),
             }}
             handleChange={handleChange}
-            handleDateChange={handleDateChange}
+            handleDateChange={projectType === "DirectPayment" ? handleDateChange : undefined}
             nextStep={nextStep}
           />
         );
