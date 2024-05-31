@@ -5,6 +5,7 @@ import {
   fetchReferralData,
   processRewardPaymentTransaction
 } from "../../utils/firebase";
+import { EscrowPaymentProjectData } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,11 +33,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Ensure the project is of type EscrowPaymentProjectData
+    if (projectData.projectType !== "EscrowPayment") {
+      return NextResponse.json(
+        { error: "Invalid project type" },
+        { status: 400 }
+      );
+    }
+
+    const escrowProjectData = projectData as EscrowPaymentProjectData;
+
     const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
     const escrow = new Escrow(signer);
     const txhash = await escrow.withdraw(
       referralData.projectId,
-      projectData.rewardAmount,
+      escrowProjectData.rewardAmount,
       referralData.affiliateWallet
     );
     if (!txhash) {
@@ -49,7 +60,7 @@ export async function POST(request: NextRequest) {
     await processRewardPaymentTransaction(
       referralData.projectId, 
       `${referralData.id}`,
-      projectData.rewardAmount,
+      escrowProjectData.rewardAmount,
       txhash
     );
 
