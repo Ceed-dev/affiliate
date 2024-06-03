@@ -1,12 +1,23 @@
-import { runTransaction, doc } from "firebase/firestore";
+import { runTransaction, doc, DocumentData, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
+
+interface ProjectData extends DocumentData {
+  totalPaidOut: number;
+  lastPaymentDate: Timestamp | null;
+}
+
+interface ReferralData extends DocumentData {
+  conversions: number;
+  earnings: number;
+  lastConversionDate: Timestamp | null;
+}
 
 export async function processRewardPaymentTransaction(
   projectId: string, 
   referralId: string, 
   amount: number, 
   transactionHash: string
-) {
+): Promise<void> {
   const now = new Date();
 
   const projectRef = doc(db, "projects", projectId);
@@ -19,13 +30,13 @@ export async function processRewardPaymentTransaction(
       if (!projectDoc.exists()) {
         throw new Error(`Project with ID ${projectId} not found`);
       }
-      const projectData = projectDoc.data();
+      const projectData = projectDoc.data() as ProjectData;
 
       const referralDoc = await transaction.get(referralRef);
       if (!referralDoc.exists()) {
         throw new Error(`Referral with ID ${referralId} not found`);
       }
-      const referralData = referralDoc.data();
+      const referralData = referralDoc.data() as ReferralData;
 
       transaction.update(projectRef, {
         totalPaidOut: projectData.totalPaidOut + amount,
