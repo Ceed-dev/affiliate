@@ -11,8 +11,15 @@ type ProjectCardProps = {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) => {
   return (
     <Link href={linkUrl}>
-      <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105">
+      <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-visible transition duration-300 ease-in-out transform hover:scale-105">
         <div className="w-full h-16 bg-gray-200 mb-10 relative">
+          <Image
+            className="absolute -top-4 -right-4 bg-white border-2 border-slate-300 rounded-full shadow-lg"
+            src={project.projectType === "DirectPayment" ? "/direct-payment.png" : "/escrow-payment.png"}
+            width={50}
+            height={50}
+            alt="Project Type Icon"
+          />
           <Image
             className="w-full h-full object-cover"
             src={project.cover as string}
@@ -31,20 +38,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) =>
               />
             </div>
             <p className="font-semibold bg-green-200 px-2 py-1 rounded-md border border-white">
-              {/*
-              // TODO: 報酬で使われるトークンのシンボルのみを表示する。
-              // - Reason: コネクトされたウォレットアドレスによって報酬トークン量は変動するためここでは非表示。
-              // - Planned Reversion: 未定。
-              // - Date: 2024-05-17
-              // - Author: shungo0222
-              // - Issue: #315
-              ===== BEGIN ORIGINAL CODE =====
-              {project.rewardAmount} {project.selectedToken} 
-              ===== END ORIGINAL CODE =====
-              */}
-              {/* ===== BEGIN MODIFICATION ===== */}
-              {project.selectedToken}
-              {/* ===== END MODIFICATION ===== */}
+              {project.projectType === "EscrowPayment" ? `${project.rewardAmount} ${project.selectedToken}` : project.selectedToken}
             </p>
           </div>
         </div>

@@ -1,22 +1,42 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { isValidProjectData } from "../validations";
-import { ProjectData } from "../../types";
+import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData } from "../../types";
 
 export async function fetchProjectData(projectId: string): Promise<ProjectData> {
   const docRef = doc(db, "projects", projectId);
   try {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists() && isValidProjectData(docSnap.data())) {
-      const data = docSnap.data();
-      const projectData = {
-        ...data,
-        id: docSnap.id,
-        createdAt: data.createdAt.toDate(),
-        updatedAt: data.updatedAt.toDate(),
-        lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null,
-        deadline: data.deadline.toDate()
-      } as ProjectData;
+      const data = docSnap.data() as ProjectData & {
+        createdAt: Timestamp;
+        updatedAt: Timestamp;
+        lastPaymentDate?: Timestamp | null;
+        deadline?: Timestamp | null;
+      };
+
+      let projectData: ProjectData;
+
+      if (data.projectType === "DirectPayment") {
+        projectData = {
+          ...data,
+          id: docSnap.id,
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt.toDate(),
+          deadline: data.deadline?.toDate() || null,
+        } as DirectPaymentProjectData;
+      } else if (data.projectType === "EscrowPayment") {
+        projectData = {
+          ...data,
+          id: docSnap.id,
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt.toDate(),
+          lastPaymentDate: data.lastPaymentDate?.toDate() || null,
+        } as EscrowPaymentProjectData;
+      } else {
+        throw new Error("Unknown project type");
+      }
+
       console.log("Document data:", JSON.stringify(projectData, null, 2));
       return projectData;
     } else {

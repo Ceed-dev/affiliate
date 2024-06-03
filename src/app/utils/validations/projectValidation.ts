@@ -1,5 +1,5 @@
 import { DocumentData } from "firebase/firestore";
-import { ProjectData, WhitelistedAddress } from "../../types";
+import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, WhitelistedAddress } from "../../types";
 
 export function isValidProjectData(data: DocumentData): data is ProjectData {
   // Helper function to add validation for `whitelistedAddresses`
@@ -32,26 +32,52 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
            typeof budget.remaining === "number";
   };
 
-  return (
-    typeof data.projectName === "string" &&
-    typeof data.description === "string" &&
-    typeof data.selectedTokenAddress === "string" &&
-    typeof data.rewardAmount === "number" &&
-    typeof data.redirectUrl === "string" &&
-    (data.logo === null || typeof data.logo === "string") &&
-    (data.cover === null || typeof data.cover === "string") &&
-    typeof data.websiteUrl === "string" &&
-    typeof data.discordUrl === "string" &&
-    typeof data.xUrl === "string" &&
-    typeof data.instagramUrl === "string" &&
-    typeof data.ownerAddress === "string" &&
-    data.createdAt.toDate() instanceof Date &&
-    data.updatedAt.toDate() instanceof Date &&
-    typeof data.totalPaidOut === "number" &&
-    (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
-    isValidWhitelistedAddresses(data.whitelistedAddresses) &&
-    isValidSlots(data.slots) &&
-    isValidBudget(data.budget) &&
-    data.deadline.toDate() instanceof Date
-  );
+  // Base project data validation
+  const isValidBaseProjectData = (data: any): boolean => {
+    return (
+      typeof data.projectName === "string" &&
+      typeof data.description === "string" &&
+      typeof data.selectedTokenAddress === "string" &&
+      (data.logo === null || typeof data.logo === "string") &&
+      (data.cover === null || typeof data.cover === "string") &&
+      typeof data.websiteUrl === "string" &&
+      typeof data.discordUrl === "string" &&
+      typeof data.xUrl === "string" &&
+      typeof data.instagramUrl === "string" &&
+      typeof data.ownerAddress === "string" &&
+      data.createdAt.toDate() instanceof Date &&
+      data.updatedAt.toDate() instanceof Date
+    );
+  };
+
+  // DirectPayment project data validation
+  const isValidDirectPaymentProjectData = (data: any): data is DirectPaymentProjectData => {
+    return (
+      isValidBaseProjectData(data) &&
+      isValidWhitelistedAddresses(data.whitelistedAddresses) &&
+      isValidSlots(data.slots) &&
+      isValidBudget(data.budget) &&
+      data.deadline.toDate() instanceof Date
+    );
+  };
+
+  // EscrowPayment project data validation
+  const isValidEscrowPaymentProjectData = (data: any): data is EscrowPaymentProjectData => {
+    return (
+      isValidBaseProjectData(data) &&
+      typeof data.rewardAmount === "number" &&
+      typeof data.redirectUrl === "string" &&
+      typeof data.totalPaidOut === "number" &&
+      (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date)
+    );
+  };
+
+  // Check the project type and validate accordingly
+  if (data.projectType === "DirectPayment") {
+    return isValidDirectPaymentProjectData(data);
+  } else if (data.projectType === "EscrowPayment") {
+    return isValidEscrowPaymentProjectData(data);
+  }
+
+  return false;
 }

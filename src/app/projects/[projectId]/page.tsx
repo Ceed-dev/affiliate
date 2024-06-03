@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
-import { ProjectData, ReferralData, PaymentTransaction } from "../../types";
+import { ProjectData, EscrowPaymentProjectData, ReferralData, PaymentTransaction } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
@@ -93,7 +93,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   return (
     <>
-      <NavBar projectId={params.projectId} />
+      <NavBar projectId={params.projectId} projectType={projectData?.projectType!} />
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
 
         {/* Title */}
@@ -117,7 +117,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
           <StatisticCard
             title="Total Paid Out"
             loading={loadingProject || loadingTokenSymbol}
-            value={`${projectData?.totalPaidOut}`}
+            value={projectData?.projectType === "EscrowPayment" ? `${(projectData as EscrowPaymentProjectData).totalPaidOut}` : "N/A"}
             unit={tokenSymbol}
           />
           <StatisticCard

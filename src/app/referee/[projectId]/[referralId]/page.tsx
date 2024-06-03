@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { ProjectData } from "../../../types";
+import { ProjectData, EscrowPaymentProjectData } from "../../../types";
 import { fetchProjectData } from "../../../utils/firebase";
 import { ProjectHeader } from "../../../components/affiliate";
 
@@ -18,7 +18,7 @@ export default function Referee({ params }: { params: { projectId: string, refer
     fetchProjectData(params.projectId)
       .then(data => {
         setProjectData(data);
-        setRedirectLink(`${data.redirectUrl}?r=${params.referralId}`);
+        setRedirectLink(`${(data as EscrowPaymentProjectData).redirectUrl}?r=${params.referralId}`);
         setLoading(false);
       })
       .catch(error => {

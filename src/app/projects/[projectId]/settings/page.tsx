@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import cloneDeep from "lodash/cloneDeep";
-import { ProjectData, ImageType, WhitelistedAddress } from "../../../types";
+import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, WhitelistedAddress } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
   ProjectDetailsForm, 
@@ -123,13 +123,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     });
   };
 
-  // TODO: ホワイトリストアドレスを更新する関数。
-  // - Reason: フォーム内で入出力するため。
-  // - Planned Reversion: 未定。
-  // - Date: 2024-05-17
-  // - Author: shungo0222
-  // - Issue: #316
-  // ===== BEGIN MODIFICATION =====
   const handleWhitelistChange = (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => {
     setProjectData(prevData => {
       if (prevData === null) return null;
@@ -139,7 +132,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
       }
     });
   };
-  // ===== END MODIFICATION =====
 
   const hasChanges = () => {
     if (!initialProjectData || !projectData) return false;
@@ -148,25 +140,35 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   };
 
   const isFormComplete = () => {
-    return projectData &&
-      projectData.projectName.trim() !== "" &&
-      projectData.description.trim() !== "" &&
-      projectData.logo &&
-      projectData.cover &&
-      projectData.selectedTokenAddress.trim() !== "" &&
-      // TODO: リワード量とリダイレクトリンクの検証を取り除いて、ホワイトリストの検証を追加する。
-      // - Reason: ホワイトリストの中でそれぞれのアドレスに紐づいたトークン量とリンクを管理するため。
-      // - Planned Reversion: 未定。
-      // - Date: 2024-05-17
-      // - Author: shungo0222
-      // - Issue: #316
-      // ===== BEGIN ORIGINAL CODE =====
-      // projectData.rewardAmount > 0 &&
-      // projectData.redirectUrl.trim() !== ""
-      // ===== END ORIGINAL CODE =====
-      // ===== BEGIN MODIFICATION =====
-      Object.keys(projectData.whitelistedAddresses || {}).length > 0
-      // ===== END MODIFICATION =====
+    if (!projectData) return false;
+
+    if (projectData.projectType === "DirectPayment") {
+      const directProjectData = projectData as DirectPaymentProjectData;
+      return projectData.projectName.trim() !== "" &&
+              projectData.description.trim() !== "" &&
+              projectData.logo &&
+              projectData.cover &&
+              projectData.selectedTokenAddress.trim() !== "" &&
+              Object.keys(projectData.whitelistedAddresses || {}).length > 0 &&
+              directProjectData.slots.total > 0 &&
+              directProjectData.slots.remaining >= 0 &&
+              directProjectData.budget.total > 0 &&
+              directProjectData.budget.remaining >= 0 &&
+              directProjectData.deadline !== null;
+    }
+
+    if (projectData.projectType === "EscrowPayment") {
+      const escrowProjectData = projectData as EscrowPaymentProjectData;
+      return projectData.projectName.trim() !== "" &&
+              projectData.description.trim() !== "" &&
+              projectData.logo &&
+              projectData.cover &&
+              projectData.selectedTokenAddress.trim() !== "" &&
+              escrowProjectData.rewardAmount > 0 &&
+              escrowProjectData.redirectUrl.trim() !== "";
+    }
+
+    return false;
   };
 
   const handleSaveChanges = async () => {
@@ -195,7 +197,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
   return (
     <>
-      <NavBar projectId={params.projectId} />
+      <NavBar projectId={params.projectId} projectType={projectData?.projectType!} />
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-32 lg:px-60 xl:px-96 pt-1 pb-10">
         {loadingProject ? (
           <div className="flex flex-row items-center justify-center gap-5 mt-20">
@@ -206,16 +208,19 @@ export default function Settings({ params }: { params: { projectId: string } }) 
           <>
             <ProjectDetailsForm
               data={{
-                projectName: `${projectData?.projectName}`,
-                description: `${projectData?.description}`,
-                totalSlots: projectData?.slots.total ?? 0,
-                remainingSlots: projectData?.slots.remaining,
-                totalBudget: projectData?.budget.total ?? 0,
-                remainingBudget: projectData?.budget.remaining,
-                deadline: projectData?.deadline ?? null
+                projectType: projectData?.projectType!,
+                projectName: projectData?.projectName ?? "",
+                description: projectData?.description ?? "",
+                ...(projectData?.projectType === "DirectPayment" && {
+                  totalSlots: (projectData as DirectPaymentProjectData).slots.total,
+                  remainingSlots: (projectData as DirectPaymentProjectData).slots.remaining,
+                  totalBudget: (projectData as DirectPaymentProjectData).budget.total,
+                  remainingBudget: (projectData as DirectPaymentProjectData).budget.remaining,
+                  deadline: (projectData as DirectPaymentProjectData).deadline,
+                }),
               }}
               handleChange={handleChange}
-              handleDateChange={handleDateChange}
+              handleDateChange={projectData?.projectType === "DirectPayment" ? handleDateChange : undefined}
             />
             <LogoForm
               data={{
@@ -227,20 +232,23 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             />
             <SocialLinksForm
               data={{
-                websiteUrl: `${projectData?.websiteUrl}`,
-                discordUrl: `${projectData?.discordUrl}`,
-                xUrl: `${projectData?.xUrl}`,
-                instagramUrl: `${projectData?.instagramUrl}`
+                websiteUrl: projectData?.websiteUrl ?? "",
+                discordUrl: projectData?.discordUrl ?? "",
+                xUrl: projectData?.xUrl ?? "",
+                instagramUrl: projectData?.instagramUrl ?? ""
               }}
               handleChange={handleChange}
             />
             <AffiliatesForm 
               data={{
-                selectedTokenAddress: `${projectData?.selectedTokenAddress}`,
-                whitelistedAddresses: projectData?.whitelistedAddresses ?? {}
+                projectType: projectData?.projectType!,
+                selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
+                whitelistedAddresses: projectData?.projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
+                rewardAmount: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined,
+                redirectUrl: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
               }}
               handleChange={handleChange}
-              handleWhitelistChange={handleWhitelistChange}
+              handleWhitelistChange={projectData?.projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             />
             <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating}>
               {isUpdating ? (
