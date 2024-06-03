@@ -1,4 +1,4 @@
-import { collection, query, getDocs, Timestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { isValidReferralData } from "../validations";
 import { ReferralData } from "../../types";
@@ -6,21 +6,21 @@ import { ReferralData } from "../../types";
 export async function fetchReferralsByProjectId(projectId: string): Promise<ReferralData[]> {
   const referrals: ReferralData[] = [];
   try {
-    const q = query(collection(db, "referrals"));
+    const q = query(collection(db, "referrals"), where("projectId", "==", projectId));
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
       const data = doc.data() as ReferralData & {
         createdAt: Timestamp;
-        lastConversionDate: Timestamp | null;
+        lastConversionDate?: Timestamp | null;
       };
-      if (isValidReferralData(data) && data.projectId === projectId) {
-        const referralData = {
+      if (isValidReferralData(data)) {
+        const referralData: ReferralData = {
           ...data,
           id: doc.id,
           createdAt: data.createdAt.toDate(),
-          lastConversionDate: data.lastConversionDate ? data.lastConversionDate.toDate() : null
-        } as ReferralData;
+          lastConversionDate: data.lastConversionDate?.toDate() || null,
+        };
         referrals.push(referralData);
       }
     });

@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { isValidReferralData } from "../validations";
 import { ReferralData } from "../../types";
@@ -8,13 +8,16 @@ export async function fetchReferralData(referralId: string): Promise<ReferralDat
   try {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists() && isValidReferralData(docSnap.data())) {
-      const data = docSnap.data();
-      const referralData = {
+      const data = docSnap.data() as ReferralData & {
+        createdAt: Timestamp;
+        lastConversionDate?: Timestamp | null;
+      };
+      const referralData: ReferralData = {
         ...data,
         id: docSnap.id,
         createdAt: data.createdAt.toDate(),
-        lastConversionDate: data.lastConversionDate ? data.lastConversionDate.toDate() : null
-      } as ReferralData;
+        lastConversionDate: data.lastConversionDate?.toDate() || null,
+      };
       console.log("Document data:", JSON.stringify(referralData, null, 2));
       return referralData;
     } else {
