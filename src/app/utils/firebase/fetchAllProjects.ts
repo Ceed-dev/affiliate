@@ -1,7 +1,7 @@
 import { db } from "./firebaseConfig";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { isValidProjectData } from "../validations";
-import { ProjectData } from "../../types";
+import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData } from "../../types";
 import { toast } from "react-toastify";
 
 export async function fetchAllProjects(): Promise<ProjectData[]> {
@@ -12,18 +12,29 @@ export async function fetchAllProjects(): Promise<ProjectData[]> {
       const data = doc.data() as ProjectData & {
         createdAt: Timestamp;
         updatedAt: Timestamp;
-        lastPaymentDate: Timestamp | null;
-        deadline: Timestamp;
+        lastPaymentDate?: Timestamp | null;
+        deadline?: Timestamp | null;
       };
       if (isValidProjectData(data)) {
-        projects.push({
-          ...data,
-          id: doc.id,
-          createdAt: data.createdAt.toDate(),
-          updatedAt: data.updatedAt.toDate(),
-          lastPaymentDate: data.lastPaymentDate ? data.lastPaymentDate.toDate() : null,
-          deadline: data.deadline.toDate()
-        });
+        if (data.projectType === "DirectPayment") {
+          const directPaymentProject = {
+            ...data,
+            id: doc.id,
+            createdAt: data.createdAt.toDate(),
+            updatedAt: data.updatedAt.toDate(),
+            deadline: data.deadline?.toDate() || null,
+          } as DirectPaymentProjectData;
+          projects.push(directPaymentProject);
+        } else if (data.projectType === "EscrowPayment") {
+          const escrowPaymentProject = {
+            ...data,
+            id: doc.id,
+            createdAt: data.createdAt.toDate(),
+            updatedAt: data.updatedAt.toDate(),
+            lastPaymentDate: data.lastPaymentDate?.toDate() || null,
+          } as EscrowPaymentProjectData;
+          projects.push(escrowPaymentProject);
+        }
       }
     });
     return projects;
