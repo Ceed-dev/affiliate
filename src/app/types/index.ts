@@ -2,6 +2,7 @@ import { DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData } from 
 import { ExtendedProjectData } from "./extendedProjectData";
 import { ImageType } from "./imageType";
 import { ReferralData } from "./referralData";
+import { AffiliateInfo } from "./affiliateInfo";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
 import { WhitelistedAddress } from "./whitelistedAddress";
@@ -14,6 +15,7 @@ export type {
   ExtendedProjectData,
   ImageType,
   ReferralData,
+  AffiliateInfo,
   UserData,
   PaymentTransaction,
   WhitelistedAddress,
