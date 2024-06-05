@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ConnectWallet, lightTheme, useAddress, WalletInstance, useDisconnect } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction } from "../../types";
-import { ProjectHeader, ConversionsList } from "../../components/affiliate";
+import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, AffiliateInfo } from "../../types";
+import { AffiliateInfoModal, ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
-import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals } from "../../utils/firebase";
+import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, checkUserAndPrompt, createNewUserAndJoinProject } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { displayFormattedDateWithTimeZone } from "../../utils/formatters";
 import { useCountdown } from "../../hooks/useCountdown";
@@ -36,6 +36,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
       ? (projectData as DirectPaymentProjectData).deadline ?? undefined
@@ -48,18 +50,25 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   }, []);
 
   useEffect(() => {
-    if (projectData?.projectType === "DirectPayment") {
-      if (address && (projectData as DirectPaymentProjectData)?.whitelistedAddresses[address]) {
-        // If an address exists in the whitelist, set the redirect URL for that address.
-        setReferralLink((projectData as DirectPaymentProjectData).whitelistedAddresses[address].redirectUrl);
-      } else {
-        // Reset link if address is not in whitelist
-        setReferralLink("");
+    const updateReferralLink = () => {
+      if (projectData?.projectType === "DirectPayment") {
+        const directPaymentProject = projectData as DirectPaymentProjectData;
+        if (address && directPaymentProject?.whitelistedAddresses[address]) {
+          setReferralLink(directPaymentProject.whitelistedAddresses[address].redirectUrl);
+        } else {
+          setReferralLink("");
+        }
+      } else if (projectData?.projectType === "EscrowPayment") {
+        if (referralId) {
+          setReferralLink(`${baseUrl}/referee/${params.projectId}/${referralId}`);
+        } else {
+          setReferralLink("");
+        }
       }
-    } else if (projectData?.projectType === "EscrowPayment") {
-      setReferralLink(`${baseUrl}/referee/${params.projectId}/${referralId}`);
-    }
-  }, [address, (projectData as DirectPaymentProjectData)?.whitelistedAddresses, projectData?.projectType]);
+    };
+  
+    updateReferralLink();
+  }, [address, projectData, projectData?.projectType, referralId]);  
 
   useEffect(() => {
     if (projectData?.projectType === "DirectPayment" && address && (projectData as DirectPaymentProjectData).whitelistedAddresses[address]) {
@@ -134,6 +143,51 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   }, [referralData]);
 
+  const handleSaveAffiliateInfo = async (info: AffiliateInfo) => {
+    if (address) {
+      try {
+        const referralId = await createNewUserAndJoinProject(params.projectId, address, info);
+        console.log("Referral ID from new user registration: ", referralId);
+        setReferralId(referralId);
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("Failed to save affiliate info: ", error);
+        toast.error("Failed to save affiliate info");
+        disconnect();
+      }
+    } else {
+      console.error("Wallet address is not set.");
+      toast.error("Unexpected error occurred. Please try again.");
+      disconnect();
+    }
+  };
+
+  const handleJoinProject = async (wallet: WalletInstance) => {
+    const walletAddress = await wallet.getAddress();
+  
+    if (projectData?.projectType === "DirectPayment") {
+      if (!projectData?.whitelistedAddresses[walletAddress]) {
+        toast.error("Your wallet address is not whitelisted for this project.");
+        disconnect();
+        return;
+      }
+    } else if (projectData?.projectType === "EscrowPayment") {
+      try {
+        const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
+        if (userExists) {
+          const referralId = await joinProject(params.projectId, walletAddress);
+          console.log("Referral ID from existing user: ", referralId);
+          setReferralId(referralId);
+        } else {
+          toast.info("Please enter your affiliate information.");
+        }
+      } catch (error: any) {
+        console.error("Failed to join project: ", error);
+        toast.error(`Failed to join project: ${error.message}`);
+      }
+    }
+  };
+
   const rewardText = loadingTokenSymbol 
     ? <span className="text-gray-500">Loading...</span> 
     : (
@@ -203,13 +257,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           <p className="text-gray-600 pb-4">
             {projectData?.projectType === "DirectPayment" && isWhitelisted 
               ? "Share your link with others and start earning!"
-              : projectData?.projectType === "EscrowPayment" && referralId
+              : projectData?.projectType === "EscrowPayment" && address && referralId
               ? "Share your link with others and start earning!"
               : "Join the project to start referring others."
             }
           </p>
           {(projectData?.projectType === "DirectPayment" && isWhitelisted) ||
-           (projectData?.projectType === "EscrowPayment" && referralId) ? (
+           (projectData?.projectType === "EscrowPayment" && address && referralId) ? (
             <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
               <input
                 type="text"
@@ -236,37 +290,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               modalSize={"compact"}
               modalTitleIconUrl={""}
               showThirdwebBranding={false}
-              onConnect={async (wallet: WalletInstance) => {
-                const walletAddress = await wallet.getAddress();
-
-                if (projectData?.projectType === "DirectPayment") {
-                  // Check the existence of the whitelist here
-                  if (!projectData?.whitelistedAddresses[walletAddress]) {
-                    toast.error("Your wallet address is not whitelisted for this project.");
-                    disconnect();
-                    return;
-                  }
-                } else if (projectData?.projectType === "EscrowPayment") {
-                  try {
-                    if (!projectData) {
-                      // If project data is not yet loaded, wait for it to load
-                      return;
-                    }
-                    const referralId = await joinProject(params.projectId, walletAddress);
-                    console.log("Referral ID: ", referralId);
-                    setReferralId(referralId);
-                  } catch (error: any) {
-                    console.error("Failed to join project: ", error);
-                    toast.error(`Failed to join project: ${error.message}`);
-                  }
-                }
-              }}
+              onConnect={handleJoinProject}
             />
           </div>
         </div>
       </div>
 
-      {projectData?.projectType === "EscrowPayment" && address && 
+      {projectData?.projectType === "EscrowPayment" && address && referralId && 
         <>
           <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
             <StatisticCard
@@ -299,6 +329,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </>
       }
 
+      <AffiliateInfoModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          disconnect();
+        }}
+        onSave={handleSaveAffiliateInfo}
+      />
     </div>
   );
 }
