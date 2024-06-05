@@ -1,7 +1,9 @@
-import { ProjectHeader } from "./ProjectHeader";
+import { AffiliateInfoModal } from "./AffiliateInfoModal";
 import { ConversionsList } from "./ConversionsList";
+import { ProjectHeader } from "./ProjectHeader";
 
 export {
-  ProjectHeader,
-  ConversionsList
+  AffiliateInfoModal,
+  ConversionsList,
+  ProjectHeader
 }
