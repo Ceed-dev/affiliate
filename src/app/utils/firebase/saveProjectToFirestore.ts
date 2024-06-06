@@ -4,8 +4,7 @@ import { uploadImageAndGetURL } from "./uploadImageAndGetURL";
 import { ProjectData } from "../../types";
 
 export const saveProjectToFirestore = async (
-  projectData: ProjectData, 
-  address: string,
+  projectData: ProjectData
 ): Promise<{ projectId: string } | null> => {
   try {
     const now = new Date();
@@ -20,7 +19,6 @@ export const saveProjectToFirestore = async (
       ...projectData,
       logo: logoURL,
       cover: coverURL,
-      ownerAddress: address,
       createdAt: now,
       updatedAt: now
     };
