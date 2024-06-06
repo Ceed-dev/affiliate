@@ -11,7 +11,7 @@ type BaseProjectData = {
   discordUrl: string;
   xUrl: string;
   instagramUrl: string;
-  ownerAddress: string;
+  ownerAddresses: string[];
   createdAt: Date;
   updatedAt: Date;
 };
