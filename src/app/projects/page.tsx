@@ -72,6 +72,7 @@ export default function Projects() {
                 key={project.id} 
                 project={project} 
                 linkUrl={`${baseUrl}/projects/${project.id}${project.projectType === "DirectPayment" ? "/settings" : ""}`} 
+                isMultipleOwners={project.ownerAddresses.length > 1}
               />
             ))}
           </div>
