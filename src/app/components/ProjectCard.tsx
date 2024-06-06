@@ -6,13 +6,27 @@ import { ExtendedProjectData } from "../types";
 type ProjectCardProps = {
   project: ExtendedProjectData;
   linkUrl: string;
+  isMultipleOwners?: boolean;
 };
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ 
+  project, 
+  linkUrl,
+  isMultipleOwners = false 
+}) => {
   return (
     <Link href={linkUrl}>
       <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-visible transition duration-300 ease-in-out transform hover:scale-105">
         <div className="w-full h-16 bg-gray-200 mb-10 relative">
+          {isMultipleOwners && (
+            <Image
+              className="absolute -top-4 right-10 bg-white border-2 border-slate-300 rounded-full shadow-lg"
+              src="/people.png"
+              width={50}
+              height={50}
+              alt="People Icon"
+            />
+          )}
           <Image
             className="absolute -top-4 -right-4 bg-white border-2 border-slate-300 rounded-full shadow-lg"
             src={project.projectType === "DirectPayment" ? "/direct-payment.png" : "/escrow-payment.png"}
