@@ -17,7 +17,7 @@ export async function fetchProjectsByOwner(ownerAddress: string): Promise<Projec
         deadline?: Timestamp;
       };
 
-      if (isValidProjectData(data) && data.ownerAddress === ownerAddress) {
+      if (isValidProjectData(data) && data.ownerAddresses.includes(ownerAddress)) {
         let projectData: ProjectData;
 
         if (data.projectType === "DirectPayment") {
