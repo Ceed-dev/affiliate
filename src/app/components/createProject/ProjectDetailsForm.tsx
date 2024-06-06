@@ -33,6 +33,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   nextStep,
 }) => {
   const isEditing = nextStep === undefined;
+  const address = useAddress();
 
   const isFormComplete = () => {
     if (data.projectType === "DirectPayment") {
@@ -72,7 +73,6 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   }
 
   // ===== BEGIN OWNER MANAGEMENT =====
-  const address = useAddress();
   const [ownerAddresses, setOwnerAddresses] = useState<string[]>(data.ownerAddresses || []);
   const [newOwnerAddress, setNewOwnerAddress] = useState("");
 
@@ -259,16 +259,16 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {ownerAddresses.map((address, index) => (
+                  {ownerAddresses.map((ownerAddress, index) => (
                     <tr key={index}>
                       <td className="border border-[#D1D5DB] p-2">
-                        {address}
-                        {address === useAddress() && (
+                        {ownerAddress}
+                        {ownerAddress === address && (
                           <span className="text-gray-500 ml-2">(Your wallet address, automatically added as project owner)</span>
                         )}
                       </td>
                       <td className="border border-[#D1D5DB] p-2 text-center">
-                        {address === useAddress() ? (
+                        {ownerAddress === address ? (
                           <button
                             type="button"
                             className="bg-gray-300 text-white p-2 rounded cursor-not-allowed"
@@ -285,7 +285,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
                         ) : (
                           <button
                             type="button"
-                            onClick={() => handleRemoveOwner(address)}
+                            onClick={() => handleRemoveOwner(ownerAddress)}
                             className="bg-red-200 hover:bg-red-300 text-white p-2 rounded transition duration-300 ease-in-out transform hover:scale-105"
                           >
                             <Image
