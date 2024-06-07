@@ -4,22 +4,33 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 import {
   ConnectWallet,
   lightTheme,
-  useAddress
+  useAddress,
+  useNetworkMismatch,
+  useSwitchChain
 } from "@thirdweb-dev/react";
+import { PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 
 export default function Onboarding() {
   const router = useRouter();
   const address = useAddress();
+  const isMismatched = useNetworkMismatch();
+  const switchChain = useSwitchChain();
 
   useEffect(() => {
-    if (address) {
+    if (address && isMismatched) {
+      switchChain(PolygonAmoyTestnet.chainId).catch((error) => {
+        console.error("Failed to switch network:", error);
+        toast.error("Failed to switch network");
+      });
+    } else if (address && !isMismatched) {
       router.push("/projects");
     }
-  });
+  }, [address, isMismatched, switchChain, router]);
 
   return (
     <div className="flex flex-col items-center min-h-screen gap-[100px]">
