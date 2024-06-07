@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
-import { ProjectData, EscrowPaymentProjectData, ReferralData, PaymentTransaction } from "../../types";
+import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
@@ -13,7 +13,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
 
-  const [referralData, setReferralData] = useState<ReferralData[] | null>(null);
+  const [referralData, setReferralData] = useState<ExtendedReferralData[] | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
 
   const [tokenSymbol, setTokenSymbol] = useState("");
@@ -79,7 +79,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   useEffect(() => {
     if (referralData) {
-      fetchTransactionsForReferrals(referralData, setTransactionData)
+      const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
+      fetchTransactionsForReferrals(referralDataAsBasic, setTransactionData)
         .then(() => {
           setLoadingTransactionData(false);
         })

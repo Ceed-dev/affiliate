@@ -1,13 +1,25 @@
 import React from "react";
-import { ReferralData } from "../../types";
+import { ExtendedReferralData } from "../../types";
 import { formatAddress } from "../../utils/formatters";
+import { toast } from "react-toastify";
 
 type AffiliatesListProps = {
-  referrals: ReferralData[];
+  referrals: ExtendedReferralData[];
   selectedToken: string;
 };
 
 export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selectedToken }) => {
+
+  const handleCopyAddress = (address: string) => {
+    navigator.clipboard.writeText(address)
+      .then(() => {
+        toast.success("Wallet address copied to clipboard");
+      })
+      .catch((error) => {
+        toast.error("Failed to copy address: " + error.message);
+      });
+  };
+
   return (
     <div className="bg-white shadow rounded-lg p-10">
       <h2 className="text-lg leading-6 font-medium text-gray-900">
@@ -31,7 +43,13 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
             referrals.map((referral, index) => (
               <tr key={index} className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
                 <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                  <p>{formatAddress(referral.affiliateWallet)}</p>
+                  <p>{referral.username} <span 
+                    onClick={() => handleCopyAddress(referral.affiliateWallet)}
+                    className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="Click to copy address"
+                  >
+                    ({formatAddress(referral.affiliateWallet)})
+                  </span></p>
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.earnings}</td>
                 <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.conversions}</td>
