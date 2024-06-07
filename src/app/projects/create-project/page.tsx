@@ -51,7 +51,7 @@ export default function CreateProject() {
       discordUrl: "",
       xUrl: "",
       instagramUrl: "",
-      ownerAddress: "",
+      ownerAddresses: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -119,6 +119,17 @@ export default function CreateProject() {
         return updated;
       });
     };
+
+  const handleOwnerChange = (newOwnerAddresses: string[]) => {
+    setProjectData(prevData => {
+      if (!prevData) return prevData;
+  
+      return {
+        ...prevData,
+        ownerAddresses: newOwnerAddresses
+      };
+    });
+  };
 
   const handleDateChange = (newValue: DateValueType) => {
     setProjectData(prev => {
@@ -206,7 +217,7 @@ export default function CreateProject() {
     }
 
     setSaveAndDepositStatus("Saving project to Firestore...");
-    const result = await saveProjectToFirestore(updatedProjectData, `${address}`);
+    const result = await saveProjectToFirestore(updatedProjectData);
     if (!result) {
       toast.error("Failed to save project. Please try again.");
       setSaveAndDepositStatus(initialStatus);
@@ -264,6 +275,7 @@ export default function CreateProject() {
               projectType: projectType!,
               projectName: projectData?.projectName ?? "",
               description: projectData?.description ?? "",
+              ownerAddresses: projectData?.ownerAddresses ?? [],
               ...(projectType === "DirectPayment" && {
                 totalSlots: (projectData as DirectPaymentProjectData).slots.total,
                 totalBudget: (projectData as DirectPaymentProjectData).budget.total,
@@ -271,6 +283,7 @@ export default function CreateProject() {
               }),
             }}
             handleChange={handleChange}
+            handleOwnerChange={handleOwnerChange}
             handleDateChange={projectType === "DirectPayment" ? handleDateChange : undefined}
             nextStep={nextStep}
           />

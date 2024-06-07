@@ -106,6 +106,17 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         return updated;
       });
     };
+  
+  const handleOwnerChange = (newOwnerAddresses: string[]) => {
+    setProjectData(prevData => {
+      if (!prevData) return prevData;
+  
+      return {
+        ...prevData,
+        ownerAddresses: newOwnerAddresses
+      };
+    });
+  };
 
   const handleDateChange = (newValue: DateValueType) => {
     setProjectData(prev => {
@@ -211,6 +222,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 projectType: projectData?.projectType!,
                 projectName: projectData?.projectName ?? "",
                 description: projectData?.description ?? "",
+                ownerAddresses: projectData?.ownerAddresses ?? [],
                 ...(projectData?.projectType === "DirectPayment" && {
                   totalSlots: (projectData as DirectPaymentProjectData).slots.total,
                   remainingSlots: (projectData as DirectPaymentProjectData).slots.remaining,
@@ -220,6 +232,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 }),
               }}
               handleChange={handleChange}
+              handleOwnerChange={handleOwnerChange}
               handleDateChange={projectData?.projectType === "DirectPayment" ? handleDateChange : undefined}
             />
             <LogoForm

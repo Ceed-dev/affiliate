@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { useAddress } from "@thirdweb-dev/react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 import { NextButton } from "./NextButton";
 import { ProjectType } from "../../types";
+import { isAddress } from "ethers/lib/utils";
+import { toast } from "react-toastify";
 
 type ProjectDetailsFormProps = {
   data: {
     projectType: ProjectType;
     projectName: string;
     description: string;
+    ownerAddresses: string[];
     totalSlots?: number;
     remainingSlots?: number;
     totalBudget?: number;
@@ -15,6 +20,7 @@ type ProjectDetailsFormProps = {
     deadline?: Date | null;
   };
   handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleOwnerChange: (newOwnerAddresses: string[]) => void;
   handleDateChange?: (date: DateValueType) => void;
   nextStep?: () => void;
 };
@@ -22,10 +28,12 @@ type ProjectDetailsFormProps = {
 export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   data,
   handleChange,
+  handleOwnerChange,
   handleDateChange,
   nextStep,
 }) => {
   const isEditing = nextStep === undefined;
+  const address = useAddress();
 
   const isFormComplete = () => {
     if (data.projectType === "DirectPayment") {
@@ -64,8 +72,48 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
     userUTCOffset = new Date().toLocaleTimeString("en-us", { timeZoneName: "short" }).split(" ")[2];
   }
 
+  // ===== BEGIN OWNER MANAGEMENT =====
+  const [ownerAddresses, setOwnerAddresses] = useState<string[]>(data.ownerAddresses || []);
+  const [newOwnerAddress, setNewOwnerAddress] = useState("");
+
+  useEffect(() => {
+    if (address && ownerAddresses.length === 0) {
+      const initialOwners = [address];
+      setOwnerAddresses(initialOwners);
+      handleOwnerChange(initialOwners);
+    }
+  }, [address, ownerAddresses.length, handleOwnerChange]);
+
+  const handleAddOwner = () => {
+    if (!isAddress(newOwnerAddress)) {
+      setNewOwnerAddress("");
+      toast.error("Invalid wallet address.");
+      return;
+    }
+
+    if (ownerAddresses.includes(newOwnerAddress)) {
+      setNewOwnerAddress("");
+      toast.error("Address already exists.");
+      return;
+    }
+
+    const updatedOwners = [...ownerAddresses, newOwnerAddress];
+    setOwnerAddresses(updatedOwners);
+    handleOwnerChange(updatedOwners);
+    setNewOwnerAddress("");
+    toast.success("Owner added successfully.");
+  };
+
+  const handleRemoveOwner = (address: string) => {
+    const updatedOwners = ownerAddresses.filter(owner => owner !== address);
+    setOwnerAddresses(updatedOwners);
+    handleOwnerChange(updatedOwners);
+    toast.success("Owner removed successfully.");
+  };
+  // ===== END OWNER MANAGEMENT =====
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
+    <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
       <h1 className="text-xl mb-5">Project Details</h1>
 
@@ -182,6 +230,81 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
             </div>
           </>
         )}
+
+        <div className="flex flex-col gap-2">
+          <h2>Project Owners</h2>
+          <div className="flex items-center mb-2">
+            <input
+              type="text"
+              value={newOwnerAddress}
+              onChange={(e) => setNewOwnerAddress(e.target.value)}
+              placeholder="Enter owner wallet address"
+              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleAddOwner}
+              className="ml-2 bg-green-500 hover:bg-green-700 text-white py-2 px-7 rounded"
+            >
+              Add
+            </button>
+          </div>
+          {ownerAddresses.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full mt-2 border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border border-[#D1D5DB] p-2">Wallet Address</th>
+                    <th className="border border-[#D1D5DB] p-2">Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ownerAddresses.map((ownerAddress, index) => (
+                    <tr key={index}>
+                      <td className="border border-[#D1D5DB] p-2">
+                        {ownerAddress}
+                        {ownerAddress === address && (
+                          <span className="text-gray-500 ml-2">(Your wallet address, automatically added as project owner)</span>
+                        )}
+                      </td>
+                      <td className="border border-[#D1D5DB] p-2 text-center">
+                        {ownerAddress === address ? (
+                          <button
+                            type="button"
+                            className="bg-gray-300 text-white p-2 rounded cursor-not-allowed"
+                            disabled
+                          >
+                            <Image
+                              src="/trash.png"
+                              alt="trash.png"
+                              height={20}
+                              width={20}
+                              className="transition duration-300 ease-in-out transform"
+                            />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveOwner(ownerAddress)}
+                            className="bg-red-200 hover:bg-red-300 text-white p-2 rounded transition duration-300 ease-in-out transform hover:scale-105"
+                          >
+                            <Image
+                              src="/trash.png"
+                              alt="trash.png"
+                              height={20}
+                              width={20}
+                              className="transition duration-300 ease-in-out transform"
+                            />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
       </div>
 
