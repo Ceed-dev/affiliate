@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import { 
@@ -18,7 +17,6 @@ import { approveToken, depositToken } from "../../utils/contracts";
 import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
 
 export default function CreateProject() {
-  const address = useAddress();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [initialStatus, setInitialStatus] = useState<string>("");
@@ -254,8 +252,12 @@ export default function CreateProject() {
     nextStep();
     setIsSaving(false);
 
+    const redirectUrl = projectType === "DirectPayment" 
+      ? `/projects/${projectId}/settings`
+      : `/projects/${projectId}`;
+
     toast.success("Project saved successfully! Redirecting to the dashboard...", {
-      onClose: () => router.push(`/projects/${projectId}`)
+      onClose: () => router.push(redirectUrl)
     });
   };
 
