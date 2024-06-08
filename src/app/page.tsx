@@ -17,6 +17,12 @@ export default function Home() {
     }
   };
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <div className="flex flex-col">
       <Head>
@@ -31,12 +37,50 @@ export default function Home() {
             <p className="text-lg font-semibold">Qube</p>
           </Link>
           
-          <div className="flex flex-row gap-10">
+          <div className="hidden md:flex flex-row gap-7 items-center">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
+            <div className="border-l border-gray-300 h-6" />
+            <Link href="/onboarding">
+              <button className="hover:text-gray-500">
+                Sign In
+              </button>
+            </Link>
+            <Link href="/affiliate/marketplace">
+              <button className="hover:text-gray-500">
+                Marketplace
+              </button>
+            </Link>
+          </div>
+
+          <div className="md:hidden flex items-center">
+            <button onClick={toggleMenu} className="text-gray-500 focus:outline-none">
+              <Image src={menuOpen ? "/close.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={20} height={20} />
+            </button>
           </div>
         </div>
+
+        {menuOpen && (
+          <div className="md:hidden bg-white">
+            <nav className="flex flex-col px-5 py-5 border-t border-gray-200">
+              {navLinks.map((link, index) => (
+                <Link key={index} href={link.id} className="py-2 hover:text-gray-500">{link.label}</Link>
+              ))}
+              <div className="border-t border-gray-300 my-2"></div>
+              <Link href="/onboarding">
+                <button className="py-2 hover:text-gray-500">
+                  Sign In
+                </button>
+              </Link>
+              <Link href="/affiliate/marketplace">
+                <button className="py-2 hover:text-gray-500">
+                  Marketplace
+                </button>
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="flex flex-col bg-white">
