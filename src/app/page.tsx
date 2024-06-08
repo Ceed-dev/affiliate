@@ -17,6 +17,12 @@ export default function Home() {
     }
   };
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <div className="flex flex-col">
       <Head>
@@ -31,18 +37,56 @@ export default function Home() {
             <p className="text-lg font-semibold">Qube</p>
           </Link>
           
-          <div className="flex flex-row gap-10">
+          <div className="hidden md:flex flex-row gap-7 items-center">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
+            <div className="border-l border-gray-300 h-6" />
+            <Link href="/onboarding">
+              <button className="hover:text-gray-500">
+                Sign In
+              </button>
+            </Link>
+            <Link href="/affiliate/marketplace">
+              <button className="hover:text-gray-500">
+                Marketplace
+              </button>
+            </Link>
+          </div>
+
+          <div className="md:hidden flex items-center">
+            <button onClick={toggleMenu} className="text-gray-500 focus:outline-none">
+              <Image src={menuOpen ? "/close.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={20} height={20} />
+            </button>
           </div>
         </div>
+
+        {menuOpen && (
+          <div className="md:hidden bg-white">
+            <nav className="flex flex-col px-5 py-5 border-t border-gray-200">
+              {navLinks.map((link, index) => (
+                <Link key={index} href={link.id} className="py-2 hover:text-gray-500">{link.label}</Link>
+              ))}
+              <div className="border-t border-gray-300 my-2"></div>
+              <Link href="/onboarding">
+                <button className="py-2 hover:text-gray-500">
+                  Sign In
+                </button>
+              </Link>
+              <Link href="/affiliate/marketplace">
+                <button className="py-2 hover:text-gray-500">
+                  Marketplace
+                </button>
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="flex flex-col bg-white">
 
         {/* Overview */}
-        <section className="bg-purple-600 text-white px-20">
+        <section className="bg-purple-600 text-white pt-16 md:pt-0 px-10 md:px-20">
           <div className="h-[600px] md:h-screen flex flex-col gap-10 justify-center items-start w-full xl:w-1/2">
             <h1 className="text-3xl md:text-5xl font-bold">Drive Acquisition, Amplify Revenue</h1>
             <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3  Affiliate Network for Gaming in Asia</h2>
@@ -53,7 +97,7 @@ export default function Home() {
         </section>
 
         {/* 3 features */}
-        <section id="features" className="p-20">
+        <section id="features" className="py-20 px-10 md:px-20">
           <h1 className="text-xl md:text-3xl font-bold mb-10">Streamline Your Web3 Affiliate & Refferal Marketing Strategy</h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {features.map((feature, index) => (
@@ -66,7 +110,7 @@ export default function Home() {
         </section>
 
         {/* Users' Voices */}
-        <section id="voices" className="bg-purple-600 text-white p-20">
+        <section id="voices" className="bg-purple-600 text-white py-20 px-10 md:px-20">
           <p className="text-md text-center mb-20">We&apos;re in a good company</p>
           <div className="flex flex-row flex-wrap gap-10 justify-center">
             {logos.map((logo, index) => (
@@ -76,7 +120,7 @@ export default function Home() {
         </section>
 
         {/* Number of affiliators */}
-        <section id="partners" className="p-20">
+        <section id="partners" className="py-20 px-10 md:px-20">
           <h1 className="text-xl md:text-3xl font-bold mb-10">Number of affiliators</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
@@ -102,7 +146,7 @@ export default function Home() {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="bg-purple-600 text-white p-20 mb-10">
+        <section id="faq" className="bg-purple-600 text-white py-20 px-10 md:px-20 mb-10">
           <h1 className="text-xl md:text-3xl font-bold mb-10">FAQ</h1>
           {faqs.map((faq, index) => (
             <div key={index} className="mb-5">
@@ -111,7 +155,9 @@ export default function Home() {
                 onClick={() => toggleFAQ(index)}
               >
                 {faq.question}
-                <Image src={faqActiveIndex === index ? "/up-arrow.png" : "/down-arrow.png"} alt="arrow" width={30} height={30} />
+                <div className="w-5 h-5">
+                  <Image src={faqActiveIndex === index ? "/up-arrow.png" : "/down-arrow.png"} alt="arrow" width={20} height={20} />
+                </div>
               </div>
               {faqActiveIndex === index && (
                 <p className="text-md mr-8 mb-3">{faq.answer}</p>
@@ -122,7 +168,7 @@ export default function Home() {
 
       </main>
 
-      <footer className="bg-purple-600 grid grid-cols-1 lg:grid-cols-4 gap-5 p-20">
+      <footer className="bg-purple-600 grid grid-cols-1 lg:grid-cols-4 gap-5 py-20 px-10 md:px-20">
         <div className="lg:col-span-2 flex flex-col items-center gap-3">
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image src="/qube.png" alt="qube.png" width={100} height={100} />
