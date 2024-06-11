@@ -8,6 +8,7 @@ import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
 import { WhitelistedAddress } from "./whitelistedAddress";
 import { ProjectType } from "./projectType";
+import { ApiKeyData } from "./apiKeyData";
 
 export type {
   DirectPaymentProjectData,
@@ -22,4 +23,5 @@ export type {
   PaymentTransaction,
   WhitelistedAddress,
   ProjectType,
+  ApiKeyData,
 }
