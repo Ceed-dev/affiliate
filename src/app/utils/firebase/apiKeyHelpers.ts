@@ -26,3 +26,32 @@ export const saveApiKeyToFirestore = async (projectId: string): Promise<string |
     return null;
   }
 };
+
+export const getApiKeyData = async (projectId: string): Promise<ApiKeyData | null> => {
+  try {
+    const docRef = doc(db, "apiKeys", projectId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data() as ApiKeyData;
+
+      const createdAt = (data.createdAt as unknown as Timestamp).toDate();
+      const updatedAt = (data.updatedAt as unknown as Timestamp).toDate();
+      const lastUsedAt = data.lastUsedAt ? (data.lastUsedAt as unknown as Timestamp).toDate() : null;
+
+      return { 
+        ...data, 
+        projectId, 
+        createdAt, 
+        updatedAt, 
+        lastUsedAt 
+      };
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting API key data: ", error);
+    return null;
+  }
+};
