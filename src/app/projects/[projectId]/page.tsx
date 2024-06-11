@@ -111,6 +111,18 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     fetchApiKey();
   }, [params.projectId]);
 
+  const handleCopyApiKey = () => {
+    if (apiKey) {
+      navigator.clipboard.writeText(apiKey)
+        .then(() => {
+          toast.success("API Key copied to clipboard");
+        })
+        .catch(error => {
+          toast.error("Failed to copy API Key: " + error.message);
+        });
+    }
+  };
+
   return (
     <>
       <NavBar projectId={params.projectId} projectType={projectData?.projectType!} />
@@ -132,7 +144,13 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                 API Key
               </h3>
               <p className="text-sm text-[#6B7280]">
-                {showApiKey ? apiKey : apiKey.split("").map(() => "*").join("")}
+                {showApiKey ? (
+                  <span onClick={handleCopyApiKey} className="cursor-pointer hover:underline">
+                    {apiKey}
+                  </span>
+                ) : (
+                  apiKey.split("").map(() => "*").join("")
+                )}
                 <button onClick={() => setShowApiKey(!showApiKey)} className="ml-2 text-blue-500 hover:text-blue-700">
                   {showApiKey ? "Hide" : "Show"}
                 </button>
