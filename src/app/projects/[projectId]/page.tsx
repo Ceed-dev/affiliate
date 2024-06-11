@@ -143,7 +143,10 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
                 API Key
               </h3>
-              <p className="text-sm text-[#6B7280]">
+              <p className="text-sm text-[#6B7280] flex flex-row items-center gap-2">
+                <button onClick={() => setShowApiKey(!showApiKey)} className="text-blue-500 hover:text-blue-700">
+                  <Image src={showApiKey ? "/hide-password.png" : "/show-password.png"} alt="Toggle Icon" height={18} width={18} />
+                </button>
                 {showApiKey ? (
                   <span onClick={handleCopyApiKey} className="cursor-pointer hover:underline">
                     {apiKey}
@@ -151,9 +154,6 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                 ) : (
                   apiKey.split("").map(() => "*").join("")
                 )}
-                <button onClick={() => setShowApiKey(!showApiKey)} className="ml-2 text-blue-500 hover:text-blue-700">
-                  {showApiKey ? "Hide" : "Show"}
-                </button>
               </p>
             </div>
           )}
