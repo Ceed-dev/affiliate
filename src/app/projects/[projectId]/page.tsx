@@ -5,7 +5,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
 import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction } from "../../types";
-import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals } from "../../utils/firebase";
+import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 
@@ -24,6 +24,9 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
   const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -92,19 +95,50 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     }
   }, [referralData]);
 
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      try {
+        const apiKeyData = await getApiKeyData(params.projectId);
+        if (apiKeyData) {
+          setApiKey(apiKeyData.apiKey);
+        }
+      } catch (error: any) {
+        console.error("Error fetching API key: ", error);
+        toast.error(`Error fetching API key: ${error.message}`);
+      }
+    };
+
+    fetchApiKey();
+  }, [params.projectId]);
+
   return (
     <>
       <NavBar projectId={params.projectId} projectType={projectData?.projectType!} />
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
 
-        {/* Title */}
-        <div className="pt-5">
-          <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
-            Affiliate sign up page
-          </h3>
-          <p className="text-sm text-[#6B7280]">
-            The page for affiliates to claim their referral link.
-          </p>
+        {/* Title & API Key */}
+        <div className="pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5 md:gap-0">
+          <div>
+            <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
+              Affiliate sign up page
+            </h3>
+            <p className="text-sm text-[#6B7280]">
+              The page for affiliates to claim their referral link.
+            </p>
+          </div>
+          {apiKey && (
+            <div className="w-[350px]">
+              <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
+                API Key
+              </h3>
+              <p className="text-sm text-[#6B7280]">
+                {showApiKey ? apiKey : apiKey.split("").map(() => "*").join("")}
+                <button onClick={() => setShowApiKey(!showApiKey)} className="ml-2 text-blue-500 hover:text-blue-700">
+                  {showApiKey ? "Hide" : "Show"}
+                </button>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Statistic Cards */}
