@@ -12,7 +12,7 @@ import {
   LogoForm,
   SocialLinksForm
 } from "../../components/createProject";
-import { saveProjectToFirestore, deleteProjectFromFirestore } from "../../utils/firebase";
+import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
 import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
 
@@ -223,6 +223,16 @@ export default function CreateProject() {
       return;
     }
     const { projectId } = result;
+
+    setSaveAndDepositStatus("Generating API key...");
+    const apiKey = await saveApiKeyToFirestore(projectId);
+    if (!apiKey) {
+      toast.error("Failed to generate API key. Please try again.");
+      setSaveAndDepositStatus(initialStatus);
+      setIsSaving(false);
+      await deleteProjectFromFirestore(projectId);
+      return;
+    }
 
     if (projectType === "EscrowPayment") {
       const depositAmount = 10; //TODO: Fix later
