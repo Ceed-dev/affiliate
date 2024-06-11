@@ -3,12 +3,21 @@ import { initializeSigner, Escrow } from "../../utils/contracts";
 import { 
   fetchProjectData, 
   fetchReferralData,
-  processRewardPaymentTransaction
+  processRewardPaymentTransaction,
+  validateApiKey,
 } from "../../utils/firebase";
 import { EscrowPaymentProjectData } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {
+    const apiKey = request.headers.get("x-api-key");
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "API key is missing" },
+        { status: 400 }
+      );
+    }
+
     const referral = request.nextUrl.searchParams.get("referral") as string;
     if (!referral) {
       return NextResponse.json(
@@ -22,6 +31,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Referral data not found" },
         { status: 404 }
+      );
+    }
+
+    const isValidApiKey = await validateApiKey(referralData.projectId, apiKey);
+    if (!isValidApiKey) {
+      return NextResponse.json(
+        { error: "Invalid API key" },
+        { status: 403 }
       );
     }
 
