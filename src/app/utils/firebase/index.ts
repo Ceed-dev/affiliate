@@ -11,6 +11,7 @@ import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
 import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
+import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
 
 export {
   saveProjectToFirestore,
@@ -25,5 +26,8 @@ export {
   joinProject,
   processRewardPaymentTransaction,
   fetchTransactionsForReferrals,
-  deleteProjectFromFirestore
+  deleteProjectFromFirestore,
+  saveApiKeyToFirestore,
+  getApiKeyData,
+  validateApiKey,
 }

@@ -55,3 +55,16 @@ export const getApiKeyData = async (projectId: string): Promise<ApiKeyData | nul
     return null;
   }
 };
+
+export const validateApiKey = async (projectId: string, apiKey: string): Promise<boolean> => {
+  try {
+    const apiKeyData = await getApiKeyData(projectId);
+    if (!apiKeyData || apiKeyData.apiKey !== apiKey) {
+      return false;
+    }
+    return apiKeyData.isActive;
+  } catch (error) {
+    console.error("Error validating API key: ", error);
+    return false;
+  }
+};
