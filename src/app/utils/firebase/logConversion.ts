@@ -7,10 +7,10 @@ export async function logConversion(
 ): Promise<void> {
   const now = new Date();
 
-  const conversionCollectionRef = collection(db, `referrals/${referralId}/conversions`);
+  const conversionLogsCollectionRef = collection(db, `referrals/${referralId}/conversionLogs`);
 
   try {
-    await addDoc(conversionCollectionRef, {
+    await addDoc(conversionLogsCollectionRef, {
       timestamp: now,
       amount: amount,
       isPaid: false
