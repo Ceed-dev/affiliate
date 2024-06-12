@@ -1,5 +1,6 @@
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
+import { ConversionLog } from "../../types";
 
 export async function logConversion(
   referralId: string, 
@@ -9,12 +10,14 @@ export async function logConversion(
 
   const conversionLogsCollectionRef = collection(db, `referrals/${referralId}/conversionLogs`);
 
+  const conversionLog: ConversionLog = {
+    timestamp: now,
+    amount: amount,
+    isPaid: false
+  };
+
   try {
-    await addDoc(conversionLogsCollectionRef, {
-      timestamp: now,
-      amount: amount,
-      isPaid: false
-    });
+    await addDoc(conversionLogsCollectionRef, conversionLog);
     console.log("Conversion successfully logged!");
   } catch (error) {
     console.error("Failed to log conversion: ", error);
