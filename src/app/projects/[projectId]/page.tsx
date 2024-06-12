@@ -19,8 +19,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
-  const [depositBalance, setDepositBalance] = useState("0");
-  const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
+  // const [depositBalance, setDepositBalance] = useState("0");
+  // const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
 
   const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
   const [loadingTransactionData, setLoadingTransactionData] = useState(true);
@@ -62,17 +62,17 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     const fetchTokenDetails = async () => {
       try {
         const signer = initializeSigner();
-        const escrow = new Escrow(signer);
+        // const escrow = new Escrow(signer);
         const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
         const symbol = await erc20.getSymbol();
         setTokenSymbol(symbol);
-        const projectInfo = await escrow.getProjectInfo(params.projectId);
-        setDepositBalance(projectInfo?.depositAmount ? formatBalance(projectInfo.depositAmount) : "0");
+        // const projectInfo = await escrow.getProjectInfo(params.projectId);
+        // setDepositBalance(projectInfo?.depositAmount ? formatBalance(projectInfo.depositAmount) : "0");
       } catch (error: any) {
         console.error("Error fetching token details: ", error);
         toast.error(`Error fetching token details: ${error.message}`);
       } finally {
-        setLoadingDepositBalance(false);
+        // setLoadingDepositBalance(false);
         setLoadingTokenSymbol(false);
       }
     };
@@ -160,7 +160,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         </div>
 
         {/* Statistic Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <StatisticCard
             title="Deposit Balance"
             loading={loadingDepositBalance || loadingTokenSymbol}
@@ -179,7 +179,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             value={`${referralData?.length || 0}`}
             unit="PEOPLE"
           />
-        </div>
+        </div> */}
 
         {/* Chart */}
         <div className="bg-white p-10 rounded-lg shadow">
