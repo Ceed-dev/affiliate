@@ -10,6 +10,7 @@ import { createNewUserAndJoinProject } from "./createNewUserAndJoinProject";
 import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
+import { fetchConversionLogsForReferrals } from "./fetchConversionLogsForReferrals";
 import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
 import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
 import { logConversion } from "./logConversion";
@@ -27,6 +28,7 @@ export {
   joinProject,
   processRewardPaymentTransaction,
   fetchTransactionsForReferrals,
+  fetchConversionLogsForReferrals,
   deleteProjectFromFirestore,
   saveApiKeyToFirestore,
   getApiKeyData,
