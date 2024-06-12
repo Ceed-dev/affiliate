@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { db } from "./firebaseConfig";
-import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, Timestamp } from "firebase/firestore";
 import { ApiKeyData } from "../../types";
 
 const generateApiKey = (): string => {
@@ -56,11 +56,34 @@ export const getApiKeyData = async (projectId: string): Promise<ApiKeyData | nul
   }
 };
 
+const updateApiKeyUsage = async (projectId: string): Promise<boolean> => {
+  try {
+    const apiKeyRef = doc(db, "apiKeys", projectId);
+
+    await updateDoc(apiKeyRef, {
+      lastUsedAt: serverTimestamp(),
+      usageCount: increment(1)
+    });
+    console.log("API key usage updated successfully");
+    return true;
+  } catch (error) {
+    console.error("Error updating API key usage: ", error);
+    return false;
+  }
+};
+
 export const validateApiKey = async (projectId: string, apiKey: string): Promise<boolean> => {
   try {
     const apiKeyData = await getApiKeyData(projectId);
     if (!apiKeyData || apiKeyData.apiKey !== apiKey) {
       return false;
+    }
+    if (apiKeyData.isActive) {
+      const updateSuccess = await updateApiKeyUsage(projectId);
+      if (!updateSuccess) {
+        console.error("Failed to update API key usage");
+        return false;
+      }
     }
     return apiKeyData.isActive;
   } catch (error) {
