@@ -35,7 +35,8 @@ export default function CreateProject() {
   const handleProjectTypeChange = (type: ProjectType) => {
     setProjectType(type);
 
-    const status = type === "DirectPayment" ? "Save" : "Save & Deposit";
+    // const status = type === "DirectPayment" ? "Save" : "Save & Deposit";
+    const status = "Save";
     setInitialStatus(status);
     setSaveAndDepositStatus(status);
 
@@ -234,6 +235,8 @@ export default function CreateProject() {
       return;
     }
 
+    // Remove the deposit token logic as it's no longer needed
+    /*
     if (projectType === "EscrowPayment") {
       const depositAmount = 10; //TODO: Fix later
   
@@ -257,6 +260,7 @@ export default function CreateProject() {
         return;
       }
     }
+    */
 
     setHideSaveAndDepositButton(true);
     nextStep();
