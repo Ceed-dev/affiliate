@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
-import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction } from "../../types";
-import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, getApiKeyData } from "../../utils/firebase";
+import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog } from "../../types";
+import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 
@@ -22,8 +22,11 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   // const [depositBalance, setDepositBalance] = useState("0");
   // const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
 
-  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
-  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+  // const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  // const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+
+  const [conversionData, setConversionData] = useState<ConversionLog[]>([]);
+  const [loadingConversionData, setLoadingConversionData] = useState(true);
 
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
@@ -80,17 +83,32 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     fetchTokenDetails();
   }, [projectData]);
 
+  // useEffect(() => {
+  //   if (referralData) {
+  //     const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
+  //     fetchTransactionsForReferrals(referralDataAsBasic, setTransactionData)
+  //       .then(() => {
+  //         setLoadingTransactionData(false);
+  //       })
+  //       .catch(error => {
+  //         console.error("Error fetching transactions: ", error.message);
+  //         toast.error(`Error fetching transactions: ${error.message}`);
+  //         setLoadingTransactionData(false);
+  //       });
+  //   }
+  // }, [referralData]);
+
   useEffect(() => {
     if (referralData) {
       const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
-      fetchTransactionsForReferrals(referralDataAsBasic, setTransactionData)
+      fetchConversionLogsForReferrals(referralDataAsBasic, setConversionData)
         .then(() => {
-          setLoadingTransactionData(false);
+          setLoadingConversionData(false);
         })
         .catch(error => {
-          console.error("Error fetching transactions: ", error.message);
-          toast.error(`Error fetching transactions: ${error.message}`);
-          setLoadingTransactionData(false);
+          console.error("Error fetching conversion logs: ", error.message);
+          toast.error(`Error fetching conversion logs: ${error.message}`);
+          setLoadingConversionData(false);
         });
     }
   }, [referralData]);
@@ -183,12 +201,17 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
         {/* Chart */}
         <div className="bg-white p-10 rounded-lg shadow">
-          {loadingTransactionData
+          {/* {loadingTransactionData */}
+          {loadingConversionData
             ? <div className="flex flex-row items-center justify-center gap-5">
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-                <p className="animate-pulse font-semibold text-gray-600">Loading transaction data for chart visualization...</p>
+                <p className="animate-pulse font-semibold text-gray-600">
+                  {/* Loading transaction data for chart visualization... */}
+                  Loading conversion data for chart visualization...
+                </p>
               </div>
-            : <PaymentTransactionsChart transactions={transactionData} />
+            // : <PaymentTransactionsChart transactions={transactionData} />
+            : <PaymentTransactionsChart transactions={conversionData} />
           }
         </div>
 

@@ -1,13 +1,14 @@
 import { Bar } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import { PaymentTransaction } from "../../types";
+import { PaymentTransaction, ConversionLog } from "../../types";
 
 // Register the necessary chart components from Chart.js
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Define the component's prop types
 type BarChartProps = {
-  transactions: PaymentTransaction[];
+  // transactions: PaymentTransaction[];
+  transactions: ConversionLog[];
 };
 
 // PaymentTransactionsChart component to display payment transactions over date
@@ -40,7 +41,8 @@ export const PaymentTransactionsChart = ({ transactions }: BarChartProps) => {
     labels,
     datasets: [
       {
-        label: "Number of Payment Transactions",
+        // label: "Number of Payment Transactions",
+        label: "Number of Conversions",
         data: dataPoints,
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         borderColor: "rgba(75, 192, 192, 1)",
