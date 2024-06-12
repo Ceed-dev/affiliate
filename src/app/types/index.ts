@@ -3,6 +3,7 @@ import { ExtendedProjectData } from "./extendedProjectData";
 import { ImageType } from "./imageType";
 import { ReferralData } from "./referralData";
 import { ExtendedReferralData } from "./extendedReferralData";
+import { AggregatedReferralData } from "./aggregatedReferralData";
 import { AffiliateInfo } from "./affiliateInfo";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
@@ -19,6 +20,7 @@ export type {
   ImageType,
   ReferralData,
   ExtendedReferralData,
+  AggregatedReferralData,
   AffiliateInfo,
   UserData,
   PaymentTransaction,
