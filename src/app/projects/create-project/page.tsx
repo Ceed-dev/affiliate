@@ -47,9 +47,8 @@ export default function CreateProject() {
       logo: null,
       cover: null,
       websiteUrl: "",
-      discordUrl: "",
       xUrl: "",
-      instagramUrl: "",
+      discordUrl: "",
       ownerAddresses: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -321,9 +320,8 @@ export default function CreateProject() {
           <SocialLinksForm
             data={{
               websiteUrl: projectData?.websiteUrl ?? "",
-              discordUrl: projectData?.discordUrl ?? "",
               xUrl: projectData?.xUrl ?? "",
-              instagramUrl: projectData?.instagramUrl ?? ""
+              discordUrl: projectData?.discordUrl ?? "",
             }}
             handleChange={handleChange}
             nextStep={nextStep}
