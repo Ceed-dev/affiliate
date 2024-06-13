@@ -5,6 +5,7 @@ import { fetchAllProjects } from "./fetchAllProjects";
 import { fetchProjectsByOwner } from "./fetchProjectsByOwner";
 import { fetchReferralData } from "./fetchReferralData";
 import { fetchReferralsByProjectId } from "./fetchReferralsByProjectId";
+import { aggregateReferralData } from "./aggregateReferralData";
 import { checkUserAndPrompt } from "./checkUserAndPrompt";
 import { createNewUserAndJoinProject } from "./createNewUserAndJoinProject";
 import { joinProject } from "./joinProject";
@@ -23,6 +24,7 @@ export {
   fetchProjectsByOwner,
   fetchReferralData,
   fetchReferralsByProjectId,
+  aggregateReferralData,
   checkUserAndPrompt,
   createNewUserAndJoinProject,
   joinProject,
