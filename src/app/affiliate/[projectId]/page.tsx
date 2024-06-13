@@ -219,6 +219,23 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           } {tokenSymbol}
         </span>
       );
+
+  const calculateEarningsAndConversions = (conversionLogs: ConversionLog[], currentMonth: Date): { totalEarnings: number, totalConversions: number } => {
+    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  
+    const filteredLogs = conversionLogs.filter(log => {
+      const logDate = new Date(log.timestamp);
+      return logDate >= startOfMonth && logDate <= endOfMonth;
+    });
+  
+    const totalEarnings = filteredLogs.reduce((sum, log) => sum + log.amount, 0);
+    const totalConversions = filteredLogs.length;
+  
+    return { totalEarnings, totalConversions };
+  };
+
+  const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
   
   const copyLinkToClipboard = async () => {
     try {
@@ -318,16 +335,28 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       {projectData?.projectType === "EscrowPayment" && address && referralId && 
         <>
           <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
-            <StatisticCard
+            {/* <StatisticCard
               title="Conversions"
               loading={loadingReferral}
               value={`${referralData?.conversions}`}
               unit="TIMES"
-            />
+            /> */}
             <StatisticCard
+              title="Conversions (This month)"
+              loading={loadingReferral || loadingConversionLogs}
+              value={`${totalConversions}`}
+              unit="TIMES"
+            />
+            {/* <StatisticCard
               title="Earnings"
               loading={loadingReferral || loadingTokenSymbol}
               value={`${referralData?.earnings}`}
+              unit={tokenSymbol}
+            /> */}
+            <StatisticCard
+              title="Earnings (This month)"
+              loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
+              value={`${totalEarnings}`}
               unit={tokenSymbol}
             />
             {/* <StatisticCard
