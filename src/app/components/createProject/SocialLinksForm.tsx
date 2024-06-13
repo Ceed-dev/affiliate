@@ -4,9 +4,8 @@ import { NextButton } from "./NextButton";
 type SocialLinksFormProps = {
   data: {
     websiteUrl: string;
-    discordUrl: string;
     xUrl: string;
-    instagramUrl: string;
+    discordUrl: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   nextStep?: () => void;
@@ -17,6 +16,8 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   handleChange,
   nextStep,
 }) => {
+  const isFormComplete = data.websiteUrl.trim() && data.xUrl.trim();
+
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
 
@@ -24,12 +25,23 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
-          <h2>Website</h2>
+          <h2>Website <span className="text-red-500">*</span></h2>
           <input
             type="url"
             placeholder="https://mysite.com"
             value={data.websiteUrl}
             onChange={handleChange("websiteUrl")}
+            className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <h2>X <span className="text-red-500">*</span></h2>
+          <input
+            type="url"
+            placeholder="https://twitter.com/my-twitter"
+            value={data.xUrl}
+            onChange={handleChange("xUrl")}
             className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
           />
         </div>
@@ -45,31 +57,9 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2>X</h2>
-          <input
-            type="url"
-            placeholder="https://twitter.com/my-twitter"
-            value={data.xUrl}
-            onChange={handleChange("xUrl")}
-            className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h2>Instagram</h2>
-          <input
-            type="url"
-            placeholder="https://instagram.com/my-insta"
-            value={data.instagramUrl}
-            onChange={handleChange("instagramUrl")}
-            className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
-          />
-        </div>
-
       </div>
 
-      {nextStep && <NextButton onClick={nextStep} disabled={false} />}
+      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
 
     </div>
   );

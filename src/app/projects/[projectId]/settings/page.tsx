@@ -159,6 +159,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               projectData.description.trim() !== "" &&
               projectData.logo &&
               projectData.cover &&
+              projectData.websiteUrl &&
+              projectData.xUrl &&
               projectData.selectedTokenAddress.trim() !== "" &&
               Object.keys(projectData.whitelistedAddresses || {}).length > 0 &&
               directProjectData.slots.total > 0 &&
@@ -174,6 +176,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               projectData.description.trim() !== "" &&
               projectData.logo &&
               projectData.cover &&
+              projectData.websiteUrl &&
+              projectData.xUrl &&
               projectData.selectedTokenAddress.trim() !== "" &&
               escrowProjectData.rewardAmount > 0 &&
               escrowProjectData.redirectUrl.trim() !== "";
@@ -246,9 +250,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             <SocialLinksForm
               data={{
                 websiteUrl: projectData?.websiteUrl ?? "",
-                discordUrl: projectData?.discordUrl ?? "",
                 xUrl: projectData?.xUrl ?? "",
-                instagramUrl: projectData?.instagramUrl ?? ""
+                discordUrl: projectData?.discordUrl ?? "",
               }}
               handleChange={handleChange}
             />

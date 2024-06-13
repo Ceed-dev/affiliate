@@ -41,9 +41,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       (data.logo === null || typeof data.logo === "string") &&
       (data.cover === null || typeof data.cover === "string") &&
       typeof data.websiteUrl === "string" &&
-      typeof data.discordUrl === "string" &&
       typeof data.xUrl === "string" &&
-      typeof data.instagramUrl === "string" &&
+      typeof data.discordUrl === "string" &&
       Array.isArray(data.ownerAddresses) &&
       data.ownerAddresses.every((address: any) => typeof address === "string") &&
       data.createdAt.toDate() instanceof Date &&
