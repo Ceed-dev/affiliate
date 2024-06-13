@@ -12,9 +12,8 @@ type ProjectHeaderProps = {
 export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loading }) => {
   const socialLinks = [
     { url: projectData?.websiteUrl, icon: "/www.png", alt: "www.png", size: 40 },
-    { url: projectData?.discordUrl, icon: "/discord.png", alt: "discord.png", size: 40 },
     { url: projectData?.xUrl, icon: "/x.png", alt: "x.png" ,size: 30 },
-    { url: projectData?.instagramUrl, icon: "/instagram.png", alt: "instagram.png", size: 40 }
+    { url: projectData?.discordUrl, icon: "/discord.png", alt: "discord.png", size: 40 },
   ];
 
   return (
