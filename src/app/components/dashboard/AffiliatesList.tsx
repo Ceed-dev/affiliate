@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { ReferralData, ExtendedReferralData, AggregatedReferralData, ConversionLog } from "../../types";
+import { ExtendedReferralData, AggregatedReferralData } from "../../types";
 import { formatAddress } from "../../utils/formatters";
 import { toast } from "react-toastify";
-import { fetchConversionLogsForReferrals } from "../../utils/firebase";
+import { aggregateReferralData } from "../../utils/firebase";
 
 type AffiliatesListProps = {
   referrals: ExtendedReferralData[];
@@ -18,42 +18,10 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
     const fetchAndSetConversionLogs = async () => {
       setAggregating(true);
       try {
-        const updatedReferrals = await Promise.all(
-          referrals.map(async (referral) => {
-            const basicReferralData: ReferralData = {
-              id: referral.id,
-              affiliateWallet: referral.affiliateWallet,
-              projectId: referral.projectId,
-              createdAt: referral.createdAt,
-              conversions: referral.conversions,
-              earnings: referral.earnings,
-              lastConversionDate: referral.lastConversionDate,
-            };
-
-            const conversionLogs: ConversionLog[] = [];
-            await fetchConversionLogsForReferrals([basicReferralData], (logs: ConversionLog[]) => {
-              conversionLogs.push(...logs);
-            });
-
-            const totalAmount = conversionLogs.reduce((sum, log) => sum + log.amount, 0);
-            const totalConversions = conversionLogs.length;
-            const lastConversionDate = conversionLogs.reduce((latest, log) => {
-              return log.timestamp > latest ? log.timestamp : latest;
-            }, new Date(0));
-
-            return {
-              ...referral,
-              aggregatedEarnings: totalAmount,
-              aggregatedConversions: totalConversions,
-              aggregatedLastConversionDate: lastConversionDate > new Date(0) ? lastConversionDate : null,
-            };
-          })
-        );
-
+        const updatedReferrals = await aggregateReferralData(referrals);
         setReferralData(updatedReferrals);
-      } catch (error: any) {
-        console.error("Failed to fetch conversion logs: ", error);
-        toast.error("Failed to fetch conversion logs: ", error);
+      } catch (error) {
+        // Error handling is already done in the helper function
       } finally {
         setAggregating(false);
       }
