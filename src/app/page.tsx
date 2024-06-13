@@ -44,12 +44,12 @@ export default function Home() {
             <div className="border-l border-gray-300 h-6" />
             <Link href="/onboarding">
               <button className="hover:text-gray-500">
-                Sign In
+                Ad publisher
               </button>
             </Link>
             <Link href="/affiliate/marketplace">
               <button className="hover:text-gray-500">
-                Marketplace
+                Affiliater
               </button>
             </Link>
           </div>
@@ -70,12 +70,12 @@ export default function Home() {
               <div className="border-t border-gray-300 my-2"></div>
               <Link href="/onboarding">
                 <button className="py-2 hover:text-gray-500">
-                  Sign In
+                  Ad publisher
                 </button>
               </Link>
               <Link href="/affiliate/marketplace">
                 <button className="py-2 hover:text-gray-500">
-                  Marketplace
+                  Affiliater
                 </button>
               </Link>
             </nav>
