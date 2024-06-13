@@ -10,7 +10,7 @@ import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, checkUserAndPrompt, createNewUserAndJoinProject, fetchConversionLogsForReferrals } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
-import { displayFormattedDateWithTimeZone } from "../../utils/formatters";
+import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "../../utils/formatters";
 import { useCountdown } from "../../hooks/useCountdown";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
@@ -330,11 +330,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               value={`${referralData?.earnings}`}
               unit={tokenSymbol}
             />
-            <StatisticCard
+            {/* <StatisticCard
               title="Last Conversion Date"
               loading={loadingReferral}
               value={`${referralData?.lastConversionDate ? referralData.lastConversionDate.toLocaleDateString() : "N/A"}`}
               unit=""
+            /> */}
+            <StatisticCard
+              title="Next Payment Date"
+              loading={false}
+              value={getNextPaymentDate()}
+              unit={getTimeZoneSymbol()}
             />
           </div>
 
