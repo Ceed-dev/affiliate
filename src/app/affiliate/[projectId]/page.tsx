@@ -22,8 +22,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
 
-  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
-  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+  // const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  // const [loadingTransactionData, setLoadingTransactionData] = useState(true);
 
   const [referralId, setReferralId] = useState<string | null>(null);
   const [buttonLabel, setButtonLabel] = useState("Copy");
@@ -129,19 +129,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   }, [referralId]);
 
-  useEffect(() => {
-    if (referralData) {
-      fetchTransactionsForReferrals([referralData], setTransactionData)
-        .then(() => {
-          setLoadingTransactionData(false);
-        })
-        .catch(error => {
-          console.error("Error fetching transactions: ", error.message);
-          toast.error(`Error fetching transactions: ${error.message}`);
-          setLoadingTransactionData(false);
-        });
-    }
-  }, [referralData]);
+  // useEffect(() => {
+  //   if (referralData) {
+  //     fetchTransactionsForReferrals([referralData], setTransactionData)
+  //       .then(() => {
+  //         setLoadingTransactionData(false);
+  //       })
+  //       .catch(error => {
+  //         console.error("Error fetching transactions: ", error.message);
+  //         toast.error(`Error fetching transactions: ${error.message}`);
+  //         setLoadingTransactionData(false);
+  //       });
+  //   }
+  // }, [referralData]);
 
   const handleSaveAffiliateInfo = async (info: AffiliateInfo) => {
     if (address) {
@@ -319,13 +319,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             />
           </div>
 
-          {loadingTransactionData
+          {/* {loadingTransactionData
             ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
               </div>
             : <ConversionsList transactions={transactionData} />
-          }
+          } */}
         </>
       }
 
