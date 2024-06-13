@@ -7,17 +7,17 @@ Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Define the component's prop types
 type BarChartProps = {
-  // transactions: PaymentTransaction[];
-  transactions: ConversionLog[];
+  title: string;
+  transactions: PaymentTransaction[] | ConversionLog[];
 };
 
-// PaymentTransactionsChart component to display payment transactions over date
-export const PaymentTransactionsChart = ({ transactions }: BarChartProps) => {
+// BarChart component to display data over date
+export const BarChart = ({ title, transactions }: BarChartProps) => {
   // Define the range of dates to display in the chart
   const today = new Date();
   const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
 
-  // Accumulate transactions counts per day within the last month
+  // Accumulate data counts per day within the last month
   const transactionCounts = transactions.reduce<Record<string, number>>((acc, transaction) => {
     const transactionDate = new Date(transaction.timestamp);
     if (transactionDate >= oneMonthAgo && transactionDate <= today) {
@@ -41,8 +41,7 @@ export const PaymentTransactionsChart = ({ transactions }: BarChartProps) => {
     labels,
     datasets: [
       {
-        // label: "Number of Payment Transactions",
-        label: "Number of Conversions",
+        label: title,
         data: dataPoints,
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         borderColor: "rgba(75, 192, 192, 1)",

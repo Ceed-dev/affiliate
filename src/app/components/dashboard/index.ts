@@ -1,11 +1,11 @@
 import { NavBar } from "./NavBar";
-import { PaymentTransactionsChart } from "./PaymentTransactionsChart";
+import { BarChart } from "./BarChart";
 import { StatisticCard } from "./StatisticCard";
 import { AffiliatesList } from "./AffiliatesList";
 
 export {
   NavBar,
-  PaymentTransactionsChart,
+  BarChart,
   StatisticCard,
   AffiliatesList
 }

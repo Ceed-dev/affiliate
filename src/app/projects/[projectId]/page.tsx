@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { NavBar, PaymentTransactionsChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
+import { NavBar, BarChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
 import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
@@ -210,8 +210,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                   Loading conversion data for chart visualization...
                 </p>
               </div>
-            // : <PaymentTransactionsChart transactions={transactionData} />
-            : <PaymentTransactionsChart transactions={conversionData} />
+            // : <BarChart title="Number of Payment Transactions" transactions={transactionData} />
+            : <BarChart title="Number of Conversions" transactions={conversionData} />
           }
         </div>
 
