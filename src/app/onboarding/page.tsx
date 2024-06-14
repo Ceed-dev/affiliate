@@ -15,11 +15,19 @@ import {
   useSwitchChain,
   WalletInstance
 } from "@thirdweb-dev/react";
-import { PolygonAmoyTestnet } from "@thirdweb-dev/chains";
+import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 
 import { AffiliateInfoModal } from "../components/affiliate";
 import { AffiliateInfo } from "../types";
 import { checkUserAndPrompt, createNewUser } from "../utils/firebase";
+
+const getActiveChain = () => {
+  if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
+    return Polygon;
+  } else {
+    return PolygonAmoyTestnet;
+  }
+};
 
 export default function Onboarding() {
   const router = useRouter();
@@ -27,6 +35,7 @@ export default function Onboarding() {
   const disconnect = useDisconnect();
   const isMismatched = useNetworkMismatch();
   const switchChain = useSwitchChain();
+  const activeChain = getActiveChain();
 
   const [isUserExist, setIsUserExist] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +53,7 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (address && isMismatched) {
-      switchChain(PolygonAmoyTestnet.chainId).catch((error) => {
+      switchChain(activeChain.chainId).catch((error) => {
         console.error("Failed to switch network:", error);
         toast.error("Failed to switch network");
       });
