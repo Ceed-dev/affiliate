@@ -17,7 +17,7 @@ export const NavBar = ({ projectId, projectType }: NavBarProps) => {
   };
 
   return (
-    <div className="flex flex-row py-3 px-10 gap-5">
+    <div className="flex flex-row py-3 px-3 md:px-10 gap-5">
       {projectType === "EscrowPayment" && (
         <button 
           className={`rounded-md px-3 py-2 ${isActive("") ? "bg-blue-200 text-blue-600" : "text-gray-500 hover:text-black"}`}
