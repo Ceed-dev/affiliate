@@ -238,7 +238,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
               type="text"
               value={newOwnerAddress}
               onChange={(e) => setNewOwnerAddress(e.target.value)}
-              placeholder="Enter owner wallet address"
+              placeholder="Enter team member&apos;s wallet address"
               className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
             />
             <button
