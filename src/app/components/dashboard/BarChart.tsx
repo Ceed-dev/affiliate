@@ -12,7 +12,7 @@ type BarChartProps = {
 };
 
 // BarChart component to display data over date
-export const BarChart = ({ title, transactions }: BarChartProps) => {
+export const BarChart: React.FC<BarChartProps> = ({ title, transactions }) => {
   // Define the range of dates to display in the chart
   const today = new Date();
   const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());

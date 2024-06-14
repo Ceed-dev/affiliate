@@ -200,7 +200,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         </div> */}
 
         {/* Chart */}
-        <div className="bg-white p-10 rounded-lg shadow">
+        <div className="bg-white p-5 md:p-10 rounded-lg shadow">
           {/* {loadingTransactionData */}
           {loadingConversionData
             ? <div className="flex flex-row items-center justify-center gap-5">
