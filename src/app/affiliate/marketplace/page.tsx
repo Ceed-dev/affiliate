@@ -39,7 +39,7 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen">
-      <div className="w-2/3 mx-auto pt-10 pb-20">
+      <div className="w-11/12 sm:w-2/3 mx-auto pt-10 pb-20">
         <div className="text-left">
           <h2 className="text-3xl leading-9 font-extrabold text-[#121212] sm:text-4xl sm:leading-10">
             Marketplace
