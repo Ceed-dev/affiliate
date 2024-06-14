@@ -94,7 +94,7 @@ export default function Onboarding() {
 
   return (
     <div className="flex flex-col items-center min-h-screen gap-[100px]">
-      <div className="w-2/3 flex mt-5">
+      <div className="w-11/12 sm:w-2/3 flex mt-5">
         <Link href="/#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
           <Image
             src="/qube.png"
@@ -105,7 +105,7 @@ export default function Onboarding() {
           <p className="text-lg font-semibold">Qube</p>
         </Link>
       </div>
-      <div className="bg-white border-2 border-sky-500 rounded-lg w-2/3 xl:w-1/3 flex flex-col items-center gap-10 py-20">
+      <div className="bg-white border-2 border-sky-500 rounded-lg w-11/12 sm:w-2/3 xl:w-1/3 flex flex-col items-center gap-10 py-20">
         <Image
           src="/qube.png"
           alt="qube.png"
@@ -131,7 +131,6 @@ export default function Onboarding() {
           modalSize={"compact"}
           onConnect={handleOnboarding}
         />  
-
       </div>
 
       <AffiliateInfoModal
