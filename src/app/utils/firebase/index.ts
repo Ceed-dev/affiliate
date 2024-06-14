@@ -15,6 +15,7 @@ import { fetchConversionLogsForReferrals } from "./fetchConversionLogsForReferra
 import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
 import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
 import { logConversion } from "./logConversion";
+import { createNewUser } from "./createNewUser";
 
 export {
   saveProjectToFirestore,
@@ -36,4 +37,5 @@ export {
   getApiKeyData,
   validateApiKey,
   logConversion,
+  createNewUser,
 }

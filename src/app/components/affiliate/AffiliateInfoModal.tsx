@@ -52,7 +52,7 @@ export const AffiliateInfoModal: React.FC<AffiliateInfoModalProps> = ({ isOpen, 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md mx-auto">
-        <h2 className="text-xl font-semibold mb-4">Affiliate Information</h2>
+        <h2 className="text-xl font-semibold mb-4">User Information</h2>
         <p className="text-sm text-gray-600 mb-4">
           Please provide your username, email address, and X profile URL to complete your registration.
         </p>
