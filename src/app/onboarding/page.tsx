@@ -3,23 +3,44 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import {
   ConnectWallet,
   lightTheme,
   useAddress,
+  useDisconnect,
   useNetworkMismatch,
-  useSwitchChain
+  useSwitchChain,
+  WalletInstance
 } from "@thirdweb-dev/react";
 import { PolygonAmoyTestnet } from "@thirdweb-dev/chains";
+
+import { AffiliateInfoModal } from "../components/affiliate";
+import { AffiliateInfo } from "../types";
+import { checkUserAndPrompt, createNewUser } from "../utils/firebase";
 
 export default function Onboarding() {
   const router = useRouter();
   const address = useAddress();
+  const disconnect = useDisconnect();
   const isMismatched = useNetworkMismatch();
   const switchChain = useSwitchChain();
+
+  const [isUserExist, setIsUserExist] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      if (address) {
+        const userExists = await checkUserAndPrompt(address, setIsModalOpen);
+        setIsUserExist(userExists);
+      }
+    };
+
+    checkUser();
+  }, [address]);
 
   useEffect(() => {
     if (address && isMismatched) {
@@ -27,10 +48,40 @@ export default function Onboarding() {
         console.error("Failed to switch network:", error);
         toast.error("Failed to switch network");
       });
-    } else if (address && !isMismatched) {
+    } else if (address && !isMismatched && isUserExist) {
       router.push("/projects");
     }
-  }, [address, isMismatched, switchChain, router]);
+  }, [address, isMismatched, switchChain, isUserExist, router]);
+
+  const handleSaveUserInfo = async (info: AffiliateInfo) => {
+    if (address) {
+      try {
+        await createNewUser(address, info);
+        setIsModalOpen(false);
+        setIsUserExist(true);
+      } catch (error) {
+        console.error("Failed to save user info: ", error);
+        toast.error("Failed to save user info");
+        disconnect();
+      }
+    } else {
+      console.error("Wallet address is not set.");
+      toast.error("Unexpected error occurred. Please try again.");
+      disconnect();
+    }
+  };
+
+  const handleOnboarding = async (wallet: WalletInstance) => {
+    const walletAddress = await wallet.getAddress();
+
+    try {
+      const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
+      setIsUserExist(userExists);
+    } catch (error: any) {
+      console.error("Failed to check user: ", error);
+      toast.error(`Failed to check user: ${error.message}`);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen gap-[100px]">
@@ -69,9 +120,19 @@ export default function Onboarding() {
           modalTitle={"Log in or Sign up"}
           // auth={{ loginOptional: false }}
           modalSize={"compact"}
+          onConnect={handleOnboarding}
         />  
 
       </div>
+
+      <AffiliateInfoModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          disconnect();
+        }}
+        onSave={handleSaveUserInfo}
+      />
     </div>
   );
 }
