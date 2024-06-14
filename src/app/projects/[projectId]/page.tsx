@@ -150,10 +150,10 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         <div className="pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5 md:gap-0">
           <div>
             <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
-              Affiliate sign up page
+              Project Dashboard
             </h3>
             <p className="text-sm text-[#6B7280]">
-              The page for affiliates to claim their referral link.
+              Overview and manage your project details.
             </p>
           </div>
           {apiKey && (
