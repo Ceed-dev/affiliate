@@ -43,7 +43,7 @@ export default function Projects() {
   }, [address]);
 
   return (
-    <div className="w-2/3 mx-auto mt-10">
+    <div className="w-11/12 sm:w-2/3 mx-auto mt-10">
       <div className="flex flex-row justify-between items-center mb-10">
         <h1 className="text-2xl font-semibold">Your Projects</h1>
         <Link 
