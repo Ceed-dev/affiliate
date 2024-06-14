@@ -17,7 +17,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
   ];
 
   return (
-    <div className="h-[200px] w-full relative mb-24 flex justify-center">
+    <div className="h-[200px] w-full relative mb-32 lg:mb-24 flex justify-center">
       {projectData?.cover 
         ? <Image 
             src={projectData.cover} 
@@ -27,9 +27,9 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
           /> 
         : <div className={`w-full h-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 ${loading ? "animate-pulse" : ""}`} />
       }
-      <div className="w-2/3 absolute bottom-[-75px] flex flex-row justify-between">
-        <div className="flex flex-row items-end">
-          <div className={`w-40 h-40 bg-white rounded-full shadow-md flex items-center justify-center ${loading ? "animate-pulse" : ""}`}>
+      <div className="w-11/12 sm:w-2/3 absolute bottom-[-100px] lg:bottom-[-75px] flex flex-col lg:flex-row lg:justify-between">
+        <div className="flex flex-row items-end justify-between lg:justify-normal">
+          <div className={`w-20 h-20 lg:w-40 lg:h-40 bg-white rounded-full shadow-md flex items-center justify-center ${loading ? "animate-pulse" : ""}`}>
             {projectData?.logo && 
               <Image
                 className="w-full rounded-full"
@@ -40,9 +40,9 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
               />
             }
           </div>
-          <h1 className="text-3xl font-semibold px-10 py-5">{projectData?.projectName}</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold px-3 sm:px-5 md:px-8 lg:px-10 py-2 sm:py-3 md:py-4 lg:py-5">{projectData?.projectName}</h1>
         </div>
-        <div className="flex flex-row items-center gap-5">
+        <div className="flex flex-row items-center justify-center gap-5">
           {socialLinks.map((link, index) => {
             if (!link.url) return null;
             return (
@@ -50,7 +50,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
                 key={index}
                 href={link.url}
                 target="_blank"
-                className="w-16 h-16 bg-white rounded-full shadow-md flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105"
+                className="w-14 h-14 lg:w-16 lg:h-16 p-2 bg-white rounded-full shadow-md flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105"
               >
                 <Image
                   src={link.icon}
