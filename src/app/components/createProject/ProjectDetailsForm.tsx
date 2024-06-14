@@ -232,7 +232,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
         )}
 
         <div className="flex flex-col gap-2">
-          <h2>Project Owners</h2>
+          <h2>Team Members</h2>
           <div className="flex items-center mb-2">
             <input
               type="text"
@@ -264,7 +264,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
                       <td className="border border-[#D1D5DB] p-2">
                         {ownerAddress}
                         {ownerAddress === address && (
-                          <span className="text-gray-500 ml-2">(Your wallet address, automatically added as project owner)</span>
+                          <span className="text-gray-500 ml-2">(Your wallet address, automatically added as a team member)</span>
                         )}
                       </td>
                       <td className="border border-[#D1D5DB] p-2 text-center">

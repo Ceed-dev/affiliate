@@ -5,12 +5,17 @@ import { fetchAllProjects } from "./fetchAllProjects";
 import { fetchProjectsByOwner } from "./fetchProjectsByOwner";
 import { fetchReferralData } from "./fetchReferralData";
 import { fetchReferralsByProjectId } from "./fetchReferralsByProjectId";
+import { aggregateReferralData } from "./aggregateReferralData";
 import { checkUserAndPrompt } from "./checkUserAndPrompt";
 import { createNewUserAndJoinProject } from "./createNewUserAndJoinProject";
 import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
+import { fetchConversionLogsForReferrals } from "./fetchConversionLogsForReferrals";
 import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
+import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
+import { logConversion } from "./logConversion";
+import { createNewUser } from "./createNewUser";
 
 export {
   saveProjectToFirestore,
@@ -20,10 +25,17 @@ export {
   fetchProjectsByOwner,
   fetchReferralData,
   fetchReferralsByProjectId,
+  aggregateReferralData,
   checkUserAndPrompt,
   createNewUserAndJoinProject,
   joinProject,
   processRewardPaymentTransaction,
   fetchTransactionsForReferrals,
-  deleteProjectFromFirestore
+  fetchConversionLogsForReferrals,
+  deleteProjectFromFirestore,
+  saveApiKeyToFirestore,
+  getApiKeyData,
+  validateApiKey,
+  logConversion,
+  createNewUser,
 }

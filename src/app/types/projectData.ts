@@ -8,9 +8,8 @@ type BaseProjectData = {
   logo: string | null;
   cover: string | null;
   websiteUrl: string;
-  discordUrl: string;
   xUrl: string;
-  instagramUrl: string;
+  discordUrl: string;
   ownerAddresses: string[];
   createdAt: Date;
   updatedAt: Date;

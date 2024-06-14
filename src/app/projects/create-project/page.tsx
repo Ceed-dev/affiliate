@@ -12,7 +12,7 @@ import {
   LogoForm,
   SocialLinksForm
 } from "../../components/createProject";
-import { saveProjectToFirestore, deleteProjectFromFirestore } from "../../utils/firebase";
+import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
 import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
 
@@ -35,7 +35,8 @@ export default function CreateProject() {
   const handleProjectTypeChange = (type: ProjectType) => {
     setProjectType(type);
 
-    const status = type === "DirectPayment" ? "Save" : "Save & Deposit";
+    // const status = type === "DirectPayment" ? "Save" : "Save & Deposit";
+    const status = "Save";
     setInitialStatus(status);
     setSaveAndDepositStatus(status);
 
@@ -46,9 +47,8 @@ export default function CreateProject() {
       logo: null,
       cover: null,
       websiteUrl: "",
-      discordUrl: "",
       xUrl: "",
-      instagramUrl: "",
+      discordUrl: "",
       ownerAddresses: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -224,6 +224,18 @@ export default function CreateProject() {
     }
     const { projectId } = result;
 
+    setSaveAndDepositStatus("Generating API key...");
+    const apiKey = await saveApiKeyToFirestore(projectId);
+    if (!apiKey) {
+      toast.error("Failed to generate API key. Please try again.");
+      setSaveAndDepositStatus(initialStatus);
+      setIsSaving(false);
+      await deleteProjectFromFirestore(projectId);
+      return;
+    }
+
+    // Remove the deposit token logic as it's no longer needed
+    /*
     if (projectType === "EscrowPayment") {
       const depositAmount = 10; //TODO: Fix later
   
@@ -247,6 +259,7 @@ export default function CreateProject() {
         return;
       }
     }
+    */
 
     setHideSaveAndDepositButton(true);
     nextStep();
@@ -307,9 +320,8 @@ export default function CreateProject() {
           <SocialLinksForm
             data={{
               websiteUrl: projectData?.websiteUrl ?? "",
-              discordUrl: projectData?.discordUrl ?? "",
               xUrl: projectData?.xUrl ?? "",
-              instagramUrl: projectData?.instagramUrl ?? ""
+              discordUrl: projectData?.discordUrl ?? "",
             }}
             handleChange={handleChange}
             nextStep={nextStep}

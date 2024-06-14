@@ -14,3 +14,25 @@ export const displayFormattedDateWithTimeZone = (date: Date | undefined) => {
   };
   return date.toLocaleString(undefined, options);  // "undefined" means to use the browser's local settings.
 };
+
+export const getNextPaymentDate = (): string => {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const nextMonth = now.getUTCMonth() + 1; // Set next month
+
+  // Set the 1st of the next month in UTC
+  const utcNextPaymentDate = new Date(Date.UTC(year, nextMonth, 1, 0, 0, 0));
+
+  // Convert to Japan Time (JST)
+  const jstNextPaymentDate = new Date(utcNextPaymentDate.getTime() - (9 * 60 * 60 * 1000));
+
+  // Displayed in the user's time zone
+  const formattedDate = jstNextPaymentDate.toLocaleDateString();
+
+  return formattedDate;
+};
+
+export const getTimeZoneSymbol = (): string => {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return timeZone;
+};

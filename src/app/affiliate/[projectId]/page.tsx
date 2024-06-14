@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ConnectWallet, lightTheme, useAddress, WalletInstance, useDisconnect } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, AffiliateInfo } from "../../types";
+import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, AffiliateInfo, ConversionLog } from "../../types";
 import { AffiliateInfoModal, ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
-import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, checkUserAndPrompt, createNewUserAndJoinProject } from "../../utils/firebase";
+import { BarChart } from "../../components/dashboard";
+import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, checkUserAndPrompt, createNewUserAndJoinProject, fetchConversionLogsForReferrals } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
-import { displayFormattedDateWithTimeZone } from "../../utils/formatters";
+import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "../../utils/formatters";
 import { useCountdown } from "../../hooks/useCountdown";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
@@ -22,11 +23,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
 
-  const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
-  const [loadingTransactionData, setLoadingTransactionData] = useState(true);
+  // const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
+  // const [loadingTransactionData, setLoadingTransactionData] = useState(true);
 
   const [referralId, setReferralId] = useState<string | null>(null);
   const [buttonLabel, setButtonLabel] = useState("Copy");
+
+  const [conversionLogs, setConversionLogs] = useState<ConversionLog[]>([]);
+  const [loadingConversionLogs, setLoadingConversionLogs] = useState(true);
 
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
@@ -131,17 +135,32 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   useEffect(() => {
     if (referralData) {
-      fetchTransactionsForReferrals([referralData], setTransactionData)
+      fetchConversionLogsForReferrals([referralData], setConversionLogs)
         .then(() => {
-          setLoadingTransactionData(false);
+          setLoadingConversionLogs(false);
         })
         .catch(error => {
-          console.error("Error fetching transactions: ", error.message);
-          toast.error(`Error fetching transactions: ${error.message}`);
-          setLoadingTransactionData(false);
-        });
+          const message = (error instanceof Error) ? error.message : "Unknown error";
+          console.error("Error loading conversion logs: ", message);
+          toast.error(`Error loading conversion logs: ${message}`);
+          setLoadingConversionLogs(false);
+        })
     }
   }, [referralData]);
+
+  // useEffect(() => {
+  //   if (referralData) {
+  //     fetchTransactionsForReferrals([referralData], setTransactionData)
+  //       .then(() => {
+  //         setLoadingTransactionData(false);
+  //       })
+  //       .catch(error => {
+  //         console.error("Error fetching transactions: ", error.message);
+  //         toast.error(`Error fetching transactions: ${error.message}`);
+  //         setLoadingTransactionData(false);
+  //       });
+  //   }
+  // }, [referralData]);
 
   const handleSaveAffiliateInfo = async (info: AffiliateInfo) => {
     if (address) {
@@ -200,6 +219,23 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           } {tokenSymbol}
         </span>
       );
+
+  const calculateEarningsAndConversions = (conversionLogs: ConversionLog[], currentMonth: Date): { totalEarnings: number, totalConversions: number } => {
+    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  
+    const filteredLogs = conversionLogs.filter(log => {
+      const logDate = new Date(log.timestamp);
+      return logDate >= startOfMonth && logDate <= endOfMonth;
+    });
+  
+    const totalEarnings = filteredLogs.reduce((sum, log) => sum + log.amount, 0);
+    const totalConversions = filteredLogs.length;
+  
+    return { totalEarnings, totalConversions };
+  };
+
+  const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
   
   const copyLinkToClipboard = async () => {
     try {
@@ -299,32 +335,60 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       {projectData?.projectType === "EscrowPayment" && address && referralId && 
         <>
           <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
-            <StatisticCard
+            {/* <StatisticCard
               title="Conversions"
               loading={loadingReferral}
               value={`${referralData?.conversions}`}
               unit="TIMES"
-            />
+            /> */}
             <StatisticCard
+              title="Conversions (This month)"
+              loading={loadingReferral || loadingConversionLogs}
+              value={`${totalConversions}`}
+              unit="TIMES"
+            />
+            {/* <StatisticCard
               title="Earnings"
               loading={loadingReferral || loadingTokenSymbol}
               value={`${referralData?.earnings}`}
               unit={tokenSymbol}
-            />
+            /> */}
             <StatisticCard
+              title="Earnings (This month)"
+              loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
+              value={`${totalEarnings}`}
+              unit={tokenSymbol}
+            />
+            {/* <StatisticCard
               title="Last Conversion Date"
               loading={loadingReferral}
               value={`${referralData?.lastConversionDate ? referralData.lastConversionDate.toLocaleDateString() : "N/A"}`}
               unit=""
+            /> */}
+            <StatisticCard
+              title="Next Payment Date"
+              loading={false}
+              value={getNextPaymentDate()}
+              unit={getTimeZoneSymbol()}
             />
           </div>
 
-          {loadingTransactionData
+          {/* {loadingTransactionData
             ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
               </div>
             : <ConversionsList transactions={transactionData} />
+          } */}
+
+          {loadingConversionLogs
+            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
+                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <p className="animate-pulse font-semibold text-gray-600">Loading conversion data...</p>
+              </div>
+            : <div className="bg-white w-2/3 mx-auto rounded-lg shadow p-10">
+                <BarChart title="Number of Conversions" transactions={conversionLogs} />
+              </div>
           }
         </>
       }
