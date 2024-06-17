@@ -8,8 +8,8 @@ export default function AffiliateLayout({
 }>) {
   return (
     <>
-      <div className="flex flex-row justify-between px-10 py-2 border-b-2 border-sky-500 shadow-md bg-slate-100">
-        <div className="flex flex-row items-center gap-20">
+      <div className="flex flex-row justify-between px-3 md:px-10 py-2 border-b-2 border-sky-500 shadow-md bg-slate-100">
+        <div className="flex flex-row items-center gap-3 md:gap-20">
           <Link href="/#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image
               src="/qube.png"

@@ -257,7 +257,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
       {/* Project Status Overview */}
       {projectData?.projectType === "DirectPayment" && (
-        <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+        <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
           <StatisticCard
             title="Remaining Duration"
             loading={loadingProject}
@@ -280,7 +280,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       )}
 
       {/* Project Description and Action Panel */}
-      <div className="w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
+      <div className="w-11/12 sm:w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
         {/* Project Description Container */}
         <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loadingProject ? "animate-pulse" : ""}`}>
           {projectData?.description}
@@ -334,7 +334,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
       {projectData?.projectType === "EscrowPayment" && address && referralId && 
         <>
-          <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+          <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
             {/* <StatisticCard
               title="Conversions"
               loading={loadingReferral}
@@ -382,11 +382,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           } */}
 
           {loadingConversionLogs
-            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
+            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading conversion data...</p>
               </div>
-            : <div className="bg-white w-2/3 mx-auto rounded-lg shadow p-10">
+            : <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10">
                 <BarChart title="Number of Conversions" transactions={conversionLogs} />
               </div>
           }
