@@ -71,6 +71,7 @@ export const onConversionLogCreated = functions.firestore
       const projectDoc = await db.doc(`projects/${projectId}`).get();
       const projectData = projectDoc.data();
       const selectedTokenAddress = projectData?.selectedTokenAddress;
+      const projectName = projectData?.projectName;
 
       // Get the email from the users collection
       const userDoc = await db.doc(`users/${affiliateWallet}`).get();
@@ -85,8 +86,9 @@ export const onConversionLogCreated = functions.firestore
         selectedTokenAddress,
         email,
         referralId,
-        projectId,
+        projectPage: `https://www.0xqube.xyz/affiliate/${projectId}`,
         logId,
+        projectName,
       };
       await sendSlackNotification(message);
     }
