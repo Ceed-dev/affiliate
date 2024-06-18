@@ -31,6 +31,13 @@ export const onUserCreated = functions.firestore
     const walletAddress = context.params.walletAddress;
 
     if (newUser) {
+      let userType: string;
+      if (newUser.joinedProjectIds.length === 0) {
+        userType = "Client";
+      } else {
+        userType = "Affiliate";
+      }
+
       const message = {
         type: "user_created",
         walletAddress,
@@ -38,6 +45,7 @@ export const onUserCreated = functions.firestore
         username: newUser.username,
         email: newUser.email,
         xProfileUrl: newUser.xProfileUrl,
+        userType,
       };
       await sendSlackNotification(message);
     }
