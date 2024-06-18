@@ -31,6 +31,13 @@ export const onUserCreated = functions.firestore
     const walletAddress = context.params.walletAddress;
 
     if (newUser) {
+      let userType: string;
+      if (newUser.joinedProjectIds.length === 0) {
+        userType = "Client";
+      } else {
+        userType = "Affiliate";
+      }
+
       const message = {
         type: "user_created",
         walletAddress,
@@ -38,6 +45,7 @@ export const onUserCreated = functions.firestore
         username: newUser.username,
         email: newUser.email,
         xProfileUrl: newUser.xProfileUrl,
+        userType,
       };
       await sendSlackNotification(message);
     }
@@ -63,6 +71,7 @@ export const onConversionLogCreated = functions.firestore
       const projectDoc = await db.doc(`projects/${projectId}`).get();
       const projectData = projectDoc.data();
       const selectedTokenAddress = projectData?.selectedTokenAddress;
+      const projectName = projectData?.projectName;
 
       // Get the email from the users collection
       const userDoc = await db.doc(`users/${affiliateWallet}`).get();
@@ -77,8 +86,9 @@ export const onConversionLogCreated = functions.firestore
         selectedTokenAddress,
         email,
         referralId,
-        projectId,
+        projectPage: `https://www.0xqube.xyz/affiliate/${projectId}`,
         logId,
+        projectName,
       };
       await sendSlackNotification(message);
     }
