@@ -16,6 +16,7 @@ import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
 import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
 import { logConversion } from "./logConversion";
 import { createNewUser } from "./createNewUser";
+import { incrementClickCount } from "./incrementClickCount";
 
 export {
   saveProjectToFirestore,
@@ -38,4 +39,5 @@ export {
   validateApiKey,
   logConversion,
   createNewUser,
+  incrementClickCount,
 }

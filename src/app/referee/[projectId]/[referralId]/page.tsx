@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ProjectData, EscrowPaymentProjectData } from "../../../types";
-import { fetchProjectData } from "../../../utils/firebase";
+import { fetchProjectData, incrementClickCount } from "../../../utils/firebase";
 import { ProjectHeader } from "../../../components/affiliate";
 
 export default function Referee({ params }: { params: { projectId: string, referralId: string } }) {
@@ -31,9 +31,16 @@ export default function Referee({ params }: { params: { projectId: string, refer
 
   useEffect(() => {
     if (redirectLink) {
-      toast.info("Redirecting...", {
-        onClose: () => router.push(redirectLink)
-      });
+      incrementClickCount(params.referralId)
+        .then(() => {
+          toast.info("Redirecting...", {
+            onClose: () => router.push(redirectLink)
+          });
+        })
+        .catch(error => {
+          console.error("Failed to increment click count: ", error);
+          toast.error("Failed to increment click count");
+        });
     }
   }, [router, redirectLink]);
 
