@@ -6,4 +6,5 @@ export type ReferralData = {
   conversions: number;
   earnings: number;
   lastConversionDate: Date | null;
+  clicks: number;
 };
