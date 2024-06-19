@@ -10,7 +10,8 @@ export async function createAndReturnNewReferralId(walletAddress: string, projec
     createdAt: new Date(),
     conversions: 0,
     earnings: 0,
-    lastConversionDate: null
+    lastConversionDate: null,
+    clicks: 0,
   };
   const referralDocRef = await addDoc(collection(db, "referrals"), newReferral);
   toast.success("Your referral link has been generated successfully!");
