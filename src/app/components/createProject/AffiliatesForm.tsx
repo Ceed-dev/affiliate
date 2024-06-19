@@ -59,6 +59,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   const [tokenBalance, setTokenBalance] = useState("");
   const [tokenAllowance, setTokenAllowance] = useState("");
   const [isFetchingTokenDetails, setIsFetchingTokenDetails] = useState(false);
+  const [isTokenAddressValid, setIsTokenAddressValid] = useState(true);
+  const [isErc20Token, setIsErc20Token] = useState(true);
 
   const initializeTokenStates = () => {
     setTokenSymbol("");
@@ -66,39 +68,56 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     setTokenAllowance("");
   };
 
+  const fetchTokenDetails = async (address: string) => {
+    if (address.trim() === "") {
+      setIsTokenAddressValid(true); // Reset validation state for empty input
+      setIsErc20Token(true); // Reset to avoid conflicting error messages
+      initializeTokenStates();
+      return;
+    }
+    if (!isAddress(address)) {
+      setIsTokenAddressValid(false);
+      setIsErc20Token(true); // reset to avoid conflicting error messages
+      initializeTokenStates();
+      return;
+    }
+    setIsTokenAddressValid(true);
+
+    setIsFetchingTokenDetails(true);
+    try {
+      const signer = initializeSigner();
+      const erc20 = new ERC20(address, signer);
+      const symbol = await erc20.getSymbol();
+      const balance = await erc20.getBalance(await signer.getAddress());
+      const allowance = await erc20.getAllowance(await signer.getAddress(), `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`);
+
+      setTokenSymbol(symbol);
+      setTokenBalance(balance);
+      setTokenAllowance(allowance);
+
+      setIsErc20Token(true);
+
+      console.log(JSON.stringify({
+        "Address": address,
+        "Symbol": symbol,
+        "Balance": balance,
+        "Allowance": allowance,
+      }, null, 2));
+    } catch (error: any) {
+      console.error(`Error fetching token details: ${error.message}`);
+      toast.error(`Error fetching token details: ${error.message}`);
+      setIsErc20Token(false);
+      initializeTokenStates();
+    }
+    setIsFetchingTokenDetails(false);
+  };
+
   useEffect(() => {
-    const fetchTokenDetails = async () => {
-      if (data.selectedTokenAddress) {
-        setIsFetchingTokenDetails(true);
-        try {
-          const signer = initializeSigner();
-          const erc20 = new ERC20(data.selectedTokenAddress, signer);
-          const symbol = await erc20.getSymbol();
-          const balance = await erc20.getBalance(await signer.getAddress());
-          const allowance = await erc20.getAllowance(await signer.getAddress(), `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`);
-
-          setTokenSymbol(symbol);
-          setTokenBalance(balance);
-          setTokenAllowance(allowance);
-
-          console.log(JSON.stringify({
-            "Address" : data.selectedTokenAddress,
-            "Symbol" : symbol,
-            "Balance" : balance,
-            "Allowance" : allowance,
-          }, null, 2));
-        } catch (error: any) {
-          console.error(`Error fetching token details: ${error.message}`);
-          toast.error(`Error fetching token details: ${error.message}`);
-          initializeTokenStates();
-        }
-        setIsFetchingTokenDetails(false);
-      } else {
-        initializeTokenStates();
-      }
-    };
-
-    fetchTokenDetails();
+    if (data.selectedTokenAddress) {
+      fetchTokenDetails(data.selectedTokenAddress);
+    } else {
+      initializeTokenStates();
+    }
   }, [data.selectedTokenAddress]);
 
   // ===== BEGIN WHITELIST MANAGEMENT =====
@@ -196,10 +215,26 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             readOnly={isEditing}
             type="text"
             value={data.selectedTokenAddress}
-            onChange={handleChange("selectedTokenAddress")}
+            onChange={(e) => {
+              handleChange("selectedTokenAddress")(e);
+              const address = e.target.value.trim();
+              if (address === "") {
+                setIsTokenAddressValid(true);
+                setIsErc20Token(true);
+                initializeTokenStates();
+              } else {
+                fetchTokenDetails(address);
+              }
+            }}
             placeholder="Enter token contract address"
             className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500" : "bg-white text-black"}`}
           />
+          {!isTokenAddressValid && (
+            <p className="text-red-500 text-sm pl-2">Invalid token address.</p>
+          )}
+          {!isErc20Token && (
+            <p className="text-red-500 text-sm pl-2">Address is not an ERC20 token contract.</p>
+          )}
           {isFetchingTokenDetails &&
             <div className="flex flex-row gap-3">
               <Image src="/loading.png" alt="loading.png" width={20} height={20} className="animate-spin" /> 
@@ -344,9 +379,26 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       </div>
 
       {nextStep && !hideButton &&
-        <NextButton onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete() || (isSaving ?? true)} >
+        <NextButton 
+          onClick={() => isFormComplete() && nextStep()} 
+          disabled={
+            !isFormComplete() || 
+            !isTokenAddressValid || 
+            !isErc20Token || 
+            isFetchingTokenDetails || 
+            (isSaving ?? true)
+          } 
+        >
           <div className="flex flex-row items-center justify-center gap-5">
-            {isSaving && <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />}
+            {isSaving && (
+              <Image 
+                src={"/loading.png"} 
+                height={30} 
+                width={30} 
+                alt="loading.png" 
+                className="animate-spin" 
+              />
+            )}
             {status}
           </div>
         </NextButton>
