@@ -11,6 +11,7 @@ import { WhitelistedAddress } from "./whitelistedAddress";
 import { ProjectType } from "./projectType";
 import { ApiKeyData } from "./apiKeyData";
 import { ConversionLog } from "./conversionLog";
+import { UnpaidConversionLog } from "./unpaidConversionLog";
 
 export type {
   DirectPaymentProjectData,
@@ -28,4 +29,5 @@ export type {
   ProjectType,
   ApiKeyData,
   ConversionLog,
+  UnpaidConversionLog,
 }
