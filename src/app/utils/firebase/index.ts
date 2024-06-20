@@ -17,6 +17,7 @@ import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHe
 import { logConversion } from "./logConversion";
 import { createNewUser } from "./createNewUser";
 import { incrementClickCount } from "./incrementClickCount";
+import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
 
 export {
   saveProjectToFirestore,
@@ -40,4 +41,5 @@ export {
   logConversion,
   createNewUser,
   incrementClickCount,
+  fetchAllUnpaidConversionLogs,
 }
