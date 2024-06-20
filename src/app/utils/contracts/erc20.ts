@@ -63,4 +63,17 @@ export class ERC20 {
       throw new Error(`Approval failed: ${error.message}`);
     }
   }
+
+  async transfer(to: string, amount: number): Promise<string> {
+    try {
+      const decimals = await this.getDecimals();
+      const formattedAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+      const transactionResponse = await this.contract.transfer(to, formattedAmount);
+      await transactionResponse.wait();
+      return transactionResponse.hash;
+    } catch (error: any) {
+      console.error("Transfer failed:", error);
+      throw new Error(`Transfer failed: ${error.message}`);
+    }
+  }
 }
