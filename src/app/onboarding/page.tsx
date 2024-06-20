@@ -40,16 +40,22 @@ export default function Onboarding() {
   const [isUserExist, setIsUserExist] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const adminWalletAddress = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESS;
+
   useEffect(() => {
     const checkUser = async () => {
       if (address) {
-        const userExists = await checkUserAndPrompt(address, setIsModalOpen);
-        setIsUserExist(userExists);
+        if (address.toLowerCase() === adminWalletAddress?.toLowerCase()) {
+          router.push("/admin");
+        } else {
+          const userExists = await checkUserAndPrompt(address, setIsModalOpen);
+          setIsUserExist(userExists);
+        }
       }
     };
 
     checkUser();
-  }, [address]);
+  }, [address, adminWalletAddress, router]);
 
   useEffect(() => {
     if (address && isMismatched) {
@@ -84,8 +90,12 @@ export default function Onboarding() {
     const walletAddress = await wallet.getAddress();
 
     try {
-      const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
-      setIsUserExist(userExists);
+      if (walletAddress.toLowerCase() === adminWalletAddress?.toLowerCase()) {
+        router.push("/admin");
+      } else {
+        const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
+        setIsUserExist(userExists);
+      }
     } catch (error: any) {
       console.error("Failed to check user: ", error);
       toast.error(`Failed to check user: ${error.message}`);
