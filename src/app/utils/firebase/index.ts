@@ -18,6 +18,7 @@ import { logConversion } from "./logConversion";
 import { createNewUser } from "./createNewUser";
 import { incrementClickCount } from "./incrementClickCount";
 import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
+import { logErrorToFirestore } from "./logErrorToFirestore";
 
 export {
   saveProjectToFirestore,
@@ -42,4 +43,5 @@ export {
   createNewUser,
   incrementClickCount,
   fetchAllUnpaidConversionLogs,
+  logErrorToFirestore,
 }
