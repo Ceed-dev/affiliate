@@ -24,6 +24,7 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(false);
   const [processingLogId, setProcessingLogId] = useState<string | null>(null);
   const [unpaidConversionLogs, setUnpaidConversionLogs] = useState<UnpaidConversionLog[]>([]);
+  const [tokenSummary, setTokenSummary] = useState<{ [tokenAddress: string]: number }>({});
 
   useEffect(() => {
     if (!address) {
@@ -68,6 +69,7 @@ export default function Admin() {
     fetchAllUnpaidConversionLogs()
       .then((logs) => {
         setUnpaidConversionLogs(logs);
+        summarizeTokens(logs);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -75,6 +77,17 @@ export default function Admin() {
         toast.error("Failed to fetch unpaid conversion logs");
         setIsLoading(false);
       });
+  };
+
+  const summarizeTokens = (logs: UnpaidConversionLog[]) => {
+    const summary: { [tokenAddress: string]: number } = {};
+    logs.forEach(log => {
+      if (!summary[log.selectedTokenAddress]) {
+        summary[log.selectedTokenAddress] = 0;
+      }
+      summary[log.selectedTokenAddress] += log.amount;
+    });
+    setTokenSummary(summary);
   };
 
   const handlePay = async (log: UnpaidConversionLog) => {
@@ -122,7 +135,11 @@ export default function Admin() {
         );
       } finally {
         // Regardless of success or failure in Firestore update, remove the log from the list
-        setUnpaidConversionLogs(prevLogs => prevLogs.filter(l => l.logId !== log.logId));
+        setUnpaidConversionLogs(prevLogs => {
+          const updatedLogs = prevLogs.filter(l => l.logId !== log.logId);
+          summarizeTokens(updatedLogs); // Update token summary
+          return updatedLogs;
+        });
       }
 
     } catch (error) {
@@ -169,7 +186,53 @@ export default function Admin() {
           )}
         </button>
       </div>
+
+      {/* Token Summary */}
+      <div className="overflow-x-auto w-11/12 shadow-md rounded-md my-5">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {isLoading ? (
+              <tr>
+                <td colSpan={2} className="px-6 py-4 text-lg text-gray-500">
+                  <div className="flex flex-row items-center justify-center gap-5">
+                    <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                    Loading..., this may take a while.
+                  </div>
+                </td>
+              </tr>
+            ) : Object.keys(tokenSummary).length === 0 ? (
+              <tr>
+                <td colSpan={2} className="px-6 py-4 text-lg text-gray-500 text-center">
+                  No unpaid conversion logs found.
+                </td>
+              </tr>
+            ) : (
+              Object.keys(tokenSummary).map((tokenAddress) => (
+                <tr key={tokenAddress}>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    <Link 
+                      href={`${explorerUrl}/address/${tokenAddress}`}
+                      target="_blank"
+                      className="text-blue-500 hover:underline"
+                    >
+                      {tokenAddress}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenAddress]}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       
+      {/* Unpaid Conversion Logs */}
       <div className="overflow-x-auto w-11/12 shadow-md rounded-md">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
