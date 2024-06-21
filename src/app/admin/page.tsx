@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
+import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress } from "../utils/formatters";
@@ -14,7 +15,7 @@ import { UnpaidConversionLog } from "../types";
 export default function Admin() {
   const router = useRouter();
   const address = useAddress();
-  const signer = initializeSigner();
+  const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const adminWalletAddress = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESS;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL;
@@ -34,6 +35,15 @@ export default function Admin() {
       toast.error("You do not have permission to access this page");
       return;
     }
+
+    const initializedSigner = initializeSigner();
+    if (!initializedSigner) {
+      console.error("Signer initialization failed");
+      router.push("/onboarding");
+      toast.error("Failed to initialize signer");
+      return;
+    }
+    setSigner(initializedSigner);
 
     loadUnpaidConversionLogs();
   }, [address, adminWalletAddress, router]);
@@ -59,7 +69,7 @@ export default function Admin() {
 
       let transactionHash;
       try {
-        const erc20 = new ERC20(log.selectedTokenAddress, signer);
+        const erc20 = new ERC20(log.selectedTokenAddress, signer!);
         toast.info("Transferring tokens...");
         transactionHash = await erc20.transfer(log.affiliateWallet, log.amount);
       } catch (error) {

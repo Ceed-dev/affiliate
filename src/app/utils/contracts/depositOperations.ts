@@ -4,6 +4,9 @@ import { initializeSigner, Escrow, ERC20 } from ".";
 export const approveToken = async (tokenAddress: string, depositAmount: number): Promise<boolean> => {
   try {
     const signer = initializeSigner();
+    if (!signer) {
+      throw new Error("Failed to initialize signer.");
+    }
     const erc20 = new ERC20(tokenAddress, signer);
     const escrowAddress = `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`;
     const signerAddress = await signer.getAddress();
@@ -34,6 +37,9 @@ export const approveToken = async (tokenAddress: string, depositAmount: number):
 export const depositToken = async (projectId: string, tokenAddress: string, depositAmount: number): Promise<boolean> => {
   try {
     const signer = initializeSigner();
+    if (!signer) {
+      throw new Error("Failed to initialize signer.");
+    }
     const escrow = new Escrow(signer);
 
     const txhash = await escrow.deposit(projectId, tokenAddress, depositAmount);

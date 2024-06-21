@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-export function initializeSigner(privateKey?: string): ethers.Signer {
+export function initializeSigner(privateKey?: string): ethers.Signer | null {
   if (privateKey) {
     const provider = new ethers.providers.JsonRpcProvider(`${process.env.NEXT_PUBLIC_PROVIDER_URL}`);
     const signer = new ethers.Wallet(privateKey, provider);
@@ -10,6 +10,6 @@ export function initializeSigner(privateKey?: string): ethers.Signer {
     const signer = provider.getSigner();
     return signer;
   } else {
-    throw new Error("No private key provided and no web3 provider found.");
+    return null;
   }
 }

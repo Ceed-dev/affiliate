@@ -18,7 +18,7 @@ export default function Marketplace() {
     const fetchTokenSymbols = async (projects: ProjectData[]) => {
       const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
       return Promise.all(projects.map(async (project) => {
-        const erc20 = new ERC20(project.selectedTokenAddress, signer);
+        const erc20 = new ERC20(project.selectedTokenAddress, signer!);
         const symbol = await erc20.getSymbol();
         return { ...project, selectedToken: symbol };
       }));
