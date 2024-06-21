@@ -188,6 +188,10 @@ export default function Admin() {
       </div>
 
       {/* Token Summary */}
+      <div className="w-11/12">
+        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Token Summary ({Object.keys(tokenSummary).length})</h2>
+        <p className="text-sm text-gray-600">Summary of tokens required for payments.</p>
+      </div>
       <div className="overflow-x-auto w-11/12 shadow-md rounded-md my-5">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -233,7 +237,11 @@ export default function Admin() {
       </div>
       
       {/* Unpaid Conversion Logs */}
-      <div className="overflow-x-auto w-11/12 shadow-md rounded-md">
+      <div className="w-11/12">
+        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Unpaid Conversion Logs ({unpaidConversionLogs.length})</h2>
+        <p className="text-sm text-gray-600">List of unpaid conversion logs awaiting payment.</p>
+      </div>
+      <div className="overflow-x-auto w-11/12 shadow-md rounded-md my-5">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
