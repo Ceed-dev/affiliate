@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction } from "../utils/firebase";
+import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog } from "../types";
 
@@ -88,10 +88,16 @@ export default function Admin() {
           transactionHash,
           log.timestamp
         );
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to update Firestore: ", error);
         toast.error("Failed to update Firestore");
-        // TODO: Log the error for recovery
+
+        await logErrorToFirestore(
+          "FirestoreUpdateAfterPaymentError",
+          `Failed to update Firestore: ${error.message}`,
+          { ...log, transactionHash }
+        );
+
         return; // If the Firestore update fails, exit the function
       }
 
