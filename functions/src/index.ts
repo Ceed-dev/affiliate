@@ -93,3 +93,21 @@ export const onConversionLogCreated = functions.firestore
       await sendSlackNotification(message);
     }
   });
+
+// Cloud Firestore trigger for
+// when a document is created in the "errors" collection
+export const onErrorLogged = functions.firestore
+  .document("errors/{errorId}")
+  .onCreate(async (snap, context) => {
+    const newErrorLog = snap.data();
+    const errorId = context.params.errorId;
+
+    if (newErrorLog) {
+      const message = {
+        message: newErrorLog.errorMessage,
+        type: newErrorLog.errorType,
+        errorId,
+      };
+      await sendSlackNotification(message);
+    }
+  });

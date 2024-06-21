@@ -11,10 +11,12 @@ export const fetchTransactionsForReferrals = async (referralData: ReferralData[]
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
-        const data = doc.data() as DocumentData & { timestamp: Timestamp };
+        const data = doc.data() as DocumentData & { timestamp: Timestamp, amount: number, conversionLogId: string };
         transactions.push({
           transactionHash: doc.id,
           timestamp: data.timestamp.toDate(),
+          amount: data.amount,
+          conversionLogId: data.conversionLogId
         });
       });
     });

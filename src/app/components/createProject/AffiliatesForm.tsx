@@ -86,6 +86,9 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     setIsFetchingTokenDetails(true);
     try {
       const signer = initializeSigner();
+      if (!signer) {
+        throw new Error("Failed to initialize signer.");
+      }
       const erc20 = new ERC20(address, signer);
       const symbol = await erc20.getSymbol();
       const balance = await erc20.getBalance(await signer.getAddress());

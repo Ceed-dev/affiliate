@@ -65,6 +65,9 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     const fetchTokenDetails = async () => {
       try {
         const signer = initializeSigner();
+        if (!signer) {
+          throw new Error("Failed to initialize signer.");
+        }
         // const escrow = new Escrow(signer);
         const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
         const symbol = await erc20.getSymbol();

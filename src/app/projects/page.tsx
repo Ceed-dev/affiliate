@@ -20,6 +20,9 @@ export default function Projects() {
   useEffect(() => {
     const fetchTokenSymbols = async (projects: ProjectData[]) => {
       const signer = initializeSigner();
+      if (!signer) {
+        throw new Error("Failed to initialize signer.");
+      }
       return Promise.all(projects.map(async (project) => {
         const erc20 = new ERC20(project.selectedTokenAddress, signer);
         const symbol = await erc20.getSymbol();

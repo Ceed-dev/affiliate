@@ -102,7 +102,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     const fetchTokenDetails = async () => {
       try {
         const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
-        const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
+        const erc20 = new ERC20(projectData.selectedTokenAddress, signer!);
         const symbol = await erc20.getSymbol();
 
         setTokenSymbol(symbol);
