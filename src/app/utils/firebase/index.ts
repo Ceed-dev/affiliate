@@ -19,6 +19,7 @@ import { createNewUser } from "./createNewUser";
 import { incrementClickCount } from "./incrementClickCount";
 import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
 import { logErrorToFirestore } from "./logErrorToFirestore";
+import { updateIsPaidFlag } from "./updateIsPaidFlag";
 
 export {
   saveProjectToFirestore,
@@ -44,4 +45,5 @@ export {
   incrementClickCount,
   fetchAllUnpaidConversionLogs,
   logErrorToFirestore,
+  updateIsPaidFlag,
 }

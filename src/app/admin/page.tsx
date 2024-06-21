@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore } from "../utils/firebase";
+import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog } from "../types";
 
@@ -66,6 +66,9 @@ export default function Admin() {
     setProcessingLogId(log.logId);
     try {
       toast.info(`Starting payment process for ${log.logId}...`);
+      
+      // Mark the log as paid to prevent duplicate payments
+      await updateIsPaidFlag(log.referralId, log.logId, true);
 
       let transactionHash;
       try {
@@ -73,6 +76,9 @@ export default function Admin() {
         toast.info("Transferring tokens...");
         transactionHash = await erc20.transfer(log.affiliateWallet, log.amount);
       } catch (error) {
+        // If token transfer fails, revert the isPaid flag
+        await updateIsPaidFlag(log.referralId, log.logId, false);
+
         console.error("Failed to transfer tokens: ", error);
         toast.error("Failed to transfer tokens");
         return; // If the token transfer fails, exit the function
@@ -88,6 +94,8 @@ export default function Admin() {
           transactionHash,
           log.timestamp
         );
+
+        toast.success(`Payment processed for ${log.logId}. View transaction: ${explorerUrl}/tx/${transactionHash}`);
       } catch (error: any) {
         console.error("Failed to update Firestore: ", error);
         toast.error("Failed to update Firestore");
@@ -97,12 +105,11 @@ export default function Admin() {
           `Failed to update Firestore: ${error.message}`,
           { ...log, transactionHash }
         );
-
-        return; // If the Firestore update fails, exit the function
+      } finally {
+        // Regardless of success or failure in Firestore update, remove the log from the list
+        setUnpaidConversionLogs(prevLogs => prevLogs.filter(l => l.logId !== log.logId));
       }
 
-      toast.success(`Payment processed for ${log.logId}. View transaction: ${explorerUrl}/tx/${transactionHash}`);
-      setUnpaidConversionLogs(prevLogs => prevLogs.filter(l => l.logId !== log.logId));
     } catch (error) {
       console.error("Failed to process payment: ", error);
       toast.error("Failed to process payment");
