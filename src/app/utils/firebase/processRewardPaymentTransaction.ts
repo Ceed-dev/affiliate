@@ -78,7 +78,6 @@ export async function processRewardPaymentTransaction(
 
       // Update conversion log
       transaction.update(conversionLogRef, {
-        isPaid: true,
         transactionHash,
         paidAt: now // Set the payment time to now
       });
