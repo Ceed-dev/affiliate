@@ -4,19 +4,23 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
+import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs } from "../utils/firebase";
+import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction } from "../utils/firebase";
+import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog } from "../types";
 
 export default function Admin() {
   const router = useRouter();
   const address = useAddress();
+  const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const adminWalletAddress = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESS;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL;
   const [isLoading, setIsLoading] = useState(false);
+  const [processingLogId, setProcessingLogId] = useState<string | null>(null);
   const [unpaidConversionLogs, setUnpaidConversionLogs] = useState<UnpaidConversionLog[]>([]);
 
   useEffect(() => {
@@ -31,6 +35,15 @@ export default function Admin() {
       toast.error("You do not have permission to access this page");
       return;
     }
+
+    const initializedSigner = initializeSigner();
+    if (!initializedSigner) {
+      console.error("Signer initialization failed");
+      router.push("/onboarding");
+      toast.error("Failed to initialize signer");
+      return;
+    }
+    setSigner(initializedSigner);
 
     loadUnpaidConversionLogs();
   }, [address, adminWalletAddress, router]);
@@ -50,13 +63,45 @@ export default function Admin() {
   };
 
   const handlePay = async (log: UnpaidConversionLog) => {
+    setProcessingLogId(log.logId);
     try {
-      // Implement your payment processing logic here
-      console.log("Processing payment for: ", log);
-      toast.success(`Payment processed for ${log.logId}`);
+      toast.info(`Starting payment process for ${log.logId}...`);
+
+      let transactionHash;
+      try {
+        const erc20 = new ERC20(log.selectedTokenAddress, signer!);
+        toast.info("Transferring tokens...");
+        transactionHash = await erc20.transfer(log.affiliateWallet, log.amount);
+      } catch (error) {
+        console.error("Failed to transfer tokens: ", error);
+        toast.error("Failed to transfer tokens");
+        return; // If the token transfer fails, exit the function
+      }
+
+      try {
+        toast.info("Updating transaction in Firestore...");
+        await processRewardPaymentTransaction(
+          log.projectId,
+          log.referralId,
+          log.logId,
+          log.amount,
+          transactionHash,
+          log.timestamp
+        );
+      } catch (error) {
+        console.error("Failed to update Firestore: ", error);
+        toast.error("Failed to update Firestore");
+        // TODO: Log the error for recovery
+        return; // If the Firestore update fails, exit the function
+      }
+
+      toast.success(`Payment processed for ${log.logId}. View transaction: ${explorerUrl}/tx/${transactionHash}`);
+      setUnpaidConversionLogs(prevLogs => prevLogs.filter(l => l.logId !== log.logId));
     } catch (error) {
       console.error("Failed to process payment: ", error);
       toast.error("Failed to process payment");
+    } finally {
+      setProcessingLogId(null);
     }
   };
 
@@ -129,7 +174,7 @@ export default function Admin() {
               </tr>
             ) : (
               unpaidConversionLogs.map((log) => (
-                <tr key={log.logId}>
+                <tr key={log.logId} className={`${processingLogId === log.logId ? "bg-gray-300 cursor-not-allowed animate-pulse" : ""}`}>
                   <td className="px-6 py-4 text-sm text-gray-900">{log.logId}</td>
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{log.timestamp.toLocaleString()}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">
@@ -163,10 +208,18 @@ export default function Admin() {
                   <td className="px-6 py-4 text-sm text-gray-900">{log.referralId}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <button 
-                      className="bg-sky-500 hover:bg-sky-700 hover:shadow-lg text-white px-3 py-1 rounded"
+                      className={`bg-sky-500 hover:bg-sky-700 hover:shadow-lg text-white px-3 py-1 rounded ${processingLogId === log.logId ? "cursor-not-allowed opacity-50" : ""}`}
                       onClick={() => handlePay(log)}
+                      disabled={processingLogId === log.logId}
                     >
-                      Pay
+                      {processingLogId === log.logId ? (
+                        <div className="flex items-center pr-4 gap-2">
+                          <Image src={"/loading.png"} height={20} width={20} alt="loading" className="animate-spin" />
+                          Processing...
+                        </div>
+                      ) : (
+                        "Pay"
+                      )}
                     </button>
                   </td>
                 </tr>
