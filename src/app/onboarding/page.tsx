@@ -40,12 +40,12 @@ export default function Onboarding() {
   const [isUserExist, setIsUserExist] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const adminWalletAddress = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESS;
+  const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
 
   useEffect(() => {
     const checkUser = async () => {
       if (address) {
-        if (address.toLowerCase() === adminWalletAddress?.toLowerCase()) {
+        if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(address.toLowerCase())) {
           router.push("/admin");
         } else {
           const userExists = await checkUserAndPrompt(address, setIsModalOpen);
@@ -55,7 +55,7 @@ export default function Onboarding() {
     };
 
     checkUser();
-  }, [address, adminWalletAddress, router]);
+  }, [address, adminWalletAddresses, router]);
 
   useEffect(() => {
     if (address && isMismatched) {
@@ -90,7 +90,7 @@ export default function Onboarding() {
     const walletAddress = await wallet.getAddress();
 
     try {
-      if (walletAddress.toLowerCase() === adminWalletAddress?.toLowerCase()) {
+      if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(walletAddress.toLowerCase())) {
         router.push("/admin");
       } else {
         const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
