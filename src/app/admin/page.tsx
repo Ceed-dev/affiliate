@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
@@ -14,9 +14,11 @@ import { UnpaidConversionLog } from "../types";
 
 export default function Admin() {
   const router = useRouter();
+  const pathname = usePathname();
   const address = useAddress();
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const adminWalletAddress = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESS;
+  const [isSignerInitialized, setIsSignerInitialized] = useState(false);
+  const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL;
   const [isLoading, setIsLoading] = useState(false);
@@ -25,28 +27,41 @@ export default function Admin() {
 
   useEffect(() => {
     if (!address) {
-      router.push("/onboarding");
-      toast.error("You must be connected to access this page");
+      if (pathname !== "/onboarding") {
+        router.push("/onboarding");
+        toast.error("You must be connected to access this page");
+      }
       return;
     }
 
-    if (address.toLowerCase() !== adminWalletAddress?.toLowerCase()) {
-      router.push("/onboarding");
-      toast.error("You do not have permission to access this page");
+    if (!adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(address!.toLowerCase())) {
+      if (pathname !== "/onboarding") {
+        router.push("/onboarding");
+        toast.error("You do not have permission to access this page");
+      }
       return;
     }
 
-    const initializedSigner = initializeSigner();
-    if (!initializedSigner) {
-      console.error("Signer initialization failed");
-      router.push("/onboarding");
-      toast.error("Failed to initialize signer");
-      return;
+    if (!isSignerInitialized) {
+      const initializedSigner = initializeSigner();
+      if (!initializedSigner) {
+        console.error("Signer initialization failed");
+        if (pathname !== "/onboarding") {
+          router.push("/onboarding");
+          toast.error("Failed to initialize signer");
+        }
+        return;
+      }
+      setSigner(initializedSigner);
+      setIsSignerInitialized(true);
     }
-    setSigner(initializedSigner);
+  }, [address, adminWalletAddresses, router, pathname, isSignerInitialized]);
 
-    loadUnpaidConversionLogs();
-  }, [address, adminWalletAddress, router]);
+  useEffect(() => {
+    if (signer && isSignerInitialized) {
+      loadUnpaidConversionLogs();
+    }
+  }, [signer, isSignerInitialized]);
 
   const loadUnpaidConversionLogs = () => {
     setIsLoading(true);
