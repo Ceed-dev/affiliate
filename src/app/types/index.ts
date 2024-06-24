@@ -13,6 +13,7 @@ import { ApiKeyData } from "./apiKeyData";
 import { ConversionLog } from "./conversionLog";
 import { UnpaidConversionLog } from "./unpaidConversionLog";
 import { ErrorType, ErrorLog } from "./error";
+import { ClickData } from "./clickData";
 
 export type {
   DirectPaymentProjectData,
@@ -33,4 +34,5 @@ export type {
   UnpaidConversionLog,
   ErrorType,
   ErrorLog,
+  ClickData,
 }
