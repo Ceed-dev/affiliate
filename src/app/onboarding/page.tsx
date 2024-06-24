@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -31,6 +31,7 @@ const getActiveChain = () => {
 
 export default function Onboarding() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const address = useAddress();
   const disconnect = useDisconnect();
   const isMismatched = useNetworkMismatch();
@@ -41,6 +42,23 @@ export default function Onboarding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
+
+  useEffect(() => {
+    // Define the allowed parameters
+    const allowedParams = ["ad-publisher", "affiliate-marketplace"];
+
+    // Get the query parameters
+    const next = searchParams.get("next");
+    
+    // Redirect if parameters are missing or inappropriate
+    if (!next || !allowedParams.includes(next)) {
+      toast.error("Invalid access. Redirect to home page.", {
+        onClose: () => {
+          router.push("/");
+        },
+      });
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     const checkUser = async () => {
