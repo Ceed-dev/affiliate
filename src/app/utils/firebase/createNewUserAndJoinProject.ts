@@ -17,6 +17,7 @@ export async function createNewUserAndJoinProject(
     joinedProjectIds: [projectId],
     createdAt: new Date(),
     updatedAt: new Date(),
+    allowed: false,
   };
 
   try {
