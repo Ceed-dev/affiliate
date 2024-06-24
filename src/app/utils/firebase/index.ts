@@ -20,6 +20,7 @@ import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
 import { logErrorToFirestore } from "./logErrorToFirestore";
 import { updateIsPaidFlag } from "./updateIsPaidFlag";
 import { logClickData } from "./logClickData";
+import { fetchUserData } from "./fetchUserData";
 
 export {
   saveProjectToFirestore,
@@ -46,4 +47,5 @@ export {
   logErrorToFirestore,
   updateIsPaidFlag,
   logClickData,
+  fetchUserData,
 }
