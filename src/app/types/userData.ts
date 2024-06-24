@@ -5,4 +5,5 @@ export type UserData = AffiliateInfo & {
   joinedProjectIds: string[];
   createdAt: Date;
   updatedAt: Date;
+  allowed: boolean;
 };
