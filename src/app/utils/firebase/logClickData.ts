@@ -7,7 +7,6 @@ export async function logClickData(referralId: string, clickData: ClickData): Pr
   const clicksCollectionRef = collection(referralDocRef, "clicks");
 
   try {
-    // クリックデータをサブコレクションに追加
     await addDoc(clicksCollectionRef, clickData);
     console.log("Click data logged successfully!");
   } catch (error) {
