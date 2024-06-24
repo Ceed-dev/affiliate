@@ -8,7 +8,6 @@ export function isValidReferralData(data: DocumentData): data is ReferralData {
     data.createdAt.toDate() instanceof Date &&
     typeof data.conversions === "number" &&
     typeof data.earnings === "number" &&
-    typeof data.clicks === "number" &&
     (data.lastConversionDate === null || data.lastConversionDate.toDate() instanceof Date)
   );
 }
