@@ -18,7 +18,7 @@ export default function ProjectsLayout({
 
   useEffect(() => {
     if (!address) {
-      router.push("/onboarding");
+      router.push("/onboarding?next=ad-publisher");
       toast.info("Please connect your wallet.");
     }
   }, [address, router]);
