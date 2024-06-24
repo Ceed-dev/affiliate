@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { incrementClickCount } from "../../utils/firebase";
+import { logClickData } from "../../utils/firebase";
+import { fetchLocationData } from "../../utils/geo/fetchLocationData";
+import { ClickData } from "../../types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,9 +16,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get the user's IP address
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || request.ip;
+
+    // Get local information
+    let locationData = null;
+    if (ip) {
+      locationData = await fetchLocationData(ip);
+    }
+
+    // Get User-Agent
+    const userAgent = request.headers.get("user-agent");
+
+    // Create click data
+    const clickData: ClickData = {
+      timestamp: new Date(),
+      ip: ip || "unknown",
+      country: locationData?.country_name || "unknown",
+      region: locationData?.region_name || "unknown",
+      city: locationData?.city || "unknown",
+      userAgent: userAgent || "unknown"
+    };
+
     // Record click information in Firestore
     try {
-      await incrementClickCount(referral);
+      await logClickData(referral, clickData);
     } catch (error) {
       console.error("Failed to log click: ", error);
       return NextResponse.json(
