@@ -7,7 +7,6 @@ import { fetchReferralData } from "./fetchReferralData";
 import { fetchReferralsByProjectId } from "./fetchReferralsByProjectId";
 import { aggregateReferralData } from "./aggregateReferralData";
 import { checkUserAndPrompt } from "./checkUserAndPrompt";
-import { createNewUserAndJoinProject } from "./createNewUserAndJoinProject";
 import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
@@ -20,6 +19,9 @@ import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
 import { logErrorToFirestore } from "./logErrorToFirestore";
 import { updateIsPaidFlag } from "./updateIsPaidFlag";
 import { logClickData } from "./logClickData";
+import { fetchUserData } from "./fetchUserData";
+import { fetchUnapprovedUsers } from "./fetchUnapprovedUsers";
+import { approveUser } from "./approveUser";
 
 export {
   saveProjectToFirestore,
@@ -31,7 +33,6 @@ export {
   fetchReferralsByProjectId,
   aggregateReferralData,
   checkUserAndPrompt,
-  createNewUserAndJoinProject,
   joinProject,
   processRewardPaymentTransaction,
   fetchTransactionsForReferrals,
@@ -46,4 +47,7 @@ export {
   logErrorToFirestore,
   updateIsPaidFlag,
   logClickData,
+  fetchUserData,
+  fetchUnapprovedUsers,
+  approveUser,
 }

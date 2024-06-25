@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 
 import {
@@ -17,9 +17,9 @@ import {
 } from "@thirdweb-dev/react";
 import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 
-import { AffiliateInfoModal } from "../components/affiliate";
+import { UserInfoModal } from "../components/UserInfoModal";
 import { AffiliateInfo } from "../types";
-import { checkUserAndPrompt, createNewUser } from "../utils/firebase";
+import { checkUserAndPrompt, createNewUser, fetchUserData } from "../utils/firebase";
 
 const getActiveChain = () => {
   if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
@@ -31,31 +31,69 @@ const getActiveChain = () => {
 
 export default function Onboarding() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const address = useAddress();
   const disconnect = useDisconnect();
   const isMismatched = useNetworkMismatch();
   const switchChain = useSwitchChain();
   const activeChain = getActiveChain();
 
-  const [isUserExist, setIsUserExist] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const errorShownRef = useRef(false);
 
   const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
 
   useEffect(() => {
-    const checkUser = async () => {
-      if (address) {
-        if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(address.toLowerCase())) {
-          router.push("/admin");
+    // Define the allowed parameters
+    const allowedParams = ["ad-publisher", "affiliate-marketplace"];
+
+    // Get the query parameters
+    const next = searchParams.get("next");
+    
+    // Redirect if parameters are missing or inappropriate
+    if (!next || !allowedParams.includes(next)) {
+      toast.error("Invalid access. Redirect to home page.", {
+        onClose: () => {
+          router.push("/");
+        },
+      });
+    }
+  }, [searchParams, router]);
+
+  const handleUserCheck = async (walletAddress: string) => {
+    if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(walletAddress.toLowerCase())) {
+      router.push("/admin");
+    } else {
+      const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
+      if (userExists) {
+        const userData = await fetchUserData(walletAddress);
+        if (userData && userData.allowed) {
+          const nextPage = searchParams.get("next");
+          if (nextPage === "ad-publisher") {
+            router.push("/projects");
+          } else if (nextPage === "affiliate-marketplace") {
+            router.push("/affiliate/marketplace");
+          }
         } else {
-          const userExists = await checkUserAndPrompt(address, setIsModalOpen);
-          setIsUserExist(userExists);
+          if (!errorShownRef.current) {
+            errorShownRef.current = true;
+            toast.error("You have not yet been granted permission to use the product.", {
+              onClose: () => {
+                disconnect();
+                errorShownRef.current = false;
+              },
+            });
+          }
         }
       }
-    };
+    }
+  };
 
-    checkUser();
-  }, [address, adminWalletAddresses, router]);
+  useEffect(() => {
+    if (address) {
+      handleUserCheck(address);
+    }
+  }, [address]);
 
   useEffect(() => {
     if (address && isMismatched) {
@@ -63,17 +101,15 @@ export default function Onboarding() {
         console.error("Failed to switch network:", error);
         toast.error("Failed to switch network");
       });
-    } else if (address && !isMismatched && isUserExist) {
-      router.push("/projects");
     }
-  }, [address, isMismatched, switchChain, isUserExist, router]);
+  }, [address, isMismatched, switchChain, activeChain.chainId]);
 
   const handleSaveUserInfo = async (info: AffiliateInfo) => {
     if (address) {
       try {
         await createNewUser(address, info);
         setIsModalOpen(false);
-        setIsUserExist(true);
+        toast.success("Please wait while access is granted by the administrator.");
       } catch (error) {
         console.error("Failed to save user info: ", error);
         toast.error("Failed to save user info");
@@ -90,12 +126,7 @@ export default function Onboarding() {
     const walletAddress = await wallet.getAddress();
 
     try {
-      if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(walletAddress.toLowerCase())) {
-        router.push("/admin");
-      } else {
-        const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
-        setIsUserExist(userExists);
-      }
+      await handleUserCheck(walletAddress);
     } catch (error: any) {
       console.error("Failed to check user: ", error);
       toast.error(`Failed to check user: ${error.message}`);
@@ -143,7 +174,7 @@ export default function Onboarding() {
         />  
       </div>
 
-      <AffiliateInfoModal
+      <UserInfoModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
