@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers } from "../utils/firebase";
+import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers, approveUser } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
 
@@ -165,6 +165,25 @@ export default function Admin() {
       toast.error("Failed to process payment");
     } finally {
       setProcessingLogId(null);
+    }
+  };
+
+  const handleApprove = async (walletAddress: string) => {
+    const confirmApproval = window.confirm("Are you sure you want to approve this user?");
+    if (!confirmApproval) {
+      return;
+    }
+
+    try {
+      toast.info(`Approving user ${walletAddress}...`);
+      
+      await approveUser(walletAddress);
+  
+      // Remove the approved user from the list
+      setUnapprovedUsers(prevUsers => prevUsers.filter(user => user.walletAddress !== walletAddress));
+    } catch (error: any) {
+      console.error("Failed to approve user: ", error);
+      toast.error(`Failed to approve user: ${error.message}`);
     }
   };
 
@@ -447,8 +466,7 @@ export default function Admin() {
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <button 
                           className="bg-green-500 hover:bg-green-700 hover:shadow-lg text-white px-3 py-1 rounded"
-                          // onClick={() => handleApprove(user.walletAddress)}
-                          onClick={() => {}}
+                          onClick={() => handleApprove(user.walletAddress!)}
                         >
                           Approve
                         </button>
