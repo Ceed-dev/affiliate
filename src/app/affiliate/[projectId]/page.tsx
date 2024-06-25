@@ -2,20 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ConnectWallet, lightTheme, useAddress, WalletInstance, useDisconnect } from "@thirdweb-dev/react";
+import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, AffiliateInfo, ConversionLog } from "../../types";
-import { AffiliateInfoModal, ConversionsList, ProjectHeader } from "../../components/affiliate";
+import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog } from "../../types";
+import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
-import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, checkUserAndPrompt, createNewUserAndJoinProject, fetchConversionLogsForReferrals } from "../../utils/firebase";
+import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "../../utils/formatters";
 import { useCountdown } from "../../hooks/useCountdown";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
-  const disconnect = useDisconnect();
 
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
@@ -40,18 +39,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
       ? (projectData as DirectPaymentProjectData).deadline ?? undefined
       : undefined
   );
-
-  // Automatically disconnect the wallet when the page loads to ensure a clean state for session management.
-  useEffect(() => {
-    disconnect();
-  }, []);
 
   useEffect(() => {
     const updateReferralLink = () => {
@@ -101,7 +93,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
     const fetchTokenDetails = async () => {
       try {
-        const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
+        const signer = initializeSigner();
         const erc20 = new ERC20(projectData.selectedTokenAddress, signer!);
         const symbol = await erc20.getSymbol();
 
@@ -162,44 +154,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   //   }
   // }, [referralData]);
 
-  const handleSaveAffiliateInfo = async (info: AffiliateInfo) => {
-    if (address) {
-      try {
-        const referralId = await createNewUserAndJoinProject(params.projectId, address, info);
-        console.log("Referral ID from new user registration: ", referralId);
-        setReferralId(referralId);
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Failed to save affiliate info: ", error);
-        toast.error("Failed to save affiliate info");
-        disconnect();
-      }
-    } else {
-      console.error("Wallet address is not set.");
-      toast.error("Unexpected error occurred. Please try again.");
-      disconnect();
-    }
-  };
-
-  const handleJoinProject = async (wallet: WalletInstance) => {
-    const walletAddress = await wallet.getAddress();
-  
+  const handleJoinProject = async () => {
     if (projectData?.projectType === "DirectPayment") {
-      if (!projectData?.whitelistedAddresses[walletAddress]) {
+      if (!projectData?.whitelistedAddresses[address!]) {
         toast.error("Your wallet address is not whitelisted for this project.");
-        disconnect();
         return;
       }
     } else if (projectData?.projectType === "EscrowPayment") {
       try {
-        const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
-        if (userExists) {
-          const referralId = await joinProject(params.projectId, walletAddress);
-          console.log("Referral ID from existing user: ", referralId);
-          setReferralId(referralId);
-        } else {
-          toast.info("Please enter your affiliate information.");
-        }
+        const referralId = await joinProject(params.projectId, address!);
+        console.log("Referral ID from existing user: ", referralId);
+        setReferralId(referralId);
       } catch (error: any) {
         console.error("Failed to join project: ", error);
         toast.error(`Failed to join project: ${error.message}`);
@@ -315,20 +280,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 {buttonLabel}
               </button>
             </div>
-          ) : null}
-          <div className="flex flex-col justify-stretch mt-4">
-            <ConnectWallet
-              theme={lightTheme({
-                colors: { primaryButtonBg: "#0091ff" },
-              })}
-              btnTitle={"Join Project"}
-              switchToActiveChain={true}
-              modalSize={"compact"}
-              modalTitleIconUrl={""}
-              showThirdwebBranding={false}
-              onConnect={handleJoinProject}
-            />
-          </div>
+          ) : (
+            <button
+              className="bg-sky-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+              onClick={handleJoinProject}
+            >
+              Join Project
+            </button>
+          )}
         </div>
       </div>
 
@@ -393,14 +352,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </>
       }
 
-      <AffiliateInfoModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          disconnect();
-        }}
-        onSave={handleSaveAffiliateInfo}
-      />
     </div>
   );
 }
