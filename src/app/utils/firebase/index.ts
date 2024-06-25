@@ -21,6 +21,7 @@ import { updateIsPaidFlag } from "./updateIsPaidFlag";
 import { logClickData } from "./logClickData";
 import { fetchUserData } from "./fetchUserData";
 import { fetchUnapprovedUsers } from "./fetchUnapprovedUsers";
+import { approveUser } from "./approveUser";
 
 export {
   saveProjectToFirestore,
@@ -48,4 +49,5 @@ export {
   logClickData,
   fetchUserData,
   fetchUnapprovedUsers,
+  approveUser,
 }
