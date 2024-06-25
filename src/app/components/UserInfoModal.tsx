@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { AffiliateInfo } from "../../types";
+import { AffiliateInfo } from "../types";
 
-type AffiliateInfoModalProps = {
+type UserInfoModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (info: AffiliateInfo) => void;
 };
 
-export const AffiliateInfoModal: React.FC<AffiliateInfoModalProps> = ({ isOpen, onClose, onSave }) => {
+export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, onSave }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [xProfileUrl, setXProfileUrl] = useState("");
