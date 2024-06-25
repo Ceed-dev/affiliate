@@ -418,7 +418,7 @@ export default function Admin() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {userApprovalLoading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-lg text-gray-500">
+                    <td colSpan={6} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
                         <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
@@ -427,7 +427,7 @@ export default function Admin() {
                   </tr>
                 ) : unapprovedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-lg text-gray-500 text-center">
+                    <td colSpan={6} className="px-6 py-4 text-lg text-gray-500 text-center">
                       No users awaiting approval.
                     </td>
                   </tr>
