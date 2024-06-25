@@ -1,5 +1,5 @@
 import { db } from "./firebaseConfig";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { UserData } from "../../types";
 
 export const fetchUnapprovedUsers = async (): Promise<UserData[]> => {
@@ -10,7 +10,16 @@ export const fetchUnapprovedUsers = async (): Promise<UserData[]> => {
 
     const unapprovedUsers: UserData[] = [];
     querySnapshot.forEach((doc) => {
-      unapprovedUsers.push(doc.data() as UserData);
+      const userData = doc.data() as UserData & {
+        createdAt: Timestamp;
+        updatedAt: Timestamp;
+      };
+      unapprovedUsers.push({
+        ...userData,
+        walletAddress: doc.id,
+        createdAt: userData.createdAt.toDate(),
+        updatedAt: userData.updatedAt.toDate(),
+      } as UserData);
     });
 
     return unapprovedUsers;

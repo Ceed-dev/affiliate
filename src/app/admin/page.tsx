@@ -8,9 +8,9 @@ import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag } from "../utils/firebase";
+import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
-import { UnpaidConversionLog } from "../types";
+import { UnpaidConversionLog, UserData } from "../types";
 
 export default function Admin() {
   const router = useRouter();
@@ -21,11 +21,13 @@ export default function Admin() {
   const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL;
-  const [isLoading, setIsLoading] = useState(false);
+  const [unpaidLogsLoading, setUnpaidLogsLoading] = useState(false);
+  const [userApprovalLoading, setUserApprovalLoading] = useState(false);
   const [processingLogId, setProcessingLogId] = useState<string | null>(null);
   const [unpaidConversionLogs, setUnpaidConversionLogs] = useState<UnpaidConversionLog[]>([]);
   const [tokenSummary, setTokenSummary] = useState<{ [tokenAddress: string]: number }>({});
   const [activeTab, setActiveTab] = useState("unpaidConversionLogs");
+  const [unapprovedUsers, setUnapprovedUsers] = useState<UserData[]>([]);
 
   useEffect(() => {
     if (!address) {
@@ -62,21 +64,36 @@ export default function Admin() {
   useEffect(() => {
     if (signer && isSignerInitialized) {
       loadUnpaidConversionLogs();
+      loadUnapprovedUsers();
     }
   }, [signer, isSignerInitialized]);
 
   const loadUnpaidConversionLogs = () => {
-    setIsLoading(true);
+    setUnpaidLogsLoading(true);
     fetchAllUnpaidConversionLogs()
       .then((logs) => {
         setUnpaidConversionLogs(logs);
         summarizeTokens(logs);
-        setIsLoading(false);
+        setUnpaidLogsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching unpaid conversion logs: ", error);
         toast.error("Failed to fetch unpaid conversion logs");
-        setIsLoading(false);
+        setUnpaidLogsLoading(false);
+      });
+  };
+
+  const loadUnapprovedUsers = () => {
+    setUserApprovalLoading(true);
+    fetchUnapprovedUsers()
+      .then((users) => {
+        setUnapprovedUsers(users);
+        setUserApprovalLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching unapproved users: ", error);
+        toast.error("Failed to fetch unapproved users");
+        setUserApprovalLoading(false);
       });
   };
 
@@ -176,11 +193,17 @@ export default function Admin() {
       <div className="w-11/12 flex justify-between items-center my-5">
         <h1 className="text-lg sm:text-2xl lg:text-4xl font-semibold">Admin Dashboard</h1>
         <button 
-          className={`${isLoading ? "bg-slate-400" : "bg-sky-500 hover:bg-sky-700"} text-white w-[130px] h-[40px] rounded transition`}
-          onClick={loadUnpaidConversionLogs}
-          disabled={isLoading}
+          className={`${(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? "bg-slate-400" : "bg-sky-500 hover:bg-sky-700"} text-white w-[130px] h-[40px] rounded transition`}
+          onClick={() => {
+            if (activeTab === "unpaidConversionLogs") {
+              loadUnpaidConversionLogs();
+            } else if (activeTab === "userApproval") {
+              loadUnapprovedUsers();
+            }
+          }}
+          disabled={(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading)}
         >
-          {isLoading ? (
+          {(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? (
             <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
           ) : (
             "Reload Data"
@@ -188,12 +211,12 @@ export default function Admin() {
         </button>
       </div>
 
-      <div className="w-11/12 my-5">
-        <ul className="flex border-b border-slate-400">
+      <div className="w-11/12 border-b border-slate-400 my-5 overflow-x-auto">
+        <ul className="flex w-max">
           <li className={`mr-1 ${activeTab === "unpaidConversionLogs" ? "text-sky-500" : ""}`}>
             <button 
               onClick={() => setActiveTab("unpaidConversionLogs")}
-              className={`inline-block py-2 px-4 font-semibold ${activeTab === "unpaidConversionLogs" ? "bg-slate-300 rounded-t-md" : ""}`}
+              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "unpaidConversionLogs" ? "bg-slate-300 rounded-t-md" : ""}`}
             >
               Unpaid Conversion Logs & Token Summary
             </button>
@@ -201,7 +224,7 @@ export default function Admin() {
           <li className={`mr-1 ${activeTab === "userApproval" ? "text-sky-500" : ""}`}>
             <button 
               onClick={() => setActiveTab("userApproval")}
-              className={`inline-block py-2 px-4 font-semibold ${activeTab === "userApproval" ? "bg-slate-300 rounded-t-md" : ""}`}
+              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "userApproval" ? "bg-slate-300 rounded-t-md" : ""}`}
             >
               User Approval
             </button>
@@ -225,7 +248,7 @@ export default function Admin() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {isLoading ? (
+                {unpaidLogsLoading ? (
                   <tr>
                     <td colSpan={2} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
@@ -280,7 +303,7 @@ export default function Admin() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {isLoading ? (
+                {unpaidLogsLoading ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
@@ -360,7 +383,82 @@ export default function Admin() {
             <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">User Approval</h2>
             <p className="text-sm text-gray-600">List of users awaiting approval.</p>
           </div>
-          {/* ここにユーザー承認のUIを追加 */}
+          {/* Unapproved Users */}
+          <div className="overflow-x-auto w-11/12 shadow-md rounded-md my-5">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">X Profile URL</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wallet Address</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {userApprovalLoading ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-lg text-gray-500">
+                      <div className="flex flex-row items-center justify-center gap-5">
+                        <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                        Loading..., this may take a while.
+                      </div>
+                    </td>
+                  </tr>
+                ) : unapprovedUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-lg text-gray-500 text-center">
+                      No users awaiting approval.
+                    </td>
+                  </tr>
+                ) : (
+                  unapprovedUsers.map((user) => (
+                    <tr key={user.walletAddress}>
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.username}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <Link 
+                          href={`mailto:${user.email}`}
+                          target="_blank"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {user.email}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <Link 
+                          href={user.xProfileUrl}
+                          target="_blank"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {user.xProfileUrl}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <Link 
+                          href={`${explorerUrl}/address/${user.walletAddress}`}
+                          target="_blank"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {user.walletAddress}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.createdAt.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <button 
+                          className="bg-green-500 hover:bg-green-700 hover:shadow-lg text-white px-3 py-1 rounded"
+                          // onClick={() => handleApprove(user.walletAddress)}
+                          onClick={() => {}}
+                        >
+                          Approve
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>
