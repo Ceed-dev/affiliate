@@ -17,7 +17,7 @@ import {
 } from "@thirdweb-dev/react";
 import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 
-import { AffiliateInfoModal } from "../components/affiliate";
+import { UserInfoModal } from "../components/UserInfoModal";
 import { AffiliateInfo } from "../types";
 import { checkUserAndPrompt, createNewUser, fetchUserData } from "../utils/firebase";
 
@@ -174,7 +174,7 @@ export default function Onboarding() {
         />  
       </div>
 
-      <AffiliateInfoModal
+      <UserInfoModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
