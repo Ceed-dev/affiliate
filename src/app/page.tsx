@@ -28,6 +28,8 @@ export default function Home() {
     setPopupVisible(!popupVisible);
   };
 
+  const buttonLabels = ["Ad publisher", "Affiliater"];
+
   return (
     <div className="flex flex-col">
       <Head>
@@ -53,16 +55,17 @@ export default function Home() {
               </button>
               {popupVisible && (
                 <div className="absolute top-full mt-2 right-0 w-40 bg-white shadow-lg rounded-md z-10">
-                  <Link href="/onboarding?next=ad-publisher">
-                    <button className="block w-full text-left px-4 py-2 rounded-t-md hover:bg-gray-200">
-                      Ad publisher
-                    </button>
-                  </Link>
-                  <Link href="/onboarding?next=affiliate-marketplace">
-                    <button className="block w-full text-left px-4 py-2 rounded-b-md hover:bg-gray-200">
-                      Affiliater
-                    </button>
-                  </Link>
+                  {buttonLabels.map((label, index) => (
+                    <Link key={index} href="/onboarding">
+                      <button
+                        className={`block w-full text-left px-4 py-2 ${
+                          index === 0 ? "rounded-t-md" : "rounded-b-md"
+                        } hover:bg-gray-200`}
+                      >
+                        {label}
+                      </button>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
@@ -88,16 +91,17 @@ export default function Home() {
                 </button>
                 {popupVisible && (
                   <div className="absolute top-full mt-2 left-0 w-40 bg-white shadow-lg rounded-md z-10">
-                    <Link href="/onboarding?next=ad-publisher">
-                      <button className="block w-full text-left px-4 py-2 rounded-t-md hover:bg-gray-200">
-                        Ad publisher
-                      </button>
-                    </Link>
-                    <Link href="/onboarding?next=affiliate-marketplace">
-                      <button className="block w-full text-left px-4 py-2 rounded-b-md hover:bg-gray-200">
-                        Affiliater
-                      </button>
-                    </Link>
+                    {buttonLabels.map((label, index) => (
+                      <Link key={index} href="/onboarding">
+                        <button
+                          className={`block w-full text-left px-4 py-2 ${
+                            index === 0 ? "rounded-t-md" : "rounded-b-md"
+                          } hover:bg-gray-200`}
+                        >
+                          {label}
+                        </button>
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
