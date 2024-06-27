@@ -118,7 +118,7 @@ export default function CreateProject() {
       });
     };
 
-  const handleOwnerChange = (newOwnerAddresses: string[]) => {
+  const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
       if (!prevData) return prevData;
   

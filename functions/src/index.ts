@@ -32,10 +32,10 @@ export const onUserCreated = functions.firestore
 
     if (newUser) {
       let userType: string;
-      if (newUser.joinedProjectIds.length === 0) {
-        userType = "Client";
+      if (newUser.role === "ProjectOwner") {
+        userType = "Ad publisher";
       } else {
-        userType = "Affiliate";
+        userType = "Affiliater";
       }
 
       const message = {

@@ -18,14 +18,9 @@ export default function Home() {
   };
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [popupVisible, setPopupVisible] = useState(false);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
-  };
-
-  const togglePopup = () => {
-    setPopupVisible(!popupVisible);
   };
 
   return (
@@ -47,25 +42,9 @@ export default function Home() {
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
             <div className="border-l border-gray-300 h-6" />
-            <div className="relative">
-              <button onClick={togglePopup} className="font-bold hover:text-gray-500">
-                Launch App
-              </button>
-              {popupVisible && (
-                <div className="absolute top-full mt-2 right-0 w-40 bg-white shadow-lg rounded-md z-10">
-                  <Link href="/onboarding?next=ad-publisher">
-                    <button className="block w-full text-left px-4 py-2 rounded-t-md hover:bg-gray-200">
-                      Ad publisher
-                    </button>
-                  </Link>
-                  <Link href="/onboarding?next=affiliate-marketplace">
-                    <button className="block w-full text-left px-4 py-2 rounded-b-md hover:bg-gray-200">
-                      Affiliater
-                    </button>
-                  </Link>
-                </div>
-              )}
-            </div>
+            <Link href="/onboarding" className="font-bold hover:text-gray-500">
+              Launch App
+            </Link>
           </div>
 
           <div className="md:hidden flex items-center">
@@ -81,26 +60,10 @@ export default function Home() {
               {navLinks.map((link, index) => (
                 <Link key={index} href={link.id} className="py-2 hover:text-gray-500">{link.label}</Link>
               ))}
-              <div className="border-t border-gray-300 my-2"></div>
-              <div className="relative">
-                <button onClick={togglePopup} className="py-2 hover:text-gray-500">
-                  Launch App
-                </button>
-                {popupVisible && (
-                  <div className="absolute top-full mt-2 left-0 w-40 bg-white shadow-lg rounded-md z-10">
-                    <Link href="/onboarding?next=ad-publisher">
-                      <button className="block w-full text-left px-4 py-2 rounded-t-md hover:bg-gray-200">
-                        Ad publisher
-                      </button>
-                    </Link>
-                    <Link href="/onboarding?next=affiliate-marketplace">
-                      <button className="block w-full text-left px-4 py-2 rounded-b-md hover:bg-gray-200">
-                        Affiliater
-                      </button>
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <div className="border-t border-gray-300 my-2" />
+              <Link href="/onboarding" className="font-bold hover:text-gray-500">
+                Launch App
+              </Link>
             </nav>
           </div>
         )}

@@ -18,7 +18,7 @@ export default function AffiliateLayout({
 
   useEffect(() => {
     if (!address) {
-      router.push("/onboarding?next=affiliate-marketplace");
+      router.push("/onboarding");
       toast.info("Please connect your wallet.");
     }
   }, [address, router]);

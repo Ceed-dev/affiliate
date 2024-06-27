@@ -22,6 +22,8 @@ import { logClickData } from "./logClickData";
 import { fetchUserData } from "./fetchUserData";
 import { fetchUnapprovedUsers } from "./fetchUnapprovedUsers";
 import { approveUser } from "./approveUser";
+import { checkIfProjectOwner } from "./checkIfProjectOwner";
+import { checkUserRole } from "./checkUserRole";
 
 export {
   saveProjectToFirestore,
@@ -50,4 +52,6 @@ export {
   fetchUserData,
   fetchUnapprovedUsers,
   approveUser,
+  checkIfProjectOwner,
+  checkUserRole,
 }

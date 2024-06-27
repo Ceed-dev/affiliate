@@ -4,7 +4,7 @@ import { ImageType } from "./imageType";
 import { ReferralData } from "./referralData";
 import { ExtendedReferralData } from "./extendedReferralData";
 import { AggregatedReferralData } from "./aggregatedReferralData";
-import { AffiliateInfo } from "./affiliateInfo";
+import { AffiliateInfo, UserRole } from "./affiliateInfo";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
 import { WhitelistedAddress } from "./whitelistedAddress";
@@ -25,6 +25,7 @@ export type {
   ExtendedReferralData,
   AggregatedReferralData,
   AffiliateInfo,
+  UserRole,
   UserData,
   PaymentTransaction,
   WhitelistedAddress,

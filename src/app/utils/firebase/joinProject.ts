@@ -19,6 +19,18 @@ export async function joinProject(
       throw new Error("User document does not exist.");
     } else {
       const userData = userDoc.data() as UserData;
+
+      // Check if the user's role is Affiliate
+      if (userData.role !== "Affiliate") {
+        toast.error("Only affiliates can join projects.");
+        throw new Error("Only affiliates can join projects.");
+      }
+
+      // Initialize joinedProjectIds if it is undefined
+      if (!userData.joinedProjectIds) {
+        userData.joinedProjectIds = [];
+      }
+
       if (userData.joinedProjectIds.includes(projectId)) {
         return await getExistingReferralId(walletAddress, projectId);
       } else {
