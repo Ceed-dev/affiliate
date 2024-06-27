@@ -19,7 +19,7 @@ import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 
 import { UserInfoModal } from "../components/UserInfoModal";
 import { AffiliateInfo } from "../types";
-import { checkUserAndPrompt, createNewUser, fetchUserData } from "../utils/firebase";
+import { checkUserAndPrompt, createNewUser, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
 
 const getActiveChain = () => {
   if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
@@ -39,6 +39,7 @@ export default function Onboarding() {
   const activeChain = getActiveChain();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [disableRoleSelection, setDisableRoleSelection] = useState(false);
   const errorShownRef = useRef(false);
 
   const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
@@ -64,6 +65,9 @@ export default function Onboarding() {
     if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(walletAddress.toLowerCase())) {
       router.push("/admin");
     } else {
+      const isProjectOwner = await checkIfProjectOwner(walletAddress);
+      setDisableRoleSelection(isProjectOwner);
+
       const userExists = await checkUserAndPrompt(walletAddress, setIsModalOpen);
       if (userExists) {
         const userData = await fetchUserData(walletAddress);
@@ -181,6 +185,7 @@ export default function Onboarding() {
           disconnect();
         }}
         onSave={handleSaveUserInfo}
+        disableRoleSelection={disableRoleSelection}
       />
     </div>
   );
