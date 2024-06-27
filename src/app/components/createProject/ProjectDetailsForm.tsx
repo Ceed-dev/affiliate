@@ -4,6 +4,7 @@ import { useAddress } from "@thirdweb-dev/react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 import { NextButton } from "./NextButton";
 import { ProjectType } from "../../types";
+import { checkUserRole } from "../../utils/firebase";
 import { isAddress } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 
@@ -84,7 +85,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
     }
   }, [address, ownerAddresses.length, handleOwnerChange]);
 
-  const handleAddOwner = () => {
+  const handleAddOwner = async () => {
     if (!isAddress(newOwnerAddress)) {
       setNewOwnerAddress("");
       toast.error("Invalid wallet address.");
@@ -94,6 +95,14 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
     if (ownerAddresses.includes(newOwnerAddress)) {
       setNewOwnerAddress("");
       toast.error("Address already exists.");
+      return;
+    }
+
+    // Check if the user is an affiliate
+    const userRole = await checkUserRole(newOwnerAddress);
+    if (userRole === "Affiliate") {
+      setNewOwnerAddress("");
+      toast.error("This user is registered as an Affiliate and cannot be added as a team member.");
       return;
     }
 
