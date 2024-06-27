@@ -98,7 +98,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
             <label className="block mb-1 font-semibold">Role <span className="text-red-500">*</span></label>
             {disableRoleSelection && (
               <p className="text-sm text-gray-500">
-                You are automatically assigned the role of "Ad publisher" because you are a team member of a project.
+                You are automatically assigned the role of &quot;Ad publisher&quot; because you are a team member of a project.
               </p>
             )}
             <select
