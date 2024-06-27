@@ -107,7 +107,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
       });
     };
   
-  const handleOwnerChange = (newOwnerAddresses: string[]) => {
+  const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
       if (!prevData) return prevData;
   
