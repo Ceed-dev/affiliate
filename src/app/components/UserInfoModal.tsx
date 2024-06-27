@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { AffiliateInfo } from "../types";
+import { AffiliateInfo, UserRole } from "../types";
 
 type UserInfoModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (info: AffiliateInfo) => void;
+  disableRoleSelection?: boolean; // Optional flag to disable role selection
 };
 
-export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, onSave }) => {
+export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, onSave, disableRoleSelection = false }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [xProfileUrl, setXProfileUrl] = useState("");
+  const [role, setRole] = useState<UserRole>("ProjectOwner");
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
 
   useEffect(() => {
     setIsSaveEnabled(validateInputs());
-  }, [username, email, xProfileUrl]);
+  }, [username, email, xProfileUrl, role]);
 
   const validateInputs = () => {
     return (
       validateUsername(username) &&
       validateEmail(email) &&
-      validateUrl(xProfileUrl)
+      validateUrl(xProfileUrl) &&
+      validateRole(role)
     );
   };
 
@@ -43,8 +46,12 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
     }
   };
 
+  const validateRole = (role: UserRole) => {
+    return role === "ProjectOwner" || role === "Affiliate";
+  };
+
   const handleSave = () => {
-    onSave({ username, email, xProfileUrl });
+    onSave({ username, email, xProfileUrl, role });
   };
 
   if (!isOpen) return null;
@@ -54,7 +61,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md mx-auto">
         <h2 className="text-xl font-semibold mb-4">User Information</h2>
         <p className="text-sm text-gray-600 mb-4">
-          Please provide your username, email address, and X profile URL to complete your registration.
+          Please provide your username, email address, X profile URL, and select your role to complete your registration.
         </p>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
@@ -86,6 +93,23 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
               className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
               placeholder="https://x.com/0xQube"
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="block mb-1 font-semibold">Role <span className="text-red-500">*</span></label>
+            {disableRoleSelection && (
+              <p className="text-sm text-gray-500">
+                You are automatically assigned the role of "Ad publisher" because you are a team member of a project.
+              </p>
+            )}
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value as UserRole)}
+              className={`w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none ${disableRoleSelection ? "bg-slate-100" : ""}`}
+              disabled={disableRoleSelection}
+            >
+              <option value="ProjectOwner">Ad publisher</option>
+              <option value="Affiliate">Affiliater</option>
+            </select>
           </div>
         </div>
         <div className="flex justify-end space-x-2 mt-6">

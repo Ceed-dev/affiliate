@@ -8,15 +8,21 @@ export async function createNewUser(
   userInfo: AffiliateInfo,
 ): Promise<string> {
   const userDocRef = doc(db, "users", walletAddress);
+
   const newUser: UserData = {
     username: userInfo.username,
     email: userInfo.email,
     xProfileUrl: userInfo.xProfileUrl,
-    joinedProjectIds: [],
+    role: userInfo.role,
     createdAt: new Date(),
     updatedAt: new Date(),
     allowed: false,
   };
+
+  // Add joinedProjectIds only if the role is Affiliate
+  if (userInfo.role === "Affiliate") {
+    newUser.joinedProjectIds = [];
+  }
 
   try {
     await setDoc(userDocRef, newUser);
