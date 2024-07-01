@@ -346,7 +346,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <p className="animate-pulse font-semibold text-gray-600">Loading conversion data...</p>
               </div>
             : <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10">
-                <BarChart title="Number of Conversions" transactions={conversionLogs} />
+                <BarChart dataMap={{"Number of Conversions": conversionLogs}} />
               </div>
           }
         </>
