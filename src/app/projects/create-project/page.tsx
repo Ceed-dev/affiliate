@@ -77,6 +77,7 @@ export default function CreateProject() {
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
+        embedImage: null,
       } as EscrowPaymentProjectData);
     }
   };
