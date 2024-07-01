@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog } from "../../types";
+import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
-import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals } from "../../utils/firebase";
+import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "../../utils/formatters";
 import { useCountdown } from "../../hooks/useCountdown";
@@ -30,6 +30,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [conversionLogs, setConversionLogs] = useState<ConversionLog[]>([]);
   const [loadingConversionLogs, setLoadingConversionLogs] = useState(true);
+
+  const [clickData, setClickData] = useState<ClickData[]>([]);
+  const [loadingClickData, setLoadingClickData] = useState(true);
 
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
@@ -137,8 +140,20 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           toast.error(`Error loading conversion logs: ${message}`);
           setLoadingConversionLogs(false);
         })
+      
+      fetchClickData(referralId!)
+        .then(data => {
+          setClickData(data);
+          setLoadingClickData(false);
+        })
+        .catch(error => {
+          const message = (error instanceof Error) ? error.message : "Unknown error";
+          console.error("Error loading click data: ", message);
+          toast.error(`Error loading click data: ${message}`);
+          setLoadingClickData(false);
+        });
     }
-  }, [referralData]);
+  }, [referralData, referralId]);
 
   // useEffect(() => {
   //   if (referralData) {
@@ -340,13 +355,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             : <ConversionsList transactions={transactionData} />
           } */}
 
-          {loadingConversionLogs
+          {loadingConversionLogs || loadingClickData
             ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-                <p className="animate-pulse font-semibold text-gray-600">Loading conversion data...</p>
+                <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
               </div>
             : <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10">
-                <BarChart dataMap={{"Number of Conversions": conversionLogs}} />
+                <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} />
               </div>
           }
         </>

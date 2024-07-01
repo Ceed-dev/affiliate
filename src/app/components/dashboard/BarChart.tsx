@@ -1,6 +1,6 @@
 import { Bar } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataset } from "chart.js";
-import { PaymentTransaction, ConversionLog } from "../../types";
+import { PaymentTransaction, ConversionLog, ClickData } from "../../types";
 
 // Register the necessary chart components from Chart.js
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -17,7 +17,7 @@ const getRandomColor = () => {
 
 // Define the component's prop types
 type BarChartProps = {
-  dataMap: Record<string, (PaymentTransaction | ConversionLog)[]>;
+  dataMap: Record<string, (PaymentTransaction | ConversionLog | ClickData)[]>;
 };
 
 // BarChart component to display data over date
