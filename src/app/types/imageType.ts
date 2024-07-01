@@ -1,1 +1,1 @@
-export type ImageType = "logo" | "cover";
+export type ImageType = "logo" | "cover" | "embed";

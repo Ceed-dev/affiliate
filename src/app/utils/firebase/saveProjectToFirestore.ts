@@ -1,7 +1,7 @@
 import { doc, setDoc, collection } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { uploadImageAndGetURL } from "./uploadImageAndGetURL";
-import { ProjectData } from "../../types";
+import { ProjectData, EscrowPaymentProjectData } from "../../types";
 
 export const saveProjectToFirestore = async (
   projectData: ProjectData
@@ -22,6 +22,12 @@ export const saveProjectToFirestore = async (
       createdAt: now,
       updatedAt: now
     };
+
+    if (projectData.projectType === "EscrowPayment") {
+      const escrowProjectData = projectData as EscrowPaymentProjectData;
+      const embedURL = await uploadImageAndGetURL(escrowProjectData.embed, projectId, "embed");
+      (projectDataToSave as EscrowPaymentProjectData).embed = embedURL;
+    }
 
     await setDoc(projectRef, projectDataToSave);
     console.log("Document written with ID: ", projectId);
