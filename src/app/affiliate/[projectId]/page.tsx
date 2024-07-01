@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
+import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
@@ -45,7 +45,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
 
-  const embedCode = generateEmbedCode(`${projectData?.cover}`, referralLink);
+  let embedCode: string = "";
+
+  if (projectData && projectData.projectType === "EscrowPayment") {
+    const escrowProjectData = projectData as EscrowPaymentProjectData;
+    if (escrowProjectData.embed) {
+      embedCode = generateEmbedCode(escrowProjectData.embed, referralLink);
+    }
+  }
 
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
@@ -424,7 +431,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             <h3 className="text-lg font-semibold mt-4">Preview:</h3>
             <div className="mt-4 border border-gray-300 p-2 rounded overflow-hidden max-w-full flex justify-center items-center">
               <Image
-                src={projectData?.cover!}
+                src={(projectData as EscrowPaymentProjectData).embed!}
                 alt="Preview Image"
                 layout="responsive"
                 width={300}
