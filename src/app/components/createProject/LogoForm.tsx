@@ -1,14 +1,17 @@
 import React from "react";
 import Image from "next/image";
 import { NextButton } from "./NextButton";
+import { ProjectType, ImageType } from "../../types";
 
 type LogoFormProps = {
   data: {
     logoPreview: string,
     coverPreview: string,
+    embedPreview?: string;
+    projectType: ProjectType;
   };
-  handleImageChange: (field: "logo" | "cover") => (event: React.ChangeEvent<HTMLInputElement>) => void;
-  removeImage: (field: "logo" | "cover") => () => void;
+  handleImageChange: (field: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+  removeImage: (field: ImageType) => () => void;
   nextStep?: () => void;
 };
 
@@ -18,12 +21,17 @@ export const LogoForm: React.FC<LogoFormProps> = ({
   removeImage,
   nextStep,
 }) => {
-  const isFormComplete = data.logoPreview.trim() && data.coverPreview.trim();
+  const isFormComplete =
+    data.logoPreview.trim() &&
+    data.coverPreview.trim() &&
+    (data.projectType !== "EscrowPayment" || (data.embedPreview && data.embedPreview.trim()));
+  
+    const title = data.projectType === "EscrowPayment" ? "Logo, Cover & Embed Image" : "Logo & Cover Image";
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
+    <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
-      <h1 className="text-xl mb-5">Logo & Cover Image <span className="text-red-500">*</span></h1>
+      <h1 className="text-xl mb-5">{title} <span className="text-red-500">*</span></h1>
 
       <p className="text-gray-400 mb-5">Upload a logo and cover image for your project. It displays with a height of 192px and full screen width.</p>
 
@@ -32,7 +40,13 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           <label htmlFor="cover-upload" className="cursor-pointer block h-full">
             {data.coverPreview ? (
               <>
-                <Image src={data.coverPreview} alt="Cover Preview" layout="fill" objectFit="cover" className="rounded-lg" />
+                <Image 
+                  src={data.coverPreview} 
+                  alt="Cover Preview" 
+                  layout="fill" 
+                  objectFit="cover" 
+                  className="rounded-lg" 
+                />
                 <button 
                   type="button"
                   onClick={removeImage("cover")}
@@ -59,7 +73,13 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           <label htmlFor="logo-upload" className="cursor-pointer">
             {data.logoPreview ? (
               <>
-                <Image src={data.logoPreview} alt="Logo Preview" width={150} height={150} className="object-cover rounded-full border-4 border-white" />
+                <Image 
+                  src={data.logoPreview} 
+                  alt="Logo Preview" 
+                  width={150} 
+                  height={150} 
+                  className="object-cover rounded-full border-4 border-white" 
+                />
                 <button 
                   type="button"
                   onClick={removeImage("logo")}
@@ -83,6 +103,46 @@ export const LogoForm: React.FC<LogoFormProps> = ({
           />
         </div>
       </div>
+
+      {data.projectType === "EscrowPayment" && (
+        <div className="relative mt-24">
+          <hr className="my-5 border-gray-300" />
+          <p className="text-gray-400 mb-2">Upload an image that will be displayed when affiliates embed advertisements on their media using an iframe.</p>
+          <div className="w-full max-w-lg mx-auto h-[150px] sm:h-[200px] md:h-[250px] lg:h-[300px]">
+            <label htmlFor="embed-image-upload" className="cursor-pointer block h-full">
+              {data.embedPreview ? (
+                <div className="relative h-full w-full">
+                  <Image
+                    src={data.embedPreview}
+                    alt="Embed Image Preview"
+                    layout="fill"
+                    objectFit="contain"
+                    className="rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage("embed")}
+                    className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-lg transition-opacity"
+                  >
+                    <Image src="/trash.png" alt="trash.png" height={50} width={50} />
+                  </button>
+                </div>
+              ) : (
+                <p className="bg-blue-50 hover:bg-gray-500 hover:text-white h-full flex justify-center items-center text-xl rounded-lg transition duration-300 ease-in-out">
+                  Upload Embed Image
+                </p>
+              )}
+            </label>
+            <input
+              id="embed-image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange("embed")}
+              className="hidden"
+            />
+          </div>
+        </div>
+      )}
 
       {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
 
