@@ -3,7 +3,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { uploadImageAndGetURL } from "./uploadImageAndGetURL";
 import { deleteImageFromStorage } from "./deleteImageFromStorage";
-import { ImageType, ProjectData } from "../../types";
+import { ImageType, ProjectData, EscrowPaymentProjectData } from "../../types";
 
 /**
  * Updates project data in Firestore and handles image storage.
@@ -24,6 +24,10 @@ export const updateProjectInFirestore = async (
     await handleImageUpdates(projectId, "logo", projectData, updatedData);
     await handleImageUpdates(projectId, "cover", projectData, updatedData);
 
+    if (projectData.projectType === "EscrowPayment") {
+      await handleImageUpdates(projectId, "embed", projectData as EscrowPaymentProjectData, updatedData as EscrowPaymentProjectData);
+    }
+
     const projectRef = doc(db, "projects", projectId);
     await updateDoc(projectRef, updatedData);
     toast.success("Project updated successfully!");
@@ -38,17 +42,23 @@ export const updateProjectInFirestore = async (
 };
 
 /**
- * Handles the updates for project images (logo or cover).
+ * Handles the updates for project images (logo, cover, or embed).
  * Deletes old image and uploads new image, updating the provided updatedData object.
  * @param projectId - The ID of the project for which to handle images.
- * @param type - The type of the image, either "logo" or "cover".
+ * @param type - The type of the image, either "logo", "cover", or "embed".
  * @param projectData - The project data containing possible new image files.
  * @param updatedData - The project data object that will be updated with new image URLs.
  */
-async function handleImageUpdates(projectId: string, type: ImageType, projectData: ProjectData, updatedData: ProjectData) {
-  const file = projectData[type];
+async function handleImageUpdates<T extends ProjectData>(
+  projectId: string,
+  type: ImageType,
+  projectData: T,
+  updatedData: T
+) {
+  const file = projectData[type as keyof T];
   if (file && typeof file === "object" && "name" in file) {
     await deleteImageFromStorage(projectId, type);
-    updatedData[type] = await uploadImageAndGetURL(file, projectId, type);
+    const newImageURL = await uploadImageAndGetURL(file, projectId, type);
+    updatedData[type as keyof T] = newImageURL as any;
   }
 }
