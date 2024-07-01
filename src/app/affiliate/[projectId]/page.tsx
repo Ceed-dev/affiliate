@@ -11,6 +11,7 @@ import { BarChart } from "../../components/dashboard";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
 import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "../../utils/formatters";
+import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
 import { useCountdown } from "../../hooks/useCountdown";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
@@ -41,6 +42,10 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [referralLink, setReferralLink] = useState("");
 
   const [isWhitelisted, setIsWhitelisted] = useState(false);
+
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
+
+  const embedCode = generateEmbedCode(`${projectData?.cover}`, referralLink);
 
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
@@ -217,15 +222,25 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
   
-  const copyLinkToClipboard = async () => {
+  const copyReferralLinkToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(referralLink);
       setButtonLabel("Copied!");
-      toast.info("Link copied to clipboard!");
+      toast.info("Referral link copied to clipboard!");
       setTimeout(() => setButtonLabel("Copy"), 2000);
     } catch (err) {
       console.error("Failed to copy: ", err);
-      toast.error("Failed to copy link. Please try again.");
+      toast.error("Failed to copy referral link. Please try again.");
+    }
+  };
+
+  const copyEmbedCodeToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(embedCode);
+      toast.success("Embed code copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      toast.error("Failed to copy embed code. Please try again.");
     }
   };
 
@@ -280,20 +295,30 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           </p>
           {(projectData?.projectType === "DirectPayment" && isWhitelisted) ||
            (projectData?.projectType === "EscrowPayment" && address && referralId) ? (
-            <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
-              <input
-                type="text"
-                value={referralLink}
-                readOnly
-                className="font-roboto text-sm bg-transparent outline-none w-full"
-              />
-              <button
-                type="button"
-                className="text-sm text-[#2563EB] font-bold bg-transparent hover:underline"
-                onClick={copyLinkToClipboard}
-              >
-                {buttonLabel}
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
+                <input
+                  type="text"
+                  value={referralLink}
+                  readOnly
+                  className="font-roboto text-sm bg-transparent outline-none w-full"
+                />
+                <button
+                  type="button"
+                  className="text-sm text-[#2563EB] font-bold bg-transparent hover:underline"
+                  onClick={copyReferralLinkToClipboard}
+                >
+                  {buttonLabel}
+                </button>
+              </div>
+              {projectData?.projectType === "EscrowPayment" && address && referralId && (
+                <button
+                  className="bg-green-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+                  onClick={() => setIsEmbedModalOpen(true)}
+                >
+                  Show Embed Code
+                </button>
+              )}
             </div>
           ) : (
             <button
@@ -372,6 +397,44 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           }
         </>
       }
+
+      {isEmbedModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-md">
+            <div className="flex flex-row justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Embed Code</h2>
+              <button onClick={() => setIsEmbedModalOpen(false)} >
+                <Image src="/close.png" alt="Close Icon" width={15} height={15} />
+              </button>
+            </div>
+            <textarea
+              readOnly
+              value={embedCode}
+              className="w-full p-2 border outline-none border-[#D1D5DB] rounded-lg text-sm mb-4"
+              rows={6}
+            />
+            <div className="flex justify-center">
+              <button
+                onClick={copyEmbedCodeToClipboard}
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+              >
+                Copy to Clipboard
+              </button>
+            </div>
+            <h3 className="text-lg font-semibold mt-4">Preview:</h3>
+            <div className="mt-4 border border-gray-300 p-2 rounded overflow-hidden max-w-full flex justify-center items-center">
+              <Image
+                src={projectData?.cover!}
+                alt="Preview Image"
+                layout="responsive"
+                width={300}
+                height={200}
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
