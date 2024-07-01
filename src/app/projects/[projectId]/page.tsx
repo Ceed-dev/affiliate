@@ -214,7 +214,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                 </p>
               </div>
             // : <BarChart title="Number of Payment Transactions" transactions={transactionData} />
-            : <BarChart dataMap={{"Number of Conversions": conversionData}} />
+            : <BarChart dataMap={{"Conversions": conversionData}} />
           }
         </div>
 
