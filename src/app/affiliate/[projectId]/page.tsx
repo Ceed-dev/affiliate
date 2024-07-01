@@ -308,7 +308,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
       {projectData?.projectType === "EscrowPayment" && address && referralId && 
         <>
-          <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+          <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
             {/* <StatisticCard
               title="Conversions"
               loading={loadingReferral}
@@ -339,6 +339,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               value={`${referralData?.lastConversionDate ? referralData.lastConversionDate.toLocaleDateString() : "N/A"}`}
               unit=""
             /> */}
+            <StatisticCard
+              title="Total Clicks (All time)"
+              loading={loadingClickData}
+              value={`${clickData.length}`}
+              unit="TIMES"
+            />
             <StatisticCard
               title="Next Payment Date"
               loading={false}
