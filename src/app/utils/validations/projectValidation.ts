@@ -68,7 +68,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       typeof data.rewardAmount === "number" &&
       typeof data.redirectUrl === "string" &&
       typeof data.totalPaidOut === "number" &&
-      (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date)
+      (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
+      (data.embed === null || typeof data.embed === "string")
     );
   };
 

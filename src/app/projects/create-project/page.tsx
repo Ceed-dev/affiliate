@@ -27,7 +27,8 @@ export default function CreateProject() {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
-    coverPreview: ""
+    coverPreview: "",
+    embedPreview: "",
   });
 
   const nextStep = () => setCurrentStep(currentStep < 6 ? currentStep + 1 : 6);
@@ -77,6 +78,7 @@ export default function CreateProject() {
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
+        embed: null,
       } as EscrowPaymentProjectData);
     }
   };
@@ -308,7 +310,9 @@ export default function CreateProject() {
           <LogoForm
             data={{
               logoPreview: previewData.logoPreview,
-              coverPreview: previewData.coverPreview
+              coverPreview: previewData.coverPreview,
+              ...(projectType! === "EscrowPayment" && { embedPreview: previewData.embedPreview }),
+              projectType: projectType!,
             }}
             handleImageChange={handleImageChange}
             removeImage={(type) => removeImage(type)}

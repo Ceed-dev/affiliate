@@ -23,7 +23,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   const [isUpdating, setIsUpdating] = useState(false);
   const [previewData, setPreviewData] = useState({
     logoPreview: "",
-    coverPreview: ""
+    coverPreview: "",
+    embedPreview: "",
   });
 
   useEffect(() => {
@@ -35,7 +36,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
         setPreviewData({
           logoPreview: data.logo || "",
-          coverPreview: data.cover || ""
+          coverPreview: data.cover || "",
+          embedPreview: data.projectType === "EscrowPayment" ? data.embed || "" : "",
         });
       })
       .catch(error => {
@@ -180,7 +182,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               projectData.xUrl &&
               projectData.selectedTokenAddress.trim() !== "" &&
               escrowProjectData.rewardAmount > 0 &&
-              escrowProjectData.redirectUrl.trim() !== "";
+              escrowProjectData.redirectUrl.trim() !== "" &&
+              escrowProjectData.embed;
     }
 
     return false;
@@ -197,10 +200,14 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         );
         setProjectData(updatedData);
         setInitialProjectData(updatedData);
-        setPreviewData({
+
+        const newPreviewData = {
           logoPreview: `${updatedData.logo}`,
-          coverPreview: `${updatedData.cover}`
-        });
+          coverPreview: `${updatedData.cover}`,
+          embedPreview: updatedData.projectType === "EscrowPayment" ? (updatedData as EscrowPaymentProjectData).embed || "" : ""
+        };
+
+        setPreviewData(newPreviewData);
       } catch (error: any) {
         console.error("Failed to save changes:", error);
         toast.error("Failed to save changes: " + error.message);
@@ -242,7 +249,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             <LogoForm
               data={{
                 logoPreview: previewData.logoPreview,
-                coverPreview: previewData.coverPreview
+                coverPreview: previewData.coverPreview,
+                ...(projectData?.projectType === "EscrowPayment" && { embedPreview: previewData.embedPreview }),
+                projectType: projectData?.projectType!,
               }}
               handleImageChange={handleImageChange}
               removeImage={(type) => removeImage(type)}

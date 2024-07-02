@@ -35,6 +35,7 @@ export type EscrowPaymentProjectData = BaseProjectData & {
   redirectUrl: string;
   totalPaidOut: number;
   lastPaymentDate: Date | null;
+  embed: string | null;
 };
 
 export type ProjectData = DirectPaymentProjectData | EscrowPaymentProjectData;
