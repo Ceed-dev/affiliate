@@ -117,20 +117,22 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   }, [referralData]);
 
   useEffect(() => {
-    const fetchApiKey = async () => {
-      try {
-        const apiKeyData = await getApiKeyData(params.projectId);
-        if (apiKeyData) {
-          setApiKey(apiKeyData.apiKey);
+    if (projectData?.projectType === "EscrowPayment") {
+      const fetchApiKey = async () => {
+        try {
+          const apiKeyData = await getApiKeyData(params.projectId);
+          if (apiKeyData) {
+            setApiKey(apiKeyData.apiKey);
+          }
+        } catch (error: any) {
+          console.error("Error fetching API key: ", error);
+          toast.error(`Error fetching API key: ${error.message}`);
         }
-      } catch (error: any) {
-        console.error("Error fetching API key: ", error);
-        toast.error(`Error fetching API key: ${error.message}`);
-      }
-    };
-
-    fetchApiKey();
-  }, [params.projectId]);
+      };
+  
+      fetchApiKey();
+    }
+  }, [params.projectId, projectData?.projectType]);  
 
   const handleCopyApiKey = () => {
     if (apiKey) {
