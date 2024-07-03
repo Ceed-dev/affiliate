@@ -226,14 +226,16 @@ export default function CreateProject() {
     }
     const { projectId } = result;
 
-    setSaveAndDepositStatus("Generating API key...");
-    const apiKey = await saveApiKeyToFirestore(projectId);
-    if (!apiKey) {
-      toast.error("Failed to generate API key. Please try again.");
-      setSaveAndDepositStatus(initialStatus);
-      setIsSaving(false);
-      await deleteProjectFromFirestore(projectId);
-      return;
+    if (projectType === "EscrowPayment") {
+      setSaveAndDepositStatus("Generating API key...");
+      const apiKey = await saveApiKeyToFirestore(projectId);
+      if (!apiKey) {
+        toast.error("Failed to generate API key. Please try again.");
+        setSaveAndDepositStatus(initialStatus);
+        setIsSaving(false);
+        await deleteProjectFromFirestore(projectId);
+        return;
+      }
     }
 
     // Remove the deposit token logic as it's no longer needed
