@@ -71,7 +71,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         }
       } else if (projectData?.projectType === "EscrowPayment") {
         if (referralId) {
-          setReferralLink(`${baseUrl}/api/redirect?project=${encodeURIComponent(projectData.redirectUrl)}&r=${referralId}`);
+          setReferralLink(`${baseUrl}/api/redirect?projectId=${params.projectId}&r=${referralId}`);
         } else {
           setReferralLink("");
         }

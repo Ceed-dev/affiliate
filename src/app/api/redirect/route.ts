@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logClickData } from "../../utils/firebase";
+import { fetchProjectData, logClickData } from "../../utils/firebase";
 import { fetchLocationData } from "../../utils/geo/fetchLocationData";
-import { ClickData } from "../../types";
+import { ClickData, EscrowPaymentProjectData } from "../../types";
 
 export async function GET(request: NextRequest) {
   try {
     const urlParams = request.nextUrl.searchParams;
-    const project = urlParams.get("project");
+    const projectId = urlParams.get("projectId");
     const referral = urlParams.get("r");
 
-    if (!project || !referral) {
+    if (!projectId || !referral) {
       return NextResponse.json(
         { error: "Missing parameters" },
         { status: 400 }
@@ -49,9 +49,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Redirect to client's site
-    const redirectUrl = `${project}?r=${referral}`;
-    return NextResponse.redirect(redirectUrl);
+    // Fetch the project data from Firestore using the helper function
+    const projectData = await fetchProjectData(projectId);
+    if (!projectData) {
+      return NextResponse.json(
+        { error: "Project data not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if the project type is EscrowPayment and get the redirectUrl
+    if (projectData.projectType === "EscrowPayment") {
+      const escrowProjectData = projectData as EscrowPaymentProjectData;
+      const finalRedirectUrl = `${escrowProjectData.redirectUrl}?r=${referral}`;
+      return NextResponse.redirect(finalRedirectUrl);
+    } else {
+      return NextResponse.json(
+        { error: "Invalid project type for redirect" },
+        { status: 400 }
+      );
+    }
+
   } catch (error) {
     console.log(error);
     return NextResponse.json(
