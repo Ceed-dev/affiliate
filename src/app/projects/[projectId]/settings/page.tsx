@@ -79,12 +79,21 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
   // handleChange is a higher-order function that creates an event handler for form elements.
   // It takes a `field` string that can include dot notation for nested objects (e.g., "slots.remaining").
-  // `isNumeric` is an optional parameter that when set to true, will parse the input value as an integer.
-  const handleChange = (field: string, isNumeric?: boolean) => 
+  // `isNumeric` is an optional parameter that when set to true, will parse the input value as a number.
+  const handleChange = (field: string, isNumeric?: boolean, isFloat?: boolean) => 
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      // Parse the event value. If `isNumeric` is true, parse the value as an integer.
-      // If parsing fails or returns NaN, default to 0.
-      const value = isNumeric ? parseInt(event.target.value, 10) || 0 : event.target.value;
+      let value: any;
+    
+      // Parse the event value based on the `isNumeric` and `isFloat` flags.
+      if (isNumeric) {
+        value = isFloat ? parseFloat(event.target.value) : parseInt(event.target.value, 10);
+        if (isFloat && !isNaN(value)) {
+          value = Math.round(value * 10) / 10; // Limited to one decimal place
+        }
+        if (isNaN(value)) value = 0;  // Default to 0 if parsing fails.
+      } else {
+        value = event.target.value;
+      }
       
       // Set the new state of project data.
       setProjectData(prev => {
