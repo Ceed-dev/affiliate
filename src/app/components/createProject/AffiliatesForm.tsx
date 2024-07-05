@@ -15,7 +15,7 @@ type AffiliatesFormProps = {
     rewardAmount?: number;
     redirectUrl?: string;
   };
-  handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   nextStep?: () => void;
   isSaving?: boolean;
@@ -345,6 +345,9 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           <>
             <div className="flex flex-col gap-2">
               <h2>Reward Amount <span className="text-red-500">*</span></h2>
+              <p className="text-gray-500 text-sm">
+                You can enter an integer or a value up to one decimal place.
+              </p>
               <div className="rounded-lg border border-[#D1D5DB] flex items-center">
                 <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
                   Token Units:
@@ -352,10 +355,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <input
                   type="number"
                   value={data.rewardAmount?.toString() || ""}
-                  onChange={handleChange("rewardAmount", true)}
+                  onChange={handleChange("rewardAmount", true, true)}
                   className="w-full outline-none"
                   min="1"
-                  step="1"
+                  step="0.1"
                   placeholder="Enter token units"
                 />
               </div>
