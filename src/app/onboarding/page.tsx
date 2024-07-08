@@ -15,19 +15,10 @@ import {
   useSwitchChain,
   WalletInstance
 } from "@thirdweb-dev/react";
-import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
-
 import { UserInfoModal } from "../components/UserInfoModal";
 import { AffiliateInfo } from "../types";
 import { checkUserAndPrompt, createNewUser, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
-
-const getActiveChain = () => {
-  if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
-    return Polygon;
-  } else {
-    return PolygonAmoyTestnet;
-  }
-};
+import { getActiveChain } from "../utils/contracts";
 
 export default function Onboarding() {
   const router = useRouter();
