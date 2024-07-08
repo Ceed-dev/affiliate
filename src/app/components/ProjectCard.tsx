@@ -35,7 +35,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             alt="Project Type Icon"
           />
           <Image
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded-t-lg"
             src={project.cover as string}
             width={100}
             height={100}
@@ -57,8 +57,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         </div>
         <div className="p-4 flex flex-col gap-5">
-          <h3 className="text-lg leading-6 font-medium text-[#121212]">{project.projectName}</h3>
-          <p className="text-gray-700 text-base">{project.description}</p>
+          <h3 className="text-lg leading-6 font-medium text-[#121212] truncate">{project.projectName}</h3>
+          <p className="text-gray-700 text-base overflow-hidden text-ellipsis" style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 5 }}>
+            {project.description}
+          </p>
         </div>
       </div>
     </Link>
