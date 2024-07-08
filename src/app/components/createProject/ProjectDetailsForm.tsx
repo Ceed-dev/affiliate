@@ -121,6 +121,12 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   };
   // ===== END OWNER MANAGEMENT =====
 
+  const [titleCharCount, setTitleCharCount] = useState(data.projectName.length);
+  const [descCharCount, setDescCharCount] = useState(data.description.length);
+
+  const maxTitleLength = 50;
+  const maxDescLength = 500;
+
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
@@ -129,20 +135,40 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
       <div className="flex flex-col gap-5">
 
         <div className="flex flex-col gap-2">
-          <h2>Project name <span className="text-red-500">*</span></h2>
+          <div className="flex justify-between items-center">
+            <h2>Project name <span className="text-red-500">*</span></h2>
+            <p className={`text-sm ${titleCharCount >= maxTitleLength ? "text-red-500" : "text-gray-500"}`}>
+              {titleCharCount}/{maxTitleLength}
+              {titleCharCount >= maxTitleLength && <span className="ml-2">Character limit reached</span>}
+            </p>
+          </div>
           <input
             type="text"
             value={data.projectName}
-            onChange={handleChange("projectName")}
+            onChange={(e) => {
+              handleChange("projectName")(e);
+              setTitleCharCount(e.target.value.length);
+            }}
+            maxLength={maxTitleLength}
             className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2>Description <span className="text-red-500">*</span></h2>
+          <div className="flex justify-between items-center">
+            <h2>Description <span className="text-red-500">*</span></h2>
+            <p className={`text-sm ${descCharCount >= maxDescLength ? "text-red-500" : "text-gray-500"}`}>
+              {descCharCount}/{maxDescLength}
+              {descCharCount >= maxDescLength && <span className="ml-2">Character limit reached</span>}
+            </p>
+          </div>
           <textarea
             value={data.description}
-            onChange={handleChange("description")}
+            onChange={(e) => {
+              handleChange("description")(e);
+              setDescCharCount(e.target.value.length);
+            }}
+            maxLength={maxDescLength}
             className="w-full outline-none p-2 border border-[#D1D5DB] rounded-lg h-24"
             placeholder="BAYC is a collection of 10,000 Bored Ape NFTs — unique digital collectibles living on the Ethereum blockchain."
           />
