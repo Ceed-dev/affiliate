@@ -47,6 +47,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   let embedCode: string = "";
 
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const toggleDescriptionExpand = () => setIsDescriptionExpanded(!isDescriptionExpanded);
+  const description = projectData?.description || "";
+  const shouldShowDescriptionToggle = description.length > 350;
+
   if (projectData && projectData.projectType === "EscrowPayment") {
     const escrowProjectData = projectData as EscrowPaymentProjectData;
     if (escrowProjectData.embed) {
@@ -285,7 +290,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       <div className="w-11/12 sm:w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
         {/* Project Description Container */}
         <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loadingProject ? "animate-pulse" : ""}`}>
-          {projectData?.description}
+          {isDescriptionExpanded ? description : `${description.substring(0, 350)}${shouldShowDescriptionToggle ? "..." : ""}`}
+          {shouldShowDescriptionToggle && (
+            <button onClick={toggleDescriptionExpand} className="text-blue-500 hover:underline ml-2">
+              {isDescriptionExpanded ? "Read less" : "Read more"}
+            </button>
+          )}
         </div>
         {/* Join Project and Referral Actions */}
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
