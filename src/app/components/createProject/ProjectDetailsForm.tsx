@@ -5,6 +5,7 @@ import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 import { NextButton } from "./NextButton";
 import { ProjectType } from "../../types";
 import { checkUserRole } from "../../utils/firebase";
+import { isEOA } from "../../utils/contracts";
 import { isAddress } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 
@@ -76,6 +77,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   // ===== BEGIN OWNER MANAGEMENT =====
   const [ownerAddresses, setOwnerAddresses] = useState<string[]>(data.ownerAddresses || []);
   const [newOwnerAddress, setNewOwnerAddress] = useState("");
+  const [isCheckingNewOwnerAddress, setIsCheckingNewOwnerAddress] = useState(false);
 
   useEffect(() => {
     if (address && ownerAddresses.length === 0) {
@@ -86,15 +88,28 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   }, [address, ownerAddresses.length, handleOwnerChange]);
 
   const handleAddOwner = async () => {
+    setIsCheckingNewOwnerAddress(true);
+
     if (!isAddress(newOwnerAddress)) {
       setNewOwnerAddress("");
       toast.error("Invalid wallet address.");
+      setIsCheckingNewOwnerAddress(false);
       return;
     }
 
     if (ownerAddresses.includes(newOwnerAddress)) {
       setNewOwnerAddress("");
       toast.error("Address already exists.");
+      setIsCheckingNewOwnerAddress(false);
+      return;
+    }
+
+    // Check if the address is an EOA
+    const eoa = await isEOA(newOwnerAddress);
+    if (!eoa) {
+      setNewOwnerAddress("");
+      toast.error("This address is a contract address and cannot be added as a team member.");
+      setIsCheckingNewOwnerAddress(false);
       return;
     }
 
@@ -103,6 +118,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
     if (userRole === "Affiliate") {
       setNewOwnerAddress("");
       toast.error("This user is registered as an Affiliate and cannot be added as a team member.");
+      setIsCheckingNewOwnerAddress(false);
       return;
     }
 
@@ -111,6 +127,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
     handleOwnerChange(updatedOwners);
     setNewOwnerAddress("");
     toast.success("Owner added successfully.");
+    setIsCheckingNewOwnerAddress(false);
   };
 
   const handleRemoveOwner = (address: string) => {
@@ -279,9 +296,14 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
             <button
               type="button"
               onClick={handleAddOwner}
-              className="ml-2 bg-green-500 hover:bg-green-700 text-white py-2 px-7 rounded"
+              className={`ml-2 text-white py-2 px-7 rounded ${isCheckingNewOwnerAddress ? "bg-gray-200" : "bg-green-500 hover:bg-green-700"}`}
+              disabled={isCheckingNewOwnerAddress}
             >
-              Add
+              {isCheckingNewOwnerAddress ? (
+                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
+              ) : (
+                "Add"
+              )}
             </button>
           </div>
           {ownerAddresses.length > 0 && (
