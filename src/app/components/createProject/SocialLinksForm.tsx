@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NextButton } from "./NextButton";
 
 type SocialLinksFormProps = {
@@ -16,7 +16,61 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   handleChange,
   nextStep,
 }) => {
-  const isFormComplete = data.websiteUrl.trim() && data.xUrl.trim();
+  const [websiteError, setWebsiteError] = useState("");
+  const [xUrlError, setXUrlError] = useState("");
+  const [discordUrlError, setDiscordUrlError] = useState("");
+
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const isSpecificUrl = (url: string, domains: string[]): boolean => {
+    try {
+      const parsedUrl = new URL(url);
+      return domains.some(domain => parsedUrl.hostname.includes(domain));
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleWebsiteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setWebsiteError(isValidUrl(value) ? "" : "Invalid website URL.");
+    handleChange("websiteUrl")(event);
+  };
+
+  const handleXUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const validDomains = ["twitter.com", "x.com"];
+    if (!isValidUrl(value)) {
+      setXUrlError("Invalid X (Twitter) URL.");
+    } else if (!isSpecificUrl(value, validDomains)) {
+      setXUrlError("X (Twitter) URL must be from twitter.com or x.com.");
+    } else {
+      setXUrlError("");
+    }
+    handleChange("xUrl")(event);
+  };
+
+  const handleDiscordUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const validDomains = ["discord.com"];
+    if (value && !isValidUrl(value)) {
+      setDiscordUrlError("Invalid Discord URL.");
+    } else if (value && !isSpecificUrl(value, validDomains)) {
+      setDiscordUrlError("Discord URL must be from discord.com.");
+    } else {
+      setDiscordUrlError("");
+    }
+    handleChange("discordUrl")(event);
+  };
+
+  const isFormComplete = data.websiteUrl.trim() && data.xUrl.trim() && !websiteError && !xUrlError && !discordUrlError;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
@@ -30,31 +84,34 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
             type="url"
             placeholder="https://mysite.com"
             value={data.websiteUrl}
-            onChange={handleChange("websiteUrl")}
-            className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            onChange={handleWebsiteChange}
+            className={`w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none ${websiteError ? "border-red-500" : ""}`}
           />
+          {websiteError && <p className="text-red-500 text-xs mt-1">{websiteError}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
           <h2>X <span className="text-red-500">*</span></h2>
           <input
             type="url"
-            placeholder="https://twitter.com/my-twitter"
+            placeholder="https://x.com/my-x"
             value={data.xUrl}
-            onChange={handleChange("xUrl")}
-            className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            onChange={handleXUrlChange}
+            className={`w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none ${xUrlError ? "border-red-500" : ""}`}
           />
+          {xUrlError && <p className="text-red-500 text-xs mt-1">{xUrlError}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
           <h2>Discord</h2>
           <input
             type="url"
-            placeholder="https://discord.gg/my-group"
+            placeholder="https://discord.com/my-group"
             value={data.discordUrl}
-            onChange={handleChange("discordUrl")}
-            className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+            onChange={handleDiscordUrlChange}
+            className={`w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none ${discordUrlError ? "border-red-500" : ""}`}
           />
+          {discordUrlError && <p className="text-red-500 text-xs mt-1">{discordUrlError}</p>}
         </div>
 
       </div>
