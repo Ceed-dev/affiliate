@@ -2,27 +2,17 @@
 
 import { Inter } from "next/font/google";
 import "./globals.css";
-
 import {
   ThirdwebProvider,
   metamaskWallet,
   coinbaseWallet,
   walletConnect,
 } from "@thirdweb-dev/react";
-import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getActiveChain } from "./utils/contracts";
 
 const inter = Inter({ subsets: ["latin"] });
-
-const getActiveChain = () => {
-  if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
-    return Polygon;
-  } else {
-    return PolygonAmoyTestnet;
-  }
-};
 
 export default function RootLayout({
   children,

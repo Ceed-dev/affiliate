@@ -28,8 +28,8 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
         : <div className={`w-full h-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 ${loading ? "animate-pulse" : ""}`} />
       }
       <div className="w-11/12 sm:w-2/3 absolute bottom-[-100px] lg:bottom-[-75px] flex flex-col lg:flex-row lg:justify-between">
-        <div className="flex flex-row items-end justify-between lg:justify-normal">
-          <div className={`w-20 h-20 lg:w-40 lg:h-40 bg-white rounded-full shadow-md flex items-center justify-center ${loading ? "animate-pulse" : ""}`}>
+        <div className="flex flex-row items-end justify-between lg:justify-normal w-full">
+          <div className={`w-20 lg:w-40 rounded-full shadow-md flex items-center justify-center ${loading ? "animate-pulse" : ""}`}>
             {projectData?.logo && 
               <Image
                 className="w-full rounded-full"
@@ -40,7 +40,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
               />
             }
           </div>
-          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold px-3 sm:px-5 md:px-8 lg:px-10 py-2 sm:py-3 md:py-4 lg:py-5">{projectData?.projectName}</h1>
+          <h1 className="text-lg sm:text-xl font-semibold px-3 sm:px-5 py-2 sm:py-3 md:py-4 lg:py-5 truncate w-full lg:max-w-[400px] xl:max-w-[500px] 2xl:max-w-[720px]">{projectData?.projectName}</h1>
         </div>
         <div className="flex flex-row items-center justify-center gap-5">
           {socialLinks.map((link, index) => {

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
 import { NextButton } from "./NextButton";
-import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { WhitelistedAddress, ProjectType } from "../../types";
 
@@ -15,7 +15,7 @@ type AffiliatesFormProps = {
     rewardAmount?: number;
     redirectUrl?: string;
   };
-  handleChange: (field: string, isNumeric?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   nextStep?: () => void;
   isSaving?: boolean;
@@ -49,7 +49,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         data.selectedTokenAddress.trim() &&
         data.rewardAmount !== undefined &&
         data.rewardAmount > 0 &&
-        data.redirectUrl?.trim()
+        data.redirectUrl?.trim() &&
+        isValidUrl(data.redirectUrl)
       );
     }
     return false; // In case projectType is not set or unknown
@@ -136,6 +137,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   const [newRedirectUrl, setNewRedirectUrl] = useState("");
   const [newRewardAmount, setNewRewardAmount] = useState(0);
 
+  const [isCheckingNewWhitelistEntry, setIsCheckingNewWhitelistEntry] = useState(false);
+
   // Helper function to check if URL is valid
   const isValidUrl = (url: string): boolean => {
     try {
@@ -146,18 +149,30 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
+    setIsCheckingNewWhitelistEntry(true);
+
     // Input validation
     if (!isAddress(newAddress)) {
       toast.error("Invalid wallet address.");
+      setIsCheckingNewWhitelistEntry(false);
+      return;
+    }
+    // Check if the address is an EOA
+    const eoa = await isEOA(newAddress);
+    if (!eoa) {
+      toast.error("This address is a contract address and cannot be added to the whitelist.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
     if (!isValidUrl(newRedirectUrl)) {
       toast.error("Invalid URL.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
     if (!(newRewardAmount > 0)) {
       toast.error("Reward amount must be greater than zero.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
   
@@ -165,6 +180,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     const exists = Object.keys(data.whitelistedAddresses ?? {}).includes(newAddress);
     if (exists) {
       toast.error("Address already exists in the whitelist.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
   
@@ -185,6 +201,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     setNewRedirectUrl("");
     setNewRewardAmount(0);
     toast.success("New address added to whitelist.");
+    setIsCheckingNewWhitelistEntry(false);
   };  
 
   const handleRemove = (addressToRemove: string) => {
@@ -204,6 +221,18 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   };
 
   // ===== END WHITELIST MANAGEMENT =====
+
+  const [redirectUrlError, setRedirectUrlError] = useState("");
+
+  const handleRedirectUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    if (!isValidUrl(value)) {
+      setRedirectUrlError("Invalid redirect URL.");
+    } else {
+      setRedirectUrlError("");
+    }
+    handleChange("redirectUrl")(event);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
@@ -294,11 +323,17 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 />
               </div>
             </div>
-            <button 
+            <button
+              type="button"
               onClick={handleAdd} 
-              className="bg-green-500 hover:scale-105 hover:bg-green-700 text-white p-2 rounded transition-transform duration-300"
+              className={`text-white p-2 rounded transition-transform duration-300 ${isCheckingNewWhitelistEntry ? "bg-gray-200" : "bg-green-500 hover:scale-105 hover:bg-green-700"}`}
+              disabled={isCheckingNewWhitelistEntry}
             >
-              Add to Whitelist
+              {isCheckingNewWhitelistEntry ? (
+                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+              ) : (
+                "Add to Whitelist"
+              )}
             </button>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -345,6 +380,9 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           <>
             <div className="flex flex-col gap-2">
               <h2>Reward Amount <span className="text-red-500">*</span></h2>
+              <p className="text-gray-500 text-sm">
+                You can enter an integer or a value up to one decimal place.
+              </p>
               <div className="rounded-lg border border-[#D1D5DB] flex items-center">
                 <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
                   Token Units:
@@ -352,10 +390,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <input
                   type="number"
                   value={data.rewardAmount?.toString() || ""}
-                  onChange={handleChange("rewardAmount", true)}
+                  onChange={handleChange("rewardAmount", true, true)}
                   className="w-full outline-none"
                   min="1"
-                  step="1"
+                  step="0.1"
                   placeholder="Enter token units"
                 />
               </div>
@@ -370,11 +408,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <input
                   type="url"
                   value={data.redirectUrl}
-                  onChange={handleChange("redirectUrl")}
-                  className="w-full outline-none"
+                  onChange={handleRedirectUrlChange}
+                  className={`w-full outline-none ${redirectUrlError ? "border-red-500" : ""}`}
                   placeholder="Enter the redirect URL"
                 />
               </div>
+              {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
             </div>
           </>
         )}
