@@ -3,7 +3,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
 import { NextButton } from "./NextButton";
-import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { WhitelistedAddress, ProjectType } from "../../types";
 
@@ -136,6 +136,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   const [newRedirectUrl, setNewRedirectUrl] = useState("");
   const [newRewardAmount, setNewRewardAmount] = useState(0);
 
+  const [isCheckingNewWhitelistEntry, setIsCheckingNewWhitelistEntry] = useState(false);
+
   // Helper function to check if URL is valid
   const isValidUrl = (url: string): boolean => {
     try {
@@ -146,18 +148,30 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
+    setIsCheckingNewWhitelistEntry(true);
+
     // Input validation
     if (!isAddress(newAddress)) {
       toast.error("Invalid wallet address.");
+      setIsCheckingNewWhitelistEntry(false);
+      return;
+    }
+    // Check if the address is an EOA
+    const eoa = await isEOA(newAddress);
+    if (!eoa) {
+      toast.error("This address is a contract address and cannot be added to the whitelist.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
     if (!isValidUrl(newRedirectUrl)) {
       toast.error("Invalid URL.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
     if (!(newRewardAmount > 0)) {
       toast.error("Reward amount must be greater than zero.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
   
@@ -165,6 +179,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     const exists = Object.keys(data.whitelistedAddresses ?? {}).includes(newAddress);
     if (exists) {
       toast.error("Address already exists in the whitelist.");
+      setIsCheckingNewWhitelistEntry(false);
       return;
     }
   
@@ -185,6 +200,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     setNewRedirectUrl("");
     setNewRewardAmount(0);
     toast.success("New address added to whitelist.");
+    setIsCheckingNewWhitelistEntry(false);
   };  
 
   const handleRemove = (addressToRemove: string) => {
@@ -294,11 +310,17 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 />
               </div>
             </div>
-            <button 
+            <button
+              type="button"
               onClick={handleAdd} 
-              className="bg-green-500 hover:scale-105 hover:bg-green-700 text-white p-2 rounded transition-transform duration-300"
+              className={`text-white p-2 rounded transition-transform duration-300 ${isCheckingNewWhitelistEntry ? "bg-gray-200" : "bg-green-500 hover:scale-105 hover:bg-green-700"}`}
+              disabled={isCheckingNewWhitelistEntry}
             >
-              Add to Whitelist
+              {isCheckingNewWhitelistEntry ? (
+                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+              ) : (
+                "Add to Whitelist"
+              )}
             </button>
             <div className="overflow-x-auto">
               <table className="w-full">
