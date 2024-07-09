@@ -49,7 +49,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         data.selectedTokenAddress.trim() &&
         data.rewardAmount !== undefined &&
         data.rewardAmount > 0 &&
-        data.redirectUrl?.trim()
+        data.redirectUrl?.trim() &&
+        isValidUrl(data.redirectUrl)
       );
     }
     return false; // In case projectType is not set or unknown
@@ -220,6 +221,18 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   };
 
   // ===== END WHITELIST MANAGEMENT =====
+
+  const [redirectUrlError, setRedirectUrlError] = useState("");
+
+  const handleRedirectUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    if (!isValidUrl(value)) {
+      setRedirectUrlError("Invalid redirect URL.");
+    } else {
+      setRedirectUrlError("");
+    }
+    handleChange("redirectUrl")(event);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
@@ -395,11 +408,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <input
                   type="url"
                   value={data.redirectUrl}
-                  onChange={handleChange("redirectUrl")}
-                  className="w-full outline-none"
+                  onChange={handleRedirectUrlChange}
+                  className={`w-full outline-none ${redirectUrlError ? "border-red-500" : ""}`}
                   placeholder="Enter the redirect URL"
                 />
               </div>
+              {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
             </div>
           </>
         )}
