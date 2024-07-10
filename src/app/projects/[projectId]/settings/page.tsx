@@ -28,6 +28,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   });
 
   const [socialLinkFormError, setSocialLinkFormError] = useState(false);
+  const [redirectLinkError, setRedirectLinkError] = useState(false);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -286,8 +287,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               }}
               handleChange={handleChange}
               handleWhitelistChange={projectData?.projectType === "DirectPayment" ? handleWhitelistChange : undefined}
+              setRedirectLinkError={setRedirectLinkError}
             />
-            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError}>
+            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError || redirectLinkError}>
               {isUpdating ? (
                 <div className="flex flex-row items-center justify-center gap-5">
                   <Image src="/loading.png" alt="loading.png" width={30} height={30} className="animate-spin" /> 
