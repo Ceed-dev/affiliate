@@ -17,6 +17,7 @@ type AffiliatesFormProps = {
   };
   handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
+  setRedirectLinkError?: (hasError: boolean) => void;
   nextStep?: () => void;
   isSaving?: boolean;
   hideButton?: boolean;
@@ -32,6 +33,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
   handleWhitelistChange,
+  setRedirectLinkError,
   nextStep,
   isSaving,
   hideButton,
@@ -228,8 +230,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     const value = event.target.value;
     if (!isValidUrl(value)) {
       setRedirectUrlError("Invalid redirect URL.");
+      setRedirectLinkError && setRedirectLinkError(true);
     } else {
       setRedirectUrlError("");
+      setRedirectLinkError && setRedirectLinkError(false);
     }
     handleChange("redirectUrl")(event);
   };
