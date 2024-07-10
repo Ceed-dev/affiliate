@@ -27,6 +27,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     embedPreview: "",
   });
 
+  const [socialLinkFormError, setSocialLinkFormError] = useState(false);
+
   useEffect(() => {
     fetchProjectData(params.projectId)
       .then(data => {
@@ -272,6 +274,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 discordUrl: projectData?.discordUrl ?? "",
               }}
               handleChange={handleChange}
+              setSocialLinkFormError={setSocialLinkFormError}
             />
             <AffiliatesForm 
               data={{
@@ -284,7 +287,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               handleChange={handleChange}
               handleWhitelistChange={projectData?.projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             />
-            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating}>
+            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError}>
               {isUpdating ? (
                 <div className="flex flex-row items-center justify-center gap-5">
                   <Image src="/loading.png" alt="loading.png" width={30} height={30} className="animate-spin" /> 

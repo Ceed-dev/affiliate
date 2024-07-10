@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NextButton } from "./NextButton";
 
 type SocialLinksFormProps = {
@@ -8,17 +8,26 @@ type SocialLinksFormProps = {
     discordUrl: string;
   };
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+  setSocialLinkFormError?: (hasError: boolean) => void;
   nextStep?: () => void;
 };
 
 export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   data,
   handleChange,
+  setSocialLinkFormError,
   nextStep,
 }) => {
   const [websiteError, setWebsiteError] = useState("");
   const [xUrlError, setXUrlError] = useState("");
   const [discordUrlError, setDiscordUrlError] = useState("");
+
+  useEffect(() => {
+    if (setSocialLinkFormError) {
+      const hasError = !!websiteError || !!xUrlError || !!discordUrlError;
+      setSocialLinkFormError(hasError);
+    }
+  }, [websiteError, xUrlError, discordUrlError, setSocialLinkFormError]);
 
   const isValidUrl = (url: string): boolean => {
     try {
