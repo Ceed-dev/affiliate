@@ -246,7 +246,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       <div className="flex flex-col gap-5">
         
         <div className="flex flex-col gap-2">
-          <h2>Token <span className="text-red-500">*</span> {isEditing && <span className="text-gray-500 text-sm">(Not editable)</span>}</h2>
+          <h2>Token <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Token address cannot be edited after initial setup."})</span></h2>
           <input
             readOnly={isEditing}
             type="text"
@@ -263,7 +263,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               }
             }}
             placeholder="Enter token contract address"
-            className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500" : "bg-white text-black"}`}
+            className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
           />
           {!isTokenAddressValid && (
             <p className="text-red-500 text-sm pl-2">Invalid token address.</p>
@@ -404,16 +404,17 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             </div>
 
             <div className="flex flex-col gap-2">
-              <h2>Redirect URL <span className="text-red-500">*</span></h2>
-              <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-                <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+              <h2>Redirect URL <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})</span></h2>
+              <div className={`rounded-lg border border-[#D1D5DB] flex items-center ${isEditing && "bg-gray-100"}`}>
+                <span className={`w-[150px] text-[#6B7280] bg-gray-100 p-2 border-r ${isEditing && "border-r-[#D1D5DB]"}`}>
                   URL:
                 </span>
                 <input
+                  readOnly={isEditing}
                   type="url"
                   value={data.redirectUrl}
                   onChange={handleRedirectUrlChange}
-                  className={`w-full outline-none ${redirectUrlError ? "border-red-500" : ""}`}
+                  className={`w-full outline-none pl-1 ${redirectUrlError ? "border-red-500" : ""} ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "text-black"}`}
                   placeholder="Enter the redirect URL"
                 />
               </div>
