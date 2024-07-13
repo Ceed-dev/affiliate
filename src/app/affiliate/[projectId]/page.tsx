@@ -38,7 +38,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const [referralLink, setReferralLink] = useState("");
 
   const [isWhitelisted, setIsWhitelisted] = useState(false);
@@ -76,7 +75,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         }
       } else if (projectData?.projectType === "EscrowPayment") {
         if (referralId) {
-          setReferralLink(`${baseUrl}/api/redirect?projectId=${params.projectId}&r=${referralId}`);
+          setReferralLink(`${projectData.redirectUrl}?r=${referralId}`);
         } else {
           setReferralLink("");
         }
