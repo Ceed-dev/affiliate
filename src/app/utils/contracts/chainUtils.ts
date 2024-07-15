@@ -1,11 +1,11 @@
-import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 import { getProvider } from "./initializeSigner";
+import { productionChains, testChains } from "../../constants/chains";
 
-export const getActiveChain = () => {
-  if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
-    return Polygon;
+export const getChains = () => {
+  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "production") {
+    return productionChains;
   } else {
-    return PolygonAmoyTestnet;
+    return testChains;
   }
 };
 
