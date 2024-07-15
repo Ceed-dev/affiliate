@@ -43,6 +43,9 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   status
 }) => {
   const isEditing = nextStep === undefined;
+  const { selectedChain, setSelectedChain } = useChainContext();
+  const switchChain = useSwitchChain();
+
   const isFormComplete = () => {
     if (data.projectType === "DirectPayment") {
       return (
@@ -87,9 +90,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       initializeTokenStates();
       return;
     }
-    setIsTokenAddressValid(true);
 
+    setIsTokenAddressValid(true);
     setIsFetchingTokenDetails(true);
+
     try {
       const signer = initializeSigner();
       if (!signer) {
@@ -127,7 +131,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     } else {
       initializeTokenStates();
     }
-  }, [data.selectedTokenAddress]);
+  }, [data.selectedTokenAddress, selectedChain]);
 
   // ===== BEGIN WHITELIST MANAGEMENT =====
 
@@ -243,9 +247,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
   // =========== Selected Chain Management ===========
   const chains = getChains();
-  const { selectedChain, setSelectedChain } = useChainContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const switchChain = useSwitchChain();
 
   const handleChainChange = async (chain: Chain) => {
     try {
