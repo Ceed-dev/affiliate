@@ -3,10 +3,12 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
 import { Chain } from "@thirdweb-dev/chains";
+import { useSwitchChain } from "@thirdweb-dev/react";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA, getChains } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { WhitelistedAddress, ProjectType } from "../../types";
+import { useChainContext } from "../../context/chainContext";
 
 type AffiliatesFormProps = {
   data: {
@@ -241,12 +243,19 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
   // =========== Selected Chain Management ===========
   const chains = getChains();
-  const [selectedChain, setSelectedChain] = useState(chains[0]);
+  const { selectedChain, setSelectedChain } = useChainContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const switchChain = useSwitchChain();
 
-  const handleChainChange = (chain: Chain) => {
-    setSelectedChain(chain);
-    setDropdownOpen(false);
+  const handleChainChange = async (chain: Chain) => {
+    try {
+      await switchChain(chain.chainId);
+      setSelectedChain(chain);
+      setDropdownOpen(false);
+    } catch (error) {
+      console.error("Failed to switch network:", error);
+      toast.error("Failed to switch network");
+    }
   };
   
   const formatChainName = (name: string) => {
