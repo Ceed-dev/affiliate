@@ -13,12 +13,14 @@ import {
   useDisconnect,
   useNetworkMismatch,
   useSwitchChain,
-  WalletInstance
+  useChain,
+  WalletInstance,
 } from "@thirdweb-dev/react";
-import { UserInfoModal } from "../components/UserInfoModal";
 import { AffiliateInfo } from "../types";
+import { UserInfoModal } from "../components/UserInfoModal";
+import { ChainSelector } from "../components/ChainSelector";
 import { checkUserAndPrompt, createNewUser, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
-import { getActiveChain } from "../utils/contracts";
+import { useChainContext } from "../context/chainContext";
 
 export default function Onboarding() {
   const router = useRouter();
@@ -26,7 +28,8 @@ export default function Onboarding() {
   const disconnect = useDisconnect();
   const isMismatched = useNetworkMismatch();
   const switchChain = useSwitchChain();
-  const activeChain = getActiveChain();
+  const chain = useChain();
+  const { selectedChain } = useChainContext();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [disableRoleSelection, setDisableRoleSelection] = useState(false);
@@ -38,6 +41,21 @@ export default function Onboarding() {
     if (adminWalletAddresses?.map(addr => addr.toLowerCase()).includes(walletAddress.toLowerCase())) {
       router.push("/admin");
     } else {
+      if (!walletAddress || !chain) {
+        console.log("No wallet address or chain");
+        return;
+      }
+
+      if (isMismatched) {
+        try {
+          await switchChain(selectedChain.chainId);
+        } catch (error) {
+          console.error("Failed to switch network:", error);
+          toast.error("Failed to switch network");
+          return;
+        }
+      }
+
       const isProjectOwner = await checkIfProjectOwner(walletAddress);
       setDisableRoleSelection(isProjectOwner);
 
@@ -66,19 +84,10 @@ export default function Onboarding() {
   };
 
   useEffect(() => {
-    if (address) {
+    if (address && chain) {
       handleUserCheck(address);
     }
-  }, [address]);
-
-  useEffect(() => {
-    if (address && isMismatched) {
-      switchChain(activeChain.chainId).catch((error) => {
-        console.error("Failed to switch network:", error);
-        toast.error("Failed to switch network");
-      });
-    }
-  }, [address, isMismatched, switchChain, activeChain.chainId]);
+  }, [address, chain]);
 
   const handleSaveUserInfo = async (info: AffiliateInfo) => {
     if (address) {
@@ -111,7 +120,7 @@ export default function Onboarding() {
 
   return (
     <div className="flex flex-col items-center min-h-screen gap-[100px]">
-      <div className="w-11/12 sm:w-2/3 flex mt-5">
+      <div className="w-11/12 sm:w-2/3 flex flex-row items-center justify-between mt-5">
         <Link href="/#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
           <Image
             src="/qube.png"
@@ -121,6 +130,7 @@ export default function Onboarding() {
           />
           <p className="text-lg font-semibold">Qube</p>
         </Link>
+        <ChainSelector />
       </div>
       <div className="bg-white border-2 border-sky-500 rounded-lg w-11/12 sm:w-2/3 xl:w-1/3 flex flex-col items-center gap-10 py-20">
         <Image
