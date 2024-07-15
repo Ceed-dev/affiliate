@@ -10,18 +10,20 @@ import {
 } from "@thirdweb-dev/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getActiveChain } from "./utils/contracts";
+import { ChainProvider, useChainContext } from "./context/chainContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
+  const { selectedChain } = useChainContext();
+
   return (
     <ThirdwebProvider
-      activeChain={getActiveChain()}
+      activeChain={selectedChain}
       clientId="57b58ed3058432b8220286445c2b302d"
       supportedWallets={[
         metamaskWallet({ recommended: true }),
@@ -42,3 +44,13 @@ export default function RootLayout({
     </ThirdwebProvider>
   );
 }
+
+const App = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <ChainProvider>
+      <RootLayout>{children}</RootLayout>
+    </ChainProvider>
+  );
+};
+
+export default App;
