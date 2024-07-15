@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
+import { Chain } from "@thirdweb-dev/chains";
 import { NextButton } from "./NextButton";
-import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
+import { initializeSigner, ERC20, isEOA, getChains } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { WhitelistedAddress, ProjectType } from "../../types";
 
@@ -238,6 +239,21 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     handleChange("redirectUrl")(event);
   };
 
+  // =========== Selected Chain Management ===========
+  const chains = getChains();
+  const [selectedChain, setSelectedChain] = useState(chains[0]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleChainChange = (chain: Chain) => {
+    setSelectedChain(chain);
+    setDropdownOpen(false);
+  };
+  
+  const formatChainName = (name: string) => {
+    return name.split(" ")[0].toLowerCase();
+  };
+  // =================================================
+
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
 
@@ -247,24 +263,53 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         
         <div className="flex flex-col gap-2">
           <h2>Token <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Token address cannot be edited after initial setup."})</span></h2>
-          <input
-            readOnly={isEditing}
-            type="text"
-            value={data.selectedTokenAddress}
-            onChange={(e) => {
-              handleChange("selectedTokenAddress")(e);
-              const address = e.target.value.trim();
-              if (address === "") {
-                setIsTokenAddressValid(true);
-                setIsErc20Token(true);
-                initializeTokenStates();
-              } else {
-                fetchTokenDetails(address);
-              }
-            }}
-            placeholder="Enter token contract address"
-            className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
-          />
+          <div className="flex items-center gap-2">
+            <div className="relative inline-block text-left">
+              <button
+                type="button"
+                onClick={() => !isEditing && setDropdownOpen(!dropdownOpen)}
+                className={`inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 text-sm font-medium ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"} focus:outline-none`}
+                disabled={isEditing}
+              >
+                <Image src={`/${formatChainName(selectedChain.name)}.png`} alt={selectedChain.name} width={20} height={20} />
+              </button>
+
+              {dropdownOpen && (
+                <div className="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                    {chains.map(chain => (
+                      <button
+                        key={chain.chainId}
+                        onClick={() => handleChainChange(chain)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <Image src={`/${formatChainName(chain.name)}.png`} alt={chain.name} width={20} height={20} />
+                        <span className="ml-2">{chain.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <input
+              readOnly={isEditing}
+              type="text"
+              value={data.selectedTokenAddress}
+              onChange={(e) => {
+                handleChange("selectedTokenAddress")(e);
+                const address = e.target.value.trim();
+                if (address === "") {
+                  setIsTokenAddressValid(true);
+                  setIsErc20Token(true);
+                  initializeTokenStates();
+                } else {
+                  fetchTokenDetails(address);
+                }
+              }}
+              placeholder="Enter token contract address"
+              className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+            />
+          </div>
           {!isTokenAddressValid && (
             <p className="text-red-500 text-sm pl-2">Invalid token address.</p>
           )}
