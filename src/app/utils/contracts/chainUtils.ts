@@ -1,5 +1,5 @@
 import { getProvider } from "./initializeSigner";
-import { productionChains, testChains } from "../../constants/chains";
+import { productionChains, testChains, chainRpcUrls } from "../../constants/chains";
 
 export const getChains = () => {
   if (process.env.NEXT_PUBLIC_ENVIRONMENT === "production") {
@@ -9,8 +9,8 @@ export const getChains = () => {
   }
 };
 
-export const isEOA = async (address: string): Promise<boolean> => {
-  const provider = getProvider();
+export const isEOA = async (address: string, chainId: number): Promise<boolean> => {
+  const provider = getProvider(chainRpcUrls[chainId]);
   try {
     const code = await provider.getCode(address);
     return code === "0x";

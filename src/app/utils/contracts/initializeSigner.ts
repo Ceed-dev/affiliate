@@ -1,12 +1,12 @@
 import { ethers } from "ethers";
 
-export function getProvider(): ethers.providers.Provider {
-  return new ethers.providers.JsonRpcProvider(`${process.env.NEXT_PUBLIC_PROVIDER_URL}`);
+export function getProvider(url: string): ethers.providers.Provider {
+  return new ethers.providers.JsonRpcProvider(url);
 }
 
-export function initializeSigner(privateKey?: string): ethers.Signer | null {
-  if (privateKey) {
-    const provider = getProvider();
+export function initializeSigner(url?: string, privateKey?: string): ethers.Signer | null {
+  if (url && privateKey) {
+    const provider = getProvider(url);
     const signer = new ethers.Wallet(privateKey, provider);
     return signer;
   } else if (typeof window !== "undefined" && window.ethereum) {
