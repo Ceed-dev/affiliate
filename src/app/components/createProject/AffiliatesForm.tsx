@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
@@ -98,18 +99,18 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     setIsFetchingTokenDetails(true);
 
     try {
-      const signer = initializeSigner(); // TODO: fix for multi-chain
+      const signer = initializeSigner();
       if (!signer) {
         throw new Error("Failed to initialize signer.");
       }
       const erc20 = new ERC20(address, signer);
       const symbol = await erc20.getSymbol();
       const balance = await erc20.getBalance(await signer.getAddress());
-      const allowance = await erc20.getAllowance(await signer.getAddress(), `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`);
+      // const allowance = await erc20.getAllowance(await signer.getAddress(), `${process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS}`);
 
       setTokenSymbol(symbol);
       setTokenBalance(balance);
-      setTokenAllowance(allowance);
+      // setTokenAllowance(allowance);
 
       setIsErc20Token(true);
 
@@ -117,7 +118,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         "Address": address,
         "Symbol": symbol,
         "Balance": balance,
-        "Allowance": allowance,
+        // "Allowance": allowance,
+        "Allowance": "0",
       }, null, 2));
     } catch (error: any) {
       console.error(`Error fetching token details: ${error.message}`);
@@ -129,7 +131,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   };
 
   useEffect(() => {
-    if (data.selectedTokenAddress) {
+    if (!isEditing && data.selectedTokenAddress) {
       fetchTokenDetails(data.selectedTokenAddress);
     } else {
       initializeTokenStates();
@@ -171,7 +173,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       return;
     }
     // Check if the address is an EOA
-    const eoa = await isEOA(newAddress);
+    const eoa = await isEOA(newAddress, selectedChain.chainId);
     if (!eoa) {
       toast.error("This address is a contract address and cannot be added to the whitelist.");
       setIsCheckingNewWhitelistEntry(false);
@@ -337,7 +339,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
             </div>
           }
-          {tokenSymbol && tokenBalance && tokenAllowance && 
+          {!isEditing && tokenSymbol && tokenBalance && tokenAllowance && 
             <div className="flex flex-row justify-around">
               <p><span className="font-semibold">Token:</span> {tokenSymbol}</p>
               <p>/</p>
@@ -346,6 +348,16 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               <p><span className="font-semibold">Allowance:</span> {formatBalance(tokenAllowance)}</p>
             </div>
           }
+          {selectedChain && selectedChain.explorers && selectedChain.explorers.length > 0 && (
+            <Link
+              href={`${selectedChain.explorers[0].url}/address/${data.selectedTokenAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mr-auto text-blue-400 hover:text-blue-700 hover:font-semibold hover:underline"
+            >
+              &rarr; View on Explorer
+            </Link>
+          )}
         </div>
 
         {data.projectType === "DirectPayment" && (
