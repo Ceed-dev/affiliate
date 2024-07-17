@@ -25,6 +25,7 @@ type AffiliatesFormProps = {
   isSaving?: boolean;
   hideButton?: boolean;
   status?: string;
+  selectedChain?: Chain | null;
 };
 
 type WhitelistEntry = {
@@ -40,10 +41,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   nextStep,
   isSaving,
   hideButton,
-  status
+  status,
+  selectedChain: selectedChainProp,
 }) => {
   const isEditing = nextStep === undefined;
-  const { selectedChain, setSelectedChain } = useChainContext();
+  const { selectedChain: contextSelectedChain, setSelectedChain } = useChainContext();
+  const selectedChain = selectedChainProp ?? contextSelectedChain;
   const switchChain = useSwitchChain();
 
   const isFormComplete = () => {
@@ -95,7 +98,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     setIsFetchingTokenDetails(true);
 
     try {
-      const signer = initializeSigner();
+      const signer = initializeSigner(); // TODO: fix for multi-chain
       if (!signer) {
         throw new Error("Failed to initialize signer.");
       }
@@ -274,9 +277,14 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             <div className="relative inline-block text-left">
               <button
                 type="button"
-                onClick={() => !isEditing && setDropdownOpen(!dropdownOpen)}
-                className={`inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 text-sm font-medium ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"} focus:outline-none`}
-                disabled={isEditing}
+                onClick={() => {
+                  if (isEditing) {
+                    toast.info(`Selected chain: ${selectedChain.name}`);
+                  } else {
+                    setDropdownOpen(!dropdownOpen);
+                  }
+                }}
+                className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 focus:outline-none"
               >
                 <Image src={`/${formatChainName(selectedChain.name)}.png`} alt={selectedChain.name} width={20} height={20} />
               </button>

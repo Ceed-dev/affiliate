@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import cloneDeep from "lodash/cloneDeep";
+import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
 import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, WhitelistedAddress } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
@@ -19,6 +20,7 @@ import { fetchProjectData, updateProjectInFirestore } from "../../../utils/fireb
 export default function Settings({ params }: { params: { projectId: string } }) {
   const [initialProjectData, setInitialProjectData] = useState<ProjectData | null>(null);
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [previewData, setPreviewData] = useState({
@@ -31,8 +33,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   const [redirectLinkError, setRedirectLinkError] = useState(false);
 
   useEffect(() => {
-    fetchProjectData(params.projectId)
-      .then(data => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchProjectData(params.projectId);
         setInitialProjectData(cloneDeep(data));
         setProjectData(cloneDeep(data));
         setLoadingProject(false);
@@ -42,13 +45,20 @@ export default function Settings({ params }: { params: { projectId: string } }) 
           coverPreview: data.cover || "",
           embedPreview: data.projectType === "EscrowPayment" ? data.embed || "" : "",
         });
-      })
-      .catch(error => {
+
+        if (data.selectedChainId) {
+          const chain = await getChainByChainIdAsync(data.selectedChainId);
+          setSelectedChain(chain);
+        }
+      } catch (error) {
         const message = (error instanceof Error) ? error.message : "Unknown error";
         console.error("Error loading the project: ", message);
         toast.error(`Error loading the project: ${message}`);
         setLoadingProject(false);
-      });
+      }
+    };
+
+    fetchData();
   }, [params.projectId]);
 
   const handleImageChange = (type: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -288,6 +298,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               handleChange={handleChange}
               handleWhitelistChange={projectData?.projectType === "DirectPayment" ? handleWhitelistChange : undefined}
               setRedirectLinkError={setRedirectLinkError}
+              selectedChain={selectedChain ?? undefined}
             />
             <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError || redirectLinkError}>
               {isUpdating ? (
