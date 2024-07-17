@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ExtendedProjectData } from "../types";
+import { formatChainName } from "../utils/formatters";
+import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 
 type ProjectCardProps = {
   project: ExtendedProjectData;
@@ -14,6 +16,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   linkUrl,
   isMultipleOwners = false 
 }) => {
+  const [chainName, setChainName] = useState<string | undefined>();
+
+  useEffect(() => {
+    const fetchChainName = async () => {
+      try {
+        const chain = await getChainByChainIdAsync(project.selectedChainId);
+        setChainName(chain.name);
+      } catch (error) {
+        console.error(`Failed to get chain name for chain ID ${project.selectedChainId}:`, error);
+      }
+    };
+
+    fetchChainName();
+  }, [project.selectedChainId]);
+
   return (
     <Link href={linkUrl}>
       <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-visible transition duration-300 ease-in-out transform hover:scale-105">
@@ -51,8 +68,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 alt={`${project.projectName}'s logo`}
               />
             </div>
-            <p className="font-semibold bg-green-200 px-2 py-1 rounded-md border border-white">
-              {project.projectType === "EscrowPayment" ? `${project.rewardAmount} ${project.selectedToken}` : project.selectedToken}
+            <p className="flex flex-row items-center bg-green-200 px-2 py-1 rounded-md border border-white">
+              <p className="font-semibold">
+                {project.projectType === "EscrowPayment" ? `${project.rewardAmount} ${project.selectedToken}` : project.selectedToken}
+              </p>
+              {chainName && <Image src={`/${formatChainName(chainName)}.png`} alt={chainName} width={18} height={18} className="m-1" />}
             </p>
           </div>
         </div>
