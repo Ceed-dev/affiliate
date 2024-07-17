@@ -1,11 +1,12 @@
-import { formatAddress } from "./formatAddress";
 import { formatBalance } from "./formatBalance";
 import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "./dateUtils";
+import { formatChainName, formatAddress } from "./chainUtils";
 
 export {
-  formatAddress,
   formatBalance,
   displayFormattedDateWithTimeZone,
   getNextPaymentDate,
-  getTimeZoneSymbol
+  getTimeZoneSymbol,
+  formatChainName,
+  formatAddress,
 }

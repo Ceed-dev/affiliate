@@ -6,7 +6,7 @@ import { Chain } from "@thirdweb-dev/chains";
 import { useSwitchChain } from "@thirdweb-dev/react";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA, getChains } from "../../utils/contracts";
-import { formatBalance } from "../../utils/formatters";
+import { formatBalance, formatChainName } from "../../utils/formatters";
 import { WhitelistedAddress, ProjectType } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
@@ -258,10 +258,6 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       console.error("Failed to switch network:", error);
       toast.error("Failed to switch network");
     }
-  };
-  
-  const formatChainName = (name: string) => {
-    return name.split(" ")[0].toLowerCase();
   };
   // =================================================
 
