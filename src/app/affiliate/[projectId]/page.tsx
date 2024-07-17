@@ -436,7 +436,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
               </div>
-            : <ConversionsList transactions={transactionData} />
+            : <ConversionsList explorerUrl={Explorer Url Here} transactions={transactionData} />
           } */}
 
           {loadingConversionLogs || loadingClickData
