@@ -4,6 +4,7 @@ type BaseProjectData = {
   id?: string;
   projectName: string;
   description: string;
+  selectedChainId: number;
   selectedTokenAddress: string;
   logo: string | null;
   cover: string | null;

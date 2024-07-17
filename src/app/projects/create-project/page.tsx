@@ -15,9 +15,11 @@ import {
 import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
 import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
+import { useChainContext } from "../../context/chainContext";
 
 export default function CreateProject() {
   const router = useRouter();
+  const { selectedChain } = useChainContext();
   const [currentStep, setCurrentStep] = useState(1);
   const [initialStatus, setInitialStatus] = useState<string>("");
   const [saveAndDepositStatus, setSaveAndDepositStatus] = useState<string>("");
@@ -44,6 +46,7 @@ export default function CreateProject() {
     const commonData = {
       projectName: "",
       description: "",
+      selectedChainId: selectedChain.chainId,
       selectedTokenAddress: "",
       logo: null,
       cover: null,
@@ -207,7 +210,10 @@ export default function CreateProject() {
 
     setIsSaving(true);
 
-    let updatedProjectData: ProjectData = projectData;
+    let updatedProjectData: ProjectData = {
+      ...projectData,
+      selectedChainId: selectedChain.chainId,
+    };
 
     // Set remaining values to be equal to total values
     if (projectType === "DirectPayment") {
