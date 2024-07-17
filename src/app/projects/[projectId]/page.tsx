@@ -6,8 +6,9 @@ import { toast } from "react-toastify";
 import { NavBar, BarChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
 import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
-import { initializeSigner, Escrow, ERC20 } from "../../utils/contracts";
+import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
+import { chainRpcUrls } from "../../constants/chains";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -64,14 +65,15 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
     const fetchTokenDetails = async () => {
       try {
-        const signer = initializeSigner();
-        if (!signer) {
-          throw new Error("Failed to initialize signer.");
+        const rpcUrl = chainRpcUrls[projectData.selectedChainId];
+        if (!rpcUrl) {
+          throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
         }
-        // const escrow = new Escrow(signer);
-        const erc20 = new ERC20(projectData.selectedTokenAddress, signer);
+
+        const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
         const symbol = await erc20.getSymbol();
         setTokenSymbol(symbol);
+        // const escrow = new Escrow(signer);
         // const projectInfo = await escrow.getProjectInfo(params.projectId);
         // setDepositBalance(projectInfo?.depositAmount ? formatBalance(projectInfo.depositAmount) : "0");
       } catch (error: any) {

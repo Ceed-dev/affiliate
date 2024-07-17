@@ -7,8 +7,9 @@ import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
 import { ProjectData, ExtendedProjectData } from "../types";
 import { fetchProjectsByOwner } from "../utils/firebase";
-import { initializeSigner, ERC20 } from "../utils/contracts";
+import { getProvider, ERC20 } from "../utils/contracts";
 import { ProjectCard } from "../components/ProjectCard";
+import { chainRpcUrls } from "../constants/chains";
 
 export default function Projects() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -19,12 +20,13 @@ export default function Projects() {
 
   useEffect(() => {
     const fetchTokenSymbols = async (projects: ProjectData[]) => {
-      const signer = initializeSigner();
-      if (!signer) {
-        throw new Error("Failed to initialize signer.");
-      }
       return Promise.all(projects.map(async (project) => {
-        const erc20 = new ERC20(project.selectedTokenAddress, signer);
+        const rpcUrl = chainRpcUrls[project.selectedChainId];
+        if (!rpcUrl) {
+          throw new Error(`RPC URL for chain ID ${project.selectedChainId} not found.`);
+        }
+
+        const erc20 = new ERC20(project.selectedTokenAddress, getProvider(rpcUrl));
         const symbol = await erc20.getSymbol();
         return { ...project, selectedToken: symbol };
       }));

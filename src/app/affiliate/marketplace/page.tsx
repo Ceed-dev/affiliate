@@ -5,8 +5,9 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ProjectData, ExtendedProjectData } from "../../types";
 import { fetchAllProjects } from "../../utils/firebase";
-import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { getProvider, ERC20 } from "../../utils/contracts";
 import { ProjectCard } from "../../components/ProjectCard";
+import { chainRpcUrls } from "../../constants/chains";
 
 export default function Marketplace() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -16,9 +17,13 @@ export default function Marketplace() {
 
   useEffect(() => {
     const fetchTokenSymbols = async (projects: ProjectData[]) => {
-      const signer = initializeSigner();
       return Promise.all(projects.map(async (project) => {
-        const erc20 = new ERC20(project.selectedTokenAddress, signer!);
+        const rpcUrl = chainRpcUrls[project.selectedChainId];
+        if (!rpcUrl) {
+          throw new Error(`RPC URL for chain ID ${project.selectedChainId} not found.`);
+        }
+
+        const erc20 = new ERC20(project.selectedTokenAddress, getProvider(rpcUrl));
         const symbol = await erc20.getSymbol();
         return { ...project, selectedToken: symbol };
       }));
