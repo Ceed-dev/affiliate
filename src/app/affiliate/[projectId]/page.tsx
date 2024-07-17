@@ -10,10 +10,11 @@ import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
-import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { getProvider, ERC20 } from "../../utils/contracts";
 import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol, formatChainName } from "../../utils/formatters";
 import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
 import { useCountdown } from "../../hooks/useCountdown";
+import { chainRpcUrls } from "../../constants/chains";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
@@ -113,10 +114,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
     const fetchTokenDetails = async () => {
       try {
-        const signer = initializeSigner();
-        const erc20 = new ERC20(projectData.selectedTokenAddress, signer!);
-        const symbol = await erc20.getSymbol();
+        const rpcUrl = chainRpcUrls[projectData.selectedChainId];
+        if (!rpcUrl) {
+          throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
+        }
 
+        const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
+        const symbol = await erc20.getSymbol();
         setTokenSymbol(symbol);
       } catch (error: any) {
         console.error("Error fetching token details: ", error);
@@ -432,7 +436,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
               </div>
-            : <ConversionsList transactions={transactionData} />
+            : <ConversionsList explorerUrl={Explorer Url Here} transactions={transactionData} />
           } */}
 
           {loadingConversionLogs || loadingClickData

@@ -20,7 +20,7 @@ export default function Admin() {
   const [isSignerInitialized, setIsSignerInitialized] = useState(false);
   const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL;
+  const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL; // TODO: fix
   const [unpaidLogsLoading, setUnpaidLogsLoading] = useState(false);
   const [userApprovalLoading, setUserApprovalLoading] = useState(false);
   const [processingLogId, setProcessingLogId] = useState<string | null>(null);

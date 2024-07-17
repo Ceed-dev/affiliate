@@ -4,11 +4,11 @@ import { erc20ABI } from "../../constants/abi";
 export class ERC20 {
   private contract: ethers.Contract;
 
-  constructor(contractAddress: string, signer: ethers.Signer) {
+  constructor(contractAddress: string, signerOrProvider: ethers.Signer | ethers.providers.Provider) {
     if (!ethers.utils.isAddress(contractAddress)) {
       throw new Error("Invalid contract address.");
     }
-    this.contract = new ethers.Contract(contractAddress, erc20ABI, signer);
+    this.contract = new ethers.Contract(contractAddress, erc20ABI, signerOrProvider);
   }
 
   async getBalance(address: string): Promise<string> {
