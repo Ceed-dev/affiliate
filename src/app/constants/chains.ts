@@ -1,18 +1,21 @@
 import { 
   Chain, 
   Polygon, PolygonAmoyTestnet, 
-  Arbitrum, ArbitrumNova, ArbitrumSepolia, 
+  Arbitrum, ArbitrumNova, ArbitrumSepolia,
+  Avalanche, AvalancheFuji,
 } from "@thirdweb-dev/chains";
 
 export const productionChains: Chain[] = [
   Polygon,
   Arbitrum,
   ArbitrumNova,
+  Avalanche,
 ];
 
 export const testChains: Chain[] = [
   PolygonAmoyTestnet,
   ArbitrumSepolia,
+  AvalancheFuji,
 ];
 
 export const chainRpcUrls: { [chainId: number]: string } = {
@@ -21,4 +24,6 @@ export const chainRpcUrls: { [chainId: number]: string } = {
   42161: "https://arb1.arbitrum.io/rpc",
   42170: "https://nova.arbitrum.io/rpc",
   421614: "https://sepolia-rollup.arbitrum.io/rpc",
+  43114: "https://api.avax.network/ext/bc/C/rpc",
+  43113: "https://api.avax-test.network/ext/bc/C/rpc",
 };
