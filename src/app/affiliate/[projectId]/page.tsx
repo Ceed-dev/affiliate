@@ -3,16 +3,18 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
+import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
 import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
-import { initializeSigner, ERC20 } from "../../utils/contracts";
-import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol } from "../../utils/formatters";
+import { getProvider, ERC20 } from "../../utils/contracts";
+import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol, formatChainName } from "../../utils/formatters";
 import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
 import { useCountdown } from "../../hooks/useCountdown";
+import { chainRpcUrls } from "../../constants/chains";
 
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
@@ -112,10 +114,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
     const fetchTokenDetails = async () => {
       try {
-        const signer = initializeSigner();
-        const erc20 = new ERC20(projectData.selectedTokenAddress, signer!);
-        const symbol = await erc20.getSymbol();
+        const rpcUrl = chainRpcUrls[projectData.selectedChainId];
+        if (!rpcUrl) {
+          throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
+        }
 
+        const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
+        const symbol = await erc20.getSymbol();
         setTokenSymbol(symbol);
       } catch (error: any) {
         console.error("Error fetching token details: ", error);
@@ -170,6 +175,25 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         });
     }
   }, [referralData, referralId]);
+
+  // ============== Get Chain Name =============
+  const [chainName, setChainName] = useState<string | undefined>();
+
+  useEffect(() => {
+    const fetchChainName = async () => {
+      try {
+        const chain = await getChainByChainIdAsync(projectData?.selectedChainId!);
+        setChainName(chain.name);
+      } catch (error) {
+        console.error(`Failed to get chain name for chain ID ${projectData?.selectedChainId}:`, error);
+      }
+    };
+
+    if (projectData?.selectedChainId) {
+      fetchChainName();
+    }
+  }, [projectData?.selectedChainId]);
+  // ===========================================
 
   // useEffect(() => {
   //   if (referralData) {
@@ -300,6 +324,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
           <h2 className="text-lg font-semibold text-gray-900">
             Earn {rewardText} for each successful referral
+            {chainName && (
+              <>
+                {" on "}
+                <span className="text-purple-700 underline animate-pulse">{chainName}</span>
+                <Image 
+                  src={`/${formatChainName(chainName)}.png`} 
+                  alt={chainName} 
+                  width={18} 
+                  height={18} 
+                  className="m-1 inline" 
+                />
+              </>
+            )}
           </h2>
           <p className="text-gray-600 pb-4">
             {projectData?.projectType === "DirectPayment" && isWhitelisted 
@@ -399,7 +436,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
               </div>
-            : <ConversionsList transactions={transactionData} />
+            : <ConversionsList explorerUrl={Explorer Url Here} transactions={transactionData} />
           } */}
 
           {loadingConversionLogs || loadingClickData

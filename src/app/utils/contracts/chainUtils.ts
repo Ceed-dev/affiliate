@@ -1,16 +1,16 @@
-import { Polygon, PolygonAmoyTestnet } from "@thirdweb-dev/chains";
 import { getProvider } from "./initializeSigner";
+import { productionChains, testChains, chainRpcUrls } from "../../constants/chains";
 
-export const getActiveChain = () => {
-  if (process.env.NEXT_PUBLIC_ACTIVE_CHAIN === "Polygon") {
-    return Polygon;
+export const getChains = () => {
+  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "production") {
+    return productionChains;
   } else {
-    return PolygonAmoyTestnet;
+    return testChains;
   }
 };
 
-export const isEOA = async (address: string): Promise<boolean> => {
-  const provider = getProvider();
+export const isEOA = async (address: string, chainId: number): Promise<boolean> => {
+  const provider = getProvider(chainRpcUrls[chainId]);
   try {
     const code = await provider.getCode(address);
     return code === "0x";

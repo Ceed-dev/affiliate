@@ -37,6 +37,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     return (
       typeof data.projectName === "string" &&
       typeof data.description === "string" &&
+      typeof data.selectedChainId === "number" &&
       typeof data.selectedTokenAddress === "string" &&
       (data.logo === null || typeof data.logo === "string") &&
       (data.cover === null || typeof data.cover === "string") &&

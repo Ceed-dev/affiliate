@@ -104,14 +104,15 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
       return;
     }
 
+    // TODO: fix
     // Check if the address is an EOA
-    const eoa = await isEOA(newOwnerAddress);
-    if (!eoa) {
-      setNewOwnerAddress("");
-      toast.error("This address is a contract address and cannot be added as a team member.");
-      setIsCheckingNewOwnerAddress(false);
-      return;
-    }
+    // const eoa = await isEOA(newOwnerAddress);
+    // if (!eoa) {
+    //   setNewOwnerAddress("");
+    //   toast.error("This address is a contract address and cannot be added as a team member.");
+    //   setIsCheckingNewOwnerAddress(false);
+    //   return;
+    // }
 
     // Check if the user is an affiliate
     const userRole = await checkUserRole(newOwnerAddress);

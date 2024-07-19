@@ -4,12 +4,13 @@ import { PaymentTransaction } from "../../types";
 import { formatAddress } from "../../utils/formatters";
 
 type ConversionsListProps = {
+  explorerUrl: string;
   transactions: PaymentTransaction[];
 };
 
-export const ConversionsList: React.FC<ConversionsListProps> = ({ transactions }) => {
+export const ConversionsList: React.FC<ConversionsListProps> = ({ explorerUrl, transactions }) => {
   const openExplorer = (transactionHash: string) => {
-    const url = `${process.env.NEXT_PUBLIC_EXPLORER_BASE_URL}/tx/${transactionHash}`;
+    const url = `${explorerUrl}/tx/${transactionHash}`;
     window.open(url, "_blank");
   };
 
