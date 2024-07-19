@@ -339,16 +339,18 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
             </div>
           }
-          {!isEditing && tokenSymbol && tokenBalance && tokenAllowance && 
+          {/* {!isEditing && tokenSymbol && tokenBalance && tokenAllowance &&  */}
+          {!isEditing && tokenSymbol && tokenBalance && 
             <div className="flex flex-row justify-around">
               <p><span className="font-semibold">Token:</span> {tokenSymbol}</p>
               <p>/</p>
               <p><span className="font-semibold">Balance:</span> {formatBalance(tokenBalance)}</p>
               <p>/</p>
-              <p><span className="font-semibold">Allowance:</span> {formatBalance(tokenAllowance)}</p>
+              {/* <p><span className="font-semibold">Allowance:</span> {formatBalance(tokenAllowance)}</p> */}
+              <p><span className="font-semibold">Allowance:</span> -</p>
             </div>
           }
-          {selectedChain && selectedChain.explorers && selectedChain.explorers.length > 0 && (
+          {isEditing && selectedChain && selectedChain.explorers && selectedChain.explorers.length > 0 && (
             <Link
               href={`${selectedChain.explorers[0].url}/address/${data.selectedTokenAddress}`}
               target="_blank"
