@@ -3,6 +3,7 @@ import {
   Polygon, PolygonAmoyTestnet, 
   Arbitrum, ArbitrumNova, ArbitrumSepolia,
   Avalanche, AvalancheFuji,
+  MchVerse,
 } from "@thirdweb-dev/chains";
 
 export const productionChains: Chain[] = [
@@ -10,6 +11,7 @@ export const productionChains: Chain[] = [
   Arbitrum,
   ArbitrumNova,
   Avalanche,
+  MchVerse,
 ];
 
 export const testChains: Chain[] = [
@@ -26,4 +28,5 @@ export const chainRpcUrls: { [chainId: number]: string } = {
   421614: "https://sepolia-rollup.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
   43113: "https://api.avax-test.network/ext/bc/C/rpc",
+  29548: "https://rpc.oasys.mycryptoheroes.net",
 };
