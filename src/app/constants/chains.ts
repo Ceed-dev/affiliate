@@ -5,6 +5,7 @@ import {
   Avalanche, AvalancheFuji,
   MchVerse,
   HomeVerse,
+  GesoVerse, GesotenVerseTestnet,
 } from "@thirdweb-dev/chains";
 
 export const productionChains: Chain[] = [
@@ -14,12 +15,14 @@ export const productionChains: Chain[] = [
   Avalanche,
   MchVerse,
   HomeVerse,
+  GesoVerse,
 ];
 
 export const testChains: Chain[] = [
   PolygonAmoyTestnet,
   ArbitrumSepolia,
   AvalancheFuji,
+  GesotenVerseTestnet,
 ];
 
 export const chainRpcUrls: { [chainId: number]: string } = {
@@ -32,4 +35,6 @@ export const chainRpcUrls: { [chainId: number]: string } = {
   43113: "https://api.avax-test.network/ext/bc/C/rpc",
   29548: "https://rpc.oasys.mycryptoheroes.net",
   19011: "https://rpc.mainnet.oasys.homeverse.games",
+  428: "https://rpc.verse.gesoten.com",
+  42801: "https://rpc.testnet.verse.gesoten.com",
 };
