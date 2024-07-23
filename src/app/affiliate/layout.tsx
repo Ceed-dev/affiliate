@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAddress } from "@thirdweb-dev/react";
 import { formatAddress } from "../utils/formatters";
+import { ChainSelector } from "../components/ChainSelector";
 
 export default function AffiliateLayout({
   children,
@@ -38,11 +39,14 @@ export default function AffiliateLayout({
           </Link>
           <Link className="text-sm text-gray-500 hover:text-black" href="/affiliate/marketplace">Marketplace</Link>
         </div>
-        <button
-          className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          {address ? formatAddress(address) : "Not connected"}
-        </button>
+        <div className="flex flex-row items-center gap-5">
+          <ChainSelector useSwitch={true} />
+          <button
+            className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            {address ? formatAddress(address) : "Not connected"}
+          </button>
+        </div>
       </div>
       {children}
     </>
