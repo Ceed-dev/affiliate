@@ -329,7 +329,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 {" on "}
                 <span className="text-purple-700 underline animate-pulse">{chainName}</span>
                 <Image 
-                  src={`/${formatChainName(chainName)}.png`} 
+                  src={`/chains/${formatChainName(chainName)}.png`} 
                   alt={chainName} 
                   width={18} 
                   height={18} 

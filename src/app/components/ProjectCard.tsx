@@ -72,7 +72,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <p className="font-semibold">
                 {project.projectType === "EscrowPayment" ? `${project.rewardAmount} ${project.selectedToken}` : project.selectedToken}
               </p>
-              {chainName && <Image src={`/${formatChainName(chainName)}.png`} alt={chainName} width={18} height={18} className="m-1" />}
+              {chainName && <Image src={`/chains/${formatChainName(chainName)}.png`} alt={chainName} width={18} height={18} className="m-1" />}
             </p>
           </div>
         </div>
