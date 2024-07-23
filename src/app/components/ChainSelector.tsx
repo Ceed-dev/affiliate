@@ -3,6 +3,7 @@ import { Chain } from "@thirdweb-dev/chains";
 import Image from "next/image";
 import { useChainContext } from "../context/chainContext";
 import { getChains } from "../utils/contracts";
+import { formatChainName } from "../utils/formatters";
 
 export const ChainSelector: React.FC = () => {
   const { selectedChain, setSelectedChain } = useChainContext();
@@ -12,10 +13,6 @@ export const ChainSelector: React.FC = () => {
   const handleChainChange = (chain: Chain) => {
     setSelectedChain(chain);
     setDropdownOpen(false);
-  };
-
-  const formatChainName = (name: string) => {
-    return name.split(" ")[0].toLowerCase();
   };
 
   return (

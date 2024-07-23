@@ -1,5 +1,6 @@
 export const formatChainName = (name: string) => {
-  return name.split(" ")[0].toLowerCase();
+  const formattedName = name.split(" ")[0].toLowerCase();
+  return formattedName === "gesoten" ? "geso" : formattedName;
 };
 
 export function formatAddress(address: string): string {
