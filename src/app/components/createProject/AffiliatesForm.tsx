@@ -4,12 +4,12 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
 import { Chain } from "@thirdweb-dev/chains";
-import { useSwitchChain } from "@thirdweb-dev/react";
 import { NextButton } from "./NextButton";
-import { initializeSigner, ERC20, isEOA, getChains } from "../../utils/contracts";
-import { formatBalance, formatChainName } from "../../utils/formatters";
+import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
+import { formatBalance } from "../../utils/formatters";
 import { WhitelistedAddress, ProjectType } from "../../types";
 import { useChainContext } from "../../context/chainContext";
+import { ChainSelector } from "../ChainSelector";
 
 type AffiliatesFormProps = {
   data: {
@@ -46,9 +46,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   selectedChain: selectedChainProp,
 }) => {
   const isEditing = nextStep === undefined;
-  const { selectedChain: contextSelectedChain, setSelectedChain } = useChainContext();
+  const { selectedChain: contextSelectedChain } = useChainContext();
   const selectedChain = selectedChainProp ?? contextSelectedChain;
-  const switchChain = useSwitchChain();
 
   const isFormComplete = () => {
     if (data.projectType === "DirectPayment") {
@@ -250,22 +249,6 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     handleChange("redirectUrl")(event);
   };
 
-  // =========== Selected Chain Management ===========
-  const chains = getChains();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const handleChainChange = async (chain: Chain) => {
-    try {
-      await switchChain(chain.chainId);
-      setSelectedChain(chain);
-      setDropdownOpen(false);
-    } catch (error) {
-      console.error("Failed to switch network:", error);
-      toast.error("Failed to switch network");
-    }
-  };
-  // =================================================
-
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
 
@@ -276,38 +259,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         <div className="flex flex-col gap-2">
           <h2>Token <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Token address cannot be edited after initial setup."})</span></h2>
           <div className="flex items-center gap-2">
-            <div className="relative inline-block text-left">
-              <button
-                type="button"
-                onClick={() => {
-                  if (isEditing) {
-                    toast.info(`Selected chain: ${selectedChain.name}`);
-                  } else {
-                    setDropdownOpen(!dropdownOpen);
-                  }
-                }}
-                className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 focus:outline-none"
-              >
-                <Image src={`/chains/${formatChainName(selectedChain.name)}.png`} alt={selectedChain.name} width={20} height={20} />
-              </button>
-
-              {dropdownOpen && (
-                <div className="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                  <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                    {chains.map(chain => (
-                      <button
-                        key={chain.chainId}
-                        onClick={() => handleChainChange(chain)}
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                      >
-                        <Image src={`/chains/${formatChainName(chain.name)}.png`} alt={chain.name} width={20} height={20} />
-                        <span className="ml-2">{chain.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <ChainSelector useSwitch={true} isEditing={isEditing} />
             <input
               readOnly={isEditing}
               type="text"
