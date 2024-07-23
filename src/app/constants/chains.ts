@@ -72,11 +72,16 @@ export const testChains: Chain[] = [
 ];
 
 export const chainRpcUrls: { [chainId: number]: string } = {
-  137: "https://polygon-mainnet.infura.io", // Polygon
-  80002: "https://rpc-amoy.polygon.technology", // PolygonAmoyTestnet
-  42161: "https://arb1.arbitrum.io/rpc", // Arbitrum
-  42170: "https://nova.arbitrum.io/rpc", // ArbitrumNova
-  421614: "https://sepolia-rollup.arbitrum.io/rpc", // ArbitrumSepolia
+  // 137: "https://polygon-mainnet.infura.io", // Polygon
+  137: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, // Polygon
+  // 80002: "https://rpc-amoy.polygon.technology", // PolygonAmoyTestnet
+  80002: `https://polygon-amoy.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, // PolygonAmoyTestnet
+  // 42161: "https://arb1.arbitrum.io/rpc", // Arbitrum
+  42161: `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, // Arbitrum
+  // 42170: "https://nova.arbitrum.io/rpc", // ArbitrumNova
+  42170: `https://arbnova-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, // ArbitrumNova
+  // 421614: "https://sepolia-rollup.arbitrum.io/rpc", // ArbitrumSepolia
+  421614: `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, // ArbitrumSepolia
   43114: "https://api.avax.network/ext/bc/C/rpc", // Avalanche
   43113: "https://api.avax-test.network/ext/bc/C/rpc", // AvalancheFuji
   29548: "https://rpc.oasys.mycryptoheroes.net", // MchVerse
