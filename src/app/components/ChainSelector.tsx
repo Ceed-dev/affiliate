@@ -22,7 +22,7 @@ export const ChainSelector: React.FC = () => {
         onClick={() => setDropdownOpen(!dropdownOpen)}
         className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
       >
-        <Image src={`/${formatChainName(selectedChain.name)}.png`} alt={selectedChain.name} width={20} height={20} />
+        <Image src={`/chains/${formatChainName(selectedChain.name)}.png`} alt={selectedChain.name} width={20} height={20} />
       </button>
 
       {dropdownOpen && (
@@ -34,7 +34,7 @@ export const ChainSelector: React.FC = () => {
                 onClick={() => handleChainChange(chain)}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
               >
-                <Image src={`/${formatChainName(chain.name)}.png`} alt={chain.name} width={20} height={20} />
+                <Image src={`/chains/${formatChainName(chain.name)}.png`} alt={chain.name} width={20} height={20} />
                 <span className="ml-2">{chain.name}</span>
               </button>
             ))}
