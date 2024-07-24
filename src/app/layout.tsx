@@ -1,5 +1,7 @@
 "use client";
 
+import Head from "next/head";
+import Script from "next/script";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import {
@@ -85,6 +87,17 @@ const RootLayout = ({
       // }}
     >
       <html lang="en" className="bg-slate-200">
+        <Head>
+          <Script
+            src="https://cdn.cookie3.co/scripts/analytics/0.11.4/cookie3.analytics.min.js"
+            integrity="sha384-lzDmDdr/zEhMdlE+N04MgISCyL3RIWNCb9LjsrQeEFi8Gy5CKXIRI+u58ZV+ybYz"
+            crossOrigin="anonymous"
+            async
+            strategy="lazyOnload"
+            data-site-id="1328"
+            data-chain-tracking-enabled="true"
+          />
+        </Head>
         <body className={inter.className}>
           {children}
           <ToastContainer position="bottom-right" autoClose={3000} />
