@@ -1,4 +1,4 @@
-export type ErrorType = "FirestoreUpdateAfterPaymentError";
+export type ErrorType = "FirestoreUpdateAfterPaymentError" | "EmailSendError";
 
 export type ErrorLog = {
   errorType: ErrorType;
