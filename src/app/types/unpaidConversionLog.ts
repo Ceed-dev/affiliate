@@ -1,3 +1,5 @@
+import { Chain } from "@thirdweb-dev/chains";
+
 export type UnpaidConversionLog = {
   logId: string;
   timestamp: Date;
@@ -5,5 +7,6 @@ export type UnpaidConversionLog = {
   referralId: string;
   affiliateWallet: string;
   projectId: string;
+  selectedChain: Chain;
   selectedTokenAddress: string;
 };
