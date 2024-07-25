@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAddress } from "@thirdweb-dev/react";
+import { useAddress, useSwitchChain, useChainId } from "@thirdweb-dev/react";
+import { Chain } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
-import { formatAddress } from "../utils/formatters";
+import { formatAddress, formatChainName } from "../utils/formatters";
 import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers, approveUser } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
@@ -16,16 +17,19 @@ export default function Admin() {
   const router = useRouter();
   const pathname = usePathname();
   const address = useAddress();
+  const switchChain = useSwitchChain();
+  const currentChainId = useChainId();
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [isSignerInitialized, setIsSignerInitialized] = useState(false);
   const adminWalletAddresses = process.env.NEXT_PUBLIC_ADMIN_WALLET_ADDRESSES?.split(",");
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const explorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL; // TODO: fix
   const [unpaidLogsLoading, setUnpaidLogsLoading] = useState(false);
   const [userApprovalLoading, setUserApprovalLoading] = useState(false);
   const [processingLogId, setProcessingLogId] = useState<string | null>(null);
   const [unpaidConversionLogs, setUnpaidConversionLogs] = useState<UnpaidConversionLog[]>([]);
-  const [tokenSummary, setTokenSummary] = useState<{ [tokenAddress: string]: number }>({});
+  const [tokenSummary, setTokenSummary] = useState<{ 
+    [tokenAddress: string]: { amount: number, chain: Chain } 
+  }>({});
   const [activeTab, setActiveTab] = useState("unpaidConversionLogs");
   const [unapprovedUsers, setUnapprovedUsers] = useState<UserData[]>([]);
 
@@ -98,12 +102,13 @@ export default function Admin() {
   };
 
   const summarizeTokens = (logs: UnpaidConversionLog[]) => {
-    const summary: { [tokenAddress: string]: number } = {};
+    const summary: { [tokenAddress: string]: { amount: number, chain: Chain } } = {};
+
     logs.forEach(log => {
       if (!summary[log.selectedTokenAddress]) {
-        summary[log.selectedTokenAddress] = 0;
+        summary[log.selectedTokenAddress] = { amount: 0, chain: log.selectedChain };
       }
-      summary[log.selectedTokenAddress] += log.amount;
+      summary[log.selectedTokenAddress].amount += log.amount;
     });
     setTokenSummary(summary);
   };
@@ -112,6 +117,17 @@ export default function Admin() {
     setProcessingLogId(log.logId);
     try {
       toast.info(`Starting payment process for ${log.logId}...`);
+
+      // Check if the current wallet chain matches the log's chain
+      if (currentChainId !== log.selectedChain.chainId) {
+        try {
+          await switchChain(log.selectedChain.chainId);
+        } catch (error) {
+          console.error("Failed to switch chains: ", error);
+          toast.error("Failed to switch chains");
+          return;
+        }
+      }
       
       // Mark the log as paid to prevent duplicate payments
       await updateIsPaidFlag(log.referralId, log.logId, true);
@@ -141,7 +157,7 @@ export default function Admin() {
           log.timestamp
         );
 
-        toast.success(`Payment processed for ${log.logId}. View transaction: ${explorerUrl}/tx/${transactionHash}`);
+        toast.success(`Payment processed for ${log.logId}.`);
       } catch (error: any) {
         console.error("Failed to update Firestore: ", error);
         toast.error("Failed to update Firestore");
@@ -262,6 +278,7 @@ export default function Admin() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chain</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
                 </tr>
@@ -269,7 +286,7 @@ export default function Admin() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {unpaidLogsLoading ? (
                   <tr>
-                    <td colSpan={2} className="px-6 py-4 text-lg text-gray-500">
+                    <td colSpan={3} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
                         <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
@@ -278,23 +295,36 @@ export default function Admin() {
                   </tr>
                 ) : Object.keys(tokenSummary).length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-6 py-4 text-lg text-gray-500 text-center">
+                    <td colSpan={3} className="px-6 py-4 text-lg text-gray-500 text-center">
                       No unpaid conversion logs found.
                     </td>
                   </tr>
                 ) : (
                   Object.keys(tokenSummary).map((tokenAddress) => (
                     <tr key={tokenAddress}>
+                      <td className="px-6 py-4">
+                        <button 
+                          className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
+                          onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenAddress].chain.name}`)}
+                        >
+                          <Image 
+                            src={`/chains/${formatChainName(tokenSummary[tokenAddress].chain.name)}.png`} 
+                            alt={tokenSummary[tokenAddress].chain.name} 
+                            width={20} 
+                            height={20} 
+                          />
+                        </button>
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <Link 
-                          href={`${explorerUrl}/address/${tokenAddress}`}
+                          href={`${tokenSummary[tokenAddress].chain.explorers?.[0]?.url}/address/${tokenAddress}`}
                           target="_blank"
                           className="text-blue-500 hover:underline"
                         >
                           {tokenAddress}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenAddress]}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenAddress].amount}</td>
                     </tr>
                   ))
                 )}
@@ -315,6 +345,7 @@ export default function Admin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Affiliate Wallet</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chain</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referral ID</th>
@@ -324,7 +355,7 @@ export default function Admin() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {unpaidLogsLoading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-4 text-lg text-gray-500">
+                    <td colSpan={9} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
                         <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
@@ -333,7 +364,7 @@ export default function Admin() {
                   </tr>
                 ) : unpaidConversionLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-4 text-lg text-gray-500 text-center">
+                    <td colSpan={9} className="px-6 py-4 text-lg text-gray-500 text-center">
                       No unpaid conversion logs found.
                     </td>
                   </tr>
@@ -344,7 +375,7 @@ export default function Admin() {
                       <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{log.timestamp.toLocaleString()}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <Link 
-                          href={`${explorerUrl}/address/${log.affiliateWallet}`}
+                          href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.affiliateWallet}`}
                           target="_blank"
                           className="text-blue-500 hover:underline"
                         >
@@ -360,9 +391,22 @@ export default function Admin() {
                           {log.projectId}
                         </Link>
                       </td>
+                      <td className="px-6 py-4">
+                        <button 
+                          className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
+                          onClick={() => toast.info(`Selected chain: ${log.selectedChain.name}`)}
+                        >
+                          <Image 
+                            src={`/chains/${formatChainName(log.selectedChain.name)}.png`} 
+                            alt={log.selectedChain.name} 
+                            width={20} 
+                            height={20} 
+                          />
+                        </button>
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <Link 
-                          href={`${explorerUrl}/address/${log.selectedTokenAddress}`}
+                          href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
                           target="_blank"
                           className="text-blue-500 hover:underline"
                         >
@@ -453,15 +497,7 @@ export default function Admin() {
                           {user.xProfileUrl}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        <Link 
-                          href={`${explorerUrl}/address/${user.walletAddress}`}
-                          target="_blank"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {user.walletAddress}
-                        </Link>
-                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.walletAddress}</td>
                       <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.createdAt.toLocaleString()}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <button 

@@ -5,11 +5,10 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ProjectData, ExtendedProjectData } from "../types";
+import { ExtendedProjectData } from "../types";
 import { fetchProjectsByOwner } from "../utils/firebase";
-import { getProvider, ERC20 } from "../utils/contracts";
+import { fetchTokenSymbols } from "../utils/contracts";
 import { ProjectCard } from "../components/ProjectCard";
-import { chainRpcUrls } from "../constants/chains";
 
 export default function Projects() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -19,19 +18,6 @@ export default function Projects() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchTokenSymbols = async (projects: ProjectData[]) => {
-      return Promise.all(projects.map(async (project) => {
-        const rpcUrl = chainRpcUrls[project.selectedChainId];
-        if (!rpcUrl) {
-          throw new Error(`RPC URL for chain ID ${project.selectedChainId} not found.`);
-        }
-
-        const erc20 = new ERC20(project.selectedTokenAddress, getProvider(rpcUrl));
-        const symbol = await erc20.getSymbol();
-        return { ...project, selectedToken: symbol };
-      }));
-    };
-  
     if (address) {
       fetchProjectsByOwner(address)
         .then(async (projects) => {
