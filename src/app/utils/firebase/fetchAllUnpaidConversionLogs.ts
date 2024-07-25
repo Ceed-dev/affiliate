@@ -1,6 +1,7 @@
 import { collection, query, getDocs, where, DocumentData, Timestamp, doc, getDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { ReferralData, UnpaidConversionLog } from "../../types";
+import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
 
 export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLog[]> => {
   try {
@@ -18,6 +19,8 @@ export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLo
       const projectDocRef = doc(db, `projects/${projectId}`);
       const projectDocSnap = await getDoc(projectDocRef);
       const projectData = projectDocSnap.data();
+      const selectedChainId = projectData?.selectedChainId as number;
+      const selectedChain = await getChainByChainIdAsync(selectedChainId) as Chain;
       const selectedTokenAddress = projectData?.selectedTokenAddress as string;
 
       const conversionLogsRef = collection(db, `referrals/${referralId}/conversionLogs`);
@@ -33,6 +36,7 @@ export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLo
           referralId,
           affiliateWallet,
           projectId,
+          selectedChain,
           selectedTokenAddress,
         });
       });
