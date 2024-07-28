@@ -387,6 +387,30 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </div>
         )}
 
+        {paymentType === "RevenueShare" && (
+          <div className="flex flex-col gap-2">
+            <h2>Affiliate Reward <span className="text-red-500">*</span></h2>
+            <p className="text-gray-500 text-sm">
+              Percentage an affiliate is paid for each purchase they refer.
+            </p>
+            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
+              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+                Percentage:
+              </span>
+              <input
+                type="number"
+                value={data.rewardAmount?.toString() || ""}
+                onChange={handleChange("rewardAmount", true, true)}
+                className="w-full outline-none"
+                min="1"
+                max="100"
+                step="0.1"
+                placeholder="Enter percentage"
+              />
+            </div>
+          </div>
+        )}
+
         {data.projectType === "DirectPayment" && (
           <div className="flex flex-col gap-2">
             <h2>Whitelist Management <span className="text-red-500">*</span></h2>
