@@ -14,7 +14,7 @@ import {
 } from "../../components/createProject";
 import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
-import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
+import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress, PaymentType } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
 export default function CreateProject() {
@@ -77,6 +77,7 @@ export default function CreateProject() {
       setProjectData({
         ...commonData,
         projectType: "EscrowPayment",
+        paymentType: "FixedAmount",
         rewardAmount: 0,
         redirectUrl: "",
         totalPaidOut: 0,
