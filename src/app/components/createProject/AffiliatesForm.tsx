@@ -7,7 +7,7 @@ import { Chain } from "@thirdweb-dev/chains";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
-import { WhitelistedAddress, ProjectType } from "../../types";
+import { WhitelistedAddress, ProjectType, PaymentType } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
 
@@ -249,7 +249,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     handleChange("redirectUrl")(event);
   };
 
-  const [paymentType, setPaymentType] = useState("FixedAmount")
+  const [paymentType, setPaymentType] = useState<PaymentType>("FixedAmount")
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">

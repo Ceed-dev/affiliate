@@ -1,5 +1,7 @@
 import { WhitelistedAddress } from ".";
 
+export type PaymentType = "FixedAmount" | "RevenueShare" | "Tiered";
+
 type BaseProjectData = {
   id?: string;
   projectName: string;
@@ -32,6 +34,7 @@ export type DirectPaymentProjectData = BaseProjectData & {
 
 export type EscrowPaymentProjectData = BaseProjectData & {
   projectType: "EscrowPayment";
+  paymentType: PaymentType;
   rewardAmount: number;
   redirectUrl: string;
   totalPaidOut: number;
