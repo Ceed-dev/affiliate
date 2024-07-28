@@ -364,6 +364,29 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </div>
         </div>
 
+        {paymentType === "FixedAmount" && (
+          <div className="flex flex-col gap-2">
+            <h2>Reward Amount <span className="text-red-500">*</span></h2>
+            <p className="text-gray-500 text-sm">
+              You can enter an integer or a value up to one decimal place.
+            </p>
+            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
+              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+                Token Units:
+              </span>
+              <input
+                type="number"
+                value={data.rewardAmount?.toString() || ""}
+                onChange={handleChange("rewardAmount", true, true)}
+                className="w-full outline-none"
+                min="1"
+                step="0.1"
+                placeholder="Enter token units"
+              />
+            </div>
+          </div>
+        )}
+
         {data.projectType === "DirectPayment" && (
           <div className="flex flex-col gap-2">
             <h2>Whitelist Management <span className="text-red-500">*</span></h2>
@@ -458,7 +481,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
         {data.projectType === "EscrowPayment" && (
           <>
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <h2>Reward Amount <span className="text-red-500">*</span></h2>
               <p className="text-gray-500 text-sm">
                 You can enter an integer or a value up to one decimal place.
@@ -477,7 +500,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                   placeholder="Enter token units"
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="flex flex-col gap-2">
               <h2>Redirect URL <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})</span></h2>
