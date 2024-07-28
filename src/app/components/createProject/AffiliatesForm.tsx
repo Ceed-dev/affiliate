@@ -252,7 +252,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   const [paymentType, setPaymentType] = useState("FixedAmount")
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
+    <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
       <h1 className="text-xl mb-5">Affiliates</h1>
 
@@ -407,6 +407,86 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 step="0.1"
                 placeholder="Enter percentage"
               />
+            </div>
+          </div>
+        )}
+
+        {paymentType === "Tiered" && (
+          <div className="flex flex-col gap-2">
+            <h2>Tier Management <span className="text-red-500">*</span></h2>
+            <div className="w-full border border-[#D1D5DB] rounded-lg outline-none flex flex-col pr-2 bg-white text-black">
+              <div className="flex flex-row">
+                <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                  REFERRALS REQUIRED TO UNLOCK:
+                </span>
+                <input 
+                  type="number" 
+                  value={newRewardAmount} 
+                  onChange={e => setNewRewardAmount(parseInt(e.target.value, 10))} 
+                  placeholder="Reward Amount" 
+                  className="w-full outline-none" 
+                />
+              </div>
+              <div className="flex flex-row">
+                <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                  REWARD AMOUNT:
+                </span>
+                <input 
+                  type="number" 
+                  value={newRewardAmount} 
+                  onChange={e => setNewRewardAmount(parseInt(e.target.value, 10))} 
+                  placeholder="Reward Amount" 
+                  className="w-full outline-none" 
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleAdd} 
+              className={`text-white p-2 rounded transition-transform duration-300 ${isCheckingNewWhitelistEntry ? "bg-gray-200" : "bg-green-500 hover:scale-105 hover:bg-green-700"}`}
+              disabled={isCheckingNewWhitelistEntry}
+            >
+              {isCheckingNewWhitelistEntry ? (
+                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+              ) : (
+                "Add Reward Tier"
+              )}
+            </button>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Referrals Required To Unlock</th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
+                    <th className="px-6 py-3 bg-gray-50">Remove</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {whitelistedEntries.length ? (
+                    whitelistedEntries.map(entry => (
+                      <tr key={entry.address}>
+                        <td className="px-6 py-4 overflow-hidden truncate">{entry.details.redirectUrl}</td>
+                        <td className="px-6 py-4 overflow-hidden truncate">{entry.details.rewardAmount}</td>
+                        <td className="px-6 py-4 text-center">
+                          <button onClick={() => handleRemove(entry.address)}>
+                            <Image 
+                              src="/trash.png" 
+                              alt="trash.png" 
+                              height={20} 
+                              width={20} 
+                              className="transition duration-300 ease-in-out transform hover:scale-125" 
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr className="text-gray-500">
+                      <td colSpan={3} className="text-center py-4">No Reward Tier</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
