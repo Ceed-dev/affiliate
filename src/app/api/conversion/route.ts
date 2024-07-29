@@ -86,7 +86,8 @@ export async function POST(request: NextRequest) {
     // Record successful conversions
     await logConversion(
       `${referralData.id}`,
-      escrowProjectData.rewardAmount
+      // escrowProjectData.rewardAmount TODO: Fix
+      0,
     );
 
     // If successful, it returns a message indicating that the request was processed successfully
