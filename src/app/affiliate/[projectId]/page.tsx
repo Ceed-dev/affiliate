@@ -50,6 +50,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
 
+  const [isTierDetailModalOpen, setIsTierDetailModalOpen] = useState(false);
+
   let embedCode: string = "";
 
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -357,6 +359,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               </>
             )}
           </h2>
+          {projectData?.projectType === "EscrowPayment" && projectData.paymentType === "Tiered" && (
+            <button
+              className="text-blue-500 hover:text-blue-700 hover:font-semibold hover:underline"
+              onClick={() => setIsTierDetailModalOpen(true)}
+            >
+              &rarr; Show Tier Detail
+            </button>
+          )}
           <p className="text-gray-600 pb-4">
             {projectData?.projectType === "DirectPayment" && isWhitelisted 
               ? "Share your link with others and start earning!"
@@ -503,6 +513,37 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 height={200}
                 className="object-contain"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {projectData?.projectType === "EscrowPayment" && projectData.paymentType === "Tiered" && isTierDetailModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-md">
+            <div className="flex flex-row justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Tier Detail</h2>
+              <button onClick={() => setIsTierDetailModalOpen(false)} >
+                <Image src="/close.png" alt="Close Icon" width={15} height={15} />
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Conversions Required</th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {(projectData.paymentDetails as TieredDetails).tiers.map((tier, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 overflow-hidden truncate">{tier.conversionsRequired}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">{tier.rewardAmount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

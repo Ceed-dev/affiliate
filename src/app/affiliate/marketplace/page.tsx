@@ -36,7 +36,7 @@ export default function Marketplace() {
             Marketplace
           </h2>
           <p className="mt-4 text-lg leading-6 text-[#6B7280]">
-            Earn a percentage of the revenue you generate for projects.
+            Discover and join exciting projects to earn rewards.
           </p>
         </div>
         {loading 
