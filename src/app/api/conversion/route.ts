@@ -6,8 +6,9 @@ import {
   processRewardPaymentTransaction,
   validateApiKey,
   logConversion,
+  fetchConversionLogsForReferrals,
 } from "../../utils/firebase";
-import { EscrowPaymentProjectData } from "../../types";
+import { EscrowPaymentProjectData, FixedAmountDetails, TieredDetails } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,6 +62,28 @@ export async function POST(request: NextRequest) {
 
     const escrowProjectData = projectData as EscrowPaymentProjectData;
 
+    let rewardAmount = 0;
+
+    // Determine reward amount based on paymentType
+    if (escrowProjectData.paymentType === "FixedAmount") {
+      rewardAmount = (escrowProjectData.paymentDetails as FixedAmountDetails).rewardAmount;
+    } else if (escrowProjectData.paymentType === "Tiered") {
+      const conversionLogs = await fetchConversionLogsForReferrals([referralData]);
+      const conversionCount = conversionLogs.length + 1; // Current conversion count
+
+      const tiers = (escrowProjectData.paymentDetails as TieredDetails).tiers;
+      const appropriateTier = tiers.reverse().find(tier => conversionCount >= tier.conversionsRequired);
+
+      if (!appropriateTier) {
+        return NextResponse.json(
+          { error: "No appropriate tier found for the conversion count" },
+          { status: 400 }
+        );
+      }
+
+      rewardAmount = appropriateTier.rewardAmount;
+    }
+
     // The payment section is commented out
     // const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
     // const escrow = new Escrow(signer);
@@ -86,8 +109,7 @@ export async function POST(request: NextRequest) {
     // Record successful conversions
     await logConversion(
       `${referralData.id}`,
-      // escrowProjectData.rewardAmount TODO: Fix
-      0,
+      rewardAmount,
     );
 
     // If successful, it returns a message indicating that the request was processed successfully
