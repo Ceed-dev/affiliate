@@ -7,7 +7,7 @@ import { Chain } from "@thirdweb-dev/chains";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
-import { WhitelistedAddress, ProjectType, PaymentType, PaymentDetails } from "../../types";
+import { WhitelistedAddress, ProjectType, PaymentType, PaymentDetails, Tier, TieredDetails } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
 
@@ -22,6 +22,7 @@ type AffiliatesFormProps = {
   };
   handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handlePaymentTypeChange?: (type: PaymentType) => void;
+  handleTierChange?: (newTiers: Tier[]) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   setRedirectLinkError?: (hasError: boolean) => void;
   nextStep?: () => void;
@@ -40,6 +41,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
   handlePaymentTypeChange,
+  handleTierChange,
   handleWhitelistChange,
   setRedirectLinkError,
   nextStep,
@@ -236,6 +238,80 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
   // ===== END WHITELIST MANAGEMENT =====
 
+  // ===== BEGIN TIER MANAGEMENT =====
+
+  // Use "data.paymentDetails.tiers" as initial value
+  const [tierEntries, setTierEntries] = useState<Tier[]>(() =>
+    (data.paymentDetails as TieredDetails)?.tiers ?? []
+  );
+  
+  const [newConversionsRequired, setNewConversionsRequired] = useState(0);
+  const [newTierRewardAmount, setNewTierRewardAmount] = useState(0);
+
+  const [isCheckingNewTierEntry, setIsCheckingNewTierEntry] = useState(false);
+
+  const handleAddTier = async () => {
+    setIsCheckingNewTierEntry(true);
+  
+    // Input validation
+    if (isNaN(newConversionsRequired) || newConversionsRequired < 1 || newConversionsRequired > 1000) {
+      toast.error("Conversions required must be between 1 and 1000.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+    if (isNaN(newTierRewardAmount) || newTierRewardAmount <= 0) {
+      toast.error("Reward amount must be greater than zero.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+    if (tierEntries.some(tier => tier.conversionsRequired === newConversionsRequired)) {
+      toast.error("A tier with the same conversions required already exists.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+    if (tierEntries.length >= 10) {
+      toast.error("You can only create up to 10 tiers.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+  
+    // Create new tier entry
+    const newTier: Tier = { conversionsRequired: newConversionsRequired, rewardAmount: newTierRewardAmount };
+    const updatedTiers = [...tierEntries, newTier].sort((a, b) => a.conversionsRequired - b.conversionsRequired);
+  
+    // Update local state
+    setTierEntries(updatedTiers);
+  
+    // Update project data
+    if (handleTierChange) {
+      handleTierChange(updatedTiers);
+    }
+  
+    // Reset input fields
+    setNewConversionsRequired(0);
+    setNewTierRewardAmount(0);
+  
+    toast.success("New reward tier added.");
+    setIsCheckingNewTierEntry(false);
+  };
+
+  const handleRemoveTier = (index: number) => {
+    // Create a new array that excludes the specified tier
+    const updatedTiers = tierEntries.filter((_, i) => i !== index);
+  
+    // Update local state
+    setTierEntries(updatedTiers);
+  
+    // Update project data
+    if (handleTierChange) {
+      handleTierChange(updatedTiers);
+    }
+  
+    toast.success("Reward tier removed.");
+  };
+
+  // ===== END TIER MANAGEMENT =====
+
   const [redirectUrlError, setRedirectUrlError] = useState("");
 
   const handleRedirectUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -326,7 +402,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     name="paymentType"
                     value="FixedAmount"
                     checked={data.paymentType === "FixedAmount"}
-                    onChange={() => handlePaymentTypeChange?.("FixedAmount")}
+                    onChange={() => {
+                      setTierEntries([]);
+                      handlePaymentTypeChange?.("FixedAmount");
+                    }}
                     className="form-radio text-blue-600"
                   />
                   <span className={`ml-2 ${data.paymentType === "FixedAmount" ? "text-blue-700" : "text-gray-700"}`}>Fixed Amount</span>
@@ -340,7 +419,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     name="paymentType"
                     value="RevenueShare"
                     checked={data.paymentType === "RevenueShare"}
-                    onChange={() => handlePaymentTypeChange?.("RevenueShare")}
+                    onChange={() => {
+                      setTierEntries([]);
+                      handlePaymentTypeChange?.("RevenueShare");
+                    }}
                     className="form-radio text-blue-600"
                   />
                   <span className={`ml-2 ${data.paymentType === "RevenueShare" ? "text-blue-700" : "text-gray-700"}`}>Revenue Share</span>
@@ -431,10 +513,10 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 </span>
                 <input 
                   type="number" 
-                  value={newRewardAmount} 
-                  onChange={e => setNewRewardAmount(parseInt(e.target.value, 10))} 
-                  placeholder="Reward Amount" 
-                  className="w-full outline-none" 
+                  value={newConversionsRequired} 
+                  onChange={e => setNewConversionsRequired(parseInt(e.target.value, 10))} 
+                  placeholder="Conversions Required" 
+                  className="w-full outline-none"
                 />
               </div>
               <div className="flex flex-row">
@@ -443,8 +525,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 </span>
                 <input 
                   type="number" 
-                  value={newRewardAmount} 
-                  onChange={e => setNewRewardAmount(parseInt(e.target.value, 10))} 
+                  value={newTierRewardAmount} 
+                  onChange={e => setNewTierRewardAmount(parseInt(e.target.value, 10))} 
                   placeholder="Reward Amount" 
                   className="w-full outline-none" 
                 />
@@ -452,11 +534,11 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             </div>
             <button
               type="button"
-              onClick={handleAdd} 
-              className={`text-white p-2 rounded transition-transform duration-300 ${isCheckingNewWhitelistEntry ? "bg-gray-200" : "bg-green-500 hover:scale-105 hover:bg-green-700"}`}
-              disabled={isCheckingNewWhitelistEntry}
+              onClick={handleAddTier} 
+              className={`text-white p-2 rounded transition-transform duration-300 ${isCheckingNewTierEntry ? "bg-gray-200" : "bg-green-500 hover:scale-105 hover:bg-green-700"}`}
+              disabled={isCheckingNewTierEntry}
             >
-              {isCheckingNewWhitelistEntry ? (
+              {isCheckingNewTierEntry ? (
                 <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
               ) : (
                 "Add Reward Tier"
@@ -472,13 +554,13 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {whitelistedEntries.length ? (
-                    whitelistedEntries.map(entry => (
-                      <tr key={entry.address}>
-                        <td className="px-6 py-4 overflow-hidden truncate">{entry.details.redirectUrl}</td>
-                        <td className="px-6 py-4 overflow-hidden truncate">{entry.details.rewardAmount}</td>
+                  {tierEntries.length ? (
+                    tierEntries.map((entry, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 overflow-hidden truncate">{entry.conversionsRequired}</td>
+                        <td className="px-6 py-4 overflow-hidden truncate">{entry.rewardAmount}</td>
                         <td className="px-6 py-4 text-center">
-                          <button onClick={() => handleRemove(entry.address)}>
+                          <button onClick={() => handleRemoveTier(index)}>
                             <Image 
                               src="/trash.png" 
                               alt="trash.png" 

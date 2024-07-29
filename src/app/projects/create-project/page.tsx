@@ -17,7 +17,7 @@ import { approveToken, depositToken } from "../../utils/contracts";
 import { 
   ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
   ProjectData, ImageType, WhitelistedAddress, 
-  PaymentType, FixedAmountDetails, RevenueShareDetails, TieredDetails, PaymentDetails,
+  PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
@@ -207,6 +207,19 @@ export default function CreateProject() {
       return {
         ...prevData,
         whitelistedAddresses: newWhitelistedAddresses
+      };
+    });
+  };
+
+  const handleTierChange = (newTiers: Tier[]) => {
+    setProjectData(prevData => {
+      if (!prevData) return prevData;
+  
+      return {
+        ...prevData,
+        paymentDetails: {
+          tiers: newTiers,
+        } as TieredDetails,
       };
     });
   };
@@ -402,6 +415,7 @@ export default function CreateProject() {
             }}
             handleChange={handleChange}
             handlePaymentTypeChange={projectType === "EscrowPayment" ? handlePaymentTypeChange : undefined}
+            handleTierChange={projectType === "EscrowPayment" ? handleTierChange : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             nextStep={saveProjectAndDepositToken}
             isSaving={isSaving}
