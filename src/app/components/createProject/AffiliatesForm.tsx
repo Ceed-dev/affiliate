@@ -7,7 +7,10 @@ import { Chain } from "@thirdweb-dev/chains";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
-import { WhitelistedAddress, ProjectType, PaymentType, PaymentDetails, Tier, TieredDetails } from "../../types";
+import { 
+  WhitelistedAddress, ProjectType, PaymentType, 
+  PaymentDetails, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails,
+} from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
 
@@ -61,11 +64,20 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         Object.keys(data.whitelistedAddresses ?? {}).length > 0
       );
     } else if (data.projectType === "EscrowPayment") {
-      return (
-        data.selectedTokenAddress.trim() &&
-        data.redirectUrl?.trim() &&
-        isValidUrl(data.redirectUrl)
-      );
+      if (!data.selectedTokenAddress.trim() || !data.redirectUrl?.trim() || !isValidUrl(data.redirectUrl)) {
+        return false;
+      }
+  
+      if (data.paymentType === "FixedAmount") {
+        return (data.paymentDetails as FixedAmountDetails)?.rewardAmount > 0;
+      } else if (data.paymentType === "RevenueShare") {
+        return (data.paymentDetails as RevenueShareDetails)?.percentage > 0;
+      } else if (data.paymentType === "Tiered") {
+        return (
+          Array.isArray((data.paymentDetails as TieredDetails)?.tiers) &&
+          (data.paymentDetails as TieredDetails).tiers.length > 0
+        );
+      }
     }
     return false; // In case projectType is not set or unknown
   };
