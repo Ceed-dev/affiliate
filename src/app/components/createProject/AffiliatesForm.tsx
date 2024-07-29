@@ -369,7 +369,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           <div className="flex flex-col gap-2">
             <h2>Reward Amount <span className="text-red-500">*</span></h2>
             <p className="text-gray-500 text-sm">
-              You can enter an integer or a value up to one decimal place.
+              You can enter an integer or a value up to one decimal place. The value must be between 1 and 10000.
             </p>
             <div className="rounded-lg border border-[#D1D5DB] flex items-center">
               <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
@@ -385,6 +385,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 onChange={handleChange("paymentDetails.rewardAmount", true, true)}
                 className="w-full outline-none"
                 min="1"
+                max="10000"
                 step="0.1"
                 placeholder="Enter token units"
               />
