@@ -1,5 +1,8 @@
 import { DocumentData } from "firebase/firestore";
-import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, WhitelistedAddress } from "../../types";
+import { 
+  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, 
+  WhitelistedAddress, PaymentType,
+} from "../../types";
 
 export function isValidProjectData(data: DocumentData): data is ProjectData {
   // Helper function to add validation for `whitelistedAddresses`
@@ -51,6 +54,24 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     );
   };
 
+  // Validate the payment details
+  const isValidPaymentDetails = (details: any, type: PaymentType): boolean => {
+    if (typeof details !== "object" || details === null) {
+      return false;
+    }
+    if (type === "FixedAmount") {
+      return typeof details.rewardAmount === "number";
+    } else if (type === "RevenueShare") {
+      return typeof details.percentage === "number";
+    } else if (type === "Tiered") {
+      return Array.isArray(details.tiers) && details.tiers.every((tier: any) => 
+        typeof tier.conversionsRequired === "number" &&
+        typeof tier.rewardAmount === "number"
+      );
+    }
+    return false;
+  };
+
   // DirectPayment project data validation
   const isValidDirectPaymentProjectData = (data: any): data is DirectPaymentProjectData => {
     return (
@@ -66,7 +87,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
   const isValidEscrowPaymentProjectData = (data: any): data is EscrowPaymentProjectData => {
     return (
       isValidBaseProjectData(data) &&
-      typeof data.rewardAmount === "number" &&
+      typeof data.paymentType === "string" &&
+      isValidPaymentDetails(data.paymentDetails, data.paymentType) &&
       typeof data.redirectUrl === "string" &&
       typeof data.totalPaidOut === "number" &&
       (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
