@@ -676,46 +676,23 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         )}
 
         {data.projectType === "EscrowPayment" && (
-          <>
-            {/* <div className="flex flex-col gap-2">
-              <h2>Reward Amount <span className="text-red-500">*</span></h2>
-              <p className="text-gray-500 text-sm">
-                You can enter an integer or a value up to one decimal place.
-              </p>
-              <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-                <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
-                  Token Units:
-                </span>
-                <input
-                  type="number"
-                  value={data.rewardAmount?.toString() || ""}
-                  onChange={handleChange("rewardAmount", true, true)}
-                  className="w-full outline-none"
-                  min="1"
-                  step="0.1"
-                  placeholder="Enter token units"
-                />
-              </div>
-            </div> */}
-
-            <div className="flex flex-col gap-2">
-              <h2>Redirect URL <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})</span></h2>
-              <div className={`rounded-lg border border-[#D1D5DB] flex items-center ${isEditing && "bg-gray-100"}`}>
-                <span className={`w-[150px] text-[#6B7280] bg-gray-100 p-2 border-r ${isEditing && "border-r-[#D1D5DB]"}`}>
-                  URL:
-                </span>
-                <input
-                  readOnly={isEditing}
-                  type="url"
-                  value={data.redirectUrl}
-                  onChange={handleRedirectUrlChange}
-                  className={`w-full outline-none pl-1 ${redirectUrlError ? "border-red-500" : ""} ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "text-black"}`}
-                  placeholder="Enter the redirect URL"
-                />
-              </div>
-              {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
+          <div className="flex flex-col gap-2">
+            <h2>Redirect URL <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})</span></h2>
+            <div className={`rounded-lg border border-[#D1D5DB] flex items-center ${isEditing && "bg-gray-100"}`}>
+              <span className={`w-[150px] text-[#6B7280] bg-gray-100 p-2 border-r ${isEditing && "border-r-[#D1D5DB]"}`}>
+                URL:
+              </span>
+              <input
+                readOnly={isEditing}
+                type="url"
+                value={data.redirectUrl}
+                onChange={handleRedirectUrlChange}
+                className={`w-full outline-none pl-1 ${redirectUrlError ? "border-red-500" : ""} ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "text-black"}`}
+                placeholder="Enter the redirect URL"
+              />
             </div>
-          </>
+            {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
+          </div>
         )}
         
       </div>
