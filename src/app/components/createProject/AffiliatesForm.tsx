@@ -395,9 +395,9 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
         {data.paymentType === "RevenueShare" && (
           <div className="flex flex-col gap-2">
-            <h2>Affiliate Reward <span className="text-red-500">*</span></h2>
+            <h2>Revenue Share Percentage <span className="text-red-500">*</span></h2>
             <p className="text-gray-500 text-sm">
-              Percentage an affiliate is paid for each purchase they refer.
+              Percentage an affiliate is paid for each purchase they refer. The value must be between 0.1 and 100.
             </p>
             <div className="rounded-lg border border-[#D1D5DB] flex items-center">
               <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
@@ -412,7 +412,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 }
                 onChange={handleChange("paymentDetails.percentage", true, true)}
                 className="w-full outline-none"
-                min="1"
+                min="0.1"
                 max="100"
                 step="0.1"
                 placeholder="Enter percentage"

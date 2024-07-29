@@ -97,6 +97,9 @@ export default function CreateProject() {
   const handleChange = (field: string, isNumeric?: boolean, isFloat?: boolean) => 
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       let value: any;
+
+      // Split the `field` string into keys for accessing nested properties.
+      const keys = field.split(".");
     
       // Parse the event value based on the `isNumeric` and `isFloat` flags.
       if (isNumeric) {
@@ -106,9 +109,17 @@ export default function CreateProject() {
         }
         if (isNaN(value)) value = 0;  // Default to 0 if parsing fails.
 
-        if (value > 10000) {
-          toast.error("Value cannot exceed 10000.");
-          return;
+        // Add validation for FixedAmount and RevenueShare
+        if (keys.includes("rewardAmount")) {
+          if (value < 1 || value > 10000) {
+            toast.error("Value must be between 1 and 10000.");
+            return;
+          }
+        } else if (keys.includes("percentage")) {
+          if (value < 0.1 || value > 100) {
+            toast.error("Percentage must be between 0.1 and 100.");
+            return;
+          }
         }
       } else {
         value = event.target.value;
@@ -117,9 +128,6 @@ export default function CreateProject() {
       // Set the new state of project data.
       setProjectData(prev => {
         if (!prev) return prev;
-
-        // Split the `field` string into keys for accessing nested properties.
-        const keys = field.split(".");
 
         // Create a shallow copy of the previous state to maintain immutability.
         let updated = { ...prev } as any;
