@@ -407,7 +407,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           <div className="flex flex-col gap-2">
             <h2>How do you want to reward affiliates? <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Payment type cannot be edited after initial setup."})</span></h2>
             <div className="flex flex-col">
-              <label className={`p-3 border border-gray-300 rounded-t-lg cursor-pointer transition ${data.paymentType === "FixedAmount" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+              <label className={`${isEditing && data.paymentType !== "FixedAmount" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "FixedAmount" ? "rounded-lg bg-gray-100" : "rounded-t-lg"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "FixedAmount" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
                 <div className="flex items-center">
                   <input
                     type="radio"
@@ -424,7 +424,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 </div>
                 <span className={`text-sm ml-5 ${data.paymentType === "FixedAmount" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with tokens for each successful referral</span>
               </label>
-              <label className={`p-3 border border-gray-300 cursor-pointer transition ${data.paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+              <label className={`${isEditing && data.paymentType !== "RevenueShare" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "RevenueShare" && "rounded-lg bg-gray-100"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
                 <div className="flex items-center">
                   <input
                     type="radio"
@@ -441,7 +441,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 </div>
                 <span className={`text-sm ml-5 ${data.paymentType === "RevenueShare" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with a percentage of the revenue they help generate</span>
               </label>
-              <label className={`p-3 border border-gray-300 rounded-b-lg cursor-pointer transition ${data.paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+              <label className={`${isEditing && data.paymentType !== "Tiered" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "Tiered" ? "rounded-lg bg-gray-100" : "rounded-b-lg"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
                 <div className="flex items-center">
                   <input
                     type="radio"
