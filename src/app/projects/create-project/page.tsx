@@ -14,7 +14,11 @@ import {
 } from "../../components/createProject";
 import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
-import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress, PaymentType } from "../../types";
+import { 
+  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
+  ProjectData, ImageType, WhitelistedAddress, 
+  PaymentType, FixedAmountDetails, RevenueShareDetails, TieredDetails, PaymentDetails,
+} from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
 export default function CreateProject() {
@@ -78,7 +82,7 @@ export default function CreateProject() {
         ...commonData,
         projectType: "EscrowPayment",
         paymentType: "FixedAmount",
-        rewardAmount: 0,
+        paymentDetails: { rewardAmount: 0 },
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
@@ -132,6 +136,28 @@ export default function CreateProject() {
         return updated;
       });
     };
+
+  const handlePaymentTypeChange = (type: PaymentType) => {
+    setProjectData(prev => {
+      if (!prev) return prev;
+  
+      let paymentDetails: PaymentDetails = { rewardAmount: 0 };
+
+      if (type === "FixedAmount") {
+        paymentDetails = { rewardAmount: 0 } as FixedAmountDetails;
+      } else if (type === "RevenueShare") {
+        paymentDetails = { percentage: 0 } as RevenueShareDetails;
+      } else if (type === "Tiered") {
+        paymentDetails = { tiers: [] } as TieredDetails;
+      }
+  
+      return {
+        ...prev,
+        paymentType: type,
+        paymentDetails
+      };
+    });
+  };
 
   const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
@@ -356,11 +382,13 @@ export default function CreateProject() {
             data={{
               projectType: projectType!,
               selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
+              paymentType: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentType ?? "FixedAmount" : undefined,
+              paymentDetails: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
               whitelistedAddresses: projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
-              rewardAmount: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined,
               redirectUrl: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
             }}
             handleChange={handleChange}
+            handlePaymentTypeChange={projectType === "EscrowPayment" ? handlePaymentTypeChange : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             nextStep={saveProjectAndDepositToken}
             isSaving={isSaving}
