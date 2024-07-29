@@ -31,6 +31,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     fetchChainName();
   }, [project.selectedChainId]);
 
+  // Calculate min and max reward for Tiered payment type
+  let tieredRewardRange = "";
+  if (project.projectType === "EscrowPayment" && project.paymentType === "Tiered") {
+    const tiers = (project.paymentDetails as TieredDetails).tiers;
+    const minReward = Math.min(...tiers.map(tier => tier.rewardAmount));
+    const maxReward = Math.max(...tiers.map(tier => tier.rewardAmount));
+    tieredRewardRange = `${minReward}~${maxReward} ${project.selectedToken}`;
+  }
+
   return (
     <Link href={linkUrl}>
       <div className="max-w-xl w-full h-[300px] bg-white rounded-lg shadow-md overflow-visible transition duration-300 ease-in-out transform hover:scale-105">
@@ -76,7 +85,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   ) : project.paymentType === "RevenueShare" ? (
                     `${(project.paymentDetails as RevenueShareDetails).percentage}% of revenue`
                   ) : project.paymentType === "Tiered" ? (
-                    `${(project.paymentDetails as TieredDetails).tiers[0].rewardAmount}~${(project.paymentDetails as TieredDetails).tiers[((project.paymentDetails as TieredDetails).tiers.length - 1)].rewardAmount} ${project.selectedToken}`
+                    `${tieredRewardRange}`
                   ) : null
                 ) : (
                   project.selectedToken

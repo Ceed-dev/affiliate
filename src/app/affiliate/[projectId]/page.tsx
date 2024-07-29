@@ -5,7 +5,11 @@ import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
+import { 
+  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, 
+  PaymentTransaction, ConversionLog, ClickData,
+  FixedAmountDetails, RevenueShareDetails, TieredDetails,
+} from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
@@ -227,15 +231,30 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
+  // Calculate min and max reward for Tiered payment type
+  let tieredRewardRange = "";
+  if (projectData?.projectType === "EscrowPayment" && projectData.paymentType === "Tiered") {
+    const tiers = (projectData.paymentDetails as TieredDetails).tiers;
+    const minReward = Math.min(...tiers.map(tier => tier.rewardAmount));
+    const maxReward = Math.max(...tiers.map(tier => tier.rewardAmount));
+    tieredRewardRange = `${minReward}~${maxReward}`;
+  }
+
   const rewardText = loadingTokenSymbol 
     ? <span className="text-gray-500">Loading...</span> 
     : (
         <span className="font-semibold bg-green-200 px-2 py-1 rounded-md shadow-lg">
           {projectData?.projectType === "DirectPayment" && isWhitelisted && address
             ? (projectData as DirectPaymentProjectData).whitelistedAddresses[address].rewardAmount
-            // : projectData?.projectType === "EscrowPayment" TODO: Fix
-            // ? projectData.rewardAmount
-            : null
+            : projectData?.projectType === "EscrowPayment" 
+              ? projectData?.paymentType === "FixedAmount" ? (
+                  `${(projectData.paymentDetails as FixedAmountDetails).rewardAmount}`
+                ) : projectData.paymentType === "RevenueShare" ? (
+                  `${(projectData.paymentDetails as RevenueShareDetails).percentage}% of revenue in`
+                ) : projectData.paymentType === "Tiered" ? (
+                  `${tieredRewardRange}`
+                ) : null
+              : null
           } {tokenSymbol}
         </span>
       );
