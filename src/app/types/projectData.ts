@@ -32,10 +32,29 @@ export type DirectPaymentProjectData = BaseProjectData & {
   deadline: Date | null;
 };
 
+export type FixedAmountDetails = {
+  rewardAmount: number;
+};
+
+export type RevenueShareDetails = {
+  percentage: number;
+};
+
+type Tier = {
+  conversionsRequired: number;
+  rewardAmount: number;
+};
+
+export type TieredDetails = {
+  tiers: Tier[];
+};
+
+export type PaymentDetails = FixedAmountDetails | RevenueShareDetails | TieredDetails;
+
 export type EscrowPaymentProjectData = BaseProjectData & {
   projectType: "EscrowPayment";
   paymentType: PaymentType;
-  rewardAmount: number;
+  paymentDetails: PaymentDetails;
   redirectUrl: string;
   totalPaidOut: number;
   lastPaymentDate: Date | null;

@@ -7,7 +7,7 @@ import { Chain } from "@thirdweb-dev/chains";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
-import { WhitelistedAddress, ProjectType, PaymentType } from "../../types";
+import { WhitelistedAddress, ProjectType, PaymentType, PaymentDetails } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
 
@@ -15,11 +15,13 @@ type AffiliatesFormProps = {
   data: {
     projectType: ProjectType;
     selectedTokenAddress: string;
+    paymentType?: PaymentType;
+    paymentDetails?: PaymentDetails;
     whitelistedAddresses?: { [address: string]: WhitelistedAddress };
-    rewardAmount?: number;
     redirectUrl?: string;
   };
   handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handlePaymentTypeChange?: (type: PaymentType) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   setRedirectLinkError?: (hasError: boolean) => void;
   nextStep?: () => void;
@@ -37,6 +39,7 @@ type WhitelistEntry = {
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
+  handlePaymentTypeChange,
   handleWhitelistChange,
   setRedirectLinkError,
   nextStep,
@@ -58,8 +61,6 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     } else if (data.projectType === "EscrowPayment") {
       return (
         data.selectedTokenAddress.trim() &&
-        data.rewardAmount !== undefined &&
-        data.rewardAmount > 0 &&
         data.redirectUrl?.trim() &&
         isValidUrl(data.redirectUrl)
       );
@@ -249,8 +250,6 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     handleChange("redirectUrl")(event);
   };
 
-  const [paymentType, setPaymentType] = useState<PaymentType>("FixedAmount")
-
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
@@ -316,55 +315,57 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2>How do you want to reward affiliates? <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Payment method cannot be edited after initial setup."})</span></h2>
-          <div className="flex flex-col">
-            <label className={`p-3 border border-gray-300 rounded-t-lg cursor-pointer transition ${paymentType === "FixedAmount" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentType"
-                  value="FixedAmount"
-                  checked={paymentType === "FixedAmount"}
-                  onChange={() => setPaymentType("FixedAmount")}
-                  className="form-radio text-blue-600"
-                />
-                <span className={`ml-2 ${paymentType === "FixedAmount" ? "text-blue-700" : "text-gray-700"}`}>Fixed Amount</span>
-              </div>
-              <span className={`text-sm ml-5 ${paymentType === "FixedAmount" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with tokens for each successful referral</span>
-            </label>
-            <label className={`p-3 border border-gray-300 cursor-pointer transition ${paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentType"
-                  value="RevenueShare"
-                  checked={paymentType === "RevenueShare"}
-                  onChange={() => setPaymentType("RevenueShare")}
-                  className="form-radio text-blue-600"
-                />
-                <span className={`ml-2 ${paymentType === "RevenueShare" ? "text-blue-700" : "text-gray-700"}`}>Revenue Share</span>
-              </div>
-              <span className={`text-sm ml-5 ${paymentType === "RevenueShare" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with a percentage of the revenue they help generate</span>
-            </label>
-            <label className={`p-3 border border-gray-300 rounded-b-lg cursor-pointer transition ${paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentType"
-                  value="Tiered"
-                  checked={paymentType === "Tiered"}
-                  onChange={() => setPaymentType("Tiered")}
-                  className="form-radio text-blue-600"
-                />
-                <span className={`ml-2 ${paymentType === "Tiered" ? "text-blue-700" : "text-gray-700"}`}>Tiered</span>
-              </div>
-              <span className={`text-sm ml-5 ${paymentType === "Tiered" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with different reward tiers</span>
-            </label>
+        {data.projectType === "EscrowPayment" && (
+          <div className="flex flex-col gap-2">
+            <h2>How do you want to reward affiliates? <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Payment type cannot be edited after initial setup."})</span></h2>
+            <div className="flex flex-col">
+              <label className={`p-3 border border-gray-300 rounded-t-lg cursor-pointer transition ${data.paymentType === "FixedAmount" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="FixedAmount"
+                    checked={data.paymentType === "FixedAmount"}
+                    onChange={() => handlePaymentTypeChange?.("FixedAmount")}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className={`ml-2 ${data.paymentType === "FixedAmount" ? "text-blue-700" : "text-gray-700"}`}>Fixed Amount</span>
+                </div>
+                <span className={`text-sm ml-5 ${data.paymentType === "FixedAmount" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with tokens for each successful referral</span>
+              </label>
+              <label className={`p-3 border border-gray-300 cursor-pointer transition ${data.paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="RevenueShare"
+                    checked={data.paymentType === "RevenueShare"}
+                    onChange={() => handlePaymentTypeChange?.("RevenueShare")}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className={`ml-2 ${data.paymentType === "RevenueShare" ? "text-blue-700" : "text-gray-700"}`}>Revenue Share</span>
+                </div>
+                <span className={`text-sm ml-5 ${data.paymentType === "RevenueShare" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with a percentage of the revenue they help generate</span>
+              </label>
+              <label className={`p-3 border border-gray-300 rounded-b-lg cursor-pointer transition ${data.paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="Tiered"
+                    checked={data.paymentType === "Tiered"}
+                    onChange={() => handlePaymentTypeChange?.("Tiered")}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className={`ml-2 ${data.paymentType === "Tiered" ? "text-blue-700" : "text-gray-700"}`}>Tiered</span>
+                </div>
+                <span className={`text-sm ml-5 ${data.paymentType === "Tiered" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with different reward tiers</span>
+              </label>
+            </div>
           </div>
-        </div>
+        )}
 
-        {paymentType === "FixedAmount" && (
+        {data.paymentType === "FixedAmount" && (
           <div className="flex flex-col gap-2">
             <h2>Reward Amount <span className="text-red-500">*</span></h2>
             <p className="text-gray-500 text-sm">
@@ -376,8 +377,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               </span>
               <input
                 type="number"
-                value={data.rewardAmount?.toString() || ""}
-                onChange={handleChange("rewardAmount", true, true)}
+                value={
+                  data.paymentDetails && "rewardAmount" in data.paymentDetails 
+                    ? data.paymentDetails.rewardAmount?.toString() 
+                    : ""
+                }
+                onChange={handleChange("paymentDetails.rewardAmount", true, true)}
                 className="w-full outline-none"
                 min="1"
                 step="0.1"
@@ -387,7 +392,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </div>
         )}
 
-        {paymentType === "RevenueShare" && (
+        {data.paymentType === "RevenueShare" && (
           <div className="flex flex-col gap-2">
             <h2>Affiliate Reward <span className="text-red-500">*</span></h2>
             <p className="text-gray-500 text-sm">
@@ -399,8 +404,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               </span>
               <input
                 type="number"
-                value={data.rewardAmount?.toString() || ""}
-                onChange={handleChange("rewardAmount", true, true)}
+                value={
+                  data.paymentDetails && "percentage" in data.paymentDetails 
+                    ? data.paymentDetails.percentage?.toString() 
+                    : ""
+                }
+                onChange={handleChange("paymentDetails.percentage", true, true)}
                 className="w-full outline-none"
                 min="1"
                 max="100"
@@ -411,13 +420,13 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           </div>
         )}
 
-        {paymentType === "Tiered" && (
+        {data.paymentType === "Tiered" && (
           <div className="flex flex-col gap-2">
             <h2>Tier Management <span className="text-red-500">*</span></h2>
             <div className="w-full border border-[#D1D5DB] rounded-lg outline-none flex flex-col pr-2 bg-white text-black">
               <div className="flex flex-row">
                 <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
-                  REFERRALS REQUIRED TO UNLOCK:
+                  CONVERSIONS REQUIRED:
                 </span>
                 <input 
                   type="number" 
@@ -456,7 +465,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Referrals Required To Unlock</th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Conversions Required</th>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
                     <th className="px-6 py-3 bg-gray-50">Remove</th>
                   </tr>

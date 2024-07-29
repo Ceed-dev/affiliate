@@ -203,7 +203,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               projectData.websiteUrl &&
               projectData.xUrl &&
               projectData.selectedTokenAddress.trim() !== "" &&
-              escrowProjectData.rewardAmount > 0 &&
+              // escrowProjectData.rewardAmount > 0 && TODO: Fix
               escrowProjectData.redirectUrl.trim() !== "" &&
               escrowProjectData.embed;
     }
@@ -292,7 +292,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 projectType: projectData?.projectType!,
                 selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
                 whitelistedAddresses: projectData?.projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
-                rewardAmount: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined,
+                // rewardAmount: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined, TODO: Fix
                 redirectUrl: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
               }}
               handleChange={handleChange}

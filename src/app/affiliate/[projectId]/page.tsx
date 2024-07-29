@@ -233,8 +233,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         <span className="font-semibold bg-green-200 px-2 py-1 rounded-md shadow-lg">
           {projectData?.projectType === "DirectPayment" && isWhitelisted && address
             ? (projectData as DirectPaymentProjectData).whitelistedAddresses[address].rewardAmount
-            : projectData?.projectType === "EscrowPayment"
-            ? projectData.rewardAmount
+            // : projectData?.projectType === "EscrowPayment" TODO: Fix
+            // ? projectData.rewardAmount
             : null
           } {tokenSymbol}
         </span>
