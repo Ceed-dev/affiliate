@@ -6,7 +6,10 @@ import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import cloneDeep from "lodash/cloneDeep";
 import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
-import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, WhitelistedAddress } from "../../../types";
+import { 
+  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, 
+  WhitelistedAddress, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails,
+} from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
   ProjectDetailsForm, 
@@ -96,6 +99,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   const handleChange = (field: string, isNumeric?: boolean, isFloat?: boolean) => 
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       let value: any;
+
+      // Split the `field` string into keys for accessing nested properties.
+      const keys = field.split(".");
     
       // Parse the event value based on the `isNumeric` and `isFloat` flags.
       if (isNumeric) {
@@ -104,14 +110,26 @@ export default function Settings({ params }: { params: { projectId: string } }) 
           value = Math.round(value * 10) / 10; // Limited to one decimal place
         }
         if (isNaN(value)) value = 0;  // Default to 0 if parsing fails.
+
+        // Add validation for FixedAmount and RevenueShare
+        if (keys.includes("rewardAmount")) {
+          if (value < 1 || value > 10000) {
+            toast.error("Value must be between 1 and 10000.");
+            return;
+          }
+        } else if (keys.includes("percentage")) {
+          if (value < 0.1 || value > 100) {
+            toast.error("Percentage must be between 0.1 and 100.");
+            return;
+          }
+        }
       } else {
         value = event.target.value;
       }
       
       // Set the new state of project data.
       setProjectData(prev => {
-        // Split the `field` string into keys for accessing nested properties.
-        const keys = field.split(".");
+        if (!prev) return prev;
 
         // Create a shallow copy of the previous state to maintain immutability.
         let updated = { ...prev } as any;
@@ -120,6 +138,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         // `item` is used to reference the current level of the state object.
         let item = updated;
         for (let i = 0; i < keys.length - 1; i++) {
+          if (!item[keys[i]]) {
+            item[keys[i]] = {};  // Ensure the nested object exists.
+          }
           item = item[keys[i]];  // Navigate deeper into the nested object.
         }
 
@@ -130,6 +151,19 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         return updated;
       });
     };
+
+  const handleTierChange = (newTiers: Tier[]) => {
+    setProjectData(prevData => {
+      if (!prevData) return prevData;
+  
+      return {
+        ...prevData,
+        paymentDetails: {
+          tiers: newTiers,
+        } as TieredDetails,
+      };
+    });
+  };
   
   const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
@@ -196,16 +230,31 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
     if (projectData.projectType === "EscrowPayment") {
       const escrowProjectData = projectData as EscrowPaymentProjectData;
-      return projectData.projectName.trim() !== "" &&
-              projectData.description.trim() !== "" &&
-              projectData.logo &&
-              projectData.cover &&
-              projectData.websiteUrl &&
-              projectData.xUrl &&
-              projectData.selectedTokenAddress.trim() !== "" &&
-              // escrowProjectData.rewardAmount > 0 && TODO: Fix
-              escrowProjectData.redirectUrl.trim() !== "" &&
-              escrowProjectData.embed;
+      const isBaseDataValid = projectData.projectName.trim() !== "" &&
+                            projectData.description.trim() !== "" &&
+                            projectData.logo &&
+                            projectData.cover &&
+                            projectData.websiteUrl &&
+                            projectData.xUrl &&
+                            projectData.selectedTokenAddress.trim() !== "" &&
+                            escrowProjectData.redirectUrl.trim() !== "" &&
+                            escrowProjectData.embed;
+
+      if (!isBaseDataValid) return false;
+
+      switch (escrowProjectData.paymentType) {
+        case "FixedAmount":
+          const fixedAmountDetails = escrowProjectData.paymentDetails as FixedAmountDetails;
+          return fixedAmountDetails.rewardAmount > 0;
+        case "RevenueShare":
+          const revenueShareDetails = escrowProjectData.paymentDetails as RevenueShareDetails;
+          return revenueShareDetails.percentage > 0;
+        case "Tiered":
+          const tieredDetails = escrowProjectData.paymentDetails as TieredDetails;
+          return tieredDetails.tiers.length > 0 && tieredDetails.tiers.every(tier => tier.conversionsRequired > 0 && tier.rewardAmount > 0);
+        default:
+          return false;
+      }
     }
 
     return false;
@@ -291,11 +340,13 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               data={{
                 projectType: projectData?.projectType!,
                 selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
+                paymentType: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentType : undefined,
+                paymentDetails: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
                 whitelistedAddresses: projectData?.projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
-                // rewardAmount: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined, TODO: Fix
                 redirectUrl: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
               }}
               handleChange={handleChange}
+              handleTierChange={projectData?.projectType === "EscrowPayment" ? handleTierChange : undefined}
               handleWhitelistChange={projectData?.projectType === "DirectPayment" ? handleWhitelistChange : undefined}
               setRedirectLinkError={setRedirectLinkError}
               selectedChain={selectedChain ?? undefined}
