@@ -105,6 +105,11 @@ export default function CreateProject() {
           value = Math.round(value * 10) / 10; // Limited to one decimal place
         }
         if (isNaN(value)) value = 0;  // Default to 0 if parsing fails.
+
+        if (value > 10000) {
+          toast.error("Value cannot exceed 10000.");
+          return;
+        }
       } else {
         value = event.target.value;
       }
