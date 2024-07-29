@@ -40,7 +40,7 @@ export type RevenueShareDetails = {
   percentage: number;
 };
 
-type Tier = {
+export type Tier = {
   conversionsRequired: number;
   rewardAmount: number;
 };
