@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExtendedProjectData } from "../types";
+import { ExtendedProjectData, FixedAmountDetails, RevenueShareDetails, TieredDetails } from "../types";
 import { formatChainName } from "../utils/formatters";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 
@@ -30,6 +30,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
     fetchChainName();
   }, [project.selectedChainId]);
+
+  // Calculate min and max reward for Tiered payment type
+  let tieredRewardRange = "";
+  if (project.projectType === "EscrowPayment" && project.paymentType === "Tiered") {
+    const tiers = (project.paymentDetails as TieredDetails).tiers;
+    const minReward = Math.min(...tiers.map(tier => tier.rewardAmount));
+    const maxReward = Math.max(...tiers.map(tier => tier.rewardAmount));
+    tieredRewardRange = `${minReward}~${maxReward} ${project.selectedToken}`;
+  }
 
   return (
     <Link href={linkUrl}>
@@ -70,7 +79,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
             <p className="flex flex-row items-center bg-green-200 px-2 py-1 rounded-md border border-white">
               <p className="font-semibold">
-                {project.projectType === "EscrowPayment" ? `${project.rewardAmount} ${project.selectedToken}` : project.selectedToken}
+                {project.projectType === "EscrowPayment" ? (
+                  project.paymentType === "FixedAmount" ? (
+                    `${(project.paymentDetails as FixedAmountDetails).rewardAmount} ${project.selectedToken}`
+                  ) : project.paymentType === "RevenueShare" ? (
+                    `${(project.paymentDetails as RevenueShareDetails).percentage}% of revenue`
+                  ) : project.paymentType === "Tiered" ? (
+                    `${tieredRewardRange}`
+                  ) : null
+                ) : (
+                  project.selectedToken
+                )}
               </p>
               {chainName && <Image src={`/chains/${formatChainName(chainName)}.png`} alt={chainName} width={18} height={18} className="m-1" />}
             </p>

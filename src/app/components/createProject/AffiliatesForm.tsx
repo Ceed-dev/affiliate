@@ -7,7 +7,10 @@ import { Chain } from "@thirdweb-dev/chains";
 import { NextButton } from "./NextButton";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
-import { WhitelistedAddress, ProjectType } from "../../types";
+import { 
+  WhitelistedAddress, ProjectType, PaymentType, 
+  PaymentDetails, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails,
+} from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
 
@@ -15,11 +18,14 @@ type AffiliatesFormProps = {
   data: {
     projectType: ProjectType;
     selectedTokenAddress: string;
+    paymentType?: PaymentType;
+    paymentDetails?: PaymentDetails;
     whitelistedAddresses?: { [address: string]: WhitelistedAddress };
-    rewardAmount?: number;
     redirectUrl?: string;
   };
   handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handlePaymentTypeChange?: (type: PaymentType) => void;
+  handleTierChange?: (newTiers: Tier[]) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   setRedirectLinkError?: (hasError: boolean) => void;
   nextStep?: () => void;
@@ -37,6 +43,8 @@ type WhitelistEntry = {
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
   handleChange,
+  handlePaymentTypeChange,
+  handleTierChange,
   handleWhitelistChange,
   setRedirectLinkError,
   nextStep,
@@ -56,13 +64,20 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         Object.keys(data.whitelistedAddresses ?? {}).length > 0
       );
     } else if (data.projectType === "EscrowPayment") {
-      return (
-        data.selectedTokenAddress.trim() &&
-        data.rewardAmount !== undefined &&
-        data.rewardAmount > 0 &&
-        data.redirectUrl?.trim() &&
-        isValidUrl(data.redirectUrl)
-      );
+      if (!data.selectedTokenAddress.trim() || !data.redirectUrl?.trim() || !isValidUrl(data.redirectUrl)) {
+        return false;
+      }
+  
+      if (data.paymentType === "FixedAmount") {
+        return (data.paymentDetails as FixedAmountDetails)?.rewardAmount > 0;
+      } else if (data.paymentType === "RevenueShare") {
+        return (data.paymentDetails as RevenueShareDetails)?.percentage > 0;
+      } else if (data.paymentType === "Tiered") {
+        return (
+          Array.isArray((data.paymentDetails as TieredDetails)?.tiers) &&
+          (data.paymentDetails as TieredDetails).tiers.length > 0
+        );
+      }
     }
     return false; // In case projectType is not set or unknown
   };
@@ -235,6 +250,80 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
   // ===== END WHITELIST MANAGEMENT =====
 
+  // ===== BEGIN TIER MANAGEMENT =====
+
+  // Use "data.paymentDetails.tiers" as initial value
+  const [tierEntries, setTierEntries] = useState<Tier[]>(() =>
+    (data.paymentDetails as TieredDetails)?.tiers ?? []
+  );
+  
+  const [newConversionsRequired, setNewConversionsRequired] = useState(0);
+  const [newTierRewardAmount, setNewTierRewardAmount] = useState(0);
+
+  const [isCheckingNewTierEntry, setIsCheckingNewTierEntry] = useState(false);
+
+  const handleAddTier = async () => {
+    setIsCheckingNewTierEntry(true);
+  
+    // Input validation
+    if (isNaN(newConversionsRequired) || newConversionsRequired < 1 || newConversionsRequired > 1000) {
+      toast.error("Conversions required must be between 1 and 1000.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+    if (isNaN(newTierRewardAmount) || newTierRewardAmount <= 0) {
+      toast.error("Reward amount must be greater than zero.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+    if (tierEntries.some(tier => tier.conversionsRequired === newConversionsRequired)) {
+      toast.error("A tier with the same conversions required already exists.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+    if (tierEntries.length >= 10) {
+      toast.error("You can only create up to 10 tiers.");
+      setIsCheckingNewTierEntry(false);
+      return;
+    }
+  
+    // Create new tier entry
+    const newTier: Tier = { conversionsRequired: newConversionsRequired, rewardAmount: newTierRewardAmount };
+    const updatedTiers = [...tierEntries, newTier].sort((a, b) => a.conversionsRequired - b.conversionsRequired);
+  
+    // Update local state
+    setTierEntries(updatedTiers);
+  
+    // Update project data
+    if (handleTierChange) {
+      handleTierChange(updatedTiers);
+    }
+  
+    // Reset input fields
+    setNewConversionsRequired(0);
+    setNewTierRewardAmount(0);
+  
+    toast.success("New reward tier added.");
+    setIsCheckingNewTierEntry(false);
+  };
+
+  const handleRemoveTier = (index: number) => {
+    // Create a new array that excludes the specified tier
+    const updatedTiers = tierEntries.filter((_, i) => i !== index);
+  
+    // Update local state
+    setTierEntries(updatedTiers);
+  
+    // Update project data
+    if (handleTierChange) {
+      handleTierChange(updatedTiers);
+    }
+  
+    toast.success("Reward tier removed.");
+  };
+
+  // ===== END TIER MANAGEMENT =====
+
   const [redirectUrlError, setRedirectUrlError] = useState("");
 
   const handleRedirectUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,7 +339,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 mt-10 text-sm">
+    <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
       <h1 className="text-xl mb-5">Affiliates</h1>
 
@@ -313,6 +402,198 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             </Link>
           )}
         </div>
+
+        {data.projectType === "EscrowPayment" && (
+          <div className="flex flex-col gap-2">
+            <h2>How do you want to reward affiliates? <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Payment type cannot be edited after initial setup."})</span></h2>
+            <div className="flex flex-col">
+              <label className={`${isEditing && data.paymentType !== "FixedAmount" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "FixedAmount" ? "rounded-lg bg-gray-100" : "rounded-t-lg"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "FixedAmount" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="FixedAmount"
+                    checked={data.paymentType === "FixedAmount"}
+                    onChange={() => {
+                      setTierEntries([]);
+                      handlePaymentTypeChange?.("FixedAmount");
+                    }}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className={`ml-2 ${data.paymentType === "FixedAmount" ? "text-blue-700" : "text-gray-700"}`}>Fixed Amount</span>
+                </div>
+                <span className={`text-sm ml-5 ${data.paymentType === "FixedAmount" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with tokens for each successful referral</span>
+              </label>
+              <label className={`${isEditing && data.paymentType !== "RevenueShare" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "RevenueShare" && "rounded-lg bg-gray-100"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="RevenueShare"
+                    checked={data.paymentType === "RevenueShare"}
+                    onChange={() => {
+                      setTierEntries([]);
+                      handlePaymentTypeChange?.("RevenueShare");
+                    }}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className={`ml-2 ${data.paymentType === "RevenueShare" ? "text-blue-700" : "text-gray-700"}`}>Revenue Share</span>
+                </div>
+                <span className={`text-sm ml-5 ${data.paymentType === "RevenueShare" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with a percentage of the revenue they help generate</span>
+              </label>
+              <label className={`${isEditing && data.paymentType !== "Tiered" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "Tiered" ? "rounded-lg bg-gray-100" : "rounded-b-lg"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="Tiered"
+                    checked={data.paymentType === "Tiered"}
+                    onChange={() => handlePaymentTypeChange?.("Tiered")}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className={`ml-2 ${data.paymentType === "Tiered" ? "text-blue-700" : "text-gray-700"}`}>Tiered</span>
+                </div>
+                <span className={`text-sm ml-5 ${data.paymentType === "Tiered" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with different reward tiers</span>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {data.paymentType === "FixedAmount" && (
+          <div className="flex flex-col gap-2">
+            <h2>Reward Amount <span className="text-red-500">*</span></h2>
+            <p className="text-gray-500 text-sm">
+              You can enter an integer or a value up to one decimal place. The value must be between 1 and 10000.
+            </p>
+            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
+              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+                Token Units:
+              </span>
+              <input
+                type="number"
+                value={
+                  data.paymentDetails && "rewardAmount" in data.paymentDetails 
+                    ? data.paymentDetails.rewardAmount?.toString() 
+                    : ""
+                }
+                onChange={handleChange("paymentDetails.rewardAmount", true, true)}
+                className="w-full outline-none"
+                min="1"
+                max="10000"
+                step="0.1"
+                placeholder="Enter token units"
+              />
+            </div>
+          </div>
+        )}
+
+        {data.paymentType === "RevenueShare" && (
+          <div className="flex flex-col gap-2">
+            <h2>Revenue Share Percentage <span className="text-red-500">*</span></h2>
+            <p className="text-gray-500 text-sm">
+              Percentage an affiliate is paid for each purchase they refer. The value must be between 0.1 and 100.
+            </p>
+            <div className="rounded-lg border border-[#D1D5DB] flex items-center">
+              <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
+                Percentage:
+              </span>
+              <input
+                type="number"
+                value={
+                  data.paymentDetails && "percentage" in data.paymentDetails 
+                    ? data.paymentDetails.percentage?.toString() 
+                    : ""
+                }
+                onChange={handleChange("paymentDetails.percentage", true, true)}
+                className="w-full outline-none"
+                min="0.1"
+                max="100"
+                step="0.1"
+                placeholder="Enter percentage"
+              />
+            </div>
+          </div>
+        )}
+
+        {data.paymentType === "Tiered" && (
+          <div className="flex flex-col gap-2">
+            <h2>Tier Management <span className="text-red-500">*</span></h2>
+            <div className="w-full border border-[#D1D5DB] rounded-lg outline-none flex flex-col pr-2 bg-white text-black">
+              <div className="flex flex-row">
+                <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                  CONVERSIONS REQUIRED:
+                </span>
+                <input 
+                  type="number" 
+                  value={newConversionsRequired} 
+                  onChange={e => setNewConversionsRequired(parseInt(e.target.value, 10))} 
+                  placeholder="Conversions Required" 
+                  className="w-full outline-none"
+                />
+              </div>
+              <div className="flex flex-row">
+                <span className="rounded-bl-lg w-1/3 text-[#6B7280] bg-gray-100 p-2 mr-1">
+                  REWARD AMOUNT:
+                </span>
+                <input 
+                  type="number" 
+                  value={newTierRewardAmount} 
+                  onChange={e => setNewTierRewardAmount(parseInt(e.target.value, 10))} 
+                  placeholder="Reward Amount" 
+                  className="w-full outline-none" 
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddTier} 
+              className={`text-white p-2 rounded transition-transform duration-300 ${isCheckingNewTierEntry ? "bg-gray-200" : "bg-green-500 hover:scale-105 hover:bg-green-700"}`}
+              disabled={isCheckingNewTierEntry}
+            >
+              {isCheckingNewTierEntry ? (
+                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+              ) : (
+                "Add Reward Tier"
+              )}
+            </button>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Conversions Required</th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
+                    <th className="px-6 py-3 bg-gray-50">Remove</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {tierEntries.length ? (
+                    tierEntries.map((entry, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 overflow-hidden truncate">{entry.conversionsRequired}</td>
+                        <td className="px-6 py-4 overflow-hidden truncate">{entry.rewardAmount}</td>
+                        <td className="px-6 py-4 text-center">
+                          <button onClick={() => handleRemoveTier(index)}>
+                            <Image 
+                              src="/trash.png" 
+                              alt="trash.png" 
+                              height={20} 
+                              width={20} 
+                              className="transition duration-300 ease-in-out transform hover:scale-125" 
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr className="text-gray-500">
+                      <td colSpan={3} className="text-center py-4">No Reward Tier</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {data.projectType === "DirectPayment" && (
           <div className="flex flex-col gap-2">
@@ -407,46 +688,23 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         )}
 
         {data.projectType === "EscrowPayment" && (
-          <>
-            <div className="flex flex-col gap-2">
-              <h2>Reward Amount <span className="text-red-500">*</span></h2>
-              <p className="text-gray-500 text-sm">
-                You can enter an integer or a value up to one decimal place.
-              </p>
-              <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-                <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">
-                  Token Units:
-                </span>
-                <input
-                  type="number"
-                  value={data.rewardAmount?.toString() || ""}
-                  onChange={handleChange("rewardAmount", true, true)}
-                  className="w-full outline-none"
-                  min="1"
-                  step="0.1"
-                  placeholder="Enter token units"
-                />
-              </div>
+          <div className="flex flex-col gap-2">
+            <h2>Redirect URL <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})</span></h2>
+            <div className={`rounded-lg border border-[#D1D5DB] flex items-center ${isEditing && "bg-gray-100"}`}>
+              <span className={`w-[150px] text-[#6B7280] bg-gray-100 p-2 border-r ${isEditing && "border-r-[#D1D5DB]"}`}>
+                URL:
+              </span>
+              <input
+                readOnly={isEditing}
+                type="url"
+                value={data.redirectUrl}
+                onChange={handleRedirectUrlChange}
+                className={`w-full outline-none pl-1 ${redirectUrlError ? "border-red-500" : ""} ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "text-black"}`}
+                placeholder="Enter the redirect URL"
+              />
             </div>
-
-            <div className="flex flex-col gap-2">
-              <h2>Redirect URL <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})</span></h2>
-              <div className={`rounded-lg border border-[#D1D5DB] flex items-center ${isEditing && "bg-gray-100"}`}>
-                <span className={`w-[150px] text-[#6B7280] bg-gray-100 p-2 border-r ${isEditing && "border-r-[#D1D5DB]"}`}>
-                  URL:
-                </span>
-                <input
-                  readOnly={isEditing}
-                  type="url"
-                  value={data.redirectUrl}
-                  onChange={handleRedirectUrlChange}
-                  className={`w-full outline-none pl-1 ${redirectUrlError ? "border-red-500" : ""} ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "text-black"}`}
-                  placeholder="Enter the redirect URL"
-                />
-              </div>
-              {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
-            </div>
-          </>
+            {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
+          </div>
         )}
         
       </div>

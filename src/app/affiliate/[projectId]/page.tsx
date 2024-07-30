@@ -5,7 +5,11 @@ import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
-import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
+import { 
+  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, 
+  PaymentTransaction, ConversionLog, ClickData,
+  FixedAmountDetails, RevenueShareDetails, TieredDetails,
+} from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
@@ -45,6 +49,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
+
+  const [isTierDetailModalOpen, setIsTierDetailModalOpen] = useState(false);
 
   let embedCode: string = "";
 
@@ -227,15 +233,30 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
+  // Calculate min and max reward for Tiered payment type
+  let tieredRewardRange = "";
+  if (projectData?.projectType === "EscrowPayment" && projectData.paymentType === "Tiered") {
+    const tiers = (projectData.paymentDetails as TieredDetails).tiers;
+    const minReward = Math.min(...tiers.map(tier => tier.rewardAmount));
+    const maxReward = Math.max(...tiers.map(tier => tier.rewardAmount));
+    tieredRewardRange = `${minReward}~${maxReward}`;
+  }
+
   const rewardText = loadingTokenSymbol 
     ? <span className="text-gray-500">Loading...</span> 
     : (
         <span className="font-semibold bg-green-200 px-2 py-1 rounded-md shadow-lg">
           {projectData?.projectType === "DirectPayment" && isWhitelisted && address
             ? (projectData as DirectPaymentProjectData).whitelistedAddresses[address].rewardAmount
-            : projectData?.projectType === "EscrowPayment"
-            ? projectData.rewardAmount
-            : null
+            : projectData?.projectType === "EscrowPayment" 
+              ? projectData?.paymentType === "FixedAmount" ? (
+                  `${(projectData.paymentDetails as FixedAmountDetails).rewardAmount}`
+                ) : projectData.paymentType === "RevenueShare" ? (
+                  `${(projectData.paymentDetails as RevenueShareDetails).percentage}% of revenue in`
+                ) : projectData.paymentType === "Tiered" ? (
+                  `${tieredRewardRange}`
+                ) : null
+              : null
           } {tokenSymbol}
         </span>
       );
@@ -338,6 +359,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               </>
             )}
           </h2>
+          {projectData?.projectType === "EscrowPayment" && projectData.paymentType === "Tiered" && (
+            <button
+              className="text-blue-500 hover:text-blue-700 hover:font-semibold hover:underline"
+              onClick={() => setIsTierDetailModalOpen(true)}
+            >
+              &rarr; Show Tier Detail
+            </button>
+          )}
           <p className="text-gray-600 pb-4">
             {projectData?.projectType === "DirectPayment" && isWhitelisted 
               ? "Share your link with others and start earning!"
@@ -484,6 +513,37 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 height={200}
                 className="object-contain"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {projectData?.projectType === "EscrowPayment" && projectData.paymentType === "Tiered" && isTierDetailModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-md">
+            <div className="flex flex-row justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Tier Detail</h2>
+              <button onClick={() => setIsTierDetailModalOpen(false)} >
+                <Image src="/close.png" alt="Close Icon" width={15} height={15} />
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Conversions Required</th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {(projectData.paymentDetails as TieredDetails).tiers.map((tier, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 overflow-hidden truncate">{tier.conversionsRequired}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">{tier.rewardAmount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

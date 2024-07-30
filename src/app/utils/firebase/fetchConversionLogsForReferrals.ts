@@ -2,7 +2,7 @@ import { collection, query, getDocs, DocumentData, Timestamp } from "firebase/fi
 import { db } from "./firebaseConfig";
 import { ConversionLog, ReferralData } from "../../types";
 
-export const fetchConversionLogsForReferrals = async (referralData: ReferralData[], setConversionLogData: Function): Promise<void> => {
+export const fetchConversionLogsForReferrals = async (referralData: ReferralData[], setConversionLogData?: Function): Promise<ConversionLog[]> => {
   try {
     const conversionLogs: ConversionLog[] = [];
     const conversionLogPromises = referralData.map(async (referral) => {
@@ -22,8 +22,11 @@ export const fetchConversionLogsForReferrals = async (referralData: ReferralData
 
     await Promise.all(conversionLogPromises);
 
-    setConversionLogData(conversionLogs);
+    if (setConversionLogData) {
+      setConversionLogData(conversionLogs);
+    }
     console.log("Conversion Logs: ", conversionLogs);
+    return conversionLogs;
   } catch (error) {
     console.error("Error fetching conversion logs for referrals: ", error);
     throw new Error("Failed to fetch conversion logs for referrals");

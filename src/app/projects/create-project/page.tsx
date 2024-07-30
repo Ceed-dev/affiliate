@@ -14,7 +14,11 @@ import {
 } from "../../components/createProject";
 import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
-import { ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ImageType, WhitelistedAddress } from "../../types";
+import { 
+  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
+  ProjectData, ImageType, WhitelistedAddress, 
+  PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
+} from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
 export default function CreateProject() {
@@ -77,7 +81,8 @@ export default function CreateProject() {
       setProjectData({
         ...commonData,
         projectType: "EscrowPayment",
-        rewardAmount: 0,
+        paymentType: "FixedAmount",
+        paymentDetails: { rewardAmount: 0 },
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
@@ -92,6 +97,9 @@ export default function CreateProject() {
   const handleChange = (field: string, isNumeric?: boolean, isFloat?: boolean) => 
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       let value: any;
+
+      // Split the `field` string into keys for accessing nested properties.
+      const keys = field.split(".");
     
       // Parse the event value based on the `isNumeric` and `isFloat` flags.
       if (isNumeric) {
@@ -100,6 +108,19 @@ export default function CreateProject() {
           value = Math.round(value * 10) / 10; // Limited to one decimal place
         }
         if (isNaN(value)) value = 0;  // Default to 0 if parsing fails.
+
+        // Add validation for FixedAmount and RevenueShare
+        if (keys.includes("rewardAmount")) {
+          if (value < 1 || value > 10000) {
+            toast.error("Value must be between 1 and 10000.");
+            return;
+          }
+        } else if (keys.includes("percentage")) {
+          if (value < 0.1 || value > 100) {
+            toast.error("Percentage must be between 0.1 and 100.");
+            return;
+          }
+        }
       } else {
         value = event.target.value;
       }
@@ -107,9 +128,6 @@ export default function CreateProject() {
       // Set the new state of project data.
       setProjectData(prev => {
         if (!prev) return prev;
-
-        // Split the `field` string into keys for accessing nested properties.
-        const keys = field.split(".");
 
         // Create a shallow copy of the previous state to maintain immutability.
         let updated = { ...prev } as any;
@@ -131,6 +149,28 @@ export default function CreateProject() {
         return updated;
       });
     };
+
+  const handlePaymentTypeChange = (type: PaymentType) => {
+    setProjectData(prev => {
+      if (!prev) return prev;
+  
+      let paymentDetails: PaymentDetails = { rewardAmount: 0 };
+
+      if (type === "FixedAmount") {
+        paymentDetails = { rewardAmount: 0 } as FixedAmountDetails;
+      } else if (type === "RevenueShare") {
+        paymentDetails = { percentage: 0 } as RevenueShareDetails;
+      } else if (type === "Tiered") {
+        paymentDetails = { tiers: [] } as TieredDetails;
+      }
+  
+      return {
+        ...prev,
+        paymentType: type,
+        paymentDetails
+      };
+    });
+  };
 
   const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
@@ -167,6 +207,19 @@ export default function CreateProject() {
       return {
         ...prevData,
         whitelistedAddresses: newWhitelistedAddresses
+      };
+    });
+  };
+
+  const handleTierChange = (newTiers: Tier[]) => {
+    setProjectData(prevData => {
+      if (!prevData) return prevData;
+  
+      return {
+        ...prevData,
+        paymentDetails: {
+          tiers: newTiers,
+        } as TieredDetails,
       };
     });
   };
@@ -355,11 +408,14 @@ export default function CreateProject() {
             data={{
               projectType: projectType!,
               selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
+              paymentType: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentType ?? "FixedAmount" : undefined,
+              paymentDetails: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
               whitelistedAddresses: projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
-              rewardAmount: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.rewardAmount ?? 0 : undefined,
               redirectUrl: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
             }}
             handleChange={handleChange}
+            handlePaymentTypeChange={projectType === "EscrowPayment" ? handlePaymentTypeChange : undefined}
+            handleTierChange={projectType === "EscrowPayment" ? handleTierChange : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             nextStep={saveProjectAndDepositToken}
             isSaving={isSaving}
