@@ -8,7 +8,7 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../utils/firebase";
-import { EscrowPaymentProjectData, FixedAmountDetails, TieredDetails } from "../../types";
+import { EscrowPaymentProjectData, FixedAmountDetails, RevenueShareDetails, TieredDetails } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,6 +67,18 @@ export async function POST(request: NextRequest) {
     // Determine reward amount based on paymentType
     if (escrowProjectData.paymentType === "FixedAmount") {
       rewardAmount = (escrowProjectData.paymentDetails as FixedAmountDetails).rewardAmount;
+    } else if (escrowProjectData.paymentType === "RevenueShare") {
+      const revenueParam = request.nextUrl.searchParams.get("revenue");
+      if (!revenueParam || isNaN(parseFloat(revenueParam)) || parseFloat(revenueParam) <= 0) {
+        return NextResponse.json(
+          { error: "Revenue parameter is required and must be a positive number for RevenueShare payment type" },
+          { status: 400 }
+        );
+      }
+      const revenue = parseFloat(revenueParam);
+      const percentage = (escrowProjectData.paymentDetails as RevenueShareDetails).percentage;
+      // Calculate reward amount and round to 1 decimal place
+      rewardAmount = Math.round((revenue * percentage) / 10) / 10;
     } else if (escrowProjectData.paymentType === "Tiered") {
       const conversionLogs = await fetchConversionLogsForReferrals([referralData]);
       const conversionCount = conversionLogs.length + 1; // Current conversion count
