@@ -321,8 +321,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               data={{
                 logoPreview: previewData.logoPreview,
                 coverPreview: previewData.coverPreview,
-                ...(projectData?.projectType === "EscrowPayment" && { embedPreview: previewData.embedPreview }),
-                projectType: projectData?.projectType!,
               }}
               handleImageChange={handleImageChange}
               removeImage={(type) => removeImage(type)}
