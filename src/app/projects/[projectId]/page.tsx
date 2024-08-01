@@ -9,6 +9,7 @@ import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferr
 import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { chainRpcUrls } from "../../constants/chains";
+import { popularTokens } from "../../constants/popularTokens";
 
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -65,14 +66,21 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
     const fetchTokenDetails = async () => {
       try {
-        const rpcUrl = chainRpcUrls[projectData.selectedChainId];
-        if (!rpcUrl) {
-          throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
+        const predefinedToken = (popularTokens[projectData.selectedChainId] || []).find(token => token.address === projectData.selectedTokenAddress);
+
+        if (predefinedToken) {
+          setTokenSymbol(predefinedToken.symbol);
+        } else {
+          const rpcUrl = chainRpcUrls[projectData.selectedChainId];
+          if (!rpcUrl) {
+            throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
+          }
+
+          const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
+          const symbol = await erc20.getSymbol();
+          setTokenSymbol(symbol);
         }
 
-        const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
-        const symbol = await erc20.getSymbol();
-        setTokenSymbol(symbol);
         // const escrow = new Escrow(signer);
         // const projectInfo = await escrow.getProjectInfo(params.projectId);
         // setDepositBalance(projectInfo?.depositAmount ? formatBalance(projectInfo.depositAmount) : "0");
