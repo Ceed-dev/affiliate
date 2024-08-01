@@ -46,4 +46,7 @@ export const popularTokens: { [chainId: number]: Token[] } = {
   // HomeVerse
   19011:
     [],
+  // GesoVerse
+  428:
+    [],
 };
