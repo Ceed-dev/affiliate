@@ -43,4 +43,7 @@ export const popularTokens: { [chainId: number]: Token[] } = {
   // MchVerse
   29548:
     [],
+  // HomeVerse
+  19011:
+    [],
 };
