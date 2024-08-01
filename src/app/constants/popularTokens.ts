@@ -4,6 +4,14 @@ type Token = {
 };
 
 export const popularTokens: { [chainId: number]: Token[] } = {
+  // Polygon
+  137:
+    [
+      { symbol: "USDC", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359" },
+      { symbol: "USDT", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" },
+      { symbol: "JPYC", address: "0x431D5dfF03120AFA4bDf332c61A6e1766eF37BDB" },
+    ],
+  // PolygonAmoyTestnet
   80002: 
     [
       { symbol: "USDC", address: "0x9b5F49000D02479d1300e041FFf1d74F49588749" },
