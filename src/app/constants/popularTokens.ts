@@ -49,4 +49,7 @@ export const popularTokens: { [chainId: number]: Token[] } = {
   // GesoVerse
   428:
     [],
+  // GesotenVerseTestnet
+  42801:
+    [],
 };
