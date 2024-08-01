@@ -10,13 +10,22 @@ import { toast } from "react-toastify";
 interface ChainSelectorProps {
   useSwitch?: boolean;
   isEditing?: boolean;
+  overrideSelectedChain?: Chain;
 }
 
-export const ChainSelector: React.FC<ChainSelectorProps> = ({ useSwitch = false, isEditing = false }) => {
-  const { selectedChain, setSelectedChain } = useChainContext();
+export const ChainSelector: React.FC<ChainSelectorProps> = ({ useSwitch = false, isEditing = false, overrideSelectedChain }) => {
+  const { selectedChain: contextSelectedChain, setSelectedChain: setContextSelectedChain } = useChainContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const chains = getChains();
   const switchChain = useSwitchChain();
+
+  // Prefer to use overrideSelectedChain
+  const selectedChain = overrideSelectedChain || contextSelectedChain;
+  const setSelectedChain = (chain: Chain) => {
+    if (!overrideSelectedChain) {
+      setContextSelectedChain(chain);
+    }
+  };
 
   const handleChainChange = async (chain: Chain) => {
     if (useSwitch) {
