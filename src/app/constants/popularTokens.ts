@@ -18,4 +18,10 @@ export const popularTokens: { [chainId: number]: Token[] } = {
       { symbol: "USDT", address: "0x013129e82C92f423d21f8985817912Bca5281f45" },
       { symbol: "JPYC", address: "0x78eE7D0677a9E1C921E688c86710949F5D97C41a" },
     ],
+  // Arbitrum
+  42161:
+    [
+      { symbol: "USDC", address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" },
+      { symbol: "USDT", address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9" },
+    ],
 };
