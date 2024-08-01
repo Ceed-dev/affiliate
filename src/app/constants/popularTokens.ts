@@ -30,4 +30,11 @@ export const popularTokens: { [chainId: number]: Token[] } = {
   // ArbitrumSepolia
   421614:
     [],
+  // Avalanche
+  43114:
+    [
+      { symbol: "USDC", address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E" },
+      { symbol: "USDT", address: "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7" },
+      { symbol: "JPYC", address: "0x431D5dfF03120AFA4bDf332c61A6e1766eF37BDB" },
+    ],
 };
