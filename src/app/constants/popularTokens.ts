@@ -27,4 +27,7 @@ export const popularTokens: { [chainId: number]: Token[] } = {
   // ArbitrumNova
   42170:
     [],
+  // ArbitrumSepolia
+  421614:
+    [],
 };
