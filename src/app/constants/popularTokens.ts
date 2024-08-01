@@ -40,4 +40,7 @@ export const popularTokens: { [chainId: number]: Token[] } = {
   // AvalancheFuji
   43113:
     [],
+  // MchVerse
+  29548:
+    [],
 };
