@@ -12,6 +12,7 @@ import { formatAddress, formatChainName } from "../utils/formatters";
 import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers, approveUser } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
+import { popularTokens } from "../constants/popularTokens";
 
 export default function Admin() {
   const router = useRouter();
@@ -321,6 +322,11 @@ export default function Admin() {
                           target="_blank"
                           className="text-blue-500 hover:underline"
                         >
+                          {((popularTokens[tokenSummary[tokenAddress].chain.chainId] || []).find(token => token.address === tokenAddress)?.symbol || "") && (
+                            <span className="mr-1">
+                              ({popularTokens[tokenSummary[tokenAddress].chain.chainId].find(token => token.address === tokenAddress)?.symbol})
+                            </span>
+                          )}
                           {tokenAddress}
                         </Link>
                       </td>
@@ -410,6 +416,11 @@ export default function Admin() {
                           target="_blank"
                           className="text-blue-500 hover:underline"
                         >
+                          {((popularTokens[log.selectedChain.chainId] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
+                            <span className="mr-1">
+                              ({popularTokens[log.selectedChain.chainId].find(token => token.address === log.selectedTokenAddress)?.symbol})
+                            </span>
+                          )}
                           {log.selectedTokenAddress}
                         </Link>
                       </td>
