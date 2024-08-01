@@ -13,6 +13,7 @@ import {
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
+import { popularTokens } from "../../constants/popularTokens";
 
 type AffiliatesFormProps = {
   data: {
@@ -82,6 +83,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     return false; // In case projectType is not set or unknown
   };
 
+  const [selectedToken, setSelectedToken] = useState(
+    data.selectedTokenAddress 
+      ? (popularTokens[selectedChain.chainId] || []).find(token => token.address === data.selectedTokenAddress)?.symbol || "other"
+      : "other"
+  );
+
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [tokenBalance, setTokenBalance] = useState("");
   const [tokenAllowance, setTokenAllowance] = useState("");
@@ -145,12 +152,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   };
 
   useEffect(() => {
-    if (!isEditing && data.selectedTokenAddress) {
+    if (!isEditing && data.selectedTokenAddress && (selectedToken === "other")) {
       fetchTokenDetails(data.selectedTokenAddress);
     } else {
       initializeTokenStates();
     }
-  }, [data.selectedTokenAddress, selectedChain]);
+  }, [data.selectedTokenAddress, selectedChain, selectedToken]);
 
   // ===== BEGIN WHITELIST MANAGEMENT =====
 
@@ -349,8 +356,34 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           <h2>Token <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Token address cannot be edited after initial setup."})</span></h2>
           <div className="flex items-center gap-2">
             <ChainSelector useSwitch={true} isEditing={isEditing} />
+            <select
+              value={selectedToken}
+              onChange={(e) => {
+                setSelectedToken(e.target.value);
+                const selectedSymbol = e.target.value;
+
+                if (selectedSymbol === "other") {
+                  handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                } else {
+                  const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
+                  if (token) {
+                    handleChange("selectedTokenAddress")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                  }
+                }
+              }}
+              className={`p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ?  "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+              disabled={isEditing}
+            >
+              <option value="" disabled>Select a token</option>
+              {(popularTokens[selectedChain.chainId] || []).map((token) => (
+                <option key={token.address} value={token.symbol}>
+                  {token.symbol}
+                </option>
+              ))}
+              <option value="other">Other Token</option>
+            </select>
             <input
-              readOnly={isEditing}
+              readOnly={isEditing || (selectedToken !== "other")}
               type="text"
               value={data.selectedTokenAddress}
               onChange={(e) => {
@@ -365,7 +398,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 }
               }}
               placeholder="Enter token contract address"
-              className={`w-full p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+              className={`grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${(isEditing || (selectedToken !== "other")) ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
             />
           </div>
           {!isTokenAddressValid && (
