@@ -1,5 +1,6 @@
 import { getProvider } from "./initializeSigner";
 import { productionChains, testChains, chainRpcUrls } from "../../constants/chains";
+import { popularTokens } from "../../constants/popularTokens";
 import { ProjectData } from "../../types";
 import { ERC20 } from "./erc20";
 
@@ -24,6 +25,12 @@ export const isEOA = async (address: string, chainId: number): Promise<boolean> 
 
 export const fetchTokenSymbols = async (projects: ProjectData[]) => {
   return Promise.all(projects.map(async (project) => {
+    const predefinedToken = (popularTokens[project.selectedChainId] || []).find(token => token.address === project.selectedTokenAddress);
+
+    if (predefinedToken) {
+      return { ...project, selectedToken: predefinedToken.symbol };
+    }
+
     const rpcUrl = chainRpcUrls[project.selectedChainId];
     if (!rpcUrl) {
       throw new Error(`RPC URL for chain ID ${project.selectedChainId} not found.`);
