@@ -15,6 +15,7 @@ import {
   ProjectDetailsForm, 
   AffiliatesForm,
   LogoForm,
+  EmbedImageForm,
   SocialLinksForm,
   NextButton 
 } from "../../../components/createProject";
@@ -325,6 +326,15 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               handleImageChange={handleImageChange}
               removeImage={(type) => removeImage(type)}
             />
+            {projectData?.projectType === "EscrowPayment" && (
+              <EmbedImageForm
+                data={{
+                  embedPreview: previewData.embedPreview,
+                }}
+                handleImageChange={handleImageChange}
+                removeImage={(type) => removeImage(type)}
+              />
+            )}
             <SocialLinksForm
               data={{
                 websiteUrl: projectData?.websiteUrl ?? "",
