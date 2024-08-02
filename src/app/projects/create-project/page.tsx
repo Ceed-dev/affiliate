@@ -379,6 +379,18 @@ export default function CreateProject() {
             nextStep={nextStep}
           />
         );
+      case "Socials":
+        return (
+          <SocialLinksForm
+            data={{
+              websiteUrl: projectData?.websiteUrl ?? "",
+              xUrl: projectData?.xUrl ?? "",
+              discordUrl: projectData?.discordUrl ?? "",
+            }}
+            handleChange={handleChange}
+            nextStep={nextStep}
+          />
+        );
       case "Logo":
         return (
           <LogoForm
@@ -399,18 +411,6 @@ export default function CreateProject() {
             }}
             handleImageChange={handleImageChange}
             removeImage={(type) => removeImage(type)}
-            nextStep={nextStep}
-          />
-        );
-      case "Socials":
-        return (
-          <SocialLinksForm
-            data={{
-              websiteUrl: projectData?.websiteUrl ?? "",
-              xUrl: projectData?.xUrl ?? "",
-              discordUrl: projectData?.discordUrl ?? "",
-            }}
-            handleChange={handleChange}
             nextStep={nextStep}
           />
         );

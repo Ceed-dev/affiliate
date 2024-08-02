@@ -318,6 +318,15 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               handleOwnerChange={handleOwnerChange}
               handleDateChange={projectData?.projectType === "DirectPayment" ? handleDateChange : undefined}
             />
+            <SocialLinksForm
+              data={{
+                websiteUrl: projectData?.websiteUrl ?? "",
+                xUrl: projectData?.xUrl ?? "",
+                discordUrl: projectData?.discordUrl ?? "",
+              }}
+              handleChange={handleChange}
+              setSocialLinkFormError={setSocialLinkFormError}
+            />
             <LogoForm
               data={{
                 logoPreview: previewData.logoPreview,
@@ -335,15 +344,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 removeImage={(type) => removeImage(type)}
               />
             )}
-            <SocialLinksForm
-              data={{
-                websiteUrl: projectData?.websiteUrl ?? "",
-                xUrl: projectData?.xUrl ?? "",
-                discordUrl: projectData?.discordUrl ?? "",
-              }}
-              handleChange={handleChange}
-              setSocialLinkFormError={setSocialLinkFormError}
-            />
             <AffiliatesForm 
               data={{
                 projectType: projectData?.projectType!,
