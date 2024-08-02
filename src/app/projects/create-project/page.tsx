@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import { 
+  getSteps,
   StatusBar,
   ProjectTypeSelectionForm,
   ProjectDetailsForm,
   AffiliatesForm,
   LogoForm,
+  EmbedImageForm,
   SocialLinksForm
 } from "../../components/createProject";
 import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
@@ -37,7 +39,7 @@ export default function CreateProject() {
     embedPreview: "",
   });
 
-  const nextStep = () => setCurrentStep(currentStep < 6 ? currentStep + 1 : 6);
+  const nextStep = () => setCurrentStep(currentStep + 1);
 
   const handleProjectTypeChange = (type: ProjectType) => {
     setProjectType(type);
@@ -347,15 +349,17 @@ export default function CreateProject() {
   };
 
   const renderForm = () => {
-    switch (currentStep) {
-      case 1:
+    const steps = getSteps(projectType);
+
+    switch (steps[Math.min(currentStep - 1, steps.length - 1)]) {
+      case "Type":
         return (
           <ProjectTypeSelectionForm
             handleProjectTypeChange={handleProjectTypeChange}
             nextStep={nextStep}
           />
         );
-      case 2:
+      case "Details":
         return (
           <ProjectDetailsForm
             data={{
@@ -375,21 +379,30 @@ export default function CreateProject() {
             nextStep={nextStep}
           />
         );
-      case 3:
+      case "Logo":
         return (
           <LogoForm
             data={{
               logoPreview: previewData.logoPreview,
               coverPreview: previewData.coverPreview,
-              ...(projectType! === "EscrowPayment" && { embedPreview: previewData.embedPreview }),
-              projectType: projectType!,
             }}
             handleImageChange={handleImageChange}
             removeImage={(type) => removeImage(type)}
             nextStep={nextStep}
           />
         );
-      case 4:
+      case "Media":
+        return (
+          <EmbedImageForm
+            data={{
+              embedPreview: previewData.embedPreview,
+            }}
+            handleImageChange={handleImageChange}
+            removeImage={(type) => removeImage(type)}
+            nextStep={nextStep}
+          />
+        );
+      case "Socials":
         return (
           <SocialLinksForm
             data={{
@@ -401,8 +414,7 @@ export default function CreateProject() {
             nextStep={nextStep}
           />
         );
-      case 5:
-      case 6:
+      case "Affiliates":
         return (
           <AffiliatesForm 
             data={{
@@ -430,7 +442,7 @@ export default function CreateProject() {
 
   return (
     <div className="flex flex-col">
-      <StatusBar currentStep={currentStep} />
+      <StatusBar currentStep={currentStep} projectType={projectType} />
       <div className="w-11/12 md:w-8/12 mx-auto">
         {renderForm()}
       </div>

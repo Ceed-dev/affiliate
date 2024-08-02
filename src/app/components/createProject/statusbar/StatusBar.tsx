@@ -1,17 +1,26 @@
 import React from "react";
-
 import { StatusStep } from "./StatusStep";
 import { steps } from "../../../constants/stepts";
+import { ProjectType } from "../../../types";
+
+export const getSteps = (projectType: ProjectType | null) => {
+  if (!projectType || projectType === "EscrowPayment") {
+    return steps;
+  } else {
+    return steps.filter(step => step !== "Media");
+  }
+};
 
 type StatusBarProps = {
   currentStep: number;
+  projectType: ProjectType | null;
 }
 
-export const StatusBar: React.FC<StatusBarProps> = ({ currentStep }) => {
+export const StatusBar: React.FC<StatusBarProps> = ({ currentStep, projectType }) => {
   return (
     <div className="overflow-x-auto">
       <div className="flex flex-row justify-between border-b-2 border-gray-300 py-2 px-5 md:px-20 min-w-[max-content]">
-        {steps.map((step, index) => (
+        {getSteps(projectType).map((step, index) => (
           <StatusStep key={index} number={index + 1} step={step} currentStep={currentStep} />
         ))}
       </div>
