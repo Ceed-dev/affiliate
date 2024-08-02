@@ -42,7 +42,9 @@ export const popularTokens: { [chainId: number]: Token[] } = {
     [],
   // MchVerse
   29548:
-    [],
+    [
+      { symbol: "MCHC", address: "0x9e5AAC1Ba1a2e6aEd6b32689DFcF62A509Ca96f3" },
+    ],
   // HomeVerse
   19011:
     [],
