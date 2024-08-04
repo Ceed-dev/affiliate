@@ -42,8 +42,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       typeof data.description === "string" &&
       typeof data.selectedChainId === "number" &&
       typeof data.selectedTokenAddress === "string" &&
-      (data.logo === null || typeof data.logo === "string") &&
-      (data.cover === null || typeof data.cover === "string") &&
+      typeof data.logo === "string" &&
+      typeof data.cover === "string" &&
       typeof data.websiteUrl === "string" &&
       typeof data.xUrl === "string" &&
       typeof data.discordUrl === "string" &&
@@ -92,7 +92,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       typeof data.redirectUrl === "string" &&
       typeof data.totalPaidOut === "number" &&
       (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
-      (data.embed === null || typeof data.embed === "string")
+      Array.isArray(data.embeds) &&
+      data.embeds.every((embed: any) => typeof embed === "string")
     );
   };
 
