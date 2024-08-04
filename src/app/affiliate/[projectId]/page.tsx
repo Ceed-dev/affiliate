@@ -62,8 +62,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   if (projectData && projectData.projectType === "EscrowPayment") {
     const escrowProjectData = projectData as EscrowPaymentProjectData;
-    if (escrowProjectData.embed) {
-      embedCode = generateEmbedCode(escrowProjectData.embed, referralLink);
+    // TODO: Fix
+    if (escrowProjectData.embeds && typeof escrowProjectData.embeds[0] === "string") {
+      embedCode = generateEmbedCode(escrowProjectData.embeds[0], referralLink);
     }
   }
 
@@ -513,7 +514,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             <h3 className="text-lg font-semibold mt-4">Preview:</h3>
             <div className="mt-4 border border-gray-300 p-2 rounded overflow-hidden max-w-full flex justify-center items-center">
               <Image
-                src={(projectData as EscrowPaymentProjectData).embed!}
+                src={(projectData as EscrowPaymentProjectData).embeds[0]! as string} // TODO: Fix
                 alt="Preview Image"
                 layout="responsive"
                 width={300}
