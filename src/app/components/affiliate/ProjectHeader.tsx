@@ -20,7 +20,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
     <div className="h-[200px] w-full relative mb-32 lg:mb-24 flex justify-center">
       {projectData?.cover 
         ? <Image 
-            src={projectData.cover} 
+            src={projectData.cover as string} 
             alt="Cover" 
             layout="fill" 
             objectFit="cover" 
@@ -33,7 +33,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectData, loadi
             {projectData?.logo && 
               <Image
                 className="w-full rounded-full"
-                src={projectData?.logo}
+                src={projectData?.logo as string}
                 width={100}
                 height={100}
                 alt="Logo"
