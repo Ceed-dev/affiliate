@@ -82,7 +82,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     if (projectData && projectData.projectType === "EscrowPayment") {
       const escrowProjectData = projectData as EscrowPaymentProjectData;
       if (escrowProjectData.embeds && typeof escrowProjectData.embeds[currentEmbedIndex] === "string") {
-        setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex], referralLink));
+        setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex] as string, referralLink));
       }
     }
   }, [currentEmbedIndex, projectData, referralLink]);
