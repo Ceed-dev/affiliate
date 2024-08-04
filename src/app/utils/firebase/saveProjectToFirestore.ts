@@ -12,21 +12,33 @@ export const saveProjectToFirestore = async (
     const projectRef = doc(collection(db, "projects"));
     const projectId = projectRef.id;
 
-    const logoURL = await uploadImageAndGetURL(projectData.logo, projectId, "logo");
-    const coverURL = await uploadImageAndGetURL(projectData.cover, projectId, "cover");
+    let logoURL: string | null = null;
+    if (projectData.logo instanceof File) {
+      logoURL = await uploadImageAndGetURL(projectData.logo, projectId, "logo");
+    }
+
+    let coverURL: string | null = null;
+    if (projectData.cover instanceof File) {
+      coverURL = await uploadImageAndGetURL(projectData.cover, projectId, "cover");
+    }
 
     const projectDataToSave = {
       ...projectData,
-      logo: logoURL,
-      cover: coverURL,
+      logo: logoURL ?? (projectData.logo as string),
+      cover: coverURL ?? (projectData.cover as string),
       createdAt: now,
       updatedAt: now
     };
 
     if (projectData.projectType === "EscrowPayment") {
       const escrowProjectData = projectData as EscrowPaymentProjectData;
-      const embedURL = await uploadImageAndGetURL(escrowProjectData.embed, projectId, "embed");
-      (projectDataToSave as EscrowPaymentProjectData).embed = embedURL;
+
+      const embedURLs = await Promise.all(
+        escrowProjectData.embeds.map((embed, index) =>
+          embed instanceof File ? uploadImageAndGetURL(embed, projectId, "embeds") : embed
+        )
+      );
+      (projectDataToSave as EscrowPaymentProjectData).embeds = embedURLs.filter((url): url is string => url !== null);
     }
 
     await setDoc(projectRef, projectDataToSave);
