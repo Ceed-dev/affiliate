@@ -8,8 +8,8 @@ type BaseProjectData = {
   description: string;
   selectedChainId: number;
   selectedTokenAddress: string;
-  logo: string | null;
-  cover: string | null;
+  logo: File | string | null;
+  cover: File | string | null;
   websiteUrl: string;
   xUrl: string;
   discordUrl: string;
@@ -58,7 +58,7 @@ export type EscrowPaymentProjectData = BaseProjectData & {
   redirectUrl: string;
   totalPaidOut: number;
   lastPaymentDate: Date | null;
-  embed: string | null;
+  embeds: (File | string)[];
 };
 
 export type ProjectData = DirectPaymentProjectData | EscrowPaymentProjectData;

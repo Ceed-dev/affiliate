@@ -1,1 +1,7 @@
-export type ImageType = "logo" | "cover" | "embed";
+export type ImageType = "logo" | "cover" | "embeds";
+
+export type PreviewData = {
+  logoPreview: string;
+  coverPreview: string;
+  embedPreviews: string[];
+};
