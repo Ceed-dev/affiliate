@@ -53,20 +53,39 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isTierDetailModalOpen, setIsTierDetailModalOpen] = useState(false);
 
-  let embedCode: string = "";
-
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const toggleDescriptionExpand = () => setIsDescriptionExpanded(!isDescriptionExpanded);
   const description = projectData?.description || "";
   const shouldShowDescriptionToggle = description.length > 350;
 
-  if (projectData && projectData.projectType === "EscrowPayment") {
-    const escrowProjectData = projectData as EscrowPaymentProjectData;
-    // TODO: Fix
-    if (escrowProjectData.embeds && typeof escrowProjectData.embeds[0] === "string") {
-      embedCode = generateEmbedCode(escrowProjectData.embeds[0], referralLink);
+  // ============== Embed Images Modal Management ==============
+  const [currentEmbedIndex, setCurrentEmbedIndex] = useState(0);
+
+  const handleNextEmbed = () => {
+    if (projectData?.projectType === "EscrowPayment") {
+      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
+      setCurrentEmbedIndex((prevIndex) => (prevIndex + 1) % embedsLength);
     }
-  }
+  };
+  
+  const handlePreviousEmbed = () => {
+    if (projectData?.projectType === "EscrowPayment") {
+      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
+      setCurrentEmbedIndex((prevIndex) => (prevIndex - 1 + embedsLength) % embedsLength);
+    }
+  };
+  // ===========================================================
+
+  const [embedCode, setEmbedCode] = useState("");
+
+  useEffect(() => {
+    if (projectData && projectData.projectType === "EscrowPayment") {
+      const escrowProjectData = projectData as EscrowPaymentProjectData;
+      if (escrowProjectData.embeds && typeof escrowProjectData.embeds[currentEmbedIndex] === "string") {
+        setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex], referralLink));
+      }
+    }
+  }, [currentEmbedIndex, projectData, referralLink]);
 
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
@@ -307,24 +326,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       toast.error("Failed to copy embed code. Please try again.");
     }
   };
-
-  // ============== Embed Images Modal Management ==============
-  const [currentEmbedIndex, setCurrentEmbedIndex] = useState(0);
-
-  const handleNextEmbed = () => {
-    if (projectData?.projectType === "EscrowPayment") {
-      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
-      setCurrentEmbedIndex((prevIndex) => (prevIndex + 1) % embedsLength);
-    }
-  };
-  
-  const handlePreviousEmbed = () => {
-    if (projectData?.projectType === "EscrowPayment") {
-      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
-      setCurrentEmbedIndex((prevIndex) => (prevIndex - 1 + embedsLength) % embedsLength);
-    }
-  };
-  // ===========================================================
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
