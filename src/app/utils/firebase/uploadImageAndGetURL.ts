@@ -1,8 +1,9 @@
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
 import { ImageType } from "../../types";
 
 // A function to convert images to PNG format
-const convertImageToPNG = async (file: any): Promise<Blob> => {
+const convertImageToPNG = async (file: File): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -38,19 +39,20 @@ const convertImageToPNG = async (file: any): Promise<Blob> => {
   });
 };
 
-export const uploadImageAndGetURL = async (file: any, projectId: string, imageType: ImageType): Promise<string | null> => {
+export const uploadImageAndGetURL = async (file: File, projectId: string, imageType: ImageType): Promise<string | null> => {
   if (!file) return null;
 
   const storage = getStorage();
   let storageRef;
 
-  if (imageType === "embed") {
+  if (imageType === "embeds") {
+    const embedPath = `projectImages/${projectId}/embeds/embed_${uuidv4()}.png`;
     if (file.type === "image/png") {
-      storageRef = ref(storage, `projectImages/${projectId}/embed_${projectId}.png`);
+      storageRef = ref(storage, embedPath);
       await uploadBytes(storageRef, file);
     } else {
       const convertedFile = await convertImageToPNG(file);
-      storageRef = ref(storage, `projectImages/${projectId}/embed_${projectId}.png`);
+      storageRef = ref(storage, embedPath);
       await uploadBytes(storageRef, convertedFile);
     }
   } else {
