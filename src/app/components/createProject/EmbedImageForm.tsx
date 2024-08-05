@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { ImageType } from "../../types";
 
 type EmbedImageFormProps = {
@@ -89,7 +89,7 @@ export const EmbedImageForm: React.FC<EmbedImageFormProps> = ({
         )}
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && <Button onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
     </div>
   );
 };

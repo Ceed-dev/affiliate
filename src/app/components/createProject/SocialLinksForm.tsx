@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 
 type SocialLinksFormProps = {
   data: {
@@ -125,7 +125,7 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && <Button onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
 
     </div>
   );

@@ -5,7 +5,7 @@ import { AffiliatesForm } from "./AffiliatesForm";
 import { LogoForm } from "./LogoForm";
 import { EmbedImageForm } from "./EmbedImageForm";
 import { SocialLinksForm } from "./SocialLinksForm";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 
 export {
   getSteps,
@@ -16,5 +16,5 @@ export {
   LogoForm,
   EmbedImageForm,
   SocialLinksForm,
-  NextButton
+  Button,
 }
