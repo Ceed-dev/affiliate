@@ -9,12 +9,14 @@ import { ImageType, ProjectData, EscrowPaymentProjectData } from "../../types";
  * Updates project data in Firestore and handles image storage.
  * @param {string} projectId - The ID of the project to update.
  * @param {ProjectData} projectData - The new data for the project.
+ * @param {string[]} deletedEmbedUrls - The URLs of the embed images to be deleted.
  * @param {(isLoading: boolean) => void} setIsLoading - Function to set loading state.
  * @returns {Promise<ProjectData>} The updated project data.
  */
 export const updateProjectInFirestore = async (
   projectId: string,
   projectData: ProjectData, 
+  deletedEmbedUrls: string[],
   setIsLoading: (isLoading: boolean) => void,
 ): Promise<ProjectData> => {
   setIsLoading(true);
@@ -25,7 +27,10 @@ export const updateProjectInFirestore = async (
     await handleImageUpdates(projectId, "cover", projectData, updatedData);
 
     if (projectData.projectType === "EscrowPayment") {
-      await handleImageUpdates(projectId, "embed", projectData as EscrowPaymentProjectData, updatedData as EscrowPaymentProjectData);
+      if (deletedEmbedUrls.length > 0) {
+        await deleteImageFromStorage(projectId, "embeds", deletedEmbedUrls);
+      }
+      await handleEmbedImageUpdates(projectId, projectData as EscrowPaymentProjectData, updatedData as EscrowPaymentProjectData);
     }
 
     const projectRef = doc(db, "projects", projectId);
@@ -42,23 +47,60 @@ export const updateProjectInFirestore = async (
 };
 
 /**
- * Handles the updates for project images (logo, cover, or embed).
+ * Handles the updates for project images (logo or cover).
  * Deletes old image and uploads new image, updating the provided updatedData object.
  * @param projectId - The ID of the project for which to handle images.
- * @param type - The type of the image, either "logo", "cover", or "embed".
+ * @param type - The type of the image, either "logo" or "cover".
  * @param projectData - The project data containing possible new image files.
  * @param updatedData - The project data object that will be updated with new image URLs.
  */
 async function handleImageUpdates<T extends ProjectData>(
   projectId: string,
-  type: ImageType,
+  type: "logo" | "cover",
   projectData: T,
   updatedData: T
 ) {
   const file = projectData[type as keyof T];
-  if (file && typeof file === "object" && "name" in file) {
+  if (file && file instanceof File) {
     await deleteImageFromStorage(projectId, type);
     const newImageURL = await uploadImageAndGetURL(file, projectId, type);
     updatedData[type as keyof T] = newImageURL as any;
   }
+}
+
+/**
+ * Handles the updates for embed images.
+ * Deletes the existing embed directory and uploads new embed images,
+ * updating the provided updatedData object with the new image URLs.
+ * @param projectId - The ID of the project for which to handle embed images.
+ * @param projectData - The project data containing possible new embed image files.
+ * @param updatedData - The project data object that will be updated with new embed image URLs.
+ */
+async function handleEmbedImageUpdates(
+  projectId: string,
+  projectData: EscrowPaymentProjectData,
+  updatedData: EscrowPaymentProjectData
+) {
+  const embedFiles = projectData.embeds;
+
+  // Keep track of already uploaded image URLs
+  const existingEmbeds = embedFiles.filter((embed): embed is string => typeof embed === "string");
+
+  // Upload new images and get their URLs
+  const newEmbeds = await Promise.all(
+    embedFiles.map(async (embed, index) => {
+      if (embed && embed instanceof File) {
+        return await uploadImageAndGetURL(embed, projectId, "embeds");
+      }
+      return null;
+    })
+  );
+
+  // Combine existing and new embed URLs
+  const allEmbeds = [
+    ...existingEmbeds,
+    ...newEmbeds.filter((url): url is string => url !== null)
+  ];
+
+  updatedData.embeds = allEmbeds;
 }

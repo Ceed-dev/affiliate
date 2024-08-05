@@ -18,7 +18,7 @@ import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFiresto
 import { approveToken, depositToken } from "../../utils/contracts";
 import { 
   ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
-  ProjectData, ImageType, WhitelistedAddress, 
+  ProjectData, ImageType, PreviewData, WhitelistedAddress, 
   PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
@@ -33,10 +33,10 @@ export default function CreateProject() {
   const [hideSaveAndDepositButton, setHideSaveAndDepositButton] = useState(false);
   const [projectType, setProjectType] = useState<ProjectType | null>(null);
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [previewData, setPreviewData] = useState({
+  const [previewData, setPreviewData] = useState<PreviewData>({
     logoPreview: "",
     coverPreview: "",
-    embedPreview: "",
+    embedPreviews: [],
   });
 
   const nextStep = () => setCurrentStep(currentStep + 1);
@@ -88,7 +88,7 @@ export default function CreateProject() {
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
-        embed: null,
+        embeds: [],
       } as EscrowPaymentProjectData);
     }
   };
@@ -226,34 +226,74 @@ export default function CreateProject() {
     });
   };
 
-  const handleImageChange = (type: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (type: ImageType, index?: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewData(prev => ({ ...prev, [`${type}Preview`]: reader.result as string }));
+        setPreviewData(prev => {
+          if (type === "embeds") {
+            const newPreviews = [...prev.embedPreviews];
+            if (index !== undefined) {
+              newPreviews[index] = reader.result as string;
+            } else {
+              newPreviews.push(reader.result as string);
+            }
+            return { ...prev, embedPreviews: newPreviews };
+          } else {
+            return { ...prev, [`${type}Preview`]: reader.result as string };
+          }
+        });
         setProjectData(prev => {
           if (!prev) return prev;
   
-          return {
-            ...prev,
-            [type]: file
-          };
+          if (type === "embeds" && prev.projectType === "EscrowPayment") {
+            const newEmbeds = [...(prev.embeds || [])];
+            if (index !== undefined) {
+              newEmbeds[index] = file;
+            } else {
+              newEmbeds.push(file);
+            }
+            return {
+              ...prev,
+              embeds: newEmbeds
+            };
+          } else {
+            return {
+              ...prev,
+              [type]: file
+            };
+          }
         });
       };
       reader.readAsDataURL(file);
     }
-  };
+  };  
   
-  const removeImage = (type: ImageType) => () => {
-    setPreviewData(prev => ({ ...prev, [`${type}Preview`]: "" }));
+  const removeImage = (type: ImageType, index?: number) => () => {
+    setPreviewData(prev => {
+      if (type === "embeds") {
+        const newPreviews = prev.embedPreviews.filter((_, i) => i !== index);
+        return { ...prev, embedPreviews: newPreviews };
+      } else {
+        return { ...prev, [`${type}Preview`]: "" };
+      }
+    });
     setProjectData(prev => {
       if (!prev) return prev;
   
-      return {
-        ...prev,
-        [type]: ""
-      };
+      if (type === "embeds" && prev.projectType === "EscrowPayment") {
+        const newEmbeds = (prev.embeds || []).filter((_, i) => i !== index);
+        return {
+          ...prev,
+          embeds: newEmbeds
+        };
+      } else {
+        return {
+          ...prev,
+          [type]: null
+        };
+      }
     });
   };
 
@@ -379,6 +419,18 @@ export default function CreateProject() {
             nextStep={nextStep}
           />
         );
+      case "Socials":
+        return (
+          <SocialLinksForm
+            data={{
+              websiteUrl: projectData?.websiteUrl ?? "",
+              xUrl: projectData?.xUrl ?? "",
+              discordUrl: projectData?.discordUrl ?? "",
+            }}
+            handleChange={handleChange}
+            nextStep={nextStep}
+          />
+        );
       case "Logo":
         return (
           <LogoForm
@@ -395,22 +447,10 @@ export default function CreateProject() {
         return (
           <EmbedImageForm
             data={{
-              embedPreview: previewData.embedPreview,
+              embedPreviews: previewData.embedPreviews,
             }}
             handleImageChange={handleImageChange}
-            removeImage={(type) => removeImage(type)}
-            nextStep={nextStep}
-          />
-        );
-      case "Socials":
-        return (
-          <SocialLinksForm
-            data={{
-              websiteUrl: projectData?.websiteUrl ?? "",
-              xUrl: projectData?.xUrl ?? "",
-              discordUrl: projectData?.discordUrl ?? "",
-            }}
-            handleChange={handleChange}
+            removeImage={removeImage}
             nextStep={nextStep}
           />
         );

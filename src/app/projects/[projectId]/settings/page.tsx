@@ -7,7 +7,7 @@ import { DateValueType } from "react-tailwindcss-datepicker";
 import cloneDeep from "lodash/cloneDeep";
 import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
 import { 
-  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, 
+  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, PreviewData,
   WhitelistedAddress, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails,
 } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
@@ -27,10 +27,10 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [previewData, setPreviewData] = useState({
+  const [previewData, setPreviewData] = useState<PreviewData>({
     logoPreview: "",
     coverPreview: "",
-    embedPreview: "",
+    embedPreviews: [],
   });
 
   const [socialLinkFormError, setSocialLinkFormError] = useState(false);
@@ -44,10 +44,15 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         setProjectData(cloneDeep(data));
         setLoadingProject(false);
 
+        // Filter out File types and ensure embedPreviews only contains strings
+        const embedPreviews = data.projectType === "EscrowPayment" 
+        ? (data.embeds || []).filter((embed: string | File) => typeof embed === "string") 
+        : [];
+
         setPreviewData({
-          logoPreview: data.logo || "",
-          coverPreview: data.cover || "",
-          embedPreview: data.projectType === "EscrowPayment" ? data.embed || "" : "",
+          logoPreview: typeof data.logo === "string" ? data.logo : "",
+          coverPreview: typeof data.cover === "string" ? data.cover : "",
+          embedPreviews: embedPreviews as string[],
         });
 
         if (data.selectedChainId) {
@@ -65,32 +70,74 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     fetchData();
   }, [params.projectId]);
 
-  const handleImageChange = (type: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (type: ImageType, index?: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewData(prev => ({ ...prev, [`${type}Preview`]: reader.result as string }));
-        setProjectData(prev => { 
-          if (prev === null) return null;
-          return {
-            ...prev, 
-            [type]: file 
-          };
+        setPreviewData(prev => {
+          if (type === "embeds") {
+            const newPreviews = [...prev.embedPreviews];
+            if (index !== undefined) {
+              newPreviews[index] = reader.result as string;
+            } else {
+              newPreviews.push(reader.result as string);
+            }
+            return { ...prev, embedPreviews: newPreviews };
+          } else {
+            return { ...prev, [`${type}Preview`]: reader.result as string };
+          }
+        });
+        setProjectData(prev => {
+          if (!prev) return prev;
+  
+          if (type === "embeds" && prev.projectType === "EscrowPayment") {
+            const newEmbeds = [...(prev.embeds || [])];
+            if (index !== undefined) {
+              newEmbeds[index] = file;
+            } else {
+              newEmbeds.push(file);
+            }
+            return {
+              ...prev,
+              embeds: newEmbeds
+            };
+          } else {
+            return {
+              ...prev,
+              [type]: file
+            };
+          }
         });
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const removeImage = (type: ImageType) => () => {
-    setPreviewData(prev => ({ ...prev, [`${type}Preview`]: "" }));
+  };  
+  
+  const removeImage = (type: ImageType, index?: number) => () => {
+    setPreviewData(prev => {
+      if (type === "embeds") {
+        const newPreviews = prev.embedPreviews.filter((_, i) => i !== index);
+        return { ...prev, embedPreviews: newPreviews };
+      } else {
+        return { ...prev, [`${type}Preview`]: "" };
+      }
+    });
     setProjectData(prev => {
-      if (prev === null) return null;
-      return {
-        ...prev, 
-        [type]: "" 
-      };
+      if (!prev) return prev;
+  
+      if (type === "embeds" && prev.projectType === "EscrowPayment") {
+        const newEmbeds = (prev.embeds || []).filter((_, i) => i !== index);
+        return {
+          ...prev,
+          embeds: newEmbeds
+        };
+      } else {
+        return {
+          ...prev,
+          [type]: null
+        };
+      }
     });
   };
 
@@ -218,8 +265,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               projectData.description.trim() !== "" &&
               projectData.logo &&
               projectData.cover &&
-              projectData.websiteUrl &&
-              projectData.xUrl &&
+              projectData.websiteUrl.trim() !== "" &&
+              projectData.xUrl.trim() !== "" &&
               projectData.selectedTokenAddress.trim() !== "" &&
               Object.keys(projectData.whitelistedAddresses || {}).length > 0 &&
               directProjectData.slots.total > 0 &&
@@ -235,11 +282,11 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                             projectData.description.trim() !== "" &&
                             projectData.logo &&
                             projectData.cover &&
-                            projectData.websiteUrl &&
-                            projectData.xUrl &&
+                            projectData.websiteUrl.trim() !== "" &&
+                            projectData.xUrl.trim() !== "" &&
                             projectData.selectedTokenAddress.trim() !== "" &&
                             escrowProjectData.redirectUrl.trim() !== "" &&
-                            escrowProjectData.embed;
+                            escrowProjectData.embeds.length > 0;
 
       if (!isBaseDataValid) return false;
 
@@ -265,10 +312,17 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     if (isFormComplete() && projectData) {
       console.log("Saving changes...");
       try {
+        const deletedEmbeds = initialProjectData?.projectType === "EscrowPayment" 
+        ? (initialProjectData as EscrowPaymentProjectData).embeds.filter(
+            (embed) => !(projectData as EscrowPaymentProjectData).embeds.includes(embed)
+          ) as string[]
+        : [];
+
         const updatedData = await updateProjectInFirestore(
           params.projectId,
           projectData,
-          setIsUpdating
+          deletedEmbeds,
+          setIsUpdating,
         );
         setProjectData(updatedData);
         setInitialProjectData(updatedData);
@@ -276,7 +330,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         const newPreviewData = {
           logoPreview: `${updatedData.logo}`,
           coverPreview: `${updatedData.cover}`,
-          embedPreview: updatedData.projectType === "EscrowPayment" ? (updatedData as EscrowPaymentProjectData).embed || "" : ""
+          embedPreviews: updatedData.projectType === "EscrowPayment" 
+            ? (updatedData as EscrowPaymentProjectData).embeds.filter((embed): embed is string => typeof embed === "string") 
+            : []
         };
 
         setPreviewData(newPreviewData);
@@ -318,6 +374,15 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               handleOwnerChange={handleOwnerChange}
               handleDateChange={projectData?.projectType === "DirectPayment" ? handleDateChange : undefined}
             />
+            <SocialLinksForm
+              data={{
+                websiteUrl: projectData?.websiteUrl ?? "",
+                xUrl: projectData?.xUrl ?? "",
+                discordUrl: projectData?.discordUrl ?? "",
+              }}
+              handleChange={handleChange}
+              setSocialLinkFormError={setSocialLinkFormError}
+            />
             <LogoForm
               data={{
                 logoPreview: previewData.logoPreview,
@@ -329,21 +394,12 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             {projectData?.projectType === "EscrowPayment" && (
               <EmbedImageForm
                 data={{
-                  embedPreview: previewData.embedPreview,
+                  embedPreviews: previewData.embedPreviews,
                 }}
                 handleImageChange={handleImageChange}
-                removeImage={(type) => removeImage(type)}
+                removeImage={removeImage}
               />
             )}
-            <SocialLinksForm
-              data={{
-                websiteUrl: projectData?.websiteUrl ?? "",
-                xUrl: projectData?.xUrl ?? "",
-                discordUrl: projectData?.discordUrl ?? "",
-              }}
-              handleChange={handleChange}
-              setSocialLinkFormError={setSocialLinkFormError}
-            />
             <AffiliatesForm 
               data={{
                 projectType: projectData?.projectType!,

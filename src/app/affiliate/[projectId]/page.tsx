@@ -53,19 +53,39 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isTierDetailModalOpen, setIsTierDetailModalOpen] = useState(false);
 
-  let embedCode: string = "";
-
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const toggleDescriptionExpand = () => setIsDescriptionExpanded(!isDescriptionExpanded);
   const description = projectData?.description || "";
   const shouldShowDescriptionToggle = description.length > 350;
 
-  if (projectData && projectData.projectType === "EscrowPayment") {
-    const escrowProjectData = projectData as EscrowPaymentProjectData;
-    if (escrowProjectData.embed) {
-      embedCode = generateEmbedCode(escrowProjectData.embed, referralLink);
+  // ============== Embed Images Modal Management ==============
+  const [currentEmbedIndex, setCurrentEmbedIndex] = useState(0);
+
+  const handleNextEmbed = () => {
+    if (projectData?.projectType === "EscrowPayment") {
+      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
+      setCurrentEmbedIndex((prevIndex) => (prevIndex + 1) % embedsLength);
     }
-  }
+  };
+  
+  const handlePreviousEmbed = () => {
+    if (projectData?.projectType === "EscrowPayment") {
+      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
+      setCurrentEmbedIndex((prevIndex) => (prevIndex - 1 + embedsLength) % embedsLength);
+    }
+  };
+  // ===========================================================
+
+  const [embedCode, setEmbedCode] = useState("");
+
+  useEffect(() => {
+    if (projectData && projectData.projectType === "EscrowPayment") {
+      const escrowProjectData = projectData as EscrowPaymentProjectData;
+      if (escrowProjectData.embeds && typeof escrowProjectData.embeds[currentEmbedIndex] === "string") {
+        setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex] as string, referralLink));
+      }
+    }
+  }, [currentEmbedIndex, projectData, referralLink]);
 
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
@@ -489,7 +509,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
       {isEmbedModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-md">
+          <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-xl">
             <div className="flex flex-row justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Embed Code</h2>
               <button onClick={() => setIsEmbedModalOpen(false)} >
@@ -502,7 +522,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               className="w-full p-2 border outline-none border-[#D1D5DB] rounded-lg text-sm mb-4"
               rows={6}
             />
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-4">
               <button
                 onClick={copyEmbedCodeToClipboard}
                 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
@@ -510,16 +530,24 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 Copy to Clipboard
               </button>
             </div>
-            <h3 className="text-lg font-semibold mt-4">Preview:</h3>
-            <div className="mt-4 border border-gray-300 p-2 rounded overflow-hidden max-w-full flex justify-center items-center">
-              <Image
-                src={(projectData as EscrowPaymentProjectData).embed!}
-                alt="Preview Image"
-                layout="responsive"
-                width={300}
-                height={200}
-                className="object-contain"
-              />
+            <h3 className="text-lg font-semibold mt-4">Preview</h3>
+            <div className="mt-4 border border-gray-300 p-2 rounded overflow-hidden max-w-full flex flex-col items-center justify-center">
+              <div className="my-4">
+                <Image
+                  src={(projectData as EscrowPaymentProjectData).embeds[currentEmbedIndex] as string}
+                  alt="Preview Image"
+                  layout="responsive"
+                  width={300}
+                  height={200}
+                  className="object-contain"
+                />
+              </div>
+              {(projectData as EscrowPaymentProjectData).embeds.length > 1 && (
+                <div className="flex gap-5 w-full">
+                  <button onClick={handlePreviousEmbed} className="bg-blue-300 hover:bg-blue-500 hover:text-white flex-1 p-2 rounded">Previous</button>
+                  <button onClick={handleNextEmbed} className="bg-green-300 hover:bg-green-500 hover:text-white flex-1 p-2 rounded">Next</button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import {
   PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
 } from "./projectData";
 import { ExtendedProjectData } from "./extendedProjectData";
-import { ImageType } from "./imageType";
+import { ImageType, PreviewData } from "./imageType";
 import { ReferralData } from "./referralData";
 import { ExtendedReferralData } from "./extendedReferralData";
 import { AggregatedReferralData } from "./aggregatedReferralData";
@@ -30,6 +30,7 @@ export type {
   TieredDetails,
   PaymentDetails,
   ImageType,
+  PreviewData,
   ReferralData,
   ExtendedReferralData,
   AggregatedReferralData,
