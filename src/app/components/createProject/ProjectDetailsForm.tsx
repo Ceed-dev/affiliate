@@ -370,7 +370,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
 
       {nextStep && previousStep && (
         <div className="flex flex-row gap-5">
-          <Button onClick={() => previousStep()} color="green" children="Previous" />
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
           <Button onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />
         </div>
       )}
