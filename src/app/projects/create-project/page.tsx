@@ -444,6 +444,7 @@ export default function CreateProject() {
             handleImageChange={handleImageChange}
             removeImage={(type) => removeImage(type)}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Media":
