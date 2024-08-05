@@ -456,6 +456,7 @@ export default function CreateProject() {
             handleImageChange={handleImageChange}
             removeImage={removeImage}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Affiliates":
