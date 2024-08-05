@@ -25,6 +25,7 @@ type ProjectDetailsFormProps = {
   handleOwnerChange: (newOwnerAddresses: string[]) => void;
   handleDateChange?: (date: DateValueType) => void;
   nextStep?: () => void;
+  previousStep?: () => void;
 };
 
 export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
@@ -33,6 +34,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   handleOwnerChange,
   handleDateChange,
   nextStep,
+  previousStep,
 }) => {
   const isEditing = nextStep === undefined;
   const address = useAddress();
@@ -366,7 +368,12 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
 
       </div>
 
-      {nextStep && <Button onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />}
+      {nextStep && previousStep && (
+        <div className="flex flex-row gap-5">
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
+          <Button onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />
+        </div>
+      )}
 
     </div>
   );

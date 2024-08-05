@@ -40,6 +40,7 @@ export default function CreateProject() {
   });
 
   const nextStep = () => setCurrentStep(currentStep + 1);
+  const previousStep = () => setCurrentStep(currentStep - 1);
 
   const handleProjectTypeChange = (type: ProjectType) => {
     setProjectType(type);
@@ -417,6 +418,7 @@ export default function CreateProject() {
             handleOwnerChange={handleOwnerChange}
             handleDateChange={projectType === "DirectPayment" ? handleDateChange : undefined}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Socials":
