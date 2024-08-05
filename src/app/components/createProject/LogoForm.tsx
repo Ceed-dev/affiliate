@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { ImageType } from "../../types";
 
 type LogoFormProps = {
@@ -11,6 +11,7 @@ type LogoFormProps = {
   handleImageChange: (field: ImageType) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (field: ImageType) => () => void;
   nextStep?: () => void;
+  previousStep?: () => void;
 };
 
 export const LogoForm: React.FC<LogoFormProps> = ({
@@ -18,6 +19,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
   handleImageChange,
   removeImage,
   nextStep,
+  previousStep,
 }) => {
   const isFormComplete = data.logoPreview.trim() && data.coverPreview.trim();
   
@@ -97,7 +99,12 @@ export const LogoForm: React.FC<LogoFormProps> = ({
         </div>
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && previousStep && (
+        <div className="flex flex-row gap-5">
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
+          <Button onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />
+        </div>
+      )}
 
     </div>
   );

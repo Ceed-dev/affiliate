@@ -40,6 +40,7 @@ export default function CreateProject() {
   });
 
   const nextStep = () => setCurrentStep(currentStep + 1);
+  const previousStep = () => setCurrentStep(currentStep - 1);
 
   const handleProjectTypeChange = (type: ProjectType) => {
     setProjectType(type);
@@ -417,6 +418,7 @@ export default function CreateProject() {
             handleOwnerChange={handleOwnerChange}
             handleDateChange={projectType === "DirectPayment" ? handleDateChange : undefined}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Socials":
@@ -429,6 +431,7 @@ export default function CreateProject() {
             }}
             handleChange={handleChange}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Logo":
@@ -441,6 +444,7 @@ export default function CreateProject() {
             handleImageChange={handleImageChange}
             removeImage={(type) => removeImage(type)}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Media":
@@ -452,11 +456,12 @@ export default function CreateProject() {
             handleImageChange={handleImageChange}
             removeImage={removeImage}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Affiliates":
         return (
-          <AffiliatesForm 
+          <AffiliatesForm
             data={{
               projectType: projectType!,
               selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
@@ -470,6 +475,7 @@ export default function CreateProject() {
             handleTierChange={projectType === "EscrowPayment" ? handleTierChange : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             nextStep={saveProjectAndDepositToken}
+            previousStep={previousStep}
             isSaving={isSaving}
             hideButton={hideSaveAndDepositButton}
             status={saveAndDepositStatus}

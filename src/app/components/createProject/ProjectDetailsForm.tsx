@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { ProjectType } from "../../types";
 import { checkUserRole } from "../../utils/firebase";
 import { isEOA } from "../../utils/contracts";
@@ -25,6 +25,7 @@ type ProjectDetailsFormProps = {
   handleOwnerChange: (newOwnerAddresses: string[]) => void;
   handleDateChange?: (date: DateValueType) => void;
   nextStep?: () => void;
+  previousStep?: () => void;
 };
 
 export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
@@ -33,6 +34,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
   handleOwnerChange,
   handleDateChange,
   nextStep,
+  previousStep,
 }) => {
   const isEditing = nextStep === undefined;
   const address = useAddress();
@@ -366,7 +368,12 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
 
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />}
+      {nextStep && previousStep && (
+        <div className="flex flex-row gap-5">
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
+          <Button onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />
+        </div>
+      )}
 
     </div>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { ImageType } from "../../types";
 
 type EmbedImageFormProps = {
@@ -10,6 +10,7 @@ type EmbedImageFormProps = {
   handleImageChange: (field: ImageType, index?: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (field: ImageType, index?: number) => () => void;
   nextStep?: () => void;
+  previousStep?: () => void;
 };
 
 export const EmbedImageForm: React.FC<EmbedImageFormProps> = ({
@@ -17,6 +18,7 @@ export const EmbedImageForm: React.FC<EmbedImageFormProps> = ({
   handleImageChange,
   removeImage,
   nextStep,
+  previousStep,
 }) => {
   const isFormComplete = data.embedPreviews.length > 0 && data.embedPreviews.length <= 3;
 
@@ -89,7 +91,13 @@ export const EmbedImageForm: React.FC<EmbedImageFormProps> = ({
         )}
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && previousStep && (
+        <div className="flex flex-row gap-5">
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
+          <Button onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />
+        </div>
+      )}
+
     </div>
   );
 };

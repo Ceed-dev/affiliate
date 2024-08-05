@@ -4,7 +4,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
 import { Chain } from "@thirdweb-dev/chains";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { 
@@ -30,6 +30,7 @@ type AffiliatesFormProps = {
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   setRedirectLinkError?: (hasError: boolean) => void;
   nextStep?: () => void;
+  previousStep?: () => void;
   isSaving?: boolean;
   hideButton?: boolean;
   status?: string;
@@ -49,6 +50,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   handleWhitelistChange,
   setRedirectLinkError,
   nextStep,
+  previousStep,
   isSaving,
   hideButton,
   status,
@@ -742,31 +744,34 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
         
       </div>
 
-      {nextStep && !hideButton &&
-        <NextButton 
-          onClick={() => isFormComplete() && nextStep()} 
-          disabled={
-            !isFormComplete() || 
-            !isTokenAddressValid || 
-            !isErc20Token || 
-            isFetchingTokenDetails || 
-            (isSaving ?? true)
-          } 
-        >
-          <div className="flex flex-row items-center justify-center gap-5">
-            {isSaving && (
-              <Image 
-                src={"/loading.png"} 
-                height={30} 
-                width={30} 
-                alt="loading.png" 
-                className="animate-spin" 
-              />
-            )}
-            {status}
-          </div>
-        </NextButton>
-      }
+      {nextStep && previousStep && !hideButton && (
+        <div className="flex flex-row gap-5">
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
+          <Button 
+            onClick={() => isFormComplete() && nextStep()} 
+            disabled={
+              !isFormComplete() || 
+              !isTokenAddressValid || 
+              !isErc20Token || 
+              isFetchingTokenDetails || 
+              (isSaving ?? true)
+            } 
+          >
+            <div className="flex flex-row items-center justify-center gap-5">
+              {isSaving && (
+                <Image 
+                  src={"/loading.png"} 
+                  height={30} 
+                  width={30} 
+                  alt="loading.png" 
+                  className="animate-spin" 
+                />
+              )}
+              {status}
+            </div>
+          </Button>
+        </div>
+      )}
 
     </div>
   );

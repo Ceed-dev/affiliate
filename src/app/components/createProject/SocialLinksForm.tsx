@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 
 type SocialLinksFormProps = {
   data: {
@@ -10,6 +10,7 @@ type SocialLinksFormProps = {
   handleChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   setSocialLinkFormError?: (hasError: boolean) => void;
   nextStep?: () => void;
+  previousStep?: () => void;
 };
 
 export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
@@ -17,6 +18,7 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
   handleChange,
   setSocialLinkFormError,
   nextStep,
+  previousStep,
 }) => {
   const [websiteError, setWebsiteError] = useState("");
   const [xUrlError, setXUrlError] = useState("");
@@ -125,7 +127,12 @@ export const SocialLinksForm: React.FC<SocialLinksFormProps> = ({
 
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && previousStep && (
+        <div className="flex flex-row gap-5">
+          <Button onClick={() => previousStep()} color="green">Previous</Button>
+          <Button onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />
+        </div>
+      )}
 
     </div>
   );
