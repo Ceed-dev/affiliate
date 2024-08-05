@@ -461,7 +461,7 @@ export default function CreateProject() {
         );
       case "Affiliates":
         return (
-          <AffiliatesForm 
+          <AffiliatesForm
             data={{
               projectType: projectType!,
               selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
@@ -475,6 +475,7 @@ export default function CreateProject() {
             handleTierChange={projectType === "EscrowPayment" ? handleTierChange : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             nextStep={saveProjectAndDepositToken}
+            previousStep={previousStep}
             isSaving={isSaving}
             hideButton={hideSaveAndDepositButton}
             status={saveAndDepositStatus}
