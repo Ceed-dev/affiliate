@@ -2,7 +2,7 @@ import React from "react";
 
 type ButtonProps = {
   onClick: () => void; 
-  disabled: boolean;
+  disabled?: boolean;
   color?: string;
   children?: React.ReactNode;
 };
