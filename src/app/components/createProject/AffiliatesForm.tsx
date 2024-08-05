@@ -4,7 +4,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { isAddress } from "ethers/lib/utils";
 import { Chain } from "@thirdweb-dev/chains";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { 
@@ -743,7 +743,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       </div>
 
       {nextStep && !hideButton &&
-        <NextButton 
+        <Button 
           onClick={() => isFormComplete() && nextStep()} 
           disabled={
             !isFormComplete() || 
@@ -765,7 +765,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             )}
             {status}
           </div>
-        </NextButton>
+        </Button>
       }
 
     </div>

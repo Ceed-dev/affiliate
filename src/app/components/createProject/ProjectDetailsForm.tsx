@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { ProjectType } from "../../types";
 import { checkUserRole } from "../../utils/firebase";
 import { isEOA } from "../../utils/contracts";
@@ -366,7 +366,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
 
       </div>
 
-      {nextStep && <NextButton onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />}
+      {nextStep && <Button onClick={() => isFormComplete() && nextStep()} disabled={!isFormComplete()} />}
 
     </div>
   );

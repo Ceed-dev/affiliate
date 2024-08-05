@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { NextButton } from "./NextButton";
+import { Button } from "./Button";
 import { ProjectType } from "../../types";
 import { projectTypes } from "../../constants/projectTypes";
 
@@ -40,7 +40,7 @@ export const ProjectTypeSelectionForm: React.FC<ProjectTypeSelectionFormProps> =
           </div>
         ))}
       </div>
-      {nextStep && <NextButton onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
+      {nextStep && <Button onClick={() => isFormComplete && nextStep()} disabled={!isFormComplete} />}
     </div>
   );
 };

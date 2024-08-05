@@ -17,7 +17,7 @@ import {
   LogoForm,
   EmbedImageForm,
   SocialLinksForm,
-  NextButton 
+  Button,
 } from "../../../components/createProject";
 import { fetchProjectData, updateProjectInFirestore } from "../../../utils/firebase";
 
@@ -415,7 +415,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               setRedirectLinkError={setRedirectLinkError}
               selectedChain={selectedChain ?? undefined}
             />
-            <NextButton onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError || redirectLinkError}>
+            <Button onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError || redirectLinkError}>
               {isUpdating ? (
                 <div className="flex flex-row items-center justify-center gap-5">
                   <Image src="/loading.png" alt="loading.png" width={30} height={30} className="animate-spin" /> 
@@ -424,7 +424,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               ) : (
                 <p>Save Changes</p>
               )}
-            </NextButton>
+            </Button>
           </>
         )}
       </div>
