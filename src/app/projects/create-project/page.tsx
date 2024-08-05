@@ -431,6 +431,7 @@ export default function CreateProject() {
             }}
             handleChange={handleChange}
             nextStep={nextStep}
+            previousStep={previousStep}
           />
         );
       case "Logo":
