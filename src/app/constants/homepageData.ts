@@ -19,23 +19,23 @@ export const navLinks = [
 
 export const features = [
   {
-    title: "①Flexible and Scalable",
-    description: "Enjoy full control over your affiliate marketing campaigns with our enterprise-grade configurability. Administrators can fine-tune settings, rules, and parameters to align with evolving business needs and optimize for maximum impact. Seamlessly integrate with existing Web3 infrastructures and tokenized ecosystems.",
+    title: "① Super Flexible",
+    description: "Call to Action, Price, User segmentation everything is adjustable. Launch a campaign that only suits your game to maximize the outcome.",
   },
   {
-    title: "②Unparalleled Reach in Asia",
-    description: "Leverage our extensive network of over 1,000 verified affiliates and publishers across Asia, boasting a collective reach of over 500,000 engaged users in the Web3 space. Partner with top gaming influencers, gaming guilds, and guilds to drive highly targeted user acquisition and amplify your brand's visibility within the region.",
+    title: "② The Biggest Ad Network",
+    description: "Leverage the network of 1,000+ verified affiliates and publishers to reach 500k engaged Web3 users across Asia. Collaborate and boost user acquisition.",
   },
   {
-    title: "③Data-Driven Optimization",
-    description: "Gain valuable insights into campaign performance through our advanced analytics and reporting tools. Leverage data-driven optimization strategies to continuously refine your targeting, messaging, and incentive structures, maximizing ROI and ensuring long-term growth.",
+    title: "③ Advanced Analytics",
+    description: "Use our advanced analytics to gain insights into campaign performance and maximize the impact. Launch, Analyze, Improve, and get the result.",
   },
 ];
 
 export const stats = [
   { 
     value: "1,000+", 
-    label: "Affiliators" 
+    label: "Affiliates" 
   },
   { 
     value: "2,000,000+", 
@@ -58,19 +58,19 @@ export const logos = [
 export const faqs = [
   {
     question: "How does your affiliate vetting process work?",
-    answer: "We have a rigorous vetting process to ensure we partner with high-quality, reputable affiliates across Asia. Each applicant undergoes thorough evaluation based on their audience demographics, content quality, past performance metrics, and adherence to our guidelines. Only top-tier affiliates with proven track records are approved.",
+    answer: "We rigorously vet affiliates to ensure quality and reputation. Each applicant is evaluated on audience demographics, content quality, past performance, and adherence to our guidelines. Only top-tier affiliates with proven track records are approved.",
   },
   {
     question: "Can I run customized affiliate campaigns?",
-    answer: "Absolutely. Our platform offers extensive customization options, allowing you to tailor affiliate campaigns based on specific goals, target audiences, reward structures, and more. You have full control over campaign parameters, creative assets, and tracking mechanisms to ensure optimal performance.",
+    answer: "Absolutely. You can customize the affiliate campaigns based on your goals, target audience, and reward structures. Launch an unique affiliate campaign only for your project and maximize the output.",
   },
   {
     question: "What kind of support do you provide?",
-    answer: "We pride ourselves on providing exceptional customer support. Our dedicated account managers are available to assist you throughout the entire process, from campaign setup to optimization and payout management. We also offer comprehensive onboarding resources, knowledge base articles, and timely technical support.",
+    answer: "We are here to support you with the entire process. We will help you from planning the campaign to execution including technical support.",
   },
   {
     question: "How are affiliate payouts handled?",
-    answer: "Our platform supports secure, transparent payouts in both fiat currencies and cryptocurrencies. Affiliates can choose their preferred payout method, and all transactions are recorded on the blockchain for enhanced transparency and auditability. Payouts are processed on a pre-defined schedule, ensuring timely compensation for your affiliate partners.",
+    answer: "Our platform supports secure payouts in both fiat and cryptocurrencies. Affiliates can choose their payout method, with all transactions recorded on the blockchain for transparency.",
   },
 ];
 

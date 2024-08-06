@@ -75,9 +75,9 @@ export default function Home() {
         <section className="bg-purple-600 text-white pt-16 md:pt-0 px-10 md:px-20">
           <div className="h-[600px] md:h-screen flex flex-col gap-10 justify-center items-start w-full xl:w-1/2">
             <h1 className="text-3xl md:text-5xl font-bold">Drive Acquisition, Amplify Revenue</h1>
-            <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3  Affiliate Network for Gaming in Asia</h2>
+            <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
-              Our trusted affiliate network connects you with a vast pool of gaming influencers and guilds across Asia, enabling you to reach and convert your target audience at scale, transparent tracking and automatic distribution of tokenized rewards to drive higher engagement and conversions.
+              Our network connects you with gaming influencers and guilds across Asia, enabling large-scale audience reach and conversion.
             </p>
           </div>
         </section>
@@ -105,12 +105,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Number of affiliators */}
+        {/* Number of Affiliates */}
         <section id="partners" className="py-20 px-10 md:px-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of affiliators</h1>
+          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of Affiliates</h1>
           <div className="flex flex-col gap-10 items-center">
             <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
-            <p className="text-md md:text-xl">We&apos;re growing an amazing network of affiliates to promote the next generation of web3 gaming.</p>
+            <p className="text-md md:text-xl">We&apos;re building an amazing network of affiliates to promote your game.</p>
             <div className="flex flex-col lg:flex-row shadow-lg rounded-lg bg-slate-50">
               {stats.map((stat, index) => (
                 <>
