@@ -58,19 +58,19 @@ export const logos = [
 export const faqs = [
   {
     question: "How does your affiliate vetting process work?",
-    answer: "We have a rigorous vetting process to ensure we partner with high-quality, reputable affiliates across Asia. Each applicant undergoes thorough evaluation based on their audience demographics, content quality, past performance metrics, and adherence to our guidelines. Only top-tier affiliates with proven track records are approved.",
+    answer: "We rigorously vet affiliates to ensure quality and reputation. Each applicant is evaluated on audience demographics, content quality, past performance, and adherence to our guidelines. Only top-tier affiliates with proven track records are approved.",
   },
   {
     question: "Can I run customized affiliate campaigns?",
-    answer: "Absolutely. Our platform offers extensive customization options, allowing you to tailor affiliate campaigns based on specific goals, target audiences, reward structures, and more. You have full control over campaign parameters, creative assets, and tracking mechanisms to ensure optimal performance.",
+    answer: "Absolutely. You can customize the affiliate campaigns based on your goals, target audience, and reward structures. Launch an unique affiliate campaign only for your project and maximize the output.",
   },
   {
     question: "What kind of support do you provide?",
-    answer: "We pride ourselves on providing exceptional customer support. Our dedicated account managers are available to assist you throughout the entire process, from campaign setup to optimization and payout management. We also offer comprehensive onboarding resources, knowledge base articles, and timely technical support.",
+    answer: "We are here to support you with the entire process. We will help you from planning the campaign to execution including technical support.",
   },
   {
     question: "How are affiliate payouts handled?",
-    answer: "Our platform supports secure, transparent payouts in both fiat currencies and cryptocurrencies. Affiliates can choose their preferred payout method, and all transactions are recorded on the blockchain for enhanced transparency and auditability. Payouts are processed on a pre-defined schedule, ensuring timely compensation for your affiliate partners.",
+    answer: "Our platform supports secure payouts in both fiat and cryptocurrencies. Affiliates can choose their payout method, with all transactions recorded on the blockchain for transparency.",
   },
 ];
 
