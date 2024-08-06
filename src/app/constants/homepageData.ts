@@ -19,16 +19,16 @@ export const navLinks = [
 
 export const features = [
   {
-    title: "①Flexible and Scalable",
-    description: "Enjoy full control over your affiliate marketing campaigns with our enterprise-grade configurability. Administrators can fine-tune settings, rules, and parameters to align with evolving business needs and optimize for maximum impact. Seamlessly integrate with existing Web3 infrastructures and tokenized ecosystems.",
+    title: "① Super Flexible",
+    description: "Call to Action, Price, User segmentation everything is adjustable. Launch a campaign that only suits your game to maximize the outcome.",
   },
   {
-    title: "②Unparalleled Reach in Asia",
-    description: "Leverage our extensive network of over 1,000 verified affiliates and publishers across Asia, boasting a collective reach of over 500,000 engaged users in the Web3 space. Partner with top gaming influencers, gaming guilds, and guilds to drive highly targeted user acquisition and amplify your brand's visibility within the region.",
+    title: "② The Biggest Ad Network",
+    description: "Leverage the network of 1,000+ verified affiliates and publishers to reach 500k engaged Web3 users across Asia. Collaborate and boost user acquisition.",
   },
   {
-    title: "③Data-Driven Optimization",
-    description: "Gain valuable insights into campaign performance through our advanced analytics and reporting tools. Leverage data-driven optimization strategies to continuously refine your targeting, messaging, and incentive structures, maximizing ROI and ensuring long-term growth.",
+    title: "③ Advanced Analytics",
+    description: "Use our advanced analytics to gain insights into campaign performance and maximize the impact. Launch, Analyze, Improve, and get the result.",
   },
 ];
 
