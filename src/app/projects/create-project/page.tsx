@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
@@ -38,6 +38,13 @@ export default function CreateProject() {
     coverPreview: "",
     embedPreviews: [],
   });
+  const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (projectType === "EscrowPayment" && isReferralEnabled && (projectData as EscrowPaymentProjectData).paymentType === "Tiered") {
+      handlePaymentTypeChange("FixedAmount");
+    }
+  }, [isReferralEnabled]);
 
   const nextStep = () => setCurrentStep(currentStep + 1);
   const previousStep = () => setCurrentStep(currentStep - 1);
@@ -90,6 +97,7 @@ export default function CreateProject() {
         totalPaidOut: 0,
         lastPaymentDate: null,
         embeds: [],
+        isReferralEnabled: false,
       } as EscrowPaymentProjectData);
     }
   };
@@ -327,6 +335,15 @@ export default function CreateProject() {
       };
     }
 
+    // Set the boolean value before saving to Firestore
+    if (projectType === "EscrowPayment") {
+      const escrowPaymentData = projectData as EscrowPaymentProjectData;
+      updatedProjectData = {
+        ...escrowPaymentData,
+        isReferralEnabled: isReferralEnabled,
+      };
+    }
+
     setSaveAndDepositStatus("Saving project to Firestore...");
     const result = await saveProjectToFirestore(updatedProjectData);
     if (!result) {
@@ -469,11 +486,13 @@ export default function CreateProject() {
               paymentDetails: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
               whitelistedAddresses: projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
               redirectUrl: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
+              isReferralEnabled: projectType === "EscrowPayment" ? isReferralEnabled : undefined,
             }}
             handleChange={handleChange}
             handlePaymentTypeChange={projectType === "EscrowPayment" ? handlePaymentTypeChange : undefined}
             handleTierChange={projectType === "EscrowPayment" ? handleTierChange : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
+            setIsReferralEnabled={projectType === "EscrowPayment" ? setIsReferralEnabled : undefined}
             nextStep={saveProjectAndDepositToken}
             previousStep={previousStep}
             isSaving={isSaving}

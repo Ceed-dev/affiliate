@@ -24,12 +24,14 @@ type AffiliatesFormProps = {
     paymentDetails?: PaymentDetails;
     whitelistedAddresses?: { [address: string]: WhitelistedAddress };
     redirectUrl?: string;
+    isReferralEnabled?: boolean;
   };
   handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handlePaymentTypeChange?: (type: PaymentType) => void;
   handleTierChange?: (newTiers: Tier[]) => void;
   handleWhitelistChange?: (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => void;
   setRedirectLinkError?: (hasError: boolean) => void;
+  setIsReferralEnabled?: (value: boolean) => void;
   nextStep?: () => void;
   previousStep?: () => void;
   isSaving?: boolean;
@@ -50,6 +52,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   handleTierChange,
   handleWhitelistChange,
   setRedirectLinkError,
+  setIsReferralEnabled,
   nextStep,
   previousStep,
   isSaving,
@@ -347,8 +350,6 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     }
     handleChange("redirectUrl")(event);
   };
-  
-  const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
@@ -441,13 +442,15 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2>Referral Feature Toggle <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "This toggle cannot be edited after initial setup."})</span></h2>
-          <p className="text-gray-500 text-sm">
-            Enabling the referral feature ensures that both affiliates and users who cause conversions receive rewards.
-          </p>
-          <ToggleButton isOn={isReferralEnabled} onToggle={setIsReferralEnabled} />
-        </div>
+        {data.projectType === "EscrowPayment" && (
+          <div className="flex flex-col gap-2">
+            <h2>Referral Feature Toggle <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "This toggle cannot be edited after initial setup."})</span></h2>
+            <p className="text-gray-500 text-sm">
+              Enabling the referral feature ensures that both affiliates and users who cause conversions receive rewards.
+            </p>
+            <ToggleButton isOn={data.isReferralEnabled!} onToggle={setIsReferralEnabled!} disabled={isEditing} />
+          </div>
+        )}
 
         {data.projectType === "EscrowPayment" && (
           <div className="flex flex-col gap-2">
@@ -470,7 +473,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 </div>
                 <span className={`text-sm ml-5 ${data.paymentType === "FixedAmount" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with tokens for each successful referral</span>
               </label>
-              <label className={`${isEditing && data.paymentType !== "RevenueShare" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "RevenueShare" && "rounded-lg bg-gray-100"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+              <label className={`${isEditing && data.paymentType !== "RevenueShare" && "hidden"} p-3 border border-gray-300 ${!isEditing && data.isReferralEnabled && "rounded-b-lg"} ${isEditing && data.paymentType === "RevenueShare" && "rounded-lg bg-gray-100"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "RevenueShare" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
                 <div className="flex items-center">
                   <input
                     type="radio"
@@ -487,20 +490,22 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 </div>
                 <span className={`text-sm ml-5 ${data.paymentType === "RevenueShare" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with a percentage of the revenue they help generate</span>
               </label>
-              <label className={`${isEditing && data.paymentType !== "Tiered" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "Tiered" ? "rounded-lg bg-gray-100" : "rounded-b-lg"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    name="paymentType"
-                    value="Tiered"
-                    checked={data.paymentType === "Tiered"}
-                    onChange={() => handlePaymentTypeChange?.("Tiered")}
-                    className="form-radio text-blue-600"
-                  />
-                  <span className={`ml-2 ${data.paymentType === "Tiered" ? "text-blue-700" : "text-gray-700"}`}>Tiered</span>
-                </div>
-                <span className={`text-sm ml-5 ${data.paymentType === "Tiered" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with different reward tiers</span>
-              </label>
+              {!data.isReferralEnabled && (
+                <label className={`${isEditing && data.paymentType !== "Tiered" && "hidden"} p-3 border border-gray-300 ${isEditing && data.paymentType === "Tiered" ? "rounded-lg bg-gray-100" : "rounded-b-lg"} ${isEditing ? "cursor-not-allowed" : "cursor-pointer"} transition ${!isEditing && data.paymentType === "Tiered" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      value="Tiered"
+                      checked={data.paymentType === "Tiered"}
+                      onChange={() => handlePaymentTypeChange?.("Tiered")}
+                      className="form-radio text-blue-600"
+                    />
+                    <span className={`ml-2 ${data.paymentType === "Tiered" ? "text-blue-700" : "text-gray-700"}`}>Tiered</span>
+                  </div>
+                  <span className={`text-sm ml-5 ${data.paymentType === "Tiered" ? "text-blue-500" : "text-gray-500"}`}>Reward affiliates with different reward tiers</span>
+                </label>
+              )}
             </div>
           </div>
         )}
