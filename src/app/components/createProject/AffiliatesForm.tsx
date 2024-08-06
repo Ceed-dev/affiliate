@@ -13,6 +13,7 @@ import {
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
+import { ToggleButton } from "../ToggleButton";
 import { popularTokens } from "../../constants/popularTokens";
 
 type AffiliatesFormProps = {
@@ -346,6 +347,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     }
     handleChange("redirectUrl")(event);
   };
+  
+  const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
@@ -436,6 +439,14 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               &rarr; View on Explorer
             </Link>
           )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <h2>Referral Feature Toggle <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "This toggle cannot be edited after initial setup."})</span></h2>
+          <p className="text-gray-500 text-sm">
+            Enabling the referral feature ensures that both affiliates and users who cause conversions receive rewards.
+          </p>
+          <ToggleButton isOn={isReferralEnabled} onToggle={setIsReferralEnabled} />
         </div>
 
         {data.projectType === "EscrowPayment" && (

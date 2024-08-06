@@ -2,16 +2,18 @@ import React from "react";
 
 type ToggleButtonProps = {
   isOn: boolean;
-  onToggle: () => void;
+  onToggle: (value: boolean) => void;
+  disabled?: boolean;
 };
 
-export const ToggleButton: React.FC<ToggleButtonProps> = ({ isOn, onToggle }) => {
+export const ToggleButton: React.FC<ToggleButtonProps> = ({ isOn, onToggle, disabled = false }) => {
   return (
     <button
-      onClick={onToggle}
+      onClick={() => !disabled && onToggle(!isOn)}
+      disabled={disabled}
       className={`relative inline-flex items-center h-6 rounded-full w-11 focus:outline-none ${
         isOn ? "bg-green-500" : "bg-gray-300"
-      }`}
+      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <span
         className={`transform transition-transform duration-200 ease-in-out ${
