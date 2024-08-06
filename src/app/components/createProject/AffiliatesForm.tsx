@@ -355,7 +355,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
       <div className="flex flex-col gap-5">
         
         <div className="flex flex-col gap-2">
-          <h2>Token <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Token address cannot be edited after initial setup."})</span></h2>
+          <h2>Chain & Token <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "Chain & Token address cannot be edited after initial setup."})</span></h2>
           <div className="flex items-center gap-2">
             <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
             <select
