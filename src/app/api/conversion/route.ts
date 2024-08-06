@@ -96,9 +96,9 @@ export async function POST(request: NextRequest) {
       rewardAmount = appropriateTier.rewardAmount;
     }
 
-    let userWalletAddress = null;
+    let userWalletAddress: string | undefined = undefined;
     if (escrowProjectData.isReferralEnabled) {
-      userWalletAddress = request.nextUrl.searchParams.get("userWalletAddress");
+      userWalletAddress = request.nextUrl.searchParams.get("userWalletAddress") || undefined;
       if (!userWalletAddress) {
         return NextResponse.json(
           { error: "User wallet address is required when referral feature is enabled" },
@@ -133,6 +133,7 @@ export async function POST(request: NextRequest) {
     await logConversion(
       `${referralData.id}`,
       rewardAmount,
+      userWalletAddress,
     );
 
     // If successful, it returns a message indicating that the request was processed successfully

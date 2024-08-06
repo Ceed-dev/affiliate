@@ -4,4 +4,5 @@ export type ConversionLog = {
   isPaid: boolean;
   transactionHash?: string;
   paidAt?: Date;
+  userWalletAddress?: string;
 };
