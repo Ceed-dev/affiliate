@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ethers } from "ethers";
 import { initializeSigner, Escrow } from "../../utils/contracts";
 import { 
   fetchProjectData, 
@@ -102,6 +103,12 @@ export async function POST(request: NextRequest) {
       if (!userWalletAddress) {
         return NextResponse.json(
           { error: "User wallet address is required when referral feature is enabled" },
+          { status: 400 }
+        );
+      }
+      if (!ethers.utils.isAddress(userWalletAddress)) {
+        return NextResponse.json(
+          { error: "Invalid user wallet address" },
           { status: 400 }
         );
       }
