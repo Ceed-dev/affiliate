@@ -408,6 +408,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 paymentDetails: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
                 whitelistedAddresses: projectData?.projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
                 redirectUrl: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
+                isReferralEnabled: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData).isReferralEnabled : undefined,
               }}
               handleChange={handleChange}
               handleTierChange={projectData?.projectType === "EscrowPayment" ? handleTierChange : undefined}

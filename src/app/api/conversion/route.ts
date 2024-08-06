@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ethers } from "ethers";
 import { initializeSigner, Escrow } from "../../utils/contracts";
 import { 
   fetchProjectData, 
@@ -96,6 +97,23 @@ export async function POST(request: NextRequest) {
       rewardAmount = appropriateTier.rewardAmount;
     }
 
+    let userWalletAddress: string | undefined = undefined;
+    if (escrowProjectData.isReferralEnabled) {
+      userWalletAddress = request.nextUrl.searchParams.get("userWalletAddress") || undefined;
+      if (!userWalletAddress) {
+        return NextResponse.json(
+          { error: "User wallet address is required when referral feature is enabled" },
+          { status: 400 }
+        );
+      }
+      if (!ethers.utils.isAddress(userWalletAddress)) {
+        return NextResponse.json(
+          { error: "Invalid user wallet address" },
+          { status: 400 }
+        );
+      }
+    }
+
     // The payment section is commented out
     // const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
     // const escrow = new Escrow(signer);
@@ -122,6 +140,7 @@ export async function POST(request: NextRequest) {
     await logConversion(
       `${referralData.id}`,
       rewardAmount,
+      userWalletAddress,
     );
 
     // If successful, it returns a message indicating that the request was processed successfully
