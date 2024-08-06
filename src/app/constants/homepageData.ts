@@ -35,7 +35,7 @@ export const features = [
 export const stats = [
   { 
     value: "1,000+", 
-    label: "Affiliators" 
+    label: "Affiliates" 
   },
   { 
     value: "2,000,000+", 
