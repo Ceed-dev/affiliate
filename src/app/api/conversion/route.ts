@@ -96,6 +96,17 @@ export async function POST(request: NextRequest) {
       rewardAmount = appropriateTier.rewardAmount;
     }
 
+    let userWalletAddress = null;
+    if (escrowProjectData.isReferralEnabled) {
+      userWalletAddress = request.nextUrl.searchParams.get("userWalletAddress");
+      if (!userWalletAddress) {
+        return NextResponse.json(
+          { error: "User wallet address is required when referral feature is enabled" },
+          { status: 400 }
+        );
+      }
+    }
+
     // The payment section is commented out
     // const signer = initializeSigner(`${process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY}`);
     // const escrow = new Escrow(signer);
