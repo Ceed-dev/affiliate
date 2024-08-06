@@ -93,7 +93,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       typeof data.totalPaidOut === "number" &&
       (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
       Array.isArray(data.embeds) &&
-      data.embeds.every((embed: any) => typeof embed === "string")
+      data.embeds.every((embed: any) => typeof embed === "string") &&
+      typeof data.isReferralEnabled === "boolean"
     );
   };
 
