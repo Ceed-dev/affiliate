@@ -75,9 +75,9 @@ export default function Home() {
         <section className="bg-purple-600 text-white pt-16 md:pt-0 px-10 md:px-20">
           <div className="h-[600px] md:h-screen flex flex-col gap-10 justify-center items-start w-full xl:w-1/2">
             <h1 className="text-3xl md:text-5xl font-bold">Drive Acquisition, Amplify Revenue</h1>
-            <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3  Affiliate Network for Gaming in Asia</h2>
+            <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
-              Our trusted affiliate network connects you with a vast pool of gaming influencers and guilds across Asia, enabling you to reach and convert your target audience at scale, transparent tracking and automatic distribution of tokenized rewards to drive higher engagement and conversions.
+              Our network connects you with gaming influencers and guilds across Asia, enabling large-scale audience reach and conversion.
             </p>
           </div>
         </section>
