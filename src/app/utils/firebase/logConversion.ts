@@ -15,8 +15,11 @@ export async function logConversion(
     timestamp: now,
     amount: amount,
     isPaid: false,
-    userWalletAddress,
   };
+
+  if (userWalletAddress) {
+    conversionLog.userWalletAddress = userWalletAddress;
+  }
 
   try {
     await addDoc(conversionLogsCollectionRef, conversionLog);
