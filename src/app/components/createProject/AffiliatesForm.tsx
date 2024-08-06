@@ -350,7 +350,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
-      <h1 className="text-xl mb-5">Affiliates</h1>
+      <h1 className="text-xl mb-5">Affiliates & Referrals</h1>
 
       <div className="flex flex-col gap-5">
         
