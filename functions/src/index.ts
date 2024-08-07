@@ -160,6 +160,11 @@ export const sendApprovalEmail = functions.firestore
                  has been approved.</p>
               <p>You can now use Qube!</p>
               <p>Thank you for using our service.</p>
+              <p>
+                Please feel free to reach out to this e-mail if you have any
+                questions:
+                <a href="mailto:official@ceed.cloud">official@ceed.cloud</a>
+              </p>
               <br>
               <p>Best regards,</p>
               <p>The Qube Team</p>
