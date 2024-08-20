@@ -133,11 +133,13 @@ export default function Admin() {
       // Mark the log as paid to prevent duplicate payments
       await updateIsPaidFlag(log.referralId, log.logId, true);
 
-      let transactionHash;
+      let transactionHashAffiliate, transactionHashUser;
+      const erc20 = new ERC20(log.selectedTokenAddress, signer!);
+      const payoutAmount = log.userWalletAddress ? log.amount / 2 : log.amount;
+
       try {
-        const erc20 = new ERC20(log.selectedTokenAddress, signer!);
-        toast.info("Transferring tokens...");
-        transactionHash = await erc20.transfer(log.affiliateWallet, log.amount);
+        toast.info("Transferring tokens to affiliate...");
+        transactionHashAffiliate = await erc20.transfer(log.affiliateWallet, payoutAmount);
       } catch (error) {
         // If token transfer fails, revert the isPaid flag
         await updateIsPaidFlag(log.referralId, log.logId, false);
@@ -147,15 +149,38 @@ export default function Admin() {
         return; // If the token transfer fails, exit the function
       }
 
+      // If referral is enabled, also transfer to user
+      if (log.userWalletAddress) {
+        try {
+          toast.info("Transferring tokens to user...");
+          transactionHashUser = await erc20.transfer(log.userWalletAddress, payoutAmount);
+        } catch (error: any) {
+          // Log error in the database for later review
+          await logErrorToFirestore(
+            "UserPaymentError",
+            `Failed to transfer tokens to user: ${error.message}`,
+            { ...log, transactionHashAffiliate }
+          );
+
+          console.error("Failed to transfer tokens to user: ", error);
+          toast.error("Failed to transfer tokens to user");
+          // We don't revert the isPaid flag here, as the affiliate payment succeeded
+
+          // Set a placeholder "error" string to indicate failure in user payment
+          transactionHashUser = "error";
+        }
+      }
+
       try {
         toast.info("Updating transaction in Firestore...");
         await processRewardPaymentTransaction(
           log.projectId,
           log.referralId,
           log.logId,
-          log.amount,
-          transactionHash,
-          log.timestamp
+          payoutAmount,
+          transactionHashAffiliate,
+          log.timestamp,
+          transactionHashUser // Optional: it will be passed whether it's defined, "error", or undefined
         );
 
         toast.success(`Payment processed for ${log.logId}.`);
@@ -166,7 +191,7 @@ export default function Admin() {
         await logErrorToFirestore(
           "FirestoreUpdateAfterPaymentError",
           `Failed to update Firestore: ${error.message}`,
-          { ...log, transactionHash }
+          { ...log, transactionHashAffiliate }
         );
       } finally {
         // Regardless of success or failure in Firestore update, remove the log from the list
@@ -350,7 +375,7 @@ export default function Admin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Log ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Affiliate Wallet</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Wallet Address</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">User Wallet Address</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chain</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
