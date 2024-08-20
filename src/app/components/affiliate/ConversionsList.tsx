@@ -35,12 +35,12 @@ export const ConversionsList: React.FC<ConversionsListProps> = ({ explorerUrl, t
               <tr 
                 key={index} 
                 className="text-gray-500 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
-                onClick={() => openExplorer(transaction.transactionHash)}
+                onClick={() => openExplorer(transaction.transactionHashAffiliate)}
               >
                 <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 flex flex-row gap-3">
                   <Image src="/new-tab.png" alt="new-tab.png" width={20} height={20} /> 
-                  <span className="table-cell xl:hidden">{formatAddress(transaction.transactionHash)}</span>
-                  <span className="hidden xl:table-cell">{transaction.transactionHash}</span>
+                  <span className="table-cell xl:hidden">{formatAddress(transaction.transactionHashAffiliate)}</span>
+                  <span className="hidden xl:table-cell">{transaction.transactionHashAffiliate}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{transaction.timestamp.toLocaleDateString()}</td>
               </tr>

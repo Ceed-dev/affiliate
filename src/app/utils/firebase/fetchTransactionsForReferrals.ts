@@ -13,7 +13,7 @@ export const fetchTransactionsForReferrals = async (referralData: ReferralData[]
       querySnapshot.forEach((doc) => {
         const data = doc.data() as DocumentData & { timestamp: Timestamp, amount: number, conversionLogId: string };
         transactions.push({
-          transactionHash: doc.id,
+          transactionHashAffiliate: doc.id,
           timestamp: data.timestamp.toDate(),
           amount: data.amount,
           conversionLogId: data.conversionLogId

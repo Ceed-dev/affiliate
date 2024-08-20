@@ -29,10 +29,15 @@ export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLo
 
       querySnapshot.forEach((doc) => {
         const data = doc.data() as DocumentData & { timestamp: Timestamp };
+        let amountToPay = data.amount;
+        if (data.userWalletAddress) {
+          amountToPay *= 2; // Double the amount if referral feature is enabled
+        }
         unpaidConversionLogs.push({
           logId: doc.id,
           timestamp: data.timestamp.toDate(),
-          amount: data.amount,
+          amount: amountToPay,
+          userWalletAddress: data.userWalletAddress || null,
           referralId,
           affiliateWallet,
           projectId,
