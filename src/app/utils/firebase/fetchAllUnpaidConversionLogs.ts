@@ -33,6 +33,7 @@ export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLo
           logId: doc.id,
           timestamp: data.timestamp.toDate(),
           amount: data.amount,
+          userWalletAddress: data.userWalletAddress || null,
           referralId,
           affiliateWallet,
           projectId,
