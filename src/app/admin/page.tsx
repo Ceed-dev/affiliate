@@ -350,6 +350,7 @@ export default function Admin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Log ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Affiliate Wallet</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Wallet Address</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chain</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
@@ -361,7 +362,7 @@ export default function Admin() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {unpaidLogsLoading ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-4 text-lg text-gray-500">
+                    <td colSpan={10} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
                         <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
@@ -370,7 +371,7 @@ export default function Admin() {
                   </tr>
                 ) : unpaidConversionLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-4 text-lg text-gray-500 text-center">
+                    <td colSpan={10} className="px-6 py-4 text-lg text-gray-500 text-center">
                       No unpaid conversion logs found.
                     </td>
                   </tr>
@@ -387,6 +388,17 @@ export default function Admin() {
                         >
                           {log.affiliateWallet}
                         </Link>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {log.userWalletAddress ? (
+                          <Link 
+                            href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.userWalletAddress}`}
+                            target="_blank"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {log.userWalletAddress}
+                          </Link>
+                        ) : "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <Link
