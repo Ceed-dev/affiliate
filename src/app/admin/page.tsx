@@ -436,7 +436,13 @@ export default function Admin() {
                           {log.selectedTokenAddress}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{log.amount}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                        {log.userWalletAddress ? (
+                          `${log.amount} (${log.amount / 2} for each)`
+                        ) : (
+                          log.amount
+                        )}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{log.referralId}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <button 
