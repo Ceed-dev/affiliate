@@ -433,7 +433,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               <p><span className="font-semibold">Allowance:</span> -</p>
             </div>
           }
-          {isEditing && selectedChain && selectedChain.explorers && selectedChain.explorers.length > 0 && (
+          {isEditing && selectedChain && selectedChain.explorers && selectedChain.explorers.length > 0 && data.selectedTokenAddress !== ZERO_ADDRESS && (
             <Link
               href={`${selectedChain.explorers[0].url}/address/${data.selectedTokenAddress}`}
               target="_blank"
