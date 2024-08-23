@@ -105,14 +105,19 @@ export default function Admin() {
   };
 
   const summarizeTokens = (logs: UnpaidConversionLog[]) => {
-    const summary: { [tokenAddress: string]: { amount: number, chain: Chain } } = {};
+    const summary: { [key: string]: { amount: number, chain: Chain } } = {};
 
     logs.forEach(log => {
-      if (!summary[log.selectedTokenAddress]) {
-        summary[log.selectedTokenAddress] = { amount: 0, chain: log.selectedChain };
+      const tokenKey = log.selectedTokenAddress === ZERO_ADDRESS 
+        ? `${ZERO_ADDRESS}-${log.selectedChain.chainId}`  // Combine ZERO_ADDRESS with chain ID for uniqueness
+        : log.selectedTokenAddress;
+
+      if (!summary[tokenKey]) {
+        summary[tokenKey] = { amount: 0, chain: log.selectedChain };
       }
-      summary[log.selectedTokenAddress].amount += log.amount;
+      summary[tokenKey].amount += log.amount;
     });
+
     setTokenSummary(summary);
   };
 
