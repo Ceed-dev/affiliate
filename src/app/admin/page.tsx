@@ -14,6 +14,8 @@ import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
 
+const ZERO_ADDRESS = ethers.constants.AddressZero;
+
 export default function Admin() {
   const router = useRouter();
   const pathname = usePathname();
@@ -448,18 +450,23 @@ export default function Admin() {
                         </button>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <Link 
-                          href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
-                          target="_blank"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {((popularTokens[log.selectedChain.chainId] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
-                            <span className="mr-1">
-                              ({popularTokens[log.selectedChain.chainId].find(token => token.address === log.selectedTokenAddress)?.symbol})
-                            </span>
-                          )}
-                          {log.selectedTokenAddress}
-                        </Link>
+                        {log.selectedTokenAddress === ZERO_ADDRESS ? (
+                          // Display "Native Token" with the symbol if the token address is the zero address
+                          <span>Native Token ({(popularTokens[log.selectedChain.chainId] || []).find(token => token.address === ethers.constants.AddressZero)?.symbol})</span>
+                        ) : (
+                          <Link 
+                            href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
+                            target="_blank"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {((popularTokens[log.selectedChain.chainId] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
+                              <span className="mr-1">
+                                ({popularTokens[log.selectedChain.chainId].find(token => token.address === log.selectedTokenAddress)?.symbol})
+                              </span>
+                            )}
+                            {log.selectedTokenAddress}
+                          </Link>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {log.userWalletAddress ? (
