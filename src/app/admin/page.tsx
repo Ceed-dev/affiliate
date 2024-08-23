@@ -333,36 +333,43 @@ export default function Admin() {
                     </td>
                   </tr>
                 ) : (
-                  Object.keys(tokenSummary).map((tokenAddress) => (
-                    <tr key={tokenAddress}>
+                  Object.keys(tokenSummary).map((tokenKey) => (
+                    <tr key={tokenKey}>
                       <td className="px-6 py-4">
                         <button 
                           className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
-                          onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenAddress].chain.name}`)}
+                          onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenKey].chain.name}`)}
                         >
                           <Image 
-                            src={`/chains/${formatChainName(tokenSummary[tokenAddress].chain.name)}.png`} 
-                            alt={tokenSummary[tokenAddress].chain.name} 
+                            src={`/chains/${formatChainName(tokenSummary[tokenKey].chain.name)}.png`} 
+                            alt={tokenSummary[tokenKey].chain.name} 
                             width={20} 
                             height={20} 
                           />
                         </button>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <Link 
-                          href={`${tokenSummary[tokenAddress].chain.explorers?.[0]?.url}/address/${tokenAddress}`}
-                          target="_blank"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {((popularTokens[tokenSummary[tokenAddress].chain.chainId] || []).find(token => token.address === tokenAddress)?.symbol || "") && (
-                            <span className="mr-1">
-                              ({popularTokens[tokenSummary[tokenAddress].chain.chainId].find(token => token.address === tokenAddress)?.symbol})
-                            </span>
-                          )}
-                          {tokenAddress}
-                        </Link>
+                        {tokenKey.startsWith(`${ZERO_ADDRESS}-`) ? (
+                          // If the token key indicates a native token, display "Native Token" with the symbol
+                          <span>
+                            Native Token ({(popularTokens[tokenSummary[tokenKey].chain.chainId] || []).find(token => token.address === ZERO_ADDRESS)?.symbol})
+                          </span>
+                        ) : (
+                          <Link 
+                            href={`${tokenSummary[tokenKey].chain.explorers?.[0]?.url}/address/${tokenKey}`}
+                            target="_blank"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {((popularTokens[tokenSummary[tokenKey].chain.chainId] || []).find(token => token.address === tokenKey)?.symbol || "") && (
+                              <span className="mr-1">
+                                ({popularTokens[tokenSummary[tokenKey].chain.chainId].find(token => token.address === tokenKey)?.symbol})
+                              </span>
+                            )}
+                            {tokenKey}
+                          </Link>
+                        )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenAddress].amount}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenKey].amount}</td>
                     </tr>
                   ))
                 )}
