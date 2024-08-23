@@ -141,12 +141,25 @@ export default function Admin() {
       await updateIsPaidFlag(log.referralId, log.logId, true);
 
       let transactionHashAffiliate, transactionHashUser;
-      const erc20 = new ERC20(log.selectedTokenAddress, signer!);
       const payoutAmount = log.userWalletAddress ? log.amount / 2 : log.amount;
 
       try {
         toast.info("Transferring tokens to affiliate...");
-        transactionHashAffiliate = await erc20.transfer(log.affiliateWallet, payoutAmount);
+
+        if (log.selectedTokenAddress === ZERO_ADDRESS) {
+          // Native token transfer process
+          const transactionResponse = await signer!.sendTransaction({
+            to: log.affiliateWallet,
+            value: ethers.utils.parseEther(payoutAmount.toString()),
+            gasLimit: ethers.utils.hexlify(21000),
+            gasPrice: await signer!.getGasPrice(),
+          });
+          transactionHashAffiliate = transactionResponse.hash;
+        } else {
+          // ERC20 token transfer process
+          const erc20 = new ERC20(log.selectedTokenAddress, signer!);
+          transactionHashAffiliate = await erc20.transfer(log.affiliateWallet, payoutAmount);
+        }
       } catch (error) {
         // If token transfer fails, revert the isPaid flag
         await updateIsPaidFlag(log.referralId, log.logId, false);
@@ -160,7 +173,21 @@ export default function Admin() {
       if (log.userWalletAddress) {
         try {
           toast.info("Transferring tokens to user...");
-          transactionHashUser = await erc20.transfer(log.userWalletAddress, payoutAmount);
+
+          if (log.selectedTokenAddress === ZERO_ADDRESS) {
+            // Native token transfer process
+            const transactionResponse = await signer!.sendTransaction({
+              to: log.userWalletAddress,
+              value: ethers.utils.parseEther(payoutAmount.toString()),
+              gasLimit: ethers.utils.hexlify(21000),
+              gasPrice: await signer!.getGasPrice(),
+            });
+            transactionHashUser = transactionResponse.hash;
+          } else {
+            // ERC20 token transfer process
+            const erc20 = new ERC20(log.selectedTokenAddress, signer!);
+            transactionHashUser = await erc20.transfer(log.userWalletAddress, payoutAmount);
+          }
         } catch (error: any) {
           // Log error in the database for later review
           await logErrorToFirestore(
