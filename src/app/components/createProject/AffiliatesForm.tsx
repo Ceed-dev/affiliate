@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { Chain } from "@thirdweb-dev/chains";
 import { Button } from "./Button";
@@ -15,6 +16,8 @@ import { useChainContext } from "../../context/chainContext";
 import { ChainSelector } from "../ChainSelector";
 import { ToggleButton } from "../ToggleButton";
 import { popularTokens } from "../../constants/popularTokens";
+
+const ZERO_ADDRESS = ethers.constants.AddressZero;
 
 type AffiliatesFormProps = {
   data: {
@@ -391,7 +394,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             <input
               readOnly={isEditing || (selectedToken !== "other")}
               type="text"
-              value={data.selectedTokenAddress}
+              value={data.selectedTokenAddress === ZERO_ADDRESS ? "Native Token" : data.selectedTokenAddress}
               onChange={(e) => {
                 handleChange("selectedTokenAddress")(e);
                 const address = e.target.value.trim();
@@ -399,7 +402,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                   setIsTokenAddressValid(true);
                   setIsErc20Token(true);
                   initializeTokenStates();
-                } else {
+                } else if (address !== ZERO_ADDRESS) {
                   fetchTokenDetails(address);
                 }
               }}
