@@ -14,6 +14,8 @@ import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
 
+const ZERO_ADDRESS = ethers.constants.AddressZero;
+
 export default function Admin() {
   const router = useRouter();
   const pathname = usePathname();
@@ -103,14 +105,19 @@ export default function Admin() {
   };
 
   const summarizeTokens = (logs: UnpaidConversionLog[]) => {
-    const summary: { [tokenAddress: string]: { amount: number, chain: Chain } } = {};
+    const summary: { [key: string]: { amount: number, chain: Chain } } = {};
 
     logs.forEach(log => {
-      if (!summary[log.selectedTokenAddress]) {
-        summary[log.selectedTokenAddress] = { amount: 0, chain: log.selectedChain };
+      const tokenKey = log.selectedTokenAddress === ZERO_ADDRESS 
+        ? `${ZERO_ADDRESS}-${log.selectedChain.chainId}`  // Combine ZERO_ADDRESS with chain ID for uniqueness
+        : log.selectedTokenAddress;
+
+      if (!summary[tokenKey]) {
+        summary[tokenKey] = { amount: 0, chain: log.selectedChain };
       }
-      summary[log.selectedTokenAddress].amount += log.amount;
+      summary[tokenKey].amount += log.amount;
     });
+
     setTokenSummary(summary);
   };
 
@@ -134,12 +141,25 @@ export default function Admin() {
       await updateIsPaidFlag(log.referralId, log.logId, true);
 
       let transactionHashAffiliate, transactionHashUser;
-      const erc20 = new ERC20(log.selectedTokenAddress, signer!);
       const payoutAmount = log.userWalletAddress ? log.amount / 2 : log.amount;
 
       try {
         toast.info("Transferring tokens to affiliate...");
-        transactionHashAffiliate = await erc20.transfer(log.affiliateWallet, payoutAmount);
+
+        if (log.selectedTokenAddress === ZERO_ADDRESS) {
+          // Native token transfer process
+          const transactionResponse = await signer!.sendTransaction({
+            to: log.affiliateWallet,
+            value: ethers.utils.parseEther(payoutAmount.toString()),
+            gasLimit: ethers.utils.hexlify(21000),
+            gasPrice: await signer!.getGasPrice(),
+          });
+          transactionHashAffiliate = transactionResponse.hash;
+        } else {
+          // ERC20 token transfer process
+          const erc20 = new ERC20(log.selectedTokenAddress, signer!);
+          transactionHashAffiliate = await erc20.transfer(log.affiliateWallet, payoutAmount);
+        }
       } catch (error) {
         // If token transfer fails, revert the isPaid flag
         await updateIsPaidFlag(log.referralId, log.logId, false);
@@ -153,7 +173,21 @@ export default function Admin() {
       if (log.userWalletAddress) {
         try {
           toast.info("Transferring tokens to user...");
-          transactionHashUser = await erc20.transfer(log.userWalletAddress, payoutAmount);
+
+          if (log.selectedTokenAddress === ZERO_ADDRESS) {
+            // Native token transfer process
+            const transactionResponse = await signer!.sendTransaction({
+              to: log.userWalletAddress,
+              value: ethers.utils.parseEther(payoutAmount.toString()),
+              gasLimit: ethers.utils.hexlify(21000),
+              gasPrice: await signer!.getGasPrice(),
+            });
+            transactionHashUser = transactionResponse.hash;
+          } else {
+            // ERC20 token transfer process
+            const erc20 = new ERC20(log.selectedTokenAddress, signer!);
+            transactionHashUser = await erc20.transfer(log.userWalletAddress, payoutAmount);
+          }
         } catch (error: any) {
           // Log error in the database for later review
           await logErrorToFirestore(
@@ -326,36 +360,43 @@ export default function Admin() {
                     </td>
                   </tr>
                 ) : (
-                  Object.keys(tokenSummary).map((tokenAddress) => (
-                    <tr key={tokenAddress}>
+                  Object.keys(tokenSummary).map((tokenKey) => (
+                    <tr key={tokenKey}>
                       <td className="px-6 py-4">
                         <button 
                           className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
-                          onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenAddress].chain.name}`)}
+                          onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenKey].chain.name}`)}
                         >
                           <Image 
-                            src={`/chains/${formatChainName(tokenSummary[tokenAddress].chain.name)}.png`} 
-                            alt={tokenSummary[tokenAddress].chain.name} 
+                            src={`/chains/${formatChainName(tokenSummary[tokenKey].chain.name)}.png`} 
+                            alt={tokenSummary[tokenKey].chain.name} 
                             width={20} 
                             height={20} 
                           />
                         </button>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <Link 
-                          href={`${tokenSummary[tokenAddress].chain.explorers?.[0]?.url}/address/${tokenAddress}`}
-                          target="_blank"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {((popularTokens[tokenSummary[tokenAddress].chain.chainId] || []).find(token => token.address === tokenAddress)?.symbol || "") && (
-                            <span className="mr-1">
-                              ({popularTokens[tokenSummary[tokenAddress].chain.chainId].find(token => token.address === tokenAddress)?.symbol})
-                            </span>
-                          )}
-                          {tokenAddress}
-                        </Link>
+                        {tokenKey.startsWith(`${ZERO_ADDRESS}-`) ? (
+                          // If the token key indicates a native token, display "Native Token" with the symbol
+                          <span>
+                            Native Token ({(popularTokens[tokenSummary[tokenKey].chain.chainId] || []).find(token => token.address === ZERO_ADDRESS)?.symbol})
+                          </span>
+                        ) : (
+                          <Link 
+                            href={`${tokenSummary[tokenKey].chain.explorers?.[0]?.url}/address/${tokenKey}`}
+                            target="_blank"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {((popularTokens[tokenSummary[tokenKey].chain.chainId] || []).find(token => token.address === tokenKey)?.symbol || "") && (
+                              <span className="mr-1">
+                                ({popularTokens[tokenSummary[tokenKey].chain.chainId].find(token => token.address === tokenKey)?.symbol})
+                              </span>
+                            )}
+                            {tokenKey}
+                          </Link>
+                        )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenAddress].amount}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenKey].amount}</td>
                     </tr>
                   ))
                 )}
@@ -448,18 +489,23 @@ export default function Admin() {
                         </button>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <Link 
-                          href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
-                          target="_blank"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {((popularTokens[log.selectedChain.chainId] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
-                            <span className="mr-1">
-                              ({popularTokens[log.selectedChain.chainId].find(token => token.address === log.selectedTokenAddress)?.symbol})
-                            </span>
-                          )}
-                          {log.selectedTokenAddress}
-                        </Link>
+                        {log.selectedTokenAddress === ZERO_ADDRESS ? (
+                          // Display "Native Token" with the symbol if the token address is the zero address
+                          <span>Native Token ({(popularTokens[log.selectedChain.chainId] || []).find(token => token.address === ethers.constants.AddressZero)?.symbol})</span>
+                        ) : (
+                          <Link 
+                            href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
+                            target="_blank"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {((popularTokens[log.selectedChain.chainId] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
+                              <span className="mr-1">
+                                ({popularTokens[log.selectedChain.chainId].find(token => token.address === log.selectedTokenAddress)?.symbol})
+                              </span>
+                            )}
+                            {log.selectedTokenAddress}
+                          </Link>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {log.userWalletAddress ? (
