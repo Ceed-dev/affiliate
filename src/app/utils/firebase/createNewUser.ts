@@ -16,7 +16,12 @@ export async function createNewUser(
     role: userInfo.role,
     createdAt: new Date(),
     updatedAt: new Date(),
-    allowed: false,
+    // =========================
+    // Temporarily disabled the user access control feature.
+    // This change allows all users to access the system without manual approval.
+    // allowed: false,
+    allowed: true,
+    // =========================
   };
 
   // Add joinedProjectIds only if the role is Affiliate
