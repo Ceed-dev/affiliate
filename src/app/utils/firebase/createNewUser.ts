@@ -24,6 +24,11 @@ export async function createNewUser(
     // =========================
   };
 
+  // Add projectUrl only if the role is ProjectOwner
+  if (userInfo.role === "ProjectOwner" && userInfo.projectUrl) {
+    newUser.projectUrl = userInfo.projectUrl;
+  }
+
   // Add joinedProjectIds only if the role is Affiliate
   if (userInfo.role === "Affiliate") {
     newUser.joinedProjectIds = [];
