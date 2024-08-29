@@ -13,18 +13,20 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
   const [email, setEmail] = useState("");
   const [xProfileUrl, setXProfileUrl] = useState("");
   const [role, setRole] = useState<UserRole>("ProjectOwner");
+  const [projectUrl, setProjectUrl] = useState("");
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
 
   useEffect(() => {
     setIsSaveEnabled(validateInputs());
-  }, [username, email, xProfileUrl, role]);
+  }, [username, email, xProfileUrl, role, projectUrl]);
 
   const validateInputs = () => {
     return (
       validateUsername(username) &&
       validateEmail(email) &&
       validateUrl(xProfileUrl) &&
-      validateRole(role)
+      validateRole(role) &&
+      (role !== "ProjectOwner" || validateUrl(projectUrl)) // In the case of ProjectOwner, projectUrl is also validated.
     );
   };
 
@@ -51,7 +53,11 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
   };
 
   const handleSave = () => {
-    onSave({ username, email, xProfileUrl, role });
+    if (role === "ProjectOwner") {
+      onSave({ username, email, xProfileUrl, role, projectUrl });
+    } else {
+      onSave({ username, email, xProfileUrl, role });
+    }
   };
 
   if (!isOpen) return null;
@@ -62,6 +68,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
         <h2 className="text-xl font-semibold mb-4">User Information</h2>
         <p className="text-sm text-gray-600 mb-4">
           Please provide your username, email address, X profile URL, and select your role to complete your registration.
+          {role === "ProjectOwner" && " As a Project Owner, you also need to provide your project URL."}
         </p>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
@@ -111,6 +118,18 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
               <option value="Affiliate">Affiliater</option>
             </select>
           </div>
+          {role === "ProjectOwner" && (
+            <div className="flex flex-col gap-2">
+              <label className="block mb-1 font-semibold">Project URL <span className="text-red-500">*</span></label>
+              <input
+                type="url"
+                value={projectUrl}
+                onChange={(e) => setProjectUrl(e.target.value)}
+                className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+                placeholder="https://yourproject.com"
+              />
+            </div>
+          )}
         </div>
         <div className="flex justify-end space-x-2 mt-6">
           <button onClick={onClose} className="px-4 py-2 bg-gray-400 hover:bg-gray-500 hover:shadow-lg text-white rounded-lg">

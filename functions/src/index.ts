@@ -39,7 +39,7 @@ export const onUserCreated = functions.firestore
         userType = "Affiliater";
       }
 
-      const message = {
+      const message: any = {
         type: "user_created",
         walletAddress,
         createdAt: newUser.createdAt.toDate(),
@@ -48,6 +48,12 @@ export const onUserCreated = functions.firestore
         xProfileUrl: newUser.xProfileUrl,
         userType,
       };
+
+      // If projectUrl exists, add it to the message
+      if (newUser.projectUrl) {
+        message.projectUrl = newUser.projectUrl;
+      }
+
       await sendSlackNotification(message);
     }
   });
