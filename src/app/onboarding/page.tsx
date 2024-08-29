@@ -94,7 +94,12 @@ export default function Onboarding() {
       try {
         await createNewUser(address, info);
         setIsModalOpen(false);
-        toast.success("Please wait while access is granted by the administrator.");
+        // ===============================
+        // Temporarily disabled the user access control feature.
+        // This change allows all users to access the system without manual approval.
+        handleUserCheck(address);
+        // toast.success("Please wait while access is granted by the administrator.");
+        // ===============================
       } catch (error) {
         console.error("Failed to save user info: ", error);
         toast.error("Failed to save user info");
