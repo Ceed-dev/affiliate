@@ -4,8 +4,8 @@ import { ConversionLog, ReferralData } from "../../types";
 
 export const fetchConversionLogsForReferrals = async (
   referralData: ReferralData[], 
+  setConversionLogData?: Function,
   conversionId?: string,
-  setConversionLogData?: Function
 ): Promise<ConversionLog[]> => {
   try {
     const conversionLogs: ConversionLog[] = [];
