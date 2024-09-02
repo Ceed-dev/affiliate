@@ -7,11 +7,13 @@ import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
 import { 
   ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, 
-  ConversionLog, ClickData,
+  ConversionLog, ClickData, Tier,
 } from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
+import { ToggleButton } from "../../components/ToggleButton";
+import { TieredDetailsModal } from "../../components/TieredDetailsModal";
 import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
 import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol, formatChainName } from "../../utils/formatters";
@@ -296,6 +298,23 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
+  // ===== BEGIN TIER MODAL MANAGEMENT =====
+
+  const [isTierModalOpen, setIsTierModalOpen] = useState(false);
+  const [selectedTierDetails, setSelectedTierDetails] = useState<Tier[] | null>(null);
+
+  const openTierModal = (tiers: Tier[]) => {
+    setSelectedTierDetails(tiers);
+    setIsTierModalOpen(true);
+  };
+
+  const closeTierModal = () => {
+    setIsTierModalOpen(false);
+    setSelectedTierDetails(null);
+  };
+  
+  // ===== END TIER MODAL MANAGEMENT =====
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
 
@@ -400,6 +419,70 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           )}
         </div>
       </div>
+
+      {/* Conversion Points Table */}
+      {projectData?.projectType === "EscrowPayment" && (
+        <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
+          <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Reward Details</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Below are the reward details for each conversion point, including whether each point is currently active or inactive. You can see the reward type and value associated with each point.
+            </p>
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Activate/Deactivate</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {projectData.conversionPoints && projectData.conversionPoints.length > 0 ? (
+                  projectData.conversionPoints.map((point, index) => (
+                    <tr key={point.id}>
+                      <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
+                      <td className="px-6 py-4 overflow-hidden truncate">
+                        {point.paymentType === "FixedAmount" ? point.rewardAmount : 
+                        point.paymentType === "RevenueShare" ? `${point.percentage}%` : 
+                        point.paymentType === "Tiered" && point.tiers ? (
+                          <div className="flex items-center">
+                            <span>{`${point.tiers.length} Tiers`}</span>
+                            <button 
+                              onClick={() => point.tiers && openTierModal(point.tiers)} 
+                              className="ml-2"
+                            >
+                              <Image src="/new-tab.png" alt="new-tab.png" width={15} height={15} />
+                            </button>
+                          </div>
+                        ) : ""}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <ToggleButton 
+                          isOn={point.isActive} 
+                          onToggle={() => {}}
+                          disabled={true} 
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {isTierModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 p-5">
+          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full">
+            {selectedTierDetails && <TieredDetailsModal tiers={selectedTierDetails} closeModal={closeTierModal} />}
+          </div>
+        </div>
+      )}
 
       {projectData?.projectType === "EscrowPayment" && address && referralId && 
         <>
