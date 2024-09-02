@@ -29,20 +29,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const conversionId = request.nextUrl.searchParams.get("conversionId") as string;
-    if (!conversionId) {
-      return NextResponse.json(
-        { error: "Conversion ID is missing" },
-        { status: 400 }
-      );
-    }
-
     const referralData = await fetchReferralData(referral);
     if (!referralData) {
       return NextResponse.json(
         { error: "Referral data not found" },
         { status: 404 }
       );
+    }
+
+    // This code modification is implemented as a temporary measure to accommodate an existing client who has already integrated the API into their product. 
+    // The specific client is using a fixed `conversionId` ("L1TDOEA4") for their project with `projectId` "FX26BxKbDVuJvaCtcTDf." 
+    // To avoid requiring the client to modify their integration after the API update, the code automatically assigns the fixed `conversionId` 
+    // when this particular `projectId` is detected. For all other projects, the `conversionId` is retrieved from the request parameters as usual.
+
+    let conversionId: string | null = null;
+
+    // Check if the projectId matches "FX26BxKbDVuJvaCtcTDf"
+    if (referralData.projectId === "FX26BxKbDVuJvaCtcTDf") {
+      conversionId = "L1TDOEA4";
+    } else {
+      conversionId = request.nextUrl.searchParams.get("conversionId");
+      if (!conversionId) {
+        return NextResponse.json(
+          { error: "Conversion ID is missing" },
+          { status: 400 }
+        );
+      }
     }
 
     const isValidApiKey = await validateApiKey(referralData.projectId, apiKey);
