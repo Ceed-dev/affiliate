@@ -66,36 +66,36 @@ export async function POST(request: NextRequest) {
     let rewardAmount = 0;
 
     // Determine reward amount based on paymentType
-    if (escrowProjectData.paymentType === "FixedAmount") {
-      rewardAmount = (escrowProjectData.paymentDetails as FixedAmountDetails).rewardAmount;
-    } else if (escrowProjectData.paymentType === "RevenueShare") {
-      const revenueParam = request.nextUrl.searchParams.get("revenue");
-      if (!revenueParam || isNaN(parseFloat(revenueParam)) || parseFloat(revenueParam) <= 0) {
-        return NextResponse.json(
-          { error: "Revenue parameter is required and must be a positive number for RevenueShare payment type" },
-          { status: 400 }
-        );
-      }
-      const revenue = parseFloat(revenueParam);
-      const percentage = (escrowProjectData.paymentDetails as RevenueShareDetails).percentage;
-      // Calculate reward amount and round to 1 decimal place
-      rewardAmount = Math.round((revenue * percentage) / 10) / 10;
-    } else if (escrowProjectData.paymentType === "Tiered") {
-      const conversionLogs = await fetchConversionLogsForReferrals([referralData]);
-      const conversionCount = conversionLogs.length + 1; // Current conversion count
+    // if (escrowProjectData.paymentType === "FixedAmount") {
+    //   rewardAmount = (escrowProjectData.paymentDetails as FixedAmountDetails).rewardAmount;
+    // } else if (escrowProjectData.paymentType === "RevenueShare") {
+    //   const revenueParam = request.nextUrl.searchParams.get("revenue");
+    //   if (!revenueParam || isNaN(parseFloat(revenueParam)) || parseFloat(revenueParam) <= 0) {
+    //     return NextResponse.json(
+    //       { error: "Revenue parameter is required and must be a positive number for RevenueShare payment type" },
+    //       { status: 400 }
+    //     );
+    //   }
+    //   const revenue = parseFloat(revenueParam);
+    //   const percentage = (escrowProjectData.paymentDetails as RevenueShareDetails).percentage;
+    //   // Calculate reward amount and round to 1 decimal place
+    //   rewardAmount = Math.round((revenue * percentage) / 10) / 10;
+    // } else if (escrowProjectData.paymentType === "Tiered") {
+    //   const conversionLogs = await fetchConversionLogsForReferrals([referralData]);
+    //   const conversionCount = conversionLogs.length + 1; // Current conversion count
 
-      const tiers = (escrowProjectData.paymentDetails as TieredDetails).tiers;
-      const appropriateTier = tiers.reverse().find(tier => conversionCount >= tier.conversionsRequired);
+    //   const tiers = (escrowProjectData.paymentDetails as TieredDetails).tiers;
+    //   const appropriateTier = tiers.reverse().find(tier => conversionCount >= tier.conversionsRequired);
 
-      if (!appropriateTier) {
-        return NextResponse.json(
-          { error: "No appropriate tier found for the conversion count" },
-          { status: 400 }
-        );
-      }
+    //   if (!appropriateTier) {
+    //     return NextResponse.json(
+    //       { error: "No appropriate tier found for the conversion count" },
+    //       { status: 400 }
+    //     );
+    //   }
 
-      rewardAmount = appropriateTier.rewardAmount;
-    }
+    //   rewardAmount = appropriateTier.rewardAmount;
+    // }
 
     let userWalletAddress: string | undefined = undefined;
     if (escrowProjectData.isReferralEnabled) {

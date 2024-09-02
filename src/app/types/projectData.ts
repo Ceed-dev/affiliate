@@ -51,15 +51,23 @@ export type TieredDetails = {
 
 export type PaymentDetails = FixedAmountDetails | RevenueShareDetails | TieredDetails;
 
+export type ConversionPoint = {
+  id: string; // Stores the automatically generated alphanumeric ID
+  paymentType: PaymentType; // Type of reward distribution
+  rewardAmount?: number; // Used when the reward type is FixedAmount
+  percentage?: number; // Used when the reward type is RevenueShare
+  tiers?: Tier[]; // Used when the reward type is Tiered
+  isActive: boolean; // Indicates whether this conversion point is currently active
+};
+
 export type EscrowPaymentProjectData = BaseProjectData & {
   projectType: "EscrowPayment";
-  paymentType: PaymentType;
-  paymentDetails: PaymentDetails;
   redirectUrl: string;
   totalPaidOut: number;
   lastPaymentDate: Date | null;
   embeds: (File | string)[];
   isReferralEnabled: boolean;
+  conversionPoints: ConversionPoint[];
 };
 
 export type ProjectData = DirectPaymentProjectData | EscrowPaymentProjectData;
