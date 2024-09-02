@@ -9,7 +9,7 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../utils/firebase";
-import { EscrowPaymentProjectData, FixedAmountDetails, RevenueShareDetails, TieredDetails } from "../../types";
+import { EscrowPaymentProjectData } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +25,14 @@ export async function POST(request: NextRequest) {
     if (!referral) {
       return NextResponse.json(
         { error: "Referral ID is missing" },
+        { status: 400 }
+      );
+    }
+
+    const conversionId = request.nextUrl.searchParams.get("conversionId") as string;
+    if (!conversionId) {
+      return NextResponse.json(
+        { error: "Conversion ID is missing" },
         { status: 400 }
       );
     }
@@ -63,39 +71,57 @@ export async function POST(request: NextRequest) {
 
     const escrowProjectData = projectData as EscrowPaymentProjectData;
 
+    // Find the specific conversion point based on the conversionId
+    const conversionPoint = escrowProjectData.conversionPoints.find(point => point.id === conversionId);
+
+    if (!conversionPoint) {
+      return NextResponse.json(
+        { error: "Conversion point not found for the provided ID" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the conversion point is active
+    if (!conversionPoint.isActive) {
+      return NextResponse.json(
+        { message: "The conversion point is currently inactive and cannot process conversions" },
+        { status: 200 }
+      );
+    }
+
     let rewardAmount = 0;
 
-    // Determine reward amount based on paymentType
-    // if (escrowProjectData.paymentType === "FixedAmount") {
-    //   rewardAmount = (escrowProjectData.paymentDetails as FixedAmountDetails).rewardAmount;
-    // } else if (escrowProjectData.paymentType === "RevenueShare") {
-    //   const revenueParam = request.nextUrl.searchParams.get("revenue");
-    //   if (!revenueParam || isNaN(parseFloat(revenueParam)) || parseFloat(revenueParam) <= 0) {
-    //     return NextResponse.json(
-    //       { error: "Revenue parameter is required and must be a positive number for RevenueShare payment type" },
-    //       { status: 400 }
-    //     );
-    //   }
-    //   const revenue = parseFloat(revenueParam);
-    //   const percentage = (escrowProjectData.paymentDetails as RevenueShareDetails).percentage;
-    //   // Calculate reward amount and round to 1 decimal place
-    //   rewardAmount = Math.round((revenue * percentage) / 10) / 10;
-    // } else if (escrowProjectData.paymentType === "Tiered") {
-    //   const conversionLogs = await fetchConversionLogsForReferrals([referralData]);
-    //   const conversionCount = conversionLogs.length + 1; // Current conversion count
+    // Determine reward amount based on the conversion point's paymentType
+    if (conversionPoint.paymentType === "FixedAmount") {
+      rewardAmount = conversionPoint.rewardAmount || 0;
+    } else if (conversionPoint.paymentType === "RevenueShare") {
+      const revenueParam = request.nextUrl.searchParams.get("revenue");
+      if (!revenueParam || isNaN(parseFloat(revenueParam)) || parseFloat(revenueParam) <= 0) {
+        return NextResponse.json(
+          { error: "Revenue parameter is required and must be a positive number for RevenueShare payment type" },
+          { status: 400 }
+        );
+      }
+      const revenue = parseFloat(revenueParam);
+      const percentage = conversionPoint.percentage || 0;
+      // Calculate reward amount and round to 1 decimal place
+      rewardAmount = Math.round((revenue * percentage) / 10) / 10;
+    } else if (conversionPoint.paymentType === "Tiered") {
+      const conversionLogs = await fetchConversionLogsForReferrals([referralData]); // TODO: Fix this
+      const conversionCount = conversionLogs.length + 1; // Current conversion count
 
-    //   const tiers = (escrowProjectData.paymentDetails as TieredDetails).tiers;
-    //   const appropriateTier = tiers.reverse().find(tier => conversionCount >= tier.conversionsRequired);
+      const tiers = conversionPoint.tiers || [];
+      const appropriateTier = tiers.reverse().find(tier => conversionCount >= tier.conversionsRequired);
 
-    //   if (!appropriateTier) {
-    //     return NextResponse.json(
-    //       { error: "No appropriate tier found for the conversion count" },
-    //       { status: 400 }
-    //     );
-    //   }
+      if (!appropriateTier) {
+        return NextResponse.json(
+          { error: "No appropriate tier found for the conversion count" },
+          { status: 400 }
+        );
+      }
 
-    //   rewardAmount = appropriateTier.rewardAmount;
-    // }
+      rewardAmount = appropriateTier.rewardAmount;
+    }
 
     let userWalletAddress: string | undefined = undefined;
     if (escrowProjectData.isReferralEnabled) {
@@ -139,6 +165,7 @@ export async function POST(request: NextRequest) {
     // Record successful conversions
     await logConversion(
       `${referralData.id}`,
+      conversionId,
       rewardAmount,
       userWalletAddress,
     );
