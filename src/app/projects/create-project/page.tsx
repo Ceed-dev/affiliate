@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
@@ -18,8 +18,7 @@ import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFiresto
 import { approveToken, depositToken } from "../../utils/contracts";
 import { 
   ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
-  ProjectData, ImageType, PreviewData, WhitelistedAddress, 
-  PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
+  ProjectData, ImageType, PreviewData, WhitelistedAddress, ConversionPoint,
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
@@ -39,12 +38,18 @@ export default function CreateProject() {
     embedPreviews: [],
   });
   const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
+  const [conversionPoints, setConversionPoints] = useState<ConversionPoint[]>([]);
 
-  useEffect(() => {
-    if (projectType === "EscrowPayment" && isReferralEnabled && (projectData as EscrowPaymentProjectData).paymentType === "Tiered") {
-      handlePaymentTypeChange("FixedAmount");
-    }
-  }, [isReferralEnabled]);
+  const handleUpdateConversionPoints = (action: "add" | "remove", point?: ConversionPoint) => {
+    setConversionPoints(prevPoints => {
+      if (action === "add" && point) {
+        return [...prevPoints, point];
+      } else if (action === "remove" && point?.id) {
+        return prevPoints.filter(p => p.id !== point.id);
+      }
+      return prevPoints;
+    });
+  };
 
   const nextStep = () => setCurrentStep(currentStep + 1);
   const previousStep = () => setCurrentStep(currentStep - 1);
@@ -91,13 +96,12 @@ export default function CreateProject() {
       setProjectData({
         ...commonData,
         projectType: "EscrowPayment",
-        paymentType: "FixedAmount",
-        paymentDetails: { rewardAmount: 0 },
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
         embeds: [],
         isReferralEnabled: false,
+        conversionPoints: [],
       } as EscrowPaymentProjectData);
     }
   };
@@ -161,28 +165,6 @@ export default function CreateProject() {
       });
     };
 
-  const handlePaymentTypeChange = (type: PaymentType) => {
-    setProjectData(prev => {
-      if (!prev) return prev;
-  
-      let paymentDetails: PaymentDetails = { rewardAmount: 0 };
-
-      if (type === "FixedAmount") {
-        paymentDetails = { rewardAmount: 0 } as FixedAmountDetails;
-      } else if (type === "RevenueShare") {
-        paymentDetails = { percentage: 0 } as RevenueShareDetails;
-      } else if (type === "Tiered") {
-        paymentDetails = { tiers: [] } as TieredDetails;
-      }
-  
-      return {
-        ...prev,
-        paymentType: type,
-        paymentDetails
-      };
-    });
-  };
-
   const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
       if (!prevData) return prevData;
@@ -218,19 +200,6 @@ export default function CreateProject() {
       return {
         ...prevData,
         whitelistedAddresses: newWhitelistedAddresses
-      };
-    });
-  };
-
-  const handleTierChange = (newTiers: Tier[]) => {
-    setProjectData(prevData => {
-      if (!prevData) return prevData;
-  
-      return {
-        ...prevData,
-        paymentDetails: {
-          tiers: newTiers,
-        } as TieredDetails,
       };
     });
   };
@@ -335,12 +304,20 @@ export default function CreateProject() {
       };
     }
 
-    // Set the boolean value before saving to Firestore
+    // Include conversionPoints and other relevant data before saving to Firestore
     if (projectType === "EscrowPayment") {
       const escrowPaymentData = projectData as EscrowPaymentProjectData;
+
+      // Ensure the first conversion point is active
+      const updatedConversionPoints = conversionPoints.map((point, index) => ({
+        ...point,
+        isActive: index === 0 ? true : point.isActive,
+      }));
+
       updatedProjectData = {
         ...escrowPaymentData,
         isReferralEnabled: isReferralEnabled,
+        conversionPoints: updatedConversionPoints, // Add conversionPoints to the project data
       };
     }
 
@@ -482,15 +459,13 @@ export default function CreateProject() {
             data={{
               projectType: projectType!,
               selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
-              paymentType: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentType ?? "FixedAmount" : undefined,
-              paymentDetails: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
               whitelistedAddresses: projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
               redirectUrl: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
               isReferralEnabled: projectType === "EscrowPayment" ? isReferralEnabled : undefined,
+              conversionPoints: projectType === "EscrowPayment" ? conversionPoints : undefined,
             }}
             handleChange={handleChange}
-            handlePaymentTypeChange={projectType === "EscrowPayment" ? handlePaymentTypeChange : undefined}
-            handleTierChange={projectType === "EscrowPayment" ? handleTierChange : undefined}
+            handleUpdateConversionPoints={projectType === "EscrowPayment" ? handleUpdateConversionPoints : undefined}
             handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
             setIsReferralEnabled={projectType === "EscrowPayment" ? setIsReferralEnabled : undefined}
             nextStep={saveProjectAndDepositToken}
