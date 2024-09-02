@@ -4,6 +4,7 @@ import { ConversionLog } from "../../types";
 
 export async function logConversion(
   referralId: string, 
+  conversionId: string,
   amount: number,
   userWalletAddress?: string,
 ): Promise<void> {
@@ -14,6 +15,7 @@ export async function logConversion(
   const conversionLog: ConversionLog = {
     timestamp: now,
     amount: amount,
+    conversionId: conversionId,
     isPaid: false,
   };
 
