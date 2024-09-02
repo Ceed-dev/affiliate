@@ -15,6 +15,7 @@ export const fetchConversionLogsForReferrals = async (referralData: ReferralData
         conversionLogs.push({
           timestamp: data.timestamp.toDate(),
           amount: data.amount,
+          conversionId: data.conversionId,
           isPaid: data.isPaid,
         });
       });
