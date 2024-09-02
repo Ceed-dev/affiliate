@@ -409,6 +409,18 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 </button>
               )}
             </div>
+          ) : projectData?.projectType === "EscrowPayment" && projectData.conversionPoints?.every(point => !point.isActive) ? (
+            <>
+              <button
+                className="bg-gray-400 text-white w-full text-sm py-3 rounded-md cursor-not-allowed"
+                disabled
+              >
+                Join Project
+              </button>
+              <p className="text-red-500 text-sm mt-2">
+                All conversion points are currently inactive. You cannot join this project at the moment.
+              </p>
+            </>
           ) : (
             <button
               className="bg-sky-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
