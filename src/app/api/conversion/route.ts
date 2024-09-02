@@ -9,7 +9,7 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../utils/firebase";
-import { EscrowPaymentProjectData, FixedAmountDetails, RevenueShareDetails, TieredDetails } from "../../types";
+import { EscrowPaymentProjectData } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,6 +35,26 @@ export async function POST(request: NextRequest) {
         { error: "Referral data not found" },
         { status: 404 }
       );
+    }
+
+    // This code modification is implemented as a temporary measure to accommodate an existing client who has already integrated the API into their product. 
+    // The specific client is using a fixed `conversionId` ("L1TDOEA4") for their project with `projectId` "FX26BxKbDVuJvaCtcTDf." 
+    // To avoid requiring the client to modify their integration after the API update, the code automatically assigns the fixed `conversionId` 
+    // when this particular `projectId` is detected. For all other projects, the `conversionId` is retrieved from the request parameters as usual.
+
+    let conversionId: string | null = null;
+
+    // Check if the projectId matches "FX26BxKbDVuJvaCtcTDf"
+    if (referralData.projectId === "FX26BxKbDVuJvaCtcTDf") {
+      conversionId = "L1TDOEA4";
+    } else {
+      conversionId = request.nextUrl.searchParams.get("conversionId");
+      if (!conversionId) {
+        return NextResponse.json(
+          { error: "Conversion ID is missing" },
+          { status: 400 }
+        );
+      }
     }
 
     const isValidApiKey = await validateApiKey(referralData.projectId, apiKey);
@@ -63,12 +83,30 @@ export async function POST(request: NextRequest) {
 
     const escrowProjectData = projectData as EscrowPaymentProjectData;
 
+    // Find the specific conversion point based on the conversionId
+    const conversionPoint = escrowProjectData.conversionPoints.find(point => point.id === conversionId);
+
+    if (!conversionPoint) {
+      return NextResponse.json(
+        { error: "Conversion point not found for the provided ID" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the conversion point is active
+    if (!conversionPoint.isActive) {
+      return NextResponse.json(
+        { message: "The conversion point is currently inactive and cannot process conversions" },
+        { status: 200 }
+      );
+    }
+
     let rewardAmount = 0;
 
-    // Determine reward amount based on paymentType
-    if (escrowProjectData.paymentType === "FixedAmount") {
-      rewardAmount = (escrowProjectData.paymentDetails as FixedAmountDetails).rewardAmount;
-    } else if (escrowProjectData.paymentType === "RevenueShare") {
+    // Determine reward amount based on the conversion point's paymentType
+    if (conversionPoint.paymentType === "FixedAmount") {
+      rewardAmount = conversionPoint.rewardAmount || 0;
+    } else if (conversionPoint.paymentType === "RevenueShare") {
       const revenueParam = request.nextUrl.searchParams.get("revenue");
       if (!revenueParam || isNaN(parseFloat(revenueParam)) || parseFloat(revenueParam) <= 0) {
         return NextResponse.json(
@@ -77,14 +115,14 @@ export async function POST(request: NextRequest) {
         );
       }
       const revenue = parseFloat(revenueParam);
-      const percentage = (escrowProjectData.paymentDetails as RevenueShareDetails).percentage;
+      const percentage = conversionPoint.percentage || 0;
       // Calculate reward amount and round to 1 decimal place
       rewardAmount = Math.round((revenue * percentage) / 10) / 10;
-    } else if (escrowProjectData.paymentType === "Tiered") {
-      const conversionLogs = await fetchConversionLogsForReferrals([referralData]);
+    } else if (conversionPoint.paymentType === "Tiered") {
+      const conversionLogs = await fetchConversionLogsForReferrals([referralData], undefined, conversionId);
       const conversionCount = conversionLogs.length + 1; // Current conversion count
 
-      const tiers = (escrowProjectData.paymentDetails as TieredDetails).tiers;
+      const tiers = conversionPoint.tiers || [];
       const appropriateTier = tiers.reverse().find(tier => conversionCount >= tier.conversionsRequired);
 
       if (!appropriateTier) {
@@ -139,6 +177,7 @@ export async function POST(request: NextRequest) {
     // Record successful conversions
     await logConversion(
       `${referralData.id}`,
+      conversionId,
       rewardAmount,
       userWalletAddress,
     );

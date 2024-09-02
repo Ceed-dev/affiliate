@@ -7,8 +7,8 @@ import { DateValueType } from "react-tailwindcss-datepicker";
 import cloneDeep from "lodash/cloneDeep";
 import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
 import { 
-  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ImageType, PreviewData,
-  WhitelistedAddress, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails,
+  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData,
+  ImageType, PreviewData, WhitelistedAddress,
 } from "../../../types";
 import { NavBar } from "../../../components/dashboard";
 import { 
@@ -199,19 +199,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         return updated;
       });
     };
-
-  const handleTierChange = (newTiers: Tier[]) => {
-    setProjectData(prevData => {
-      if (!prevData) return prevData;
-  
-      return {
-        ...prevData,
-        paymentDetails: {
-          tiers: newTiers,
-        } as TieredDetails,
-      };
-    });
-  };
   
   const handleOwnerChange = async (newOwnerAddresses: string[]) => {
     setProjectData(prevData => {
@@ -250,6 +237,21 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     });
   };
 
+  const handleConversionPointToggle = (id: string) => {
+    setProjectData(prevData => {
+      if (!prevData || prevData.projectType !== "EscrowPayment") return prevData;
+  
+      const updatedConversionPoints = prevData.conversionPoints.map(point =>
+        point.id === id ? { ...point, isActive: !point.isActive } : point
+      );
+  
+      return {
+        ...prevData,
+        conversionPoints: updatedConversionPoints,
+      };
+    });
+  };  
+
   const hasChanges = () => {
     if (!initialProjectData || !projectData) return false;
   
@@ -278,7 +280,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
     if (projectData.projectType === "EscrowPayment") {
       const escrowProjectData = projectData as EscrowPaymentProjectData;
-      const isBaseDataValid = projectData.projectName.trim() !== "" &&
+      return projectData.projectName.trim() !== "" &&
                             projectData.description.trim() !== "" &&
                             projectData.logo &&
                             projectData.cover &&
@@ -287,22 +289,6 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                             projectData.selectedTokenAddress.trim() !== "" &&
                             escrowProjectData.redirectUrl.trim() !== "" &&
                             escrowProjectData.embeds.length > 0;
-
-      if (!isBaseDataValid) return false;
-
-      switch (escrowProjectData.paymentType) {
-        case "FixedAmount":
-          const fixedAmountDetails = escrowProjectData.paymentDetails as FixedAmountDetails;
-          return fixedAmountDetails.rewardAmount > 0;
-        case "RevenueShare":
-          const revenueShareDetails = escrowProjectData.paymentDetails as RevenueShareDetails;
-          return revenueShareDetails.percentage > 0;
-        case "Tiered":
-          const tieredDetails = escrowProjectData.paymentDetails as TieredDetails;
-          return tieredDetails.tiers.length > 0 && tieredDetails.tiers.every(tier => tier.conversionsRequired > 0 && tier.rewardAmount > 0);
-        default:
-          return false;
-      }
     }
 
     return false;
@@ -404,14 +390,13 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               data={{
                 projectType: projectData?.projectType!,
                 selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
-                paymentType: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentType : undefined,
-                paymentDetails: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.paymentDetails : undefined,
                 whitelistedAddresses: projectData?.projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
                 redirectUrl: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
                 isReferralEnabled: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData).isReferralEnabled : undefined,
+                conversionPoints: projectData?.projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData).conversionPoints : undefined,
               }}
               handleChange={handleChange}
-              handleTierChange={projectData?.projectType === "EscrowPayment" ? handleTierChange : undefined}
+              handleConversionPointToggle={projectData?.projectType === "EscrowPayment" ? handleConversionPointToggle : undefined}
               handleWhitelistChange={projectData?.projectType === "DirectPayment" ? handleWhitelistChange : undefined}
               setRedirectLinkError={setRedirectLinkError}
               selectedChain={selectedChain ?? undefined}
