@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       // Calculate reward amount and round to 1 decimal place
       rewardAmount = Math.round((revenue * percentage) / 10) / 10;
     } else if (conversionPoint.paymentType === "Tiered") {
-      const conversionLogs = await fetchConversionLogsForReferrals([referralData]); // TODO: Fix this
+      const conversionLogs = await fetchConversionLogsForReferrals([referralData], undefined, conversionId);
       const conversionCount = conversionLogs.length + 1; // Current conversion count
 
       const tiers = conversionPoint.tiers || [];
