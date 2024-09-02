@@ -1,7 +1,7 @@
 import { DocumentData } from "firebase/firestore";
 import { 
   ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, 
-  WhitelistedAddress, PaymentType,
+  WhitelistedAddress, ConversionPoint, Tier,
 } from "../../types";
 
 export function isValidProjectData(data: DocumentData): data is ProjectData {
@@ -54,22 +54,37 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     );
   };
 
-  // Validate the payment details
-  const isValidPaymentDetails = (details: any, type: PaymentType): boolean => {
-    if (typeof details !== "object" || details === null) {
+  // Helper function to validate `conversionPoints`
+  const isValidConversionPoints = (points: ConversionPoint[]): boolean => {
+    return points.every(point => isValidConversionPoint(point));
+  };
+
+  // Helper function to validate a single `ConversionPoint`
+  const isValidConversionPoint = (point: any): point is ConversionPoint => {
+    if (typeof point !== "object" || point === null) {
       return false;
     }
-    if (type === "FixedAmount") {
-      return typeof details.rewardAmount === "number";
-    } else if (type === "RevenueShare") {
-      return typeof details.percentage === "number";
-    } else if (type === "Tiered") {
-      return Array.isArray(details.tiers) && details.tiers.every((tier: any) => 
-        typeof tier.conversionsRequired === "number" &&
-        typeof tier.rewardAmount === "number"
-      );
+    
+    if (typeof point.id !== "string" || typeof point.paymentType !== "string" || typeof point.isActive !== "boolean") {
+      return false;
     }
-    return false;
+    
+    switch (point.paymentType) {
+      case "FixedAmount":
+        return typeof point.rewardAmount === "number";
+      case "RevenueShare":
+        return typeof point.percentage === "number";
+      case "Tiered":
+        return Array.isArray(point.tiers) && point.tiers.every(isValidTier);
+      default:
+        return false;
+    }
+  };
+
+  // Helper function to validate `Tier`
+  const isValidTier = (tier: any): tier is Tier => {
+    return typeof tier.conversionsRequired === "number" &&
+          typeof tier.rewardAmount === "number";
   };
 
   // DirectPayment project data validation
@@ -87,14 +102,14 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
   const isValidEscrowPaymentProjectData = (data: any): data is EscrowPaymentProjectData => {
     return (
       isValidBaseProjectData(data) &&
-      typeof data.paymentType === "string" &&
-      isValidPaymentDetails(data.paymentDetails, data.paymentType) &&
       typeof data.redirectUrl === "string" &&
       typeof data.totalPaidOut === "number" &&
       (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
       Array.isArray(data.embeds) &&
       data.embeds.every((embed: any) => typeof embed === "string") &&
-      typeof data.isReferralEnabled === "boolean"
+      typeof data.isReferralEnabled === "boolean" &&
+      Array.isArray(data.conversionPoints) &&
+      isValidConversionPoints(data.conversionPoints)
     );
   };
 
