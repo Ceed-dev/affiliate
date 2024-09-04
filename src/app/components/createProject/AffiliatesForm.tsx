@@ -762,6 +762,24 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <button
                   type="button"
                   onClick={() => {
+                    // Validation for FixedAmount
+                    if (newConversionPoint.paymentType === "FixedAmount" && (!newConversionPoint.rewardAmount || newConversionPoint.rewardAmount <= 0)) {
+                      toast.error("Please provide a valid reward amount for FixedAmount.");
+                      return;
+                    }
+
+                    // Validation for RevenueShare
+                    if (newConversionPoint.paymentType === "RevenueShare" && (!newConversionPoint.percentage || newConversionPoint.percentage <= 0)) {
+                      toast.error("Please provide a valid percentage for RevenueShare.");
+                      return;
+                    }
+
+                    // Validation for Tiered
+                    if (newConversionPoint.paymentType === "Tiered" && (!newConversionPoint.tiers || newConversionPoint.tiers.length === 0)) {
+                      toast.error("Please provide at least one tier for Tiered.");
+                      return;
+                    }
+
                     // Generate short ID to the current newConversionPoint
                     const completeConversionPoint: ConversionPoint = {
                       id: generateSimpleAlphanumericId(),
