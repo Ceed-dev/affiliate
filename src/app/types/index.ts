@@ -10,7 +10,7 @@ import { AggregatedReferralData } from "./aggregatedReferralData";
 import { AffiliateInfo, UserRole } from "./affiliateInfo";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
-import { WhitelistedAddress } from "./whitelistedAddress";
+import { WhitelistedAddress, WhitelistEntry } from "./whitelistedAddress";
 import { ApiKeyData } from "./apiKeyData";
 import { ConversionLog } from "./conversionLog";
 import { UnpaidConversionLog } from "./unpaidConversionLog";
@@ -35,6 +35,7 @@ export type {
   UserData,
   PaymentTransaction,
   WhitelistedAddress,
+  WhitelistEntry,
   ProjectType,
   ApiKeyData,
   ConversionLog,
