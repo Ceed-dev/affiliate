@@ -1,5 +1,5 @@
 import { 
-  DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ConversionPoint, 
+  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ConversionPoint, 
   PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
 } from "./projectData";
 import { ExtendedProjectData } from "./extendedProjectData";
@@ -11,7 +11,6 @@ import { AffiliateInfo, UserRole } from "./affiliateInfo";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
 import { WhitelistedAddress } from "./whitelistedAddress";
-import { ProjectType } from "./projectType";
 import { ApiKeyData } from "./apiKeyData";
 import { ConversionLog } from "./conversionLog";
 import { UnpaidConversionLog } from "./unpaidConversionLog";

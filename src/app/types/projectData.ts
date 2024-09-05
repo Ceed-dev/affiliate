@@ -1,5 +1,6 @@
 import { WhitelistedAddress } from ".";
 
+export type ProjectType = "DirectPayment" | "EscrowPayment";
 export type PaymentType = "FixedAmount" | "RevenueShare" | "Tiered";
 
 type BaseProjectData = {
