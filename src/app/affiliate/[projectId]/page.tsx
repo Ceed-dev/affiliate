@@ -426,6 +426,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       {projectData?.projectType === "EscrowPayment" && (
         <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
           <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
+            {projectData.conversionPoints?.every(point => !point.isActive) && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                <strong className="font-bold">Notice:</strong>
+                <span className="block sm:inline"> All conversion points are currently inactive. New users cannot join this project at the moment.</span>
+              </div>
+            )}
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Reward Details</h2>
             <p className="text-sm text-gray-600 mb-4">
               Below are the reward details for each conversion point, including whether each point is currently active or inactive. You can see the reward type and value associated with each point.
