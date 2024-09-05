@@ -9,7 +9,7 @@ import { Button } from "./Button";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { 
-  WhitelistedAddress, ProjectType, 
+  WhitelistedAddress, WhitelistEntry, ProjectType, 
   PaymentType, ConversionPoint, Tier,
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
@@ -42,11 +42,6 @@ type AffiliatesFormProps = {
   status?: string;
   selectedChain?: Chain | null;
 };
-
-type WhitelistEntry = {
-  address: string;
-  details: WhitelistedAddress;
-}
 
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
