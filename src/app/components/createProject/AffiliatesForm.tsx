@@ -535,7 +535,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     // Highlight the specific instructions in red
                     setHighlightError(true);
 
-                    // Remove the highlight after 3 seconds
+                    // Remove the highlight after 10 seconds
                     setTimeout(() => setHighlightError(false), 10000);
                   }
                 } else {
