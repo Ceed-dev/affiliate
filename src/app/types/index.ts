@@ -1,6 +1,6 @@
 import { 
-  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, ProjectData, ConversionPoint, 
-  PaymentType, FixedAmountDetails, RevenueShareDetails, Tier, TieredDetails, PaymentDetails,
+  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData,
+  ProjectData, ConversionPoint, PaymentType, Tier,
 } from "./projectData";
 import { ExtendedProjectData } from "./extendedProjectData";
 import { ImageType, PreviewData } from "./imageType";
@@ -24,11 +24,7 @@ export type {
   ExtendedProjectData,
   ConversionPoint,
   PaymentType,
-  FixedAmountDetails,
-  RevenueShareDetails,
   Tier,
-  TieredDetails,
-  PaymentDetails,
   ImageType,
   PreviewData,
   ReferralData,
