@@ -8,6 +8,7 @@ import { createAndReturnNewReferralId } from "./createAndReturnNewReferralId";
 export async function joinProject(
   projectId: string, 
   walletAddress: string,
+  allConversionPointsInactive: boolean,
 ): Promise<string> {
   const userDocRef = doc(db, "users", walletAddress);
 
@@ -31,15 +32,23 @@ export async function joinProject(
         userData.joinedProjectIds = [];
       }
 
+      // If you are already part of the project, return the referral ID.
       if (userData.joinedProjectIds.includes(projectId)) {
         return await getExistingReferralId(walletAddress, projectId);
-      } else {
-        userData.joinedProjectIds.push(projectId);
-        userData.updatedAt = new Date();
-        await setDoc(userDocRef, userData);
-        toast.success("You have successfully joined the project!");
-        return await createAndReturnNewReferralId(walletAddress, projectId);
       }
+
+      // Restrict participation for new participants if all conversion points are inactive
+      if (allConversionPointsInactive) {
+        toast.error("All conversion points are currently inactive. You cannot join this project.");
+        return "";
+      }
+
+      // If you are a new participant and can join the project
+      userData.joinedProjectIds.push(projectId);
+      userData.updatedAt = new Date();
+      await setDoc(userDocRef, userData);
+      toast.success("You have successfully joined the project!");
+      return await createAndReturnNewReferralId(walletAddress, projectId);
     }
   } catch (error) {
     console.error("Failed to join project: ", error);
