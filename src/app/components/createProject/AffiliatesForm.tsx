@@ -796,6 +796,11 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <button
                   type="button"
                   onClick={() => {
+                    if (!data.conversionPoints || data.conversionPoints.length >= 10) {
+                      toast.error("You can only add up to 10 conversion points.");
+                      return;
+                    }
+
                     // Validation for FixedAmount
                     if (newConversionPoint.paymentType === "FixedAmount" && (!newConversionPoint.rewardAmount || newConversionPoint.rewardAmount <= 0)) {
                       toast.error("Please provide a valid reward amount for FixedAmount.");
