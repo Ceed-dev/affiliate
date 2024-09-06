@@ -361,7 +361,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         {/* Join Project and Referral Actions */}
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
           <h2 className="text-lg font-semibold text-gray-900">
-            Earn {tokenSymbol} for each successful referral
+            Earn <span className="bg-green-200 px-2 py-1 rounded-md border border-white">{tokenSymbol}</span> for each successful referral
             {chainName && (
               <>
                 {" on "}
