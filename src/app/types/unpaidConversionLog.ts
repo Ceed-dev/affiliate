@@ -10,4 +10,5 @@ export type UnpaidConversionLog = {
   projectId: string;
   selectedChain: Chain;
   selectedTokenAddress: string;
+  conversionId: string;
 };
