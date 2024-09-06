@@ -9,7 +9,10 @@ import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress, formatChainName } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers, approveUser } from "../utils/firebase";
+import { 
+  fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
+  updateIsPaidFlag, fetchUnapprovedUsers, approveUser 
+} from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
