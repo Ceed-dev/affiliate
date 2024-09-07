@@ -12,6 +12,7 @@ import { processRewardPaymentTransaction } from "./processRewardPaymentTransacti
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
 import { fetchConversionLogsForReferrals } from "./fetchConversionLogsForReferrals";
 import { deleteProjectFromFirestore } from "./deleteProjectFromFirestore";
+import { deleteProject } from "./deleteProject";
 import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
 import { logConversion } from "./logConversion";
 import { createNewUser } from "./createNewUser";
@@ -41,6 +42,7 @@ export {
   fetchTransactionsForReferrals,
   fetchConversionLogsForReferrals,
   deleteProjectFromFirestore,
+  deleteProject,
   saveApiKeyToFirestore,
   getApiKeyData,
   validateApiKey,
