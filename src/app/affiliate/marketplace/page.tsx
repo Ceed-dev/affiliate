@@ -46,15 +46,22 @@ export default function Marketplace() {
               <p className="text-gray-500 font-semibold text-lg">Loading...</p>
             </div>
           : 
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {projects.map((project: ExtendedProjectData) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
-                  linkUrl={`${baseUrl}/affiliate/${project.id}`} 
-                />
-              ))}
-            </div>
+            projects.length === 0 ? (
+              <div className="text-center mt-10">
+                <p className="text-sm">No projects</p>
+                <p className="text-sm text-gray-500">Check back later for new opportunities to join exciting projects.</p>
+              </div>
+            ) : (
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {projects.map((project: ExtendedProjectData) => (
+                  <ProjectCard 
+                    key={project.id} 
+                    project={project} 
+                    linkUrl={`${baseUrl}/affiliate/${project.id}`} 
+                  />
+                ))}
+              </div>
+            )
         }
       </div>
     </div>

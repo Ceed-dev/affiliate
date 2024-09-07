@@ -248,8 +248,10 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         return;
       }
     } else if (projectData?.projectType === "EscrowPayment") {
+      const allConversionPointsInactive = projectData?.conversionPoints?.every(point => !point.isActive);
+
       try {
-        const referralId = await joinProject(params.projectId, address!);
+        const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive);
         console.log("Referral ID from existing user: ", referralId);
         setReferralId(referralId);
       } catch (error: any) {
@@ -359,7 +361,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         {/* Join Project and Referral Actions */}
         <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
           <h2 className="text-lg font-semibold text-gray-900">
-            Earn {tokenSymbol} for each successful referral
+            Earn <span className="bg-green-200 px-2 py-1 rounded-md border border-white">{tokenSymbol}</span> for each successful referral
             {chainName && (
               <>
                 {" on "}
@@ -409,18 +411,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 </button>
               )}
             </div>
-          ) : projectData?.projectType === "EscrowPayment" && projectData.conversionPoints?.every(point => !point.isActive) ? (
-            <>
-              <button
-                className="bg-gray-400 text-white w-full text-sm py-3 rounded-md cursor-not-allowed"
-                disabled
-              >
-                Join Project
-              </button>
-              <p className="text-red-500 text-sm mt-2">
-                All conversion points are currently inactive. You cannot join this project at the moment.
-              </p>
-            </>
           ) : (
             <button
               className="bg-sky-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
@@ -436,6 +426,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       {projectData?.projectType === "EscrowPayment" && (
         <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
           <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
+            {projectData.conversionPoints?.every(point => !point.isActive) && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                <strong className="font-bold">Notice:</strong>
+                <span className="block sm:inline"> All conversion points are currently inactive. New users cannot join this project at the moment.</span>
+              </div>
+            )}
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Reward Details</h2>
             <p className="text-sm text-gray-600 mb-4">
               Below are the reward details for each conversion point, including whether each point is currently active or inactive. You can see the reward type and value associated with each point.

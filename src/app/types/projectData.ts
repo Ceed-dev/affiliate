@@ -1,5 +1,6 @@
 import { WhitelistedAddress } from ".";
 
+export type ProjectType = "DirectPayment" | "EscrowPayment";
 export type PaymentType = "FixedAmount" | "RevenueShare" | "Tiered";
 
 type BaseProjectData = {
@@ -32,24 +33,10 @@ export type DirectPaymentProjectData = BaseProjectData & {
   deadline: Date | null;
 };
 
-export type FixedAmountDetails = {
-  rewardAmount: number;
-};
-
-export type RevenueShareDetails = {
-  percentage: number;
-};
-
 export type Tier = {
   conversionsRequired: number;
   rewardAmount: number;
 };
-
-export type TieredDetails = {
-  tiers: Tier[];
-};
-
-export type PaymentDetails = FixedAmountDetails | RevenueShareDetails | TieredDetails;
 
 export type ConversionPoint = {
   id: string; // Stores the automatically generated alphanumeric ID

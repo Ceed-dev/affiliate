@@ -9,7 +9,10 @@ import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { formatAddress, formatChainName } from "../utils/formatters";
-import { fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, updateIsPaidFlag, fetchUnapprovedUsers, approveUser } from "../utils/firebase";
+import { 
+  fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
+  updateIsPaidFlag, fetchUnapprovedUsers, approveUser 
+} from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
@@ -422,13 +425,14 @@ export default function Admin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referral ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Conversion ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {unpaidLogsLoading ? (
                   <tr>
-                    <td colSpan={10} className="px-6 py-4 text-lg text-gray-500">
+                    <td colSpan={11} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
                         <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
@@ -437,7 +441,7 @@ export default function Admin() {
                   </tr>
                 ) : unpaidConversionLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="px-6 py-4 text-lg text-gray-500 text-center">
+                    <td colSpan={11} className="px-6 py-4 text-lg text-gray-500 text-center">
                       No unpaid conversion logs found.
                     </td>
                   </tr>
@@ -515,6 +519,7 @@ export default function Admin() {
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{log.referralId}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{log.conversionId}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <button 
                           className={`bg-sky-500 hover:bg-sky-700 hover:shadow-lg text-white px-3 py-1 rounded ${processingLogId === log.logId ? "cursor-not-allowed opacity-50" : ""}`}

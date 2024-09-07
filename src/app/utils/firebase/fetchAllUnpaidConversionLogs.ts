@@ -43,6 +43,7 @@ export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLo
           projectId,
           selectedChain,
           selectedTokenAddress,
+          conversionId: data.conversionId,
         });
       });
     });

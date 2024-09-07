@@ -9,7 +9,7 @@ import { Button } from "./Button";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
 import { 
-  WhitelistedAddress, ProjectType, 
+  WhitelistedAddress, WhitelistEntry, ProjectType, 
   PaymentType, ConversionPoint, Tier,
 } from "../../types";
 import { useChainContext } from "../../context/chainContext";
@@ -42,11 +42,6 @@ type AffiliatesFormProps = {
   status?: string;
   selectedChain?: Chain | null;
 };
-
-type WhitelistEntry = {
-  address: string;
-  details: WhitelistedAddress;
-}
 
 export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   data,
@@ -413,6 +408,8 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     return result;
   }
 
+  const [highlightError, setHighlightError] = useState(false);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-5 my-10 text-sm">
 
@@ -506,11 +503,48 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
 
         {data.projectType === "EscrowPayment" && (
           <div className="flex flex-col gap-2">
-            <h2>Referral Feature Toggle <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">({isEditing ? "Not editable" : "This toggle cannot be edited after initial setup."})</span></h2>
+            <h2>Referral Feature Toggle 
+              <span className="text-red-500"> * </span> 
+              <span className="text-gray-500 text-sm">
+                ({isEditing ? "Not editable" : "This toggle cannot be edited after initial setup."})
+              </span>
+            </h2>
             <p className="text-gray-500 text-sm">
               Enabling the referral feature ensures that both affiliates and users who cause conversions receive rewards.
+              <br />
+              <span className={highlightError ? "text-red-500 font-bold animate-pulse" : ""}>
+                However, once enabled, you cannot add conversion points with a Tiered payment type.
+                <br />
+                Please ensure all conversion points are set before enabling this feature.
+              </span>
             </p>
-            <ToggleButton isOn={data.isReferralEnabled!} onToggle={setIsReferralEnabled!} disabled={isEditing} />
+            <ToggleButton 
+              isOn={data.isReferralEnabled!} 
+              onToggle={(newValue) => {
+                if (!data.isReferralEnabled && newValue) {
+                  // Check if Tiered is present in the configured conversion points
+                  const hasTieredConversion = data.conversionPoints?.some(point => point.paymentType === "Tiered");
+        
+                  // Switch on referrals only if there is no tiered
+                  if (!hasTieredConversion) {
+                    setIsReferralEnabled?.(newValue);
+                  } else {
+                    // If Tiered exists, display a warning message in toast
+                    toast.error("Referral feature cannot be enabled because a Tiered conversion point exists.");
+
+                    // Highlight the specific instructions in red
+                    setHighlightError(true);
+
+                    // Remove the highlight after 10 seconds
+                    setTimeout(() => setHighlightError(false), 10000);
+                  }
+                } else {
+                  // If you want to turn it off, just turn it off
+                  setIsReferralEnabled?.(newValue);
+                }
+              }} 
+              disabled={isEditing} 
+            />
           </div>
         )}
 
@@ -762,6 +796,29 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <button
                   type="button"
                   onClick={() => {
+                    if (!data.conversionPoints || data.conversionPoints.length >= 10) {
+                      toast.error("You can only add up to 10 conversion points.");
+                      return;
+                    }
+
+                    // Validation for FixedAmount
+                    if (newConversionPoint.paymentType === "FixedAmount" && (!newConversionPoint.rewardAmount || newConversionPoint.rewardAmount <= 0)) {
+                      toast.error("Please provide a valid reward amount for FixedAmount.");
+                      return;
+                    }
+
+                    // Validation for RevenueShare
+                    if (newConversionPoint.paymentType === "RevenueShare" && (!newConversionPoint.percentage || newConversionPoint.percentage <= 0)) {
+                      toast.error("Please provide a valid percentage for RevenueShare.");
+                      return;
+                    }
+
+                    // Validation for Tiered
+                    if (newConversionPoint.paymentType === "Tiered" && (!newConversionPoint.tiers || newConversionPoint.tiers.length === 0)) {
+                      toast.error("Please provide at least one tier for Tiered.");
+                      return;
+                    }
+
                     // Generate short ID to the current newConversionPoint
                     const completeConversionPoint: ConversionPoint = {
                       id: generateSimpleAlphanumericId(),
