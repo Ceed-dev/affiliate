@@ -1,6 +1,7 @@
 import { ref, listAll, deleteObject, getStorage } from "firebase/storage";
 import { db } from "./firebaseConfig";
 import { collection, doc, getDocs, query, where, runTransaction } from "firebase/firestore";
+import { logErrorToFirestore } from "./logErrorToFirestore";
 
 const storage = getStorage();
 
@@ -16,6 +17,8 @@ const deleteAllFilesInFolder = async (folderPath: string) => {
     console.log(`All files in folder ${folderPath} deleted successfully.`);
   } catch (error) {
     console.error(`Failed to delete files in folder ${folderPath}:`, error);
+    await logErrorToFirestore("ImageDeletionError", `Failed to delete files in folder ${folderPath}`, { error });
+    throw new Error(`Failed to delete files in folder ${folderPath}`);
   }
 };
 

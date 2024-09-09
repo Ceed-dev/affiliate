@@ -1,7 +1,8 @@
 export type ErrorType = 
   "FirestoreUpdateAfterPaymentError" | 
   "EmailSendError" | 
-  "UserPaymentError";
+  "UserPaymentError" |
+  "ImageDeletionError";
 
 export type ErrorLog = {
   errorType: ErrorType;
