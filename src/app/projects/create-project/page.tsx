@@ -14,7 +14,7 @@ import {
   EmbedImageForm,
   SocialLinksForm
 } from "../../components/createProject";
-import { saveProjectToFirestore, deleteProjectFromFirestore, saveApiKeyToFirestore } from "../../utils/firebase";
+import { saveProjectToFirestore, saveApiKeyToFirestore, deleteProject } from "../../utils/firebase";
 import { approveToken, depositToken } from "../../utils/contracts";
 import { 
   ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
@@ -338,7 +338,7 @@ export default function CreateProject() {
         toast.error("Failed to generate API key. Please try again.");
         setSaveAndDepositStatus(initialStatus);
         setIsSaving(false);
-        await deleteProjectFromFirestore(projectId);
+        await deleteProject(projectId);
         return;
       }
     }
@@ -354,7 +354,7 @@ export default function CreateProject() {
         toast.error("Failed to approve token. Please try again.");
         setSaveAndDepositStatus(initialStatus);
         setIsSaving(false);
-        await deleteProjectFromFirestore(projectId);
+        await deleteProject(projectId);
         return;
       }
   
@@ -364,7 +364,7 @@ export default function CreateProject() {
         toast.error("Failed to deposit token. Please try again.");
         setSaveAndDepositStatus(initialStatus);
         setIsSaving(false);
-        await deleteProjectFromFirestore(projectId);
+        await deleteProject(projectId);
         return;
       }
     }
