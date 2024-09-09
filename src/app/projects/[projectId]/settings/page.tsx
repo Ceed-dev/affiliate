@@ -449,7 +449,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 <p className="mt-4">This action cannot be undone. Please proceed with caution.</p>
               </div>
               <p className="text-red-700 mb-4">
-                To delete the project, please enter the project name '{projectData?.projectName}' in the field below.
+                To delete the project, please enter the project name &apos;{projectData?.projectName}&apos; in the field below.
               </p>
               <input
                 type="text"
