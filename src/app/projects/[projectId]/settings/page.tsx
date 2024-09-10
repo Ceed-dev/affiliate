@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { DateValueType } from "react-tailwindcss-datepicker";
 import cloneDeep from "lodash/cloneDeep";
 import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
+import { useAddress } from "@thirdweb-dev/react";
 import { 
   ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData,
   ImageType, PreviewData, WhitelistedAddress,
@@ -19,9 +21,11 @@ import {
   SocialLinksForm,
   Button,
 } from "../../../components/createProject";
-import { fetchProjectData, updateProjectInFirestore } from "../../../utils/firebase";
+import { fetchProjectData, updateProjectInFirestore, deleteProject } from "../../../utils/firebase";
 
 export default function Settings({ params }: { params: { projectId: string } }) {
+  const address = useAddress();
+  const router = useRouter();
   const [initialProjectData, setInitialProjectData] = useState<ProjectData | null>(null);
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
@@ -35,6 +39,28 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
   const [socialLinkFormError, setSocialLinkFormError] = useState(false);
   const [redirectLinkError, setRedirectLinkError] = useState(false);
+
+  const [deleteInput, setDeleteInput] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const isDeleteButtonEnabled = deleteInput === projectData?.projectName && !isDeleting;
+
+  const handleDeleteClick = async () => {
+    if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      try {
+        setIsDeleting(true);
+        await deleteProject(params.projectId);
+        toast.success("The project was deleted successfully.");
+        router.push("/projects");
+      } catch (error) {
+        console.error("Failed to delete project:", error);
+        toast.error("Deletion failed, please try again later.");
+      } finally {
+        setIsDeleting(false);
+      }
+    } else {
+      setDeleteInput("");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -411,6 +437,48 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                 <p>Save Changes</p>
               )}
             </Button>
+
+            {/* Project Delete Field */}
+            {/* Temporarily restricting project deletion access to the admin's wallet address. */}
+            {/* This will likely be reverted to allow general user access in the future. */}
+            {address === "0x329980D088Ba66B3d459AE3d396a722437801689" && (
+              <div className="mb-10 mt-20 p-5 border-2 border-red-600 bg-red-100 rounded-lg shadow-md">
+                <div className="bg-yellow-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                  <strong className="font-bold">Warning: All of the following data will be permanently deleted:</strong>
+                  <ul className="mt-2 list-disc list-inside">
+                    <li>Project data, including all associated images</li>
+                    <li>API key data linked to the project</li>
+                    <li>Referral ID data issued by affiliates who participated in the project</li>
+                    <li>All conversion and click data associated with the referral IDs</li>
+                  </ul>
+                  <p className="mt-4">This action cannot be undone. Please proceed with caution.</p>
+                </div>
+                <p className="text-red-700 mb-4">
+                  To delete the project, please enter the project name &apos;{projectData?.projectName}&apos; in the field below.
+                </p>
+                <input
+                  type="text"
+                  className="mb-4 p-2 border border-red-600 bg-white rounded w-full"
+                  placeholder="Enter project name"
+                  value={deleteInput}
+                  onChange={(e) => setDeleteInput(e.target.value)}
+                />
+
+                <button
+                  className={`w-full bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-700 ${!isDeleteButtonEnabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                  onClick={handleDeleteClick}
+                  disabled={!isDeleteButtonEnabled}
+                >
+                  {isDeleting
+                    ? <span className="flex flex-row items-center justify-center gap-2">
+                        Deleting...
+                        <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
+                      </span> 
+                    : "Delete Project"
+                  }
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
