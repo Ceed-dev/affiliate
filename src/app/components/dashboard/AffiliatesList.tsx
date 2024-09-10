@@ -61,6 +61,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">User</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Earnings ({selectedToken})</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Conversions</th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Conversion Date</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Creation Date</th>
               </tr>
@@ -82,6 +83,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.aggregatedEarnings}</td>
                     {/* <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.conversions}</td> */}
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.aggregatedConversions}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.clicks.length}</td>
                     {/* <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.lastConversionDate ? referral.lastConversionDate.toLocaleDateString() : "N/A"}</td> */}
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.aggregatedLastConversionDate ? referral.aggregatedLastConversionDate.toLocaleDateString() : "N/A"}</td>
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.createdAt.toLocaleDateString()}</td>
@@ -89,7 +91,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                 ))
               ) : (
                 <tr className="text-gray-500">
-                  <td colSpan={5} className="text-center py-4">No Referral Data</td>
+                  <td colSpan={6} className="text-center py-4">No Referral Data</td>
                 </tr>
               )}
             </tbody>
