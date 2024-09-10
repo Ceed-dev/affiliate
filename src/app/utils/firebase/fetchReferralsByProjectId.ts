@@ -1,7 +1,7 @@
 import { collection, query, where, getDocs, doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { isValidReferralData } from "../validations";
-import { ReferralData, ExtendedReferralData, UserData } from "../../types";
+import { ReferralData, ExtendedReferralData, UserData, ClickData } from "../../types";
 
 export async function fetchReferralsByProjectId(projectId: string): Promise<ExtendedReferralData[]> {
   const referrals: ExtendedReferralData[] = [];
@@ -25,12 +25,28 @@ export async function fetchReferralsByProjectId(projectId: string): Promise<Exte
           username = userData.username;
         }
 
+        // Get click data from the subcollection "clicks"
+        const clicksRef = collection(db, `referrals/${docSnapshot.id}/clicks`);
+        const clicksSnapshot = await getDocs(clicksRef);
+        const clicksData = clicksSnapshot.docs.map((doc) => {
+          const clickData = doc.data();
+          return {
+            id: doc.id,
+            timestamp: clickData.timestamp.toDate(),
+            ip: clickData.ip || "Unknown",
+            country: clickData.country || "Unknown",
+            region: clickData.region || "Unknown",
+            userAgent: clickData.userAgent || "Unknown"
+          } as ClickData;
+        });
+
         const referralData: ExtendedReferralData = {
           ...data,
           id: docSnapshot.id,
           createdAt: data.createdAt.toDate(),
           lastConversionDate: data.lastConversionDate?.toDate() || null,
           username,
+          clicks: clicksData,
         };
         referrals.push(referralData);
       }
