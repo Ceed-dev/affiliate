@@ -3,6 +3,7 @@ import {
   Polygon, PolygonAmoyTestnet, 
   Arbitrum, ArbitrumNova, ArbitrumSepolia,
   Avalanche, AvalancheFuji,
+  Binance, BinanceTestnet,
   MchVerse,
   HomeVerse,
   GesoVerse, GesotenVerseTestnet,
@@ -57,6 +58,7 @@ export const productionChains: Chain[] = [
   Arbitrum,
   ArbitrumNova,
   Avalanche,
+  Binance,
   MchVerse,
   HomeVerse,
   GesoVerse,
@@ -66,6 +68,7 @@ export const testChains: Chain[] = [
   PolygonAmoyTestnet,
   ArbitrumSepolia,
   AvalancheFuji,
+  BinanceTestnet,
   // MchVerseTestnet,
   // HomeVerseTestnet,
   GesotenVerseTestnet,
@@ -84,6 +87,8 @@ export const chainRpcUrls: { [chainId: number]: string } = {
   421614: `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, // ArbitrumSepolia
   43114: "https://api.avax.network/ext/bc/C/rpc", // Avalanche
   43113: "https://api.avax-test.network/ext/bc/C/rpc", // AvalancheFuji
+  56: "https://bsc-dataseed.bnbchain.org", // Binance
+  97: "https://data-seed-prebsc-1-s1.bnbchain.org:8545", // BinanceTestnet
   29548: "https://rpc.oasys.mycryptoheroes.net", // MchVerse
   // 420: "https://rpc.oasys.sand.mchdfgh.xyz", // MchVerseTestnet
   19011: "https://rpc.mainnet.oasys.homeverse.games", // HomeVerse
