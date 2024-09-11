@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, BarChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
-import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog } from "../../types";
+import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatters";
@@ -32,6 +32,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
+
+  const [allClickData, setAllClickData] = useState<ClickData[]>([]);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -113,6 +115,14 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   useEffect(() => {
     if (referralData) {
+      setAllClickData(
+        referralData
+        ? referralData.reduce((acc: ClickData[], referral) => {
+            return [...acc, ...referral.clicks];
+          }, [])
+        : []
+      );
+
       const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
       fetchConversionLogsForReferrals(referralDataAsBasic, setConversionData)
         .then(() => {
@@ -226,7 +236,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                 </p>
               </div>
             // : <BarChart title="Number of Payment Transactions" transactions={transactionData} />
-            : <BarChart dataMap={{"Conversions": conversionData}} />
+            : <BarChart dataMap={{"Conversions": conversionData, "Clicks": allClickData}} />
           }
         </div>
 
