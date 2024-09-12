@@ -25,6 +25,7 @@ import { approveUser } from "./approveUser";
 import { checkIfProjectOwner } from "./checkIfProjectOwner";
 import { checkUserRole } from "./checkUserRole";
 import { fetchClickData } from "./fetchClickData";
+import { saveTweetUrl } from "./saveTweetUrl";
 
 export {
   saveProjectToFirestore,
@@ -56,4 +57,5 @@ export {
   checkIfProjectOwner,
   checkUserRole,
   fetchClickData,
+  saveTweetUrl,
 }
