@@ -13,6 +13,15 @@ export async function fetchReferralsByProjectId(projectId: string): Promise<Exte
       const data = docSnapshot.data() as ReferralData & {
         createdAt: Timestamp;
         lastConversionDate?: Timestamp | null;
+        tweetEngagement?: {
+          retweetCount: number;
+          replyCount: number;
+          likeCount: number;
+          quoteCount: number;
+          bookmarkCount: number;
+          impressionCount: number;
+          fetchedAt: Timestamp;
+        }
       };
 
       if (isValidReferralData(data)) {
@@ -47,6 +56,13 @@ export async function fetchReferralsByProjectId(projectId: string): Promise<Exte
           lastConversionDate: data.lastConversionDate?.toDate() || null,
           username,
           clicks: clicksData,
+          tweetUrl: data.tweetUrl || "",
+          tweetEngagement: data.tweetEngagement
+            ? {
+                ...data.tweetEngagement,
+                fetchedAt: data.tweetEngagement.fetchedAt.toDate(), // Convert fetchedAt timestamp to Date
+              }
+            : undefined,
         };
         referrals.push(referralData);
       }
