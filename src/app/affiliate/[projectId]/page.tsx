@@ -14,9 +14,15 @@ import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { ToggleButton } from "../../components/ToggleButton";
 import { TieredDetailsModal } from "../../components/TieredDetailsModal";
-import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
+import { 
+  fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, 
+  fetchConversionLogsForReferrals, fetchClickData, saveTweetUrl 
+} from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
-import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol, formatChainName } from "../../utils/formatters";
+import { 
+  displayFormattedDateWithTimeZone, getNextPaymentDate, 
+  getTimeZoneSymbol, formatChainName 
+} from "../../utils/formatters";
 import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
 import { useCountdown } from "../../hooks/useCountdown";
 import { chainRpcUrls } from "../../constants/chains";
@@ -171,6 +177,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         .then(data => {
           setReferralData(data);
           setLoadingReferral(false);
+
+          // If a tweetUrl is present in the referral data, set it
+          if (data.tweetUrl) {
+            setTweetUrl(data.tweetUrl); // Set the existing tweet URL
+          }
         })
         .catch(error => {
           const message = (error instanceof Error) ? error.message : "Unknown error";
@@ -322,17 +333,34 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [tweetUrl, setTweetUrl] = useState("");
   const [isTweetUrlValid, setIsTweetUrlValid] = useState(true);
 
-  const handleSaveTweetUrl = () => {
+  const handleSaveTweetUrl = async () => {
+    const trimmedTweetUrl = tweetUrl.trim(); // Trim any leading or trailing whitespace
+  
+    // Check if the tweetUrl is empty or only contains whitespace
+    if (trimmedTweetUrl === "") {
+      setIsTweetUrlValid(false);
+      toast.error("Tweet URL cannot be empty or only whitespace.");
+      return;
+    }
+  
     const tweetUrlRegex = /^https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+$/;
-    if (!tweetUrlRegex.test(tweetUrl)) {
+    
+    // Validate the URL structure
+    if (!tweetUrlRegex.test(trimmedTweetUrl)) {
       setIsTweetUrlValid(false);
       toast.error("Invalid tweet URL. Please check the URL and try again.");
       return;
     }
+  
     setIsTweetUrlValid(true);
-    toast.success("Tweet URL saved successfully!");
-    // Save the tweet URL or send it to the backend
-  };  
+  
+    try {
+      // Save the tweet URL using the helper function
+      await saveTweetUrl(referralId!, trimmedTweetUrl);
+    } catch (error) {
+      console.error("Error saving tweet URL: ", error);
+    }
+  };
 
   // ===== END TWEET URL MANAGEMENT =====
 
