@@ -572,7 +572,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       )}
 
-      {projectData?.projectType === "EscrowPayment" && address && referralId && 
+      {projectData?.projectType === "EscrowPayment" && address && referralId && referralData &&
         <>
           <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
             {/* <StatisticCard
@@ -636,6 +636,71 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} />
               </div>
           }
+
+          <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10 mt-10">
+            <h3 className="text-lg font-semibold text-gray-800 pb-4 flex items-center">
+              Tweet Engagement Data
+              {referralData.tweetUrl && (
+                <a
+                  href={referralData.tweetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2"
+                >
+                  <Image
+                    src="/new-tab.png"
+                    alt="Open in new tab"
+                    width={16}
+                    height={16}
+                    className="inline-block"
+                  />
+                </a>
+              )}
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Retweets</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Replies</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Likes</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Quotes</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Bookmarks</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Impressions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {referralData.tweetEngagement ? (
+                    <tr>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.retweetCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.replyCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.likeCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.quoteCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.bookmarkCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.impressionCount}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-4 text-center text-gray-500">
+                        {!referralData.tweetUrl ? (
+                          <>No engagement data available yet. Please enter the tweet URL above.</>
+                        ) : (
+                          <>No engagement data available yet. Please wait for the data to be automatically fetched.</>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  {referralData.tweetEngagement && (
+                    <tr>
+                      <td colSpan={6} className="mt-2 text-sm text-right text-gray-500">
+                        Data Fetched At: {referralData.tweetEngagement.fetchedAt.toLocaleDateString()} {referralData.tweetEngagement.fetchedAt.toLocaleTimeString()}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </>
       }
 
