@@ -26,42 +26,42 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <Head>
-        <title>Simple Landing Page</title>
+        <title>Qube</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header className="fixed w-full bg-slate-100 py-2">
+      <header className="fixed w-full bg-black text-white py-2">
         <div className="w-full lg:w-2/3 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image src="/qube.png" alt="qube.png" width={50} height={50} />
             <p className="text-lg font-semibold">Qube</p>
           </Link>
-          
-          <div className="hidden md:flex flex-row gap-7 items-center">
+
+          <div className="hidden md:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
-            <div className="border-l border-gray-300 h-6" />
-            <Link href="/onboarding" className="font-bold hover:text-gray-500">
-              Launch App
-            </Link>
           </div>
+          
+          <Link href="/onboarding" className="hidden md:block font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
+            Launch App
+          </Link>
 
           <div className="md:hidden flex items-center">
-            <button onClick={toggleMenu} className="text-gray-500 focus:outline-none">
+            <button onClick={toggleMenu} className="bg-white p-2 rounded-md focus:outline-none">
               <Image src={menuOpen ? "/close.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={20} height={20} />
             </button>
           </div>
         </div>
 
         {menuOpen && (
-          <div className="md:hidden bg-white">
+          <div className="md:hidden pt-4">
             <nav className="flex flex-col px-5 py-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link key={index} href={link.id} className="py-2 hover:text-gray-500">{link.label}</Link>
               ))}
-              <div className="border-t border-gray-300 my-2" />
-              <Link href="/onboarding" className="font-bold hover:text-gray-500">
+              <div className="border-t border-gray-300 my-4" />
+              <Link href="/onboarding" className="text-center font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
                 Launch App
               </Link>
             </nav>
