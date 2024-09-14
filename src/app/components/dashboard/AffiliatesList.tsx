@@ -64,6 +64,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Conversion Date</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Creation Date</th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Tweet</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -87,6 +88,25 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                     {/* <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.lastConversionDate ? referral.lastConversionDate.toLocaleDateString() : "N/A"}</td> */}
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.aggregatedLastConversionDate ? referral.aggregatedLastConversionDate.toLocaleDateString() : "N/A"}</td>
                     <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.createdAt.toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
+                      {referral.tweetUrl ? (
+                        <a 
+                          href={referral.tweetUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                        >
+                          <Image 
+                            src="/x.png" 
+                            alt="Open Tweet" 
+                            width={16} 
+                            height={16} 
+                            className="inline-block mr-2"
+                          />
+                        </a>
+                      ) : (
+                        <span className="text-gray-500">Not Submitted</span>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (

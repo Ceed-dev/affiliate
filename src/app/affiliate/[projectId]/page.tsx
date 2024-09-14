@@ -14,9 +14,15 @@ import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { ToggleButton } from "../../components/ToggleButton";
 import { TieredDetailsModal } from "../../components/TieredDetailsModal";
-import { fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, fetchClickData } from "../../utils/firebase";
+import { 
+  fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, 
+  fetchConversionLogsForReferrals, fetchClickData, saveTweetUrl 
+} from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
-import { displayFormattedDateWithTimeZone, getNextPaymentDate, getTimeZoneSymbol, formatChainName } from "../../utils/formatters";
+import { 
+  displayFormattedDateWithTimeZone, getNextPaymentDate, 
+  getTimeZoneSymbol, formatChainName 
+} from "../../utils/formatters";
 import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
 import { useCountdown } from "../../hooks/useCountdown";
 import { chainRpcUrls } from "../../constants/chains";
@@ -171,6 +177,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         .then(data => {
           setReferralData(data);
           setLoadingReferral(false);
+
+          // If a tweetUrl is present in the referral data, set it
+          if (data.tweetUrl) {
+            setTweetUrl(data.tweetUrl); // Set the existing tweet URL
+          }
         })
         .catch(error => {
           const message = (error instanceof Error) ? error.message : "Unknown error";
@@ -317,6 +328,42 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   
   // ===== END TIER MODAL MANAGEMENT =====
 
+  // ===== BEGIN TWEET URL MANAGEMENT =====
+
+  const [tweetUrl, setTweetUrl] = useState("");
+  const [isTweetUrlValid, setIsTweetUrlValid] = useState(true);
+
+  const handleSaveTweetUrl = async () => {
+    const trimmedTweetUrl = tweetUrl.trim(); // Trim any leading or trailing whitespace
+  
+    // Check if the tweetUrl is empty or only contains whitespace
+    if (trimmedTweetUrl === "") {
+      setIsTweetUrlValid(false);
+      toast.error("Tweet URL cannot be empty or only whitespace.");
+      return;
+    }
+  
+    const tweetUrlRegex = /^https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+$/;
+    
+    // Validate the URL structure
+    if (!tweetUrlRegex.test(trimmedTweetUrl)) {
+      setIsTweetUrlValid(false);
+      toast.error("Invalid tweet URL. Please check the URL and try again.");
+      return;
+    }
+  
+    setIsTweetUrlValid(true);
+  
+    try {
+      // Save the tweet URL using the helper function
+      await saveTweetUrl(referralId!, trimmedTweetUrl);
+    } catch (error) {
+      console.error("Error saving tweet URL: ", error);
+    }
+  };
+
+  // ===== END TWEET URL MANAGEMENT =====
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
 
@@ -403,12 +450,45 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 </button>
               </div>
               {projectData?.projectType === "EscrowPayment" && address && referralId && (
-                <button
-                  className="bg-green-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-                  onClick={() => setIsEmbedModalOpen(true)}
-                >
-                  Show Embed Code
-                </button>
+                <div className="flex flex-col gap-3">
+                  <button
+                    className="bg-green-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+                    onClick={() => setIsEmbedModalOpen(true)}
+                  >
+                    Show Embed Code
+                  </button>
+
+                  {/* A field to enter the tweet URL */}
+                  <div className={`border-2 p-4 rounded-md ${!tweetUrl ? "border-red-500 bg-red-100 animate-pulse" : "border-gray-300 bg-gray-100"}`}>
+                    <p className="text-gray-700 text-sm mb-2">
+                      Please enter the URL of the tweet you posted that contains your referral link. This will allow us to track engagement data.
+                    </p>
+                    
+                    <input
+                      type="text"
+                      value={tweetUrl}
+                      onChange={(e) => setTweetUrl(e.target.value)}
+                      placeholder="Enter tweet URL"
+                      className={`w-full p-2 rounded-md border ${!tweetUrl ? "border-red-500" : "border-gray-300"} mb-4`}
+                    />
+
+                    <button
+                      className={`bg-sky-500 text-white py-2 px-4 rounded w-full ${
+                        tweetUrl === "" ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700"
+                      } transition-colors duration-200`}
+                      onClick={handleSaveTweetUrl}
+                      disabled={tweetUrl === ""}
+                    >
+                      Save Tweet URL
+                    </button>
+
+                    {tweetUrl && !isTweetUrlValid && (
+                      <p className="text-red-500 text-sm mt-4 animate-bounce">
+                        Please enter a valid tweet URL to track engagement data. Example: https://x.com/&lt;user-id&gt;/status/&lt;post-id&gt;
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           ) : (
@@ -492,7 +572,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       )}
 
-      {projectData?.projectType === "EscrowPayment" && address && referralId && 
+      {projectData?.projectType === "EscrowPayment" && address && referralId && referralData &&
         <>
           <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
             {/* <StatisticCard
@@ -556,6 +636,71 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} />
               </div>
           }
+
+          <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10 mt-10">
+            <h3 className="text-lg font-semibold text-gray-800 pb-4 flex items-center">
+              Tweet Engagement Data
+              {referralData.tweetUrl && (
+                <a
+                  href={referralData.tweetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2"
+                >
+                  <Image
+                    src="/new-tab.png"
+                    alt="Open in new tab"
+                    width={16}
+                    height={16}
+                    className="inline-block"
+                  />
+                </a>
+              )}
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Retweets</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Replies</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Likes</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Quotes</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Bookmarks</th>
+                    <th className="px-4 py-2 text-sm font-medium text-gray-600">Impressions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {referralData.tweetEngagement ? (
+                    <tr>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.retweetCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.replyCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.likeCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.quoteCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.bookmarkCount}</td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center">{referralData.tweetEngagement.impressionCount}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-4 text-center text-gray-500">
+                        {!referralData.tweetUrl ? (
+                          <>No engagement data available yet. Please enter the tweet URL above.</>
+                        ) : (
+                          <>No engagement data available yet. Please wait for the data to be automatically fetched.</>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  {referralData.tweetEngagement && (
+                    <tr>
+                      <td colSpan={6} className="mt-2 text-sm text-right text-gray-500">
+                        Data Fetched At: {referralData.tweetEngagement.fetchedAt.toLocaleDateString()} {referralData.tweetEngagement.fetchedAt.toLocaleTimeString()}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </>
       }
 
