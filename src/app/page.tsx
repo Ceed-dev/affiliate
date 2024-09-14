@@ -4,7 +4,10 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { navLinks, features, stats, logos, faqs, socialMediaLinks, footerLinks } from "./constants/homepageData";
+import { 
+  navLinks, trustedPartners, features, stats, logos, 
+  faqs, socialMediaLinks, footerLinks 
+} from "./constants/homepageData";
 
 export default function Home() {
   const [faqActiveIndex, setFaqActiveIndex] = useState<number | null>(null);
@@ -30,7 +33,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header className="fixed w-full bg-black text-white py-2">
+      <header className="fixed w-full bg-black text-white pt-5 pb-2">
         <div className="w-full lg:w-2/3 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image src="/qube.png" alt="qube.png" width={50} height={50} />
@@ -69,16 +72,36 @@ export default function Home() {
         )}
       </header>
 
-      <main className="flex flex-col bg-white">
+      <main className="flex flex-col bg-black text-white">
 
         {/* Overview */}
-        <section className="bg-purple-600 text-white pt-16 md:pt-0 px-10 md:px-20">
-          <div className="h-[600px] md:h-screen flex flex-col gap-10 justify-center items-start w-full xl:w-1/2">
-            <h1 className="text-3xl md:text-5xl font-bold">Drive Acquisition, Amplify Revenue</h1>
-            <h2 className="text-xl md:text-3xl font-semibold">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
+        <section id="#" className="pt-20 px-10 md:pt-52 h-[600px] md:h-screen flex flex-col items-center justify-between">
+          <div className="text-center">
+            <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10">Drive Acquisition, Amplify Revenue</h1>
+            <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
-              Our network connects you with gaming influencers and guilds across Asia, enabling large-scale audience reach and conversion.
+              Our network connects you with gaming influencers and guilds across Asia,
+              <br />
+              enabling large-scale audience reach and conversion.
             </p>
+          </div>
+          <Link href="/onboarding" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 my-5 md:mb-40 rounded-md text-black">
+            Launch App
+          </Link>
+          <div className="pb-20 border-b border-gray-700 w-full lg:w-2/3">
+            <p className="text-xl md:text-3xl font-semibold text-center mb-4">Trusted By</p>
+            <div className="flex flex-wrap justify-center gap-6">
+              {trustedPartners.map((partner, index) => (
+                <div key={index} className="flex items-center space-x-2 md:space-x-4">
+                  <img
+                    src={partner.logoUrl}
+                    alt={partner.name}
+                    className="w-8 md:w-12 h-8 md:h-12 rounded-full"
+                  />
+                  <span className="font-semibold">{partner.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
