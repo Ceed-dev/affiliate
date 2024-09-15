@@ -209,24 +209,26 @@ export default function Home() {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="bg-purple-600 text-white py-20 px-10 md:px-20 mb-10">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">FAQ</h1>
-          {faqs.map((faq, index) => (
-            <div key={index} className="mb-5">
-              <div
-                className="cursor-pointer text-md lg:text-lg xl:text-xl flex flex-row justify-between font-semibold"
-                onClick={() => toggleFAQ(index)}
-              >
-                {faq.question}
-                <div className="w-5 h-5">
-                  <Image src={faqActiveIndex === index ? "/up-arrow.png" : "/down-arrow.png"} alt="arrow" width={20} height={20} />
+        <section id="faq" className="py-20 px-10 md:px-20 mb-10">
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Frequently Asked Questions</h1>
+          <div className="bg-[#242424] py-10 px-10 md:px-20">
+            {faqs.map((faq, index) => (
+              <div key={index} className="mb-5">
+                <div
+                  className="cursor-pointer text-md lg:text-lg xl:text-xl flex flex-row justify-between font-semibold"
+                  onClick={() => toggleFAQ(index)}
+                >
+                  {faq.question}
+                  <div className="w-5 h-5">
+                    <Image src={faqActiveIndex === index ? "/up-arrow.png" : "/down-arrow.png"} alt="arrow" width={20} height={20} />
+                  </div>
                 </div>
+                {faqActiveIndex === index && (
+                  <p className="text-md mr-8 mb-3">{faq.answer}</p>
+                )}
               </div>
-              {faqActiveIndex === index && (
-                <p className="text-md mr-8 mb-3">{faq.answer}</p>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
       </main>
