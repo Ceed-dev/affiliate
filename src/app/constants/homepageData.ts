@@ -26,11 +26,11 @@ export const navLinks = [
 ];
 
 export const trustedPartners = [
-  { logoUrl: "/gumi.png", name: "doublejump.tokyo" },
+  { logoUrl: "/double-jump-tokyo.png", name: "doublejump.tokyo" },
   { logoUrl: "/gumi.png", name: "gumi" },
-  { logoUrl: "/gumi.png", name: "Game Swift" },
-  { logoUrl: "/gumi.png", name: "Oasys" },
-  { logoUrl: "/gumi.png", name: "Arbitrum" },
+  { logoUrl: "/game-swift.png", name: "Game Swift" },
+  { logoUrl: "/chains/oasys.png", name: "Oasys" },
+  { logoUrl: "/chains/arbitrum.png", name: "Arbitrum" },
 ];
 
 export const featureBlocks = [
