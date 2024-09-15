@@ -233,23 +233,24 @@ export default function Home() {
 
       </main>
 
-      <footer className="bg-purple-600 grid grid-cols-1 lg:grid-cols-4 gap-5 py-20 px-10 md:px-20">
-        <div className="lg:col-span-2 flex flex-col items-center gap-3">
+      <footer className="bg-black text-white grid grid-cols-1 lg:grid-cols-4 gap-5 py-20 px-10 md:px-20">
+        <div className="lg:col-span-2 flex flex-col items-start gap-3">
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image src="/qube.png" alt="qube.png" width={100} height={100} />
+            <Image src="/qube.png" alt="qube.png" width={50} height={50} />
             <p className="text-2xl font-bold">Qube</p>
           </Link>
+          <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
           <div className="flex flex-row gap-5">
             {socialMediaLinks.map((link, index) => (
-              <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 p-3 rounded-full inline-flex justify-center items-center h-14 w-14 hover:shadow-xl">
-                <Image src={link.src} alt={link.alt} width={30} height={30} />
+              <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-1 hover:shadow-xl">
+                <Image src={link.src} alt={link.alt} width={20} height={20} />
               </Link>
             ))}
           </div>
         </div>
         {Object.entries(footerLinks).map(([category, links]) => (
           <div key={category} className="flex flex-col items-center lg:items-start gap-5 text-slate-300">
-            <h3 className="font-bold text-white text-xl">{category}</h3>
+            <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
             {links.map(link => (
               <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-100 hover:font-semibold">
                 {link.label}
@@ -257,6 +258,8 @@ export default function Home() {
             ))}
           </div>
         ))}
+        <div className="border-b border-gray-700 col-span-4 my-5" />
+        <p className="col-span-4 text-center text-gray-500">© Copyright 2022, All Rights Reserved by Qube.</p>
       </footer>
     </div>
   );

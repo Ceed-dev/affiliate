@@ -145,8 +145,16 @@ export const footerLinks = {
       url: "mailto:official@ceed.cloud",
       label: "Contract",
     },
+    {
+      url: "#",
+      label: "Career (Coming Soon)"
+    }
   ],
-  "Legal": [
+  "Help": [
+    {
+      url: "/onboarding",
+      label: "Book Demo",
+    },
     {
       url: "https://veroo.notion.site/Terms-and-Conditions-e56f60533a834abbbd1213c6bf0cd36f",
       label: "Terms and Conditions",
