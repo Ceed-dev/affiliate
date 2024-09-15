@@ -169,28 +169,21 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Number of Affiliates */}
-        <section id="partners" className="py-20 px-10 md:px-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Number of Affiliates</h1>
-          <div className="flex flex-col gap-10 items-center">
-            <h2 className="text-lg md:text-2xl font-semibold">A powerful network to support your project</h2>
-            <p className="text-md md:text-xl">We&apos;re building an amazing network of affiliates to promote your game.</p>
-            <div className="flex flex-col lg:flex-row shadow-lg rounded-lg bg-slate-50">
-              {stats.map((stat, index) => (
-                <>
-                  {index !== 0 && (
-                    <div className="border-l border-2 border-gray-200 min-h-full" />
-                  )}
-                  <div className="flex flex-col gap-3 py-5 md:py-10 px-10 md:px-20 items-center">
-                    <h3 className="text-4xl font-bold">
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-sky-500">
-                        {stat.value}
-                      </span>
-                    </h3>
-                    <p className="text-md font-semibold text-slate-500">{stat.label}</p>
-                  </div>
-                </>
-              ))}
+        {/* Achievements */}
+        <section id="achievements" className="py-20 px-10 md:px-20 text-center">
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Achievements</h1>
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
+            <div className="bg-white lg:bg-transparent rounded-lg py-5">
+              <p className="mb-5">3,000+</p>
+              <p>Registered Affiliates</p>
+            </div>
+            <div className="bg-white lg:bg-transparent rounded-lg py-5">
+              <p className="mb-5">2,000,000+</p>
+              <p>Gamers Reach</p>
+            </div>
+            <div className="bg-white lg:bg-transparent rounded-lg py-5">
+              <p className="mb-5">11,000+</p>
+              <p>Onboarding Users</p>
             </div>
           </div>
         </section>
