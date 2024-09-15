@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { 
-  navLinks, trustedPartners, features, stats, logos, 
+  navLinks, trustedPartners, featureBlocks, features, stats, logos, 
   faqs, socialMediaLinks, footerLinks 
 } from "./constants/homepageData";
 
@@ -152,12 +152,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Users' Voices */}
-        <section id="voices" className="bg-purple-600 text-white py-20 px-10 md:px-20">
-          <p className="text-md text-center mb-20">We&apos;re in a good company</p>
-          <div className="flex flex-row flex-wrap gap-10 justify-center">
-            {logos.map((logo, index) => (
-              <Image key={index} src={logo} alt={logo} width={120} height={120} />
+        {/* Why Choose Us? */}
+        <section id="why" className="py-20 px-10 md:px-20">
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Why Choose Us?</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {featureBlocks.map((block, index) => (
+              <div
+                key={index}
+                className="flex flex-col items-center p-6"
+              >
+                <Image src={block.icon} alt={block.title} width={50} height={50} />
+                <h3 className="text-xl font-semibold mt-4">{block.title}</h3>
+                <p className="text-center mt-2">{block.description}</p>
+              </div>
             ))}
           </div>
         </section>

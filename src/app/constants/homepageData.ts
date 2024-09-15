@@ -33,6 +33,39 @@ export const trustedPartners = [
   { logoUrl: "/gumi.png", name: "Arbitrum" },
 ];
 
+export const featureBlocks = [
+  {
+    icon: "/gumi.png",
+    title: "Customizable",
+    description: "Conversion point, target segmentation, platform, region all the things you need to consider while acquiring users are adjustable."
+  },
+  {
+    icon: "/gumi.png",
+    title: "Data Tracking",
+    description: "On-chain, off-chain, social analytics....etc. We track all the data in real time related to the campaign and evaluate the performance."
+  },
+  {
+    icon: "/gumi.png",
+    title: "Advanced Analytics",
+    description: "Our customizable analytics helps you to track the result in realtime and analyze your campaign to improve each and every moment."
+  },
+  {
+    icon: "/gumi.png",
+    title: "The Biggest Ad Network",
+    description: "Our 400+ registered affiliates, 70+ guilds connection with 2M+ gamers reach will support you to bring the perfect fit users to your game."
+  },
+  {
+    icon: "/gumi.png",
+    title: "Increadible ROI rate",
+    description: "Thanks to our realtime data tracking and analytics, you will get the flexibility in the campaign to change to get the result you want."
+  },
+  {
+    icon: "/gumi.png",
+    title: "Full Support",
+    description: "It's more than a product. We support you finding the affiliates using our network and support you from planning to execution."
+  },
+];
+
 export const features = [
   {
     title: "① Super Flexible",
