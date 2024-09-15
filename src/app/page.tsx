@@ -26,6 +26,30 @@ export default function Home() {
     setMenuOpen(!menuOpen);
   };
 
+  const StatsAndLink: React.FC = () => (
+    <div className="flex flex-col gap-2 mt-10">
+      <div className="flex flex-row gap-4">
+        <div className="flex flex-row gap-2">
+          <Image src="/about-1.png" alt="About Image 1" width={50} height={50} />
+          <div>
+            <p className="font-bold">200,000+</p>
+            <p>Max User Achieved</p>
+          </div>
+        </div>
+        <div className="flex flex-row gap-2">
+          <Image src="/about-2.png" alt="About Image 2" width={50} height={50} />
+          <div>
+            <p className="font-bold">7+</p>
+            <p>Regions</p>          
+          </div>
+        </div>
+      </div>
+      <Link href="/onboarding" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
+        Book Demo
+      </Link>
+    </div>
+  );
+
   return (
     <div className="flex flex-col">
       <Head>
@@ -74,7 +98,7 @@ export default function Home() {
 
       <main className="flex flex-col bg-black text-white">
 
-        {/* Overview */}
+        {/* Home */}
         <section id="#" className="pt-20 px-10 md:pt-52 h-[600px] md:h-screen flex flex-col items-center justify-between">
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10">Drive Acquisition, Amplify Revenue</h1>
@@ -105,16 +129,26 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 3 features */}
-        <section id="features" className="py-20 px-10 md:px-20">
-          <h1 className="text-xl md:text-3xl font-bold mb-10">Streamline Your Web3 Affiliate & Refferal Marketing Strategy</h1>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {features.map((feature, index) => (
-              <div key={index} className="flex flex-col gap-5 items-center">
-                <h2 className="text-lg md:text-2xl font-semibold">{feature.title}</h2>
-                <p className="text-md md:text-lg">{feature.description}</p>
-              </div> 
-            ))}
+        {/* About */}
+        <section id="about" className="mt-10 py-20 px-10 md:px-20 flex flex-col lg:flex-row">
+          <div className="mr-10 md:mr-20 xl:mr-52 pb-5 lg:pb-0">
+            <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">More than just a tool type of product</h1>
+            <p className="text-md md:text-xl">Our expertises will help you launch an unique campaign made only for your game and achieve regional, segmented user acquisition and drive your growth.</p>
+            <div className="hidden lg:flex">
+              <StatsAndLink />
+            </div>
+          </div>
+          <div className="flex justify-center items-start w-[300px] sm:w-[500px] md:w-[600px] lg:w-[1000px] mx-auto">
+            <Image
+              src="/ua-number-screen.png"
+              alt="UA Number Screen"
+              width={500} 
+              height={500} 
+              className="w-full h-auto object-cover"
+            />
+          </div>
+          <div className="lg:hidden">
+            <StatsAndLink />
           </div>
         </section>
 
