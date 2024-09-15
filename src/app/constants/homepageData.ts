@@ -97,11 +97,14 @@ export const stats = [
 ];
 
 export const logos = [
-  "/buddy-arena.png",
-  "/world-of-bezogia.png",
+  "/logo-1.png",
+  "/logo-2.png",
+  "/logo-3.png",
   "/farcana.png",
   "/starheroes.png",
-  "/gumi.png",
+  "/logo-4.png",
+  "/buddy-arena.png",
+  "/logo-5.png",
 ];
 
 export const faqs = [
