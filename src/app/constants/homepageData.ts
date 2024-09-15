@@ -1,19 +1,68 @@
 export const navLinks = [
   {
-    id: "#features",
-    label: "Features",
+    id: "#",
+    label: "Home",
   },
   {
-    id: "#voices",
-    label: "Voices",
+    id: "#about",
+    label: "About",
   },
   {
-    id: "#partners",
-    label: "Partners",
+    id: "#why",
+    label: "Why Us",
+  },
+  {
+    id: "#achievements",
+    label: "Achievements",
+  },
+  {
+    id: "#clients",
+    label: "Our Clients",
   },
   {
     id: "#faq",
     label: "FAQ",
+  },
+];
+
+export const trustedPartners = [
+  { logoUrl: "/double-jump-tokyo.png", name: "doublejump.tokyo" },
+  { logoUrl: "/gumi.png", name: "gumi" },
+  { logoUrl: "/game-swift.png", name: "Game Swift" },
+  { logoUrl: "/chains/oasys.png", name: "Oasys" },
+  { logoUrl: "/chains/arbitrum.png", name: "Arbitrum" },
+];
+
+export const featureBlocks = [
+  {
+    icon: "/feature-1.png",
+    title: "Customizable",
+    description: "Conversion point, target segmentation, platform, region all the things you need to consider while acquiring users are adjustable."
+  },
+  {
+    icon: "/feature-2.png",
+    title: "Data Tracking",
+    description: "On-chain, off-chain, social analytics....etc. We track all the data in real time related to the campaign and evaluate the performance."
+  },
+  {
+    icon: "/feature-3.png",
+    title: "Advanced Analytics",
+    description: "Our customizable analytics helps you to track the result in realtime and analyze your campaign to improve each and every moment."
+  },
+  {
+    icon: "/feature-4.png",
+    title: "The Biggest Ad Network",
+    description: "Our 400+ registered affiliates, 70+ guilds connection with 2M+ gamers reach will support you to bring the perfect fit users to your game."
+  },
+  {
+    icon: "/feature-5.png",
+    title: "Increadible ROI rate",
+    description: "Thanks to our realtime data tracking and analytics, you will get the flexibility in the campaign to change to get the result you want."
+  },
+  {
+    icon: "/feature-6.png",
+    title: "Full Support",
+    description: "It's more than a product. We support you finding the affiliates using our network and support you from planning to execution."
   },
 ];
 
@@ -48,11 +97,14 @@ export const stats = [
 ];
 
 export const logos = [
-  "/buddy-arena.png",
-  "/world-of-bezogia.png",
+  "/logo-1.png",
+  "/logo-2.png",
+  "/logo-3.png",
   "/farcana.png",
   "/starheroes.png",
-  "/gumi.png",
+  "/logo-4.png",
+  "/buddy-arena.png",
+  "/logo-5.png",
 ];
 
 export const faqs = [
@@ -96,8 +148,16 @@ export const footerLinks = {
       url: "mailto:official@ceed.cloud",
       label: "Contract",
     },
+    {
+      url: "#",
+      label: "Career (Coming Soon)"
+    }
   ],
-  "Legal": [
+  "Help": [
+    {
+      url: "/onboarding",
+      label: "Book Demo",
+    },
     {
       url: "https://veroo.notion.site/Terms-and-Conditions-e56f60533a834abbbd1213c6bf0cd36f",
       label: "Terms and Conditions",
