@@ -188,6 +188,26 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Our Clients */}
+        <section id="clients" className="py-20">
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Our Clients</h1>
+          <div className="overflow-x-auto">
+            <div className="flex items-center justify-center">
+              {logos.map((logo, index) => (
+                <div key={index} className="p-4 flex-shrink-0">
+                  <Image
+                    src={logo}
+                    alt={`Logo ${index + 1}`}
+                    width={200}
+                    height={200}
+                    className="object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section id="faq" className="bg-purple-600 text-white py-20 px-10 md:px-20 mb-10">
           <h1 className="text-xl md:text-3xl font-bold mb-10">FAQ</h1>
