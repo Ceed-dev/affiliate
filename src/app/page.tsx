@@ -27,39 +27,46 @@ export default function Home() {
   };
 
   // ============= BEGIN CLIENT LOGO MANAGEMENT =============
-  // Constants that define the scroll behavior.
-  // SCROLL_INTERVAL: The interval in milliseconds at which the scrolling occurs.
-  // SCROLL_SPEED: The amount of pixels the content will move at each interval.
-  const SCROLL_INTERVAL = 100;
+  const SCROLL_INTERVAL = 10;
   const SCROLL_SPEED = 1;
-
-  // Creating a reference for the scrolling container using React's useRef hook.
-  // This allows direct access to the DOM element where the logos or content is placed.
+  
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  const [activeDot, setActiveDot] = useState(0);
+  
   useEffect(() => {
-    // Store the current element being referenced for easy access.
     const scrollElement = scrollRef.current;
-    let scrollAmount = 0; // Variable to track how far the element has scrolled.
-
-    // Set up a recurring scroll operation that runs every SCROLL_INTERVAL milliseconds.
+    let scrollAmount = 0;
+  
+    // Set up interval to scroll the element
     const scrollInterval = setInterval(() => {
       if (scrollElement) {
-        // Increase the horizontal scroll position of the element by SCROLL_SPEED pixels.
+        // Increment the scroll position by the defined scroll speed
         scrollElement.scrollLeft += SCROLL_SPEED;
         scrollAmount += SCROLL_SPEED;
-
-        // If the scroll reaches the midpoint (i.e., end of the visible area),
-        // reset the scroll position to the beginning to create an infinite loop effect.
+  
+        // Get the middle position of the scroll (to identify which logo is in the center)
+        const middlePosition = scrollElement.scrollLeft + scrollElement.clientWidth / 2;
+  
+        // Calculate the width of each logo (including the duplicated logos for continuous scrolling)
+        const logoWidth = scrollElement.scrollWidth / (clientLogos.length * 2);
+  
+        // Determine which logo is currently in the middle of the screen
+        const currentIndex = Math.floor(middlePosition / logoWidth) % clientLogos.length;
+  
+        // Set the active dot (index) to reflect the current logo in the middle
+        setActiveDot(currentIndex);
+  
+        // Reset the scroll to the beginning when it reaches the end
         if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
           scrollElement.scrollLeft = 0;
+          scrollAmount = 0;
         }
       }
     }, SCROLL_INTERVAL);
-
-    // Cleanup function to clear the interval when the component is unmounted or re-rendered.
+  
+    // Clean up the interval on component unmount or update
     return () => clearInterval(scrollInterval);
-  }, []); // The empty dependency array ensures that this effect runs only once on component mount.
+  }, []);  
   // ============= END CLIENT LOGO MANAGEMENT =============
 
   const LaunchAppButton: React.FC = () => (
@@ -253,6 +260,17 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+          {/* Dots Indicator */}
+          <div className="flex justify-center items-center mt-4">
+            {clientLogos.map((_, index) => (
+              <div
+                key={index}
+                className={`rounded-full mx-2 ${
+                  activeDot === index ? "bg-lime-300 h-5 w-5" : "bg-gray-400 h-3 w-3"
+                }`}
+              />
+            ))}
           </div>
         </section>
 
