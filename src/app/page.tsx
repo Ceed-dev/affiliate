@@ -26,6 +26,12 @@ export default function Home() {
     setMenuOpen(!menuOpen);
   };
 
+  const LaunchAppButton: React.FC = () => (
+    <Link href="/onboarding" className="font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
+      Launch App
+    </Link>
+  );
+
   const StatsAndLink: React.FC = () => (
     <div className="flex flex-col gap-2 mt-10">
       <div className="flex flex-row gap-4">
@@ -54,43 +60,48 @@ export default function Home() {
     <div className="flex flex-col">
       <Head>
         <title>Qube</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/qube.png" />
       </Head>
 
+      {/* Navbar */}
       <header className="fixed w-full bg-black text-white pt-5 pb-2">
-        <div className="w-full lg:w-2/3 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
+        <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
+          {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image src="/qube.png" alt="qube.png" width={50} height={50} />
             <p className="text-lg font-semibold">Qube</p>
           </Link>
-
+          {/* Menu Items */}
           <div className="hidden md:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
           </div>
-          
-          <Link href="/onboarding" className="hidden md:block font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
-            Launch App
-          </Link>
-
+          {/* Launch Button */}
+          <div className="hidden md:block">
+            <LaunchAppButton />
+          </div>
+          {/* Menu Toggle Icon */}
           <div className="md:hidden flex items-center">
-            <button onClick={toggleMenu} className="bg-white p-2 rounded-md focus:outline-none">
-              <Image src={menuOpen ? "/close.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={20} height={20} />
+            <button onClick={toggleMenu} className="focus:outline-none">
+              <Image src={menuOpen ? "/close-white.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
           </div>
         </div>
-
+        {/* Toggle Menu */}
         {menuOpen && (
           <div className="md:hidden pt-4">
-            <nav className="flex flex-col px-5 py-5 border-t border-gray-200">
+            <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
-                <Link key={index} href={link.id} className="py-2 hover:text-gray-500">{link.label}</Link>
+                <Link 
+                  key={index} 
+                  href={link.id} 
+                  className="py-2 hover:text-gray-500"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
               ))}
-              <div className="border-t border-gray-300 my-4" />
-              <Link href="/onboarding" className="text-center font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
-                Launch App
-              </Link>
             </nav>
           </div>
         )}
