@@ -33,6 +33,8 @@ export const trustedPartners = [
   { logoUrl: "/chains/arbitrum.png", name: "Arbitrum" },
 ];
 
+export const calendlyLink = "https://calendly.com/badhan998877/meeting";
+
 export const featureBlocks = [
   {
     icon: "/feature-1.png",

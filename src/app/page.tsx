@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { 
-  navLinks, trustedPartners, featureBlocks, features, stats, logos, 
+  navLinks, trustedPartners, calendlyLink, featureBlocks, features, stats, logos, 
   faqs, socialMediaLinks, footerLinks 
 } from "./constants/homepageData";
 
@@ -34,23 +34,25 @@ export default function Home() {
 
   const StatsAndLink: React.FC = () => (
     <div className="flex flex-col gap-2 mt-10">
-      <div className="flex flex-row gap-4">
+      {/* Two Stats Card */}
+      <div className="flex flex-row gap-4 text-sm md:text-md">
         <div className="flex flex-row gap-2">
-          <Image src="/about-1.png" alt="About Image 1" width={50} height={50} />
+          <Image src="/about-1.png" alt="About Image 1" width={40} height={40} />
           <div>
             <p className="font-bold">200,000+</p>
             <p>Max User Achieved</p>
           </div>
         </div>
         <div className="flex flex-row gap-2">
-          <Image src="/about-2.png" alt="About Image 2" width={50} height={50} />
+          <Image src="/about-2.png" alt="About Image 2" width={40} height={40} />
           <div>
             <p className="font-bold">7+</p>
             <p>Regions</p>          
           </div>
         </div>
       </div>
-      <Link href="/onboarding" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
+      {/* "Book Demo" Button */}
+      <Link href={calendlyLink} target="_blank" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
         Book Demo
       </Link>
     </div>
@@ -144,14 +146,17 @@ export default function Home() {
         </section>
 
         {/* About */}
-        <section id="about" className="mt-10 py-20 px-10 md:px-20 flex flex-col lg:flex-row">
+        <section id="about" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col lg:flex-row">
+          {/* Intro Text */}
           <div className="mr-10 md:mr-20 xl:mr-52 pb-5 lg:pb-0">
-            <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">More than just a tool type of product</h1>
+            <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">A product that is more than a tool</h1>
             <p className="text-md md:text-xl">Our expertises will help you launch an unique campaign made only for your game and achieve regional, segmented user acquisition and drive your growth.</p>
+            {/* Two Stats And Button */}
             <div className="hidden lg:flex">
               <StatsAndLink />
             </div>
           </div>
+          {/* UA Image */}
           <div className="flex justify-center items-start w-[300px] sm:w-[500px] md:w-[600px] lg:w-[1000px] mx-auto">
             <Image
               src="/ua-number-screen.png"
@@ -161,6 +166,7 @@ export default function Home() {
               className="w-full h-auto object-cover"
             />
           </div>
+          {/* Two Stats And Button */}
           <div className="lg:hidden">
             <StatsAndLink />
           </div>
