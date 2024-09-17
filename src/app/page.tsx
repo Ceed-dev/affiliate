@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { 
-  navLinks, trustedPartners, calendlyLink, featureBlocks, features, stats, logos, 
+  navLinks, trustedPartners, calendlyLink, featureBlocks, achievements, features, stats, logos, 
   faqs, socialMediaLinks, footerLinks 
 } from "./constants/homepageData";
 
@@ -191,21 +191,16 @@ export default function Home() {
         </section>
 
         {/* Achievements */}
-        <section id="achievements" className="py-20 px-10 md:px-20 text-center">
+        <section id="achievements" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Achievements</h1>
+          {/* Achievement Cards */}
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
-            <div className="bg-white lg:bg-transparent rounded-lg py-5">
-              <p className="mb-5">3,000+</p>
-              <p>Registered Affiliates</p>
-            </div>
-            <div className="bg-white lg:bg-transparent rounded-lg py-5">
-              <p className="mb-5">2,000,000+</p>
-              <p>Gamers Reach</p>
-            </div>
-            <div className="bg-white lg:bg-transparent rounded-lg py-5">
-              <p className="mb-5">11,000+</p>
-              <p>Onboarding Users</p>
-            </div>
+            {achievements.map((achievement, index) => (
+              <div key={index} className="bg-white rounded-lg py-5 lg:px-5 xl:px-10">
+                <p className="mb-5">{achievement.count}</p>
+                <p>{achievement.label}</p>
+              </div>
+            ))}
           </div>
         </section>
 

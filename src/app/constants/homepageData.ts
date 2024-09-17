@@ -68,6 +68,21 @@ export const featureBlocks = [
   },
 ];
 
+export const achievements = [
+  {
+    count: "3,000+",
+    label: "Registered Affiliates"
+  },
+  {
+    count: "2,000,000+",
+    label: "Gamers Reach"
+  },
+  {
+    count: "11,000+",
+    label: "Onboarding Users"
+  }
+];
+
 export const features = [
   {
     title: "① Super Flexible",
