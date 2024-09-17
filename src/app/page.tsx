@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { 
-  navLinks, trustedPartners, calendlyLink, featureBlocks, achievements, features, stats, logos, 
+  navLinks, trustedPartners, statsInAbout, calendlyLink, featureBlocks, achievements, features, stats, logos, 
   faqs, socialMediaLinks, footerLinks 
 } from "./constants/homepageData";
 
@@ -36,20 +36,15 @@ export default function Home() {
     <div className="flex flex-col gap-2 mt-10">
       {/* Two Stats Card */}
       <div className="flex flex-row gap-4 text-sm md:text-md">
-        <div className="flex flex-row gap-2">
-          <Image src="/about-1.png" alt="About Image 1" width={40} height={40} />
-          <div>
-            <p className="font-bold">200,000+</p>
-            <p>Max User Achieved</p>
+        {statsInAbout.map((stat, index) => (
+          <div key={index} className="flex flex-row gap-2">
+            <Image src={stat.icon} alt={stat.label} width={40} height={40} />
+            <div>
+              <p className="font-bold">{stat.count}</p>
+              <p>{stat.label}</p>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-row gap-2">
-          <Image src="/about-2.png" alt="About Image 2" width={40} height={40} />
-          <div>
-            <p className="font-bold">7+</p>
-            <p>Regions</p>          
-          </div>
-        </div>
+        ))}
       </div>
       {/* "Book Demo" Button */}
       <Link href={calendlyLink} target="_blank" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
