@@ -126,7 +126,7 @@ export const stats = [
   },
 ];
 
-export const logos = [
+export const clientLogos = [
   "/logo-1.png",
   "/logo-2.png",
   "/logo-3.png",
