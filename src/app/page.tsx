@@ -110,7 +110,8 @@ export default function Home() {
       <main className="flex flex-col bg-black text-white">
 
         {/* Home */}
-        <section id="#" className="pt-20 px-10 md:pt-52 h-[600px] md:h-screen flex flex-col items-center justify-between">
+        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
+          {/* Intro Text */}
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10">Drive Acquisition, Amplify Revenue</h1>
             <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
@@ -120,10 +121,12 @@ export default function Home() {
               enabling large-scale audience reach and conversion.
             </p>
           </div>
-          <Link href="/onboarding" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 my-5 md:mb-40 rounded-md text-black">
-            Launch App
-          </Link>
-          <div className="pb-20 border-b border-gray-700 w-full lg:w-2/3">
+          {/* Launch Button */}
+          <div className="md:mb-40">
+            <LaunchAppButton />
+          </div>
+          {/* Trusted Partners */}
+          <div className="pb-10 md:pb-20 border-b border-gray-700 w-full lg:w-11/12">
             <p className="text-xl md:text-3xl font-semibold text-center mb-4">Trusted By</p>
             <div className="flex flex-wrap justify-center gap-6">
               {trustedPartners.map((partner, index) => (
