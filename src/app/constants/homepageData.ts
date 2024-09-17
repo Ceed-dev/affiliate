@@ -33,6 +33,19 @@ export const trustedPartners = [
   { logoUrl: "/chains/arbitrum.png", name: "Arbitrum" },
 ];
 
+export const statsInAbout = [
+  {
+    icon: "/about-1.png",
+    count: "200,000+",
+    label: "Max User Achieved"
+  },
+  {
+    icon: "/about-2.png",
+    count: "7+",
+    label: "Regions"
+  }
+];
+
 export const calendlyLink = "https://calendly.com/badhan998877/meeting";
 
 export const featureBlocks = [
