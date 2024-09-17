@@ -16,3 +16,13 @@
     opacity: 1;
   }
 }
+
+/* Hide scrollbars */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: none;
+}

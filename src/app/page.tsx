@@ -3,9 +3,9 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
-  navLinks, trustedPartners, statsInAbout, calendlyLink, featureBlocks, achievements, features, stats, logos, 
+  navLinks, trustedPartners, statsInAbout, calendlyLink, featureBlocks, achievements, features, stats, clientLogos, 
   faqs, socialMediaLinks, footerLinks 
 } from "./constants/homepageData";
 
@@ -25,6 +25,42 @@ export default function Home() {
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
+
+  // ============= BEGIN CLIENT LOGO MANAGEMENT =============
+  // Constants that define the scroll behavior.
+  // SCROLL_INTERVAL: The interval in milliseconds at which the scrolling occurs.
+  // SCROLL_SPEED: The amount of pixels the content will move at each interval.
+  const SCROLL_INTERVAL = 100;
+  const SCROLL_SPEED = 1;
+
+  // Creating a reference for the scrolling container using React's useRef hook.
+  // This allows direct access to the DOM element where the logos or content is placed.
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Store the current element being referenced for easy access.
+    const scrollElement = scrollRef.current;
+    let scrollAmount = 0; // Variable to track how far the element has scrolled.
+
+    // Set up a recurring scroll operation that runs every SCROLL_INTERVAL milliseconds.
+    const scrollInterval = setInterval(() => {
+      if (scrollElement) {
+        // Increase the horizontal scroll position of the element by SCROLL_SPEED pixels.
+        scrollElement.scrollLeft += SCROLL_SPEED;
+        scrollAmount += SCROLL_SPEED;
+
+        // If the scroll reaches the midpoint (i.e., end of the visible area),
+        // reset the scroll position to the beginning to create an infinite loop effect.
+        if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
+          scrollElement.scrollLeft = 0;
+        }
+      }
+    }, SCROLL_INTERVAL);
+
+    // Cleanup function to clear the interval when the component is unmounted or re-rendered.
+    return () => clearInterval(scrollInterval);
+  }, []); // The empty dependency array ensures that this effect runs only once on component mount.
+  // ============= END CLIENT LOGO MANAGEMENT =============
 
   const LaunchAppButton: React.FC = () => (
     <Link href="/onboarding" className="font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
@@ -200,11 +236,12 @@ export default function Home() {
         </section>
 
         {/* Our Clients */}
-        <section id="clients" className="py-20">
+        <section id="clients" className="pt-28 pb-20">
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Our Clients</h1>
-          <div className="overflow-x-auto">
-            <div className="flex items-center justify-center">
-              {logos.map((logo, index) => (
+          {/* Client Logo Auto Scroll */}
+          <div className="overflow-x-auto" ref={scrollRef}>
+            <div className="flex items-center justify-start space-x-6 px-6">
+              {clientLogos.concat(clientLogos).map((logo, index) => (
                 <div key={index} className="p-4 flex-shrink-0">
                   <Image
                     src={logo}
