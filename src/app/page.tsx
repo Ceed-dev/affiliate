@@ -3,9 +3,9 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
-  navLinks, trustedPartners, featureBlocks, features, stats, logos, 
+  navLinks, trustedPartners, statsInAbout, calendlyLink, featureBlocks, achievements, features, stats, clientLogos, 
   faqs, socialMediaLinks, footerLinks 
 } from "./constants/homepageData";
 
@@ -26,25 +26,71 @@ export default function Home() {
     setMenuOpen(!menuOpen);
   };
 
+  // ============= BEGIN CLIENT LOGO MANAGEMENT =============
+  const SCROLL_INTERVAL = 10;
+  const SCROLL_SPEED = 1;
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeDot, setActiveDot] = useState(0);
+  
+  useEffect(() => {
+    const scrollElement = scrollRef.current;
+    let scrollAmount = 0;
+  
+    // Set up interval to scroll the element
+    const scrollInterval = setInterval(() => {
+      if (scrollElement) {
+        // Increment the scroll position by the defined scroll speed
+        scrollElement.scrollLeft += SCROLL_SPEED;
+        scrollAmount += SCROLL_SPEED;
+  
+        // Get the middle position of the scroll (to identify which logo is in the center)
+        const middlePosition = scrollElement.scrollLeft + scrollElement.clientWidth / 2;
+  
+        // Calculate the width of each logo (including the duplicated logos for continuous scrolling)
+        const logoWidth = scrollElement.scrollWidth / (clientLogos.length * 2);
+  
+        // Determine which logo is currently in the middle of the screen
+        const currentIndex = Math.floor(middlePosition / logoWidth) % clientLogos.length;
+  
+        // Set the active dot (index) to reflect the current logo in the middle
+        setActiveDot(currentIndex);
+  
+        // Reset the scroll to the beginning when it reaches the end
+        if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
+          scrollElement.scrollLeft = 0;
+          scrollAmount = 0;
+        }
+      }
+    }, SCROLL_INTERVAL);
+  
+    // Clean up the interval on component unmount or update
+    return () => clearInterval(scrollInterval);
+  }, []);  
+  // ============= END CLIENT LOGO MANAGEMENT =============
+
+  const LaunchAppButton: React.FC = () => (
+    <Link href="/onboarding" className="font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
+      Launch App
+    </Link>
+  );
+
   const StatsAndLink: React.FC = () => (
     <div className="flex flex-col gap-2 mt-10">
-      <div className="flex flex-row gap-4">
-        <div className="flex flex-row gap-2">
-          <Image src="/about-1.png" alt="About Image 1" width={50} height={50} />
-          <div>
-            <p className="font-bold">200,000+</p>
-            <p>Max User Achieved</p>
+      {/* Two Stats Card */}
+      <div className="flex flex-row gap-4 text-sm md:text-md">
+        {statsInAbout.map((stat, index) => (
+          <div key={index} className="flex flex-row gap-2">
+            <Image src={stat.icon} alt={stat.label} width={40} height={40} />
+            <div>
+              <p className="font-bold">{stat.count}</p>
+              <p>{stat.label}</p>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-row gap-2">
-          <Image src="/about-2.png" alt="About Image 2" width={50} height={50} />
-          <div>
-            <p className="font-bold">7+</p>
-            <p>Regions</p>          
-          </div>
-        </div>
+        ))}
       </div>
-      <Link href="/onboarding" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
+      {/* "Book Demo" Button */}
+      <Link href={calendlyLink} target="_blank" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
         Book Demo
       </Link>
     </div>
@@ -54,43 +100,48 @@ export default function Home() {
     <div className="flex flex-col">
       <Head>
         <title>Qube</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/qube.png" />
       </Head>
 
+      {/* Navbar */}
       <header className="fixed w-full bg-black text-white pt-5 pb-2">
-        <div className="w-full lg:w-2/3 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
+        <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
+          {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image src="/qube.png" alt="qube.png" width={50} height={50} />
             <p className="text-lg font-semibold">Qube</p>
           </Link>
-
+          {/* Menu Items */}
           <div className="hidden md:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
           </div>
-          
-          <Link href="/onboarding" className="hidden md:block font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
-            Launch App
-          </Link>
-
+          {/* Launch Button */}
+          <div className="hidden md:block">
+            <LaunchAppButton />
+          </div>
+          {/* Menu Toggle Icon */}
           <div className="md:hidden flex items-center">
-            <button onClick={toggleMenu} className="bg-white p-2 rounded-md focus:outline-none">
-              <Image src={menuOpen ? "/close.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={20} height={20} />
+            <button onClick={toggleMenu} className="focus:outline-none">
+              <Image src={menuOpen ? "/close-white.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
           </div>
         </div>
-
+        {/* Toggle Menu */}
         {menuOpen && (
           <div className="md:hidden pt-4">
-            <nav className="flex flex-col px-5 py-5 border-t border-gray-200">
+            <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
-                <Link key={index} href={link.id} className="py-2 hover:text-gray-500">{link.label}</Link>
+                <Link 
+                  key={index} 
+                  href={link.id} 
+                  className="py-2 hover:text-gray-500"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
               ))}
-              <div className="border-t border-gray-300 my-4" />
-              <Link href="/onboarding" className="text-center font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
-                Launch App
-              </Link>
             </nav>
           </div>
         )}
@@ -99,7 +150,8 @@ export default function Home() {
       <main className="flex flex-col bg-black text-white">
 
         {/* Home */}
-        <section id="#" className="pt-20 px-10 md:pt-52 h-[600px] md:h-screen flex flex-col items-center justify-between">
+        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
+          {/* Intro Text */}
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10">Drive Acquisition, Amplify Revenue</h1>
             <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
@@ -109,10 +161,12 @@ export default function Home() {
               enabling large-scale audience reach and conversion.
             </p>
           </div>
-          <Link href="/onboarding" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 my-5 md:mb-40 rounded-md text-black">
-            Launch App
-          </Link>
-          <div className="pb-20 border-b border-gray-700 w-full lg:w-2/3">
+          {/* Launch Button */}
+          <div className="md:mb-40">
+            <LaunchAppButton />
+          </div>
+          {/* Trusted Partners */}
+          <div className="pb-10 md:pb-20 border-b border-gray-700 w-full lg:w-11/12">
             <p className="text-xl md:text-3xl font-semibold text-center mb-4">Trusted By</p>
             <div className="flex flex-wrap justify-center gap-6">
               {trustedPartners.map((partner, index) => (
@@ -130,14 +184,17 @@ export default function Home() {
         </section>
 
         {/* About */}
-        <section id="about" className="mt-10 py-20 px-10 md:px-20 flex flex-col lg:flex-row">
+        <section id="about" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col lg:flex-row">
+          {/* Intro Text */}
           <div className="mr-10 md:mr-20 xl:mr-52 pb-5 lg:pb-0">
-            <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">More than just a tool type of product</h1>
+            <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">A product that is more than a tool</h1>
             <p className="text-md md:text-xl">Our expertises will help you launch an unique campaign made only for your game and achieve regional, segmented user acquisition and drive your growth.</p>
+            {/* Two Stats And Button */}
             <div className="hidden lg:flex">
               <StatsAndLink />
             </div>
           </div>
+          {/* UA Image */}
           <div className="flex justify-center items-start w-[300px] sm:w-[500px] md:w-[600px] lg:w-[1000px] mx-auto">
             <Image
               src="/ua-number-screen.png"
@@ -147,53 +204,51 @@ export default function Home() {
               className="w-full h-auto object-cover"
             />
           </div>
+          {/* Two Stats And Button */}
           <div className="lg:hidden">
             <StatsAndLink />
           </div>
         </section>
 
         {/* Why Choose Us? */}
-        <section id="why" className="py-20 px-10 md:px-20">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Why Choose Us?</h1>
+        <section id="why" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Why Choose Us?</h1>
+          {/* Feature Blocks */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {featureBlocks.map((block, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center p-6"
+                className="flex flex-col gap-5 items-center p-6"
               >
                 <Image src={block.icon} alt={block.title} width={50} height={50} />
                 <h3 className="text-xl font-semibold mt-4">{block.title}</h3>
-                <p className="text-center mt-2">{block.description}</p>
+                <p className="mt-2">{block.description}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Achievements */}
-        <section id="achievements" className="py-20 px-10 md:px-20 text-center">
+        <section id="achievements" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Achievements</h1>
+          {/* Achievement Cards */}
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
-            <div className="bg-white lg:bg-transparent rounded-lg py-5">
-              <p className="mb-5">3,000+</p>
-              <p>Registered Affiliates</p>
-            </div>
-            <div className="bg-white lg:bg-transparent rounded-lg py-5">
-              <p className="mb-5">2,000,000+</p>
-              <p>Gamers Reach</p>
-            </div>
-            <div className="bg-white lg:bg-transparent rounded-lg py-5">
-              <p className="mb-5">11,000+</p>
-              <p>Onboarding Users</p>
-            </div>
+            {achievements.map((achievement, index) => (
+              <div key={index} className="bg-white rounded-lg py-5 lg:px-5 xl:px-10">
+                <p className="mb-5">{achievement.count}</p>
+                <p>{achievement.label}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* Our Clients */}
-        <section id="clients" className="py-20">
+        <section id="clients" className="pt-28 pb-20">
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Our Clients</h1>
-          <div className="overflow-x-auto">
-            <div className="flex items-center justify-center">
-              {logos.map((logo, index) => (
+          {/* Client Logo Auto Scroll */}
+          <div className="overflow-x-auto" ref={scrollRef}>
+            <div className="flex items-center justify-start space-x-6 px-6">
+              {clientLogos.concat(clientLogos).map((logo, index) => (
                 <div key={index} className="p-4 flex-shrink-0">
                   <Image
                     src={logo}
@@ -205,6 +260,17 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+          {/* Dots Indicator */}
+          <div className="flex justify-center items-center mt-4">
+            {clientLogos.map((_, index) => (
+              <div
+                key={index}
+                className={`rounded-full mx-2 ${
+                  activeDot === index ? "bg-lime-300 h-5 w-5" : "bg-gray-400 h-3 w-3"
+                }`}
+              />
+            ))}
           </div>
         </section>
 

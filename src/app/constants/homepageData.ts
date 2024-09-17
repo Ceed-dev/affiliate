@@ -33,6 +33,21 @@ export const trustedPartners = [
   { logoUrl: "/chains/arbitrum.png", name: "Arbitrum" },
 ];
 
+export const statsInAbout = [
+  {
+    icon: "/about-1.png",
+    count: "200,000+",
+    label: "Max User Achieved"
+  },
+  {
+    icon: "/about-2.png",
+    count: "7+",
+    label: "Regions"
+  }
+];
+
+export const calendlyLink = "https://calendly.com/badhan998877/meeting";
+
 export const featureBlocks = [
   {
     icon: "/feature-1.png",
@@ -66,6 +81,21 @@ export const featureBlocks = [
   },
 ];
 
+export const achievements = [
+  {
+    count: "3,000+",
+    label: "Registered Affiliates"
+  },
+  {
+    count: "2,000,000+",
+    label: "Gamers Reach"
+  },
+  {
+    count: "11,000+",
+    label: "Onboarding Users"
+  }
+];
+
 export const features = [
   {
     title: "① Super Flexible",
@@ -96,7 +126,7 @@ export const stats = [
   },
 ];
 
-export const logos = [
+export const clientLogos = [
   "/logo-1.png",
   "/logo-2.png",
   "/logo-3.png",
