@@ -173,17 +173,18 @@ export default function Home() {
         </section>
 
         {/* Why Choose Us? */}
-        <section id="why" className="py-20 px-10 md:px-20">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Why Choose Us?</h1>
+        <section id="why" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Why Choose Us?</h1>
+          {/* Feature Blocks */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {featureBlocks.map((block, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center p-6"
+                className="flex flex-col gap-5 items-center p-6"
               >
                 <Image src={block.icon} alt={block.title} width={50} height={50} />
                 <h3 className="text-xl font-semibold mt-4">{block.title}</h3>
-                <p className="text-center mt-2">{block.description}</p>
+                <p className="mt-2">{block.description}</p>
               </div>
             ))}
           </div>
