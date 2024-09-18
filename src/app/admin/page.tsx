@@ -327,6 +327,14 @@ export default function Admin() {
               User Approval
             </button>
           </li>
+          <li className={`mr-1 ${activeTab === "manualTweetEngagementUpdate" ? "text-sky-500" : ""}`}>
+            <button 
+              onClick={() => setActiveTab("manualTweetEngagementUpdate")}
+              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "manualTweetEngagementUpdate" ? "bg-slate-300 rounded-t-md" : ""}`}
+            >
+              Manual Tweet Engagement Update
+            </button>
+          </li>
         </ul>
       </div>
 
