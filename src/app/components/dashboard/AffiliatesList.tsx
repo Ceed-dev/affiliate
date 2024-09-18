@@ -50,7 +50,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
       </p>
       {aggregating ? (
         <div className="flex flex-row items-center justify-center gap-5">
-          <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+          <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
           <p className="animate-pulse font-semibold text-gray-600">Aggregating data...</p>
         </div>
       ) : (
@@ -96,7 +96,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                           rel="noopener noreferrer" 
                         >
                           <Image 
-                            src="/x.png" 
+                            src="/brand-assets/x.png" 
                             alt="Open Tweet" 
                             width={16} 
                             height={16} 

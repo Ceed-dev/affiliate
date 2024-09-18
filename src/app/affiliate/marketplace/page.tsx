@@ -42,7 +42,7 @@ export default function Marketplace() {
         {loading 
           ? 
             <div className="flex flex-row items-center justify-center gap-5 mt-20">
-              <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+              <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
               <p className="text-gray-500 font-semibold text-lg">Loading...</p>
             </div>
           : 

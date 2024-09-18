@@ -303,7 +303,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
               disabled={isCheckingNewOwnerAddress}
             >
               {isCheckingNewOwnerAddress ? (
-                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
+                <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
               ) : (
                 "Add"
               )}
@@ -335,7 +335,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
                             disabled
                           >
                             <Image
-                              src="/trash.png"
+                              src="/assets/common/trash.png"
                               alt="trash.png"
                               height={20}
                               width={20}
@@ -349,7 +349,7 @@ export const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
                             className="bg-red-200 hover:bg-red-300 text-white p-2 rounded transition duration-300 ease-in-out transform hover:scale-105"
                           >
                             <Image
-                              src="/trash.png"
+                              src="/assets/common/trash.png"
                               alt="trash.png"
                               height={20}
                               width={20}
