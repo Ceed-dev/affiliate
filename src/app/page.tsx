@@ -302,6 +302,16 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Contact Us */}
+        <section className="md:hidden w-11/12 mx-auto rounded-md text-center font-bold text-3xl bg-lime-300 text-black p-10">
+          <p>Let&apos;s grab some<br />time and explore!</p>
+          <Link href={calendlyLink} target="_blank">
+            <button className="text-white text-xl bg-black rounded-lg shadow-md w-full py-4 mt-10">
+              Contact Us
+            </button>
+          </Link>
+        </section>
+
       </main>
 
       <footer className="bg-black text-white grid grid-cols-1 lg:grid-cols-4 gap-5 py-20 px-10 md:px-20">
