@@ -104,7 +104,7 @@ export default function Home() {
       </Head>
 
       {/* Navbar */}
-      <header className="fixed w-full pt-5 pb-2">
+      <header className="fixed w-full pt-5 pb-2 z-10">
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
