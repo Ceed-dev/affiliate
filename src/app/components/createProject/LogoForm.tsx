@@ -47,7 +47,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
                   onClick={removeImage("cover")}
                   className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-lg transition-opacity"
                 >
-                  <Image src="/trash.png" alt="trash.png" height={50} width={50} />
+                  <Image src="/assets/common/trash.png" alt="trash.png" height={50} width={50} />
                 </button>
               </>
             ) : (
@@ -80,7 +80,7 @@ export const LogoForm: React.FC<LogoFormProps> = ({
                   onClick={removeImage("logo")}
                   className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-full transition-opacity"
                 >
-                  <Image src="/trash.png" alt="trash.png" height={50} width={50} />
+                  <Image src="/assets/common/trash.png" alt="trash.png" height={50} width={50} />
                 </button>
               </>
             ) : (

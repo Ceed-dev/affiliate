@@ -302,7 +302,7 @@ export default function Admin() {
           disabled={(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading)}
         >
           {(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? (
-            <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+            <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
           ) : (
             "Reload Data"
           )}
@@ -351,7 +351,7 @@ export default function Admin() {
                   <tr>
                     <td colSpan={3} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
-                        <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                        <Image src={"/assets/common/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
                       </div>
                     </td>
@@ -434,7 +434,7 @@ export default function Admin() {
                   <tr>
                     <td colSpan={11} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
-                        <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                        <Image src={"/assets/common/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
                       </div>
                     </td>
@@ -528,7 +528,7 @@ export default function Admin() {
                         >
                           {processingLogId === log.logId ? (
                             <div className="flex items-center pr-4 gap-2">
-                              <Image src={"/loading.png"} height={20} width={20} alt="loading" className="animate-spin" />
+                              <Image src={"/assets/common/loading.png"} height={20} width={20} alt="loading" className="animate-spin" />
                               Processing...
                             </div>
                           ) : (
@@ -569,7 +569,7 @@ export default function Admin() {
                   <tr>
                     <td colSpan={6} className="px-6 py-4 text-lg text-gray-500">
                       <div className="flex flex-row items-center justify-center gap-5">
-                        <Image src={"/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                        <Image src={"/assets/common/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                         Loading..., this may take a while.
                       </div>
                     </td>

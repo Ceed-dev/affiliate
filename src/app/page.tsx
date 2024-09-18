@@ -5,8 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { 
-  navLinks, trustedPartners, statsInAbout, calendlyLink, featureBlocks, achievements, features, stats, clientLogos, 
-  faqs, socialMediaLinks, footerLinks 
+  navLinks, trustedPartners, statsInAbout, calendlyLink, 
+  featureBlocks, achievements, clientLogos, 
+  faqs, socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
 
 export default function Home() {
@@ -97,14 +98,14 @@ export default function Home() {
   );
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-black text-white">
       <Head>
         <title>Qube</title>
         <link rel="icon" href="/qube.png" />
       </Head>
 
       {/* Navbar */}
-      <header className="fixed w-full bg-black text-white pt-5 pb-2">
+      <header className="fixed w-full pt-5 pb-2 z-10">
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
@@ -124,13 +125,13 @@ export default function Home() {
           {/* Menu Toggle Icon */}
           <div className="md:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none">
-              <Image src={menuOpen ? "/close-white.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
+              <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
           </div>
         </div>
         {/* Toggle Menu */}
         {menuOpen && (
-          <div className="md:hidden pt-4">
+          <div className="md:hidden pt-4 bg-black">
             <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link 
@@ -147,13 +148,26 @@ export default function Home() {
         )}
       </header>
 
-      <main className="flex flex-col bg-black text-white">
+      <main className="flex flex-col">
 
         {/* Home */}
         <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
           {/* Intro Text */}
           <div className="text-center">
-            <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10">Drive Acquisition, Amplify Revenue</h1>
+            <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
+              <span className="relative inline-block">
+                Drive Acquisition
+                {/* Underline Image */}
+                <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
+                  <img
+                    src="/assets/homepage/blue-stylized-underline.png"
+                    alt="Stylized Underline"
+                    className="w-full"
+                  />
+                </div>
+              </span>
+              , Amplify Revenue
+            </h1>
             <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
               Our network connects you with gaming influencers and guilds across Asia,
@@ -197,7 +211,7 @@ export default function Home() {
           {/* UA Image */}
           <div className="flex justify-center items-start w-[300px] sm:w-[500px] md:w-[600px] lg:w-[1000px] mx-auto">
             <Image
-              src="/ua-number-screen.png"
+              src="/assets/homepage/ua-number-screen.png"
               alt="UA Number Screen"
               width={500} 
               height={500} 
@@ -275,18 +289,23 @@ export default function Home() {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="py-20 px-10 md:px-20 mb-10">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Frequently Asked Questions</h1>
-          <div className="bg-[#242424] py-10 px-10 md:px-20">
+        <section id="faq" className="pt-28 pb-20 w-11/12 lg:w-2/3 mx-auto">
+          {/* Toggle Title */}
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">
+            <span className="block md:hidden">FAQ</span>
+            <span className="hidden md:block">Frequently Asked Questions</span>
+          </h1>
+          {/* Q&As */}
+          <div className="p-10 md:px-20">
             {faqs.map((faq, index) => (
               <div key={index} className="mb-5">
                 <div
-                  className="cursor-pointer text-md lg:text-lg xl:text-xl flex flex-row justify-between font-semibold"
+                  className="cursor-pointer text-md lg:text-lg xl:text-2xl flex flex-row justify-between font-semibold"
                   onClick={() => toggleFAQ(index)}
                 >
                   {faq.question}
-                  <div className="w-5 h-5">
-                    <Image src={faqActiveIndex === index ? "/up-arrow.png" : "/down-arrow.png"} alt="arrow" width={20} height={20} />
+                  <div className="w-5 md:w-7 h-5 md:h-7 md:p-1 bg-white rounded-full">
+                    <Image src={faqActiveIndex === index ? "/assets/common/up-arrow.png" : "/assets/common/down-arrow.png"} alt="up/down arrow" width={20} height={20} />
                   </div>
                 </div>
                 {faqActiveIndex === index && (
@@ -297,36 +316,55 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Contact Us */}
+        <section className="md:hidden w-11/12 mx-auto rounded-md text-center font-bold text-3xl bg-lime-300 text-black p-10">
+          <p>Let&apos;s grab some<br />time and explore!</p>
+          <Link href={calendlyLink} target="_blank">
+            <button className="text-white text-xl bg-black rounded-lg shadow-md w-full py-4 mt-10">
+              Contact Us
+            </button>
+          </Link>
+        </section>
+
       </main>
 
-      <footer className="bg-black text-white grid grid-cols-1 lg:grid-cols-4 gap-5 py-20 px-10 md:px-20">
-        <div className="lg:col-span-2 flex flex-col items-start gap-3">
-          <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image src="/qube.png" alt="qube.png" width={50} height={50} />
-            <p className="text-2xl font-bold">Qube</p>
-          </Link>
-          <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
-          <div className="flex flex-row gap-5">
-            {socialMediaLinks.map((link, index) => (
-              <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-1 hover:shadow-xl">
-                <Image src={link.src} alt={link.alt} width={20} height={20} />
-              </Link>
+      <footer className="w-11/12 mx-auto mt-20">
+        {/* Footer Contents */}
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 mb-16">
+          {/* Logo & Social Links */}
+          <div className="lg:w-1/2 flex flex-col gap-5">
+            <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
+              <Image src="/qube.png" alt="qube.png" width={50} height={50} />
+              <p className="text-2xl font-bold">Qube</p>
+            </Link>
+            <div className="flex flex-row gap-5">
+              {socialMediaLinks.map((link, index) => (
+                <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-2 hover:shadow-xl">
+                  <Image src={link.src} alt={link.alt} width={20} height={20} />
+                </Link>
+              ))}
+            </div>
+            <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
+          </div>
+          {/* Other Links */}
+          <div className="flex flex-row gap-10 md:gap-16 lg:gap-28">
+            {Object.entries(footerLinks).map(([category, links]) => (
+              <div key={category} className="flex flex-col gap-5">
+                <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
+                {links.map(link => (
+                  <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-400">
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </div>
         </div>
-        {Object.entries(footerLinks).map(([category, links]) => (
-          <div key={category} className="flex flex-col items-center lg:items-start gap-5 text-slate-300">
-            <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
-            {links.map(link => (
-              <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-100 hover:font-semibold">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        ))}
-        <div className="border-b border-gray-700 col-span-4 my-5" />
-        <p className="col-span-4 text-center text-gray-500">© Copyright 2022, All Rights Reserved by Qube.</p>
+        {/* Border & Copyright */}
+        <div className="border-b border-gray-700" />
+        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2022, All Rights Reserved by Qube.</p>
       </footer>
+
     </div>
   );
 }

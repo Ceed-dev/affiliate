@@ -15,7 +15,7 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({ title, loading, va
         {title}
       </h3>
       {loading ? (
-        <Image src="/loading.png" alt="loading" width={50} height={50} className="animate-spin mx-auto" />
+        <Image src="/assets/common/loading.png" alt="loading" width={50} height={50} className="animate-spin mx-auto" />
       ) : (
         <div className="flex flex-wrap items-baseline">
           <span className="text-3xl leading-8 font-semibold text-gray-900 min-w-max mr-2">{value}</span>

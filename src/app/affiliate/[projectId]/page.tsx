@@ -539,7 +539,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                               onClick={() => point.tiers && openTierModal(point.tiers)} 
                               className="ml-2"
                             >
-                              <Image src="/new-tab.png" alt="new-tab.png" width={15} height={15} />
+                              <Image src="/assets/common/new-tab.png" alt="new-tab.png" width={15} height={15} />
                             </button>
                           </div>
                         ) : ""}
@@ -621,7 +621,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
           {/* {loadingTransactionData
             ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
-                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
               </div>
             : <ConversionsList explorerUrl={Explorer Url Here} transactions={transactionData} />
@@ -629,7 +629,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
           {loadingConversionLogs || loadingClickData
             ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
-                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
               </div>
             : <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10">
@@ -648,7 +648,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   className="ml-2"
                 >
                   <Image
-                    src="/new-tab.png"
+                    src="/assets/common/new-tab.png"
                     alt="Open in new tab"
                     width={16}
                     height={16}
@@ -710,7 +710,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             <div className="flex flex-row justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Embed Code</h2>
               <button onClick={() => setIsEmbedModalOpen(false)} >
-                <Image src="/close.png" alt="Close Icon" width={15} height={15} />
+                <Image src="/assets/common/close-black.png" alt="Close Icon" width={15} height={15} />
               </button>
             </div>
             <textarea
