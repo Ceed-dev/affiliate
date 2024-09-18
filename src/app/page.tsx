@@ -153,7 +153,20 @@ export default function Home() {
         <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
           {/* Intro Text */}
           <div className="text-center">
-            <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10">Drive Acquisition, Amplify Revenue</h1>
+            <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
+              <span className="relative inline-block">
+                Drive Acquisition
+                {/* Underline Image */}
+                <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
+                  <img
+                    src="/blue-stylized-underline.png"
+                    alt="Stylized Underline"
+                    className="w-full"
+                  />
+                </div>
+              </span>
+              , Amplify Revenue
+            </h1>
             <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
             <p className="text-md md:text-xl">
               Our network connects you with gaming influencers and guilds across Asia,
