@@ -97,14 +97,14 @@ export default function Home() {
   );
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-black text-white">
       <Head>
         <title>Qube</title>
         <link rel="icon" href="/qube.png" />
       </Head>
 
       {/* Navbar */}
-      <header className="fixed w-full bg-black text-white pt-5 pb-2">
+      <header className="fixed w-full pt-5 pb-2">
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
@@ -130,7 +130,7 @@ export default function Home() {
         </div>
         {/* Toggle Menu */}
         {menuOpen && (
-          <div className="md:hidden pt-4">
+          <div className="md:hidden pt-4 bg-black">
             <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link 
@@ -147,7 +147,7 @@ export default function Home() {
         )}
       </header>
 
-      <main className="flex flex-col bg-black text-white">
+      <main className="flex flex-col">
 
         {/* Home */}
         <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
@@ -314,34 +314,43 @@ export default function Home() {
 
       </main>
 
-      <footer className="bg-black text-white grid grid-cols-1 lg:grid-cols-4 gap-5 py-20 px-10 md:px-20">
-        <div className="lg:col-span-2 flex flex-col items-start gap-3">
-          <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image src="/qube.png" alt="qube.png" width={50} height={50} />
-            <p className="text-2xl font-bold">Qube</p>
-          </Link>
-          <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
-          <div className="flex flex-row gap-5">
-            {socialMediaLinks.map((link, index) => (
-              <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-1 hover:shadow-xl">
-                <Image src={link.src} alt={link.alt} width={20} height={20} />
-              </Link>
+      <footer className="w-11/12 mx-auto mt-20">
+        {/* Footer Contents */}
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 mb-16">
+          {/* Logo & Social Links */}
+          <div className="lg:w-1/2 flex flex-col gap-5">
+            <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
+              <Image src="/qube.png" alt="qube.png" width={50} height={50} />
+              <p className="text-2xl font-bold">Qube</p>
+            </Link>
+            <div className="flex flex-row gap-5">
+              {socialMediaLinks.map((link, index) => (
+                <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-2 hover:shadow-xl">
+                  <Image src={link.src} alt={link.alt} width={20} height={20} />
+                </Link>
+              ))}
+            </div>
+            <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
+          </div>
+          {/* Other Links */}
+          <div className="flex flex-row gap-10 md:gap-16 lg:gap-28">
+            {Object.entries(footerLinks).map(([category, links]) => (
+              <div key={category} className="flex flex-col gap-5">
+                <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
+                {links.map(link => (
+                  <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-400">
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </div>
         </div>
-        {Object.entries(footerLinks).map(([category, links]) => (
-          <div key={category} className="flex flex-col items-center lg:items-start gap-5 text-slate-300">
-            <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
-            {links.map(link => (
-              <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-100 hover:font-semibold">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        ))}
-        <div className="border-b border-gray-700 col-span-4 my-5" />
-        <p className="col-span-4 text-center text-gray-500">© Copyright 2022, All Rights Reserved by Qube.</p>
+        {/* Border & Copyright */}
+        <div className="border-b border-gray-700" />
+        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2022, All Rights Reserved by Qube.</p>
       </footer>
+
     </div>
   );
 }
