@@ -363,7 +363,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-32 lg:px-60 xl:px-96 pt-1 pb-10">
         {loadingProject ? (
           <div className="flex flex-row items-center justify-center gap-5 mt-20">
-            <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+            <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
             <p className="text-gray-500 font-semibold text-lg">Loading...</p>
           </div>
         ) : (
@@ -430,7 +430,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             <Button onClick={handleSaveChanges} disabled={!isFormComplete() || !hasChanges() || isUpdating || socialLinkFormError || redirectLinkError}>
               {isUpdating ? (
                 <div className="flex flex-row items-center justify-center gap-5">
-                  <Image src="/loading.png" alt="loading.png" width={30} height={30} className="animate-spin" /> 
+                  <Image src="/assets/common/loading.png" alt="loading.png" width={30} height={30} className="animate-spin" /> 
                   <p className="text-gray-500 font-semibold text-lg">Updating...</p>
                 </div>
               ) : (
@@ -472,7 +472,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
                   {isDeleting
                     ? <span className="flex flex-row items-center justify-center gap-2">
                         Deleting...
-                        <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
+                        <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
                       </span> 
                     : "Delete Project"
                   }

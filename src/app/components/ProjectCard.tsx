@@ -38,7 +38,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {isMultipleOwners && (
             <Image
               className="absolute -top-4 right-10 bg-white border-2 border-slate-300 rounded-full shadow-lg"
-              src="/people.png"
+              src="/assets/common/people.png"
               width={50}
               height={50}
               alt="People Icon"
@@ -46,7 +46,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           <Image
             className="absolute -top-4 -right-4 bg-white border-2 border-slate-300 rounded-full shadow-lg"
-            src={project.projectType === "DirectPayment" ? "/direct-payment.png" : "/escrow-payment.png"}
+            src={project.projectType === "DirectPayment" ? "/assets/common/direct-payment.png" : "/assets/common/escrow-payment.png"}
             width={50}
             height={50}
             alt="Project Type Icon"

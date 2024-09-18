@@ -474,7 +474,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
           )}
           {isFetchingTokenDetails &&
             <div className="flex flex-row gap-3">
-              <Image src="/loading.png" alt="loading.png" width={20} height={20} className="animate-spin" /> 
+              <Image src="/assets/common/loading.png" alt="loading.png" width={20} height={20} className="animate-spin" /> 
               <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
             </div>
           }
@@ -578,7 +578,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                                 onClick={() => point.tiers && openTierModal(point.tiers)} 
                                 className="ml-2"
                               >
-                                <Image src="/new-tab.png" alt="new-tab.png" width={15} height={15} />
+                                <Image src="/assets/common/new-tab.png" alt="new-tab.png" width={15} height={15} />
                               </button>
                             </div>
                           ) : ""}
@@ -592,7 +592,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                           ) : (
                             <button onClick={() => handleUpdateConversionPoints?.("remove", point)}>
                               <Image 
-                                src="/trash.png" 
+                                src="/assets/common/trash.png" 
                                 alt="trash.png" 
                                 height={20} 
                                 width={20} 
@@ -748,7 +748,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                       disabled={isCheckingNewTierEntry}
                     >
                       {isCheckingNewTierEntry ? (
-                        <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+                        <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
                       ) : (
                         "Add Reward Tier"
                       )}
@@ -771,7 +771,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                                 <td className="px-6 py-4 text-center">
                                   <button onClick={() => handleRemoveTier(index)}>
                                     <Image 
-                                      src="/trash.png" 
+                                      src="/assets/common/trash.png" 
                                       alt="trash.png" 
                                       height={20} 
                                       width={20} 
@@ -903,7 +903,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
               disabled={isCheckingNewWhitelistEntry}
             >
               {isCheckingNewWhitelistEntry ? (
-                <Image src={"/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+                <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
               ) : (
                 "Add to Whitelist"
               )}
@@ -928,7 +928,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                         <td className="px-6 py-4 text-center">
                           <button onClick={() => handleRemove(entry.address)}>
                             <Image 
-                              src="/trash.png" 
+                              src="/assets/common/trash.png" 
                               alt="trash.png" 
                               height={20} 
                               width={20} 
@@ -987,7 +987,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             <div className="flex flex-row items-center justify-center gap-5">
               {isSaving && (
                 <Image 
-                  src={"/loading.png"} 
+                  src={"/assets/common/loading.png"} 
                   height={30} 
                   width={30} 
                   alt="loading.png" 

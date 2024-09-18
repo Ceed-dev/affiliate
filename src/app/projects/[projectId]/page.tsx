@@ -188,7 +188,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               </h3>
               <p className="text-sm text-[#6B7280] flex flex-row items-center gap-2">
                 <button onClick={() => setShowApiKey(!showApiKey)} className="text-blue-500 hover:text-blue-700">
-                  <Image src={showApiKey ? "/hide-password.png" : "/show-password.png"} alt="Toggle Icon" height={18} width={18} />
+                  <Image src={showApiKey ? "/assets/common/hide-password.png" : "/assets/common/show-password.png"} alt="Toggle Icon" height={18} width={18} />
                 </button>
                 {showApiKey ? (
                   <span onClick={handleCopyApiKey} className="cursor-pointer hover:underline">
@@ -229,7 +229,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
           {/* {loadingTransactionData */}
           {loadingConversionData
             ? <div className="flex flex-row items-center justify-center gap-5">
-                <Image src="/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
+                <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
                 <p className="animate-pulse font-semibold text-gray-600">
                   {/* Loading transaction data for chart visualization... */}
                   Loading conversion data for chart visualization...

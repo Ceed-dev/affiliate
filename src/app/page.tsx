@@ -5,8 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { 
-  navLinks, trustedPartners, statsInAbout, calendlyLink, featureBlocks, achievements, features, stats, clientLogos, 
-  faqs, socialMediaLinks, footerLinks 
+  navLinks, trustedPartners, statsInAbout, calendlyLink, 
+  featureBlocks, achievements, clientLogos, 
+  faqs, socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
 
 export default function Home() {
@@ -124,7 +125,7 @@ export default function Home() {
           {/* Menu Toggle Icon */}
           <div className="md:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none">
-              <Image src={menuOpen ? "/close-white.png" : "/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
+              <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
           </div>
         </div>
@@ -159,7 +160,7 @@ export default function Home() {
                 {/* Underline Image */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
                   <img
-                    src="/blue-stylized-underline.png"
+                    src="/assets/homepage/blue-stylized-underline.png"
                     alt="Stylized Underline"
                     className="w-full"
                   />
@@ -210,7 +211,7 @@ export default function Home() {
           {/* UA Image */}
           <div className="flex justify-center items-start w-[300px] sm:w-[500px] md:w-[600px] lg:w-[1000px] mx-auto">
             <Image
-              src="/ua-number-screen.png"
+              src="/assets/homepage/ua-number-screen.png"
               alt="UA Number Screen"
               width={500} 
               height={500} 
@@ -304,7 +305,7 @@ export default function Home() {
                 >
                   {faq.question}
                   <div className="w-5 md:w-7 h-5 md:h-7 md:p-1 bg-white rounded-full">
-                    <Image src={faqActiveIndex === index ? "/up-arrow.png" : "/down-arrow.png"} alt="up/down arrow" width={20} height={20} />
+                    <Image src={faqActiveIndex === index ? "/assets/common/up-arrow.png" : "/assets/common/down-arrow.png"} alt="up/down arrow" width={20} height={20} />
                   </div>
                 </div>
                 {faqActiveIndex === index && (
