@@ -185,7 +185,7 @@ export const footerLinks = {
   ],
   "Help": [
     {
-      url: "/onboarding",
+      url: `${calendlyLink}`,
       label: "Book Demo",
     },
     {
