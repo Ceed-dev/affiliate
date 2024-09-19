@@ -11,11 +11,13 @@ import Link from "next/link";
 import { formatAddress, formatChainName } from "../utils/formatters";
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
-  updateIsPaidFlag, fetchUnapprovedUsers, approveUser 
+  updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData, updateTweetEngagement,
+  fetchAllReferralIds,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
-import { UnpaidConversionLog, UserData } from "../types";
+import { UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
+import { xApiReferences } from "../constants/xApiReferences";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 
@@ -266,6 +268,130 @@ export default function Admin() {
     }
   };
 
+  // =============== BEGIN TWEET ENGAGEMENT MANAGEMENT ==============
+  const [referralIdsForTweetEngagementData, setReferralIdsForTweetEngagementData] = useState("");
+  const [engagementDataArray, setEngagementDataArray] = useState<ExtendedTweetEngagement[] | null>(null);
+  const [loadingTweetEngagementData, setLoadingTweetEngagementData] = useState(false);
+
+  const handleFetchTweetEngagement = async () => {
+    setLoadingTweetEngagementData(true);
+    
+    try {
+      // Start the process - Show a toast notification
+      toast.info("Fetching Tweet engagement data...");
+  
+      // Convert comma-separated Referral IDs to an array and trim excess whitespace
+      const referralIdsArray = referralIdsForTweetEngagementData
+        .split(",")
+        .map(id => id.trim())
+        .filter(id => id !== ""); // Remove empty IDs
+  
+      // Fetch referral data for each referral ID, handle errors gracefully
+      const referralDataPromises = referralIdsArray.map(async (referralId) => {
+        try {
+          const referralData = await fetchReferralData(referralId);
+          return referralData;
+        } catch (error) {
+          return null; // Skip invalid or failed referral ID
+        }
+      });
+  
+      // Use Promise.allSettled to process all requests and handle failures
+      const referralDataResults = await Promise.allSettled(referralDataPromises);
+  
+      // Filter out any failed requests or null results
+      const validReferralDataResults = referralDataResults
+        .filter((result): result is PromiseFulfilledResult<ReferralData | null> => result.status === "fulfilled" && result.value !== null)
+        .map(result => result.value as ReferralData);
+  
+      // Extract tweet URLs and Tweet IDs from valid referral data
+      const tweetIds = validReferralDataResults
+        .map(referralData => {
+          const tweetUrl = referralData.tweetUrl;
+          const tweetIdMatch = tweetUrl?.match(/status\/(\d+)/);
+          if (!tweetIdMatch || !tweetIdMatch[1]) {
+            console.error(`Invalid tweet URL for referral ID: ${referralData.id}`);
+            return null;
+          }
+          return { tweetId: tweetIdMatch[1], tweetUrl, referralId: referralData.id! };
+        })
+        .filter(tweetData => tweetData !== null); // Filter out any invalid tweet URLs
+  
+      // Handle batching if more than 100 tweets
+      const batchSize = 100;
+      const batchedTweetData: ExtendedTweetEngagement[] = [];
+  
+      for (let i = 0; i < tweetIds.length; i += batchSize) {
+        const tweetBatch = tweetIds.slice(i, i + batchSize);
+        const tweetIdsBatch = tweetBatch.map(data => data!.tweetId).join(",");
+  
+        // Call the internal API for fetching Tweet engagement data
+        const response = await fetch(`/api/fetchTweetEngagement?tweetIds=${tweetIdsBatch}`, {
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_X_API_BEARER_TOKEN as string,
+          },
+        });
+  
+        if (!response.ok) {
+          console.error(`Error fetching tweet engagement data: ${response.statusText}`);
+          toast.error(`Error fetching tweet engagement data: ${response.statusText}`); // Add toast for error
+          continue;  // Skip this batch if the API request fails
+        }
+  
+        const engagementDataResponse = await response.json();
+        const engagementDataArray = engagementDataResponse.data;
+  
+        // Map the fetched engagement data using tweetId
+        tweetBatch.forEach((tweetData) => {
+          if (tweetData) {  // Add this check to ensure tweetData is not null
+            const matchingData = engagementDataArray.find((engagement: { id: string }) => engagement.id === tweetData.tweetId);
+            if (matchingData) {
+              const engagementData = matchingData.public_metrics;
+              batchedTweetData.push({
+                referralId: tweetData.referralId,
+                tweetUrl: tweetData.tweetUrl ?? "",
+                retweetCount: engagementData.retweet_count,
+                replyCount: engagementData.reply_count,
+                likeCount: engagementData.like_count,
+                quoteCount: engagementData.quote_count,
+                bookmarkCount: engagementData.bookmark_count,
+                impressionCount: engagementData.impression_count,
+                fetchedAt: new Date(),
+              });
+            }
+          }
+        });
+      }
+  
+      // Update the state with the final batched data
+      if (batchedTweetData.length === 0) {
+        setEngagementDataArray(null);
+        toast.warn("No engagement data found for the provided Tweet IDs.");
+      } else {
+        setEngagementDataArray(batchedTweetData);
+  
+        // After setting the engagement data in the state, update Firestore
+        try {
+          await updateTweetEngagement(batchedTweetData);  // Add this to update Firestore
+          toast.success("Tweet engagement data successfully updated in Firestore.");
+        } catch (error) {
+          console.error("Error updating Firestore with Tweet engagement data:", error);
+          toast.error("Failed to update Firestore with Tweet engagement data.");
+        }
+      }
+  
+      // Clear the input field
+      setReferralIdsForTweetEngagementData("");
+  
+    } catch (error) {
+      console.error("Failed to fetch & update tweet engagement:", error);
+      toast.error("Failed to fetch & update Tweet engagement data.");
+    } finally {
+      setLoadingTweetEngagementData(false);
+    }
+  };  
+  // =============== END TWEET ENGAGEMENT MANAGEMENT ==============
+
   return (
     <div className="min-h-screen flex flex-col items-center">
 
@@ -290,23 +416,25 @@ export default function Admin() {
       
       <div className="w-11/12 flex justify-between items-center my-5">
         <h1 className="text-lg sm:text-2xl lg:text-4xl font-semibold">Admin Dashboard</h1>
-        <button 
-          className={`${(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? "bg-slate-400" : "bg-sky-500 hover:bg-sky-700"} text-white w-[130px] h-[40px] rounded transition`}
-          onClick={() => {
-            if (activeTab === "unpaidConversionLogs") {
-              loadUnpaidConversionLogs();
-            } else if (activeTab === "userApproval") {
-              loadUnapprovedUsers();
-            }
-          }}
-          disabled={(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading)}
-        >
-          {(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? (
-            <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
-          ) : (
-            "Reload Data"
-          )}
-        </button>
+        {activeTab !== "manualTweetEngagementUpdate" && (
+          <button 
+            className={`${(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? "bg-slate-400" : "bg-sky-500 hover:bg-sky-700"} text-white w-[130px] h-[40px] rounded transition`}
+            onClick={() => {
+              if (activeTab === "unpaidConversionLogs") {
+                loadUnpaidConversionLogs();
+              } else if (activeTab === "userApproval") {
+                loadUnapprovedUsers();
+              }
+            }}
+            disabled={(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading)}
+          >
+            {(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? (
+              <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
+            ) : (
+              "Reload Data"
+            )}
+          </button>
+        )}
       </div>
 
       <div className="w-11/12 border-b border-slate-400 my-5 overflow-x-auto">
@@ -325,6 +453,14 @@ export default function Admin() {
               className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "userApproval" ? "bg-slate-300 rounded-t-md" : ""}`}
             >
               User Approval
+            </button>
+          </li>
+          <li className={`mr-1 ${activeTab === "manualTweetEngagementUpdate" ? "text-sky-500" : ""}`}>
+            <button 
+              onClick={() => setActiveTab("manualTweetEngagementUpdate")}
+              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "manualTweetEngagementUpdate" ? "bg-slate-300 rounded-t-md" : ""}`}
+            >
+              Manual Tweet Engagement Update
             </button>
           </li>
         </ul>
@@ -620,6 +756,131 @@ export default function Admin() {
           </div>
         </>
       )}
+
+      {activeTab === "manualTweetEngagementUpdate" && (
+        <>
+          <div className="w-11/12">
+            <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Manually update Tweet engagement data</h2>
+            <p className="text-sm text-gray-600">Enter specific Referral IDs to manually retrieve and update the latest engagement data.</p>
+            <p className="text-lg text-red-500 font-bold underline mt-2">
+              Note: X API allows up to 10,000 engagement data retrievals per month. Be mindful of the usage limits.
+            </p>
+            {/* Display buttons for API references */}
+            <div className="mt-5 flex flex-row gap-2">
+              {xApiReferences.map((ref, index) => (
+                <a
+                  key={index}
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-orange-300 py-2 px-4 rounded-lg shadow-md text-center hover:bg-orange-500 transition"
+                >
+                  {ref.title}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Referral IDs input section */}
+          <div className="w-11/12 mt-5">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <input 
+                type="text" 
+                placeholder="Enter referral IDs separated by commas, e.g. n1L5kdmanZzOlMQs20wH,C2xmmXIW0p8tqki4IVFG"
+                className="border border-gray-300 p-2 rounded w-full lg:w-2/3 outline-none" 
+                value={referralIdsForTweetEngagementData} 
+                onChange={(e) => setReferralIdsForTweetEngagementData(e.target.value)}
+              />
+              <button 
+                className={`bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded ${!referralIdsForTweetEngagementData ? "opacity-50 cursor-not-allowed" : ""}`} 
+                onClick={handleFetchTweetEngagement}
+                disabled={!referralIdsForTweetEngagementData}
+              >
+                Fetch & Update
+              </button>
+              <button 
+                className="bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded" 
+                onClick={async () => {
+                  const fetchedReferralIds = await fetchAllReferralIds();
+                  setReferralIdsForTweetEngagementData(fetchedReferralIds.join(","));
+                  
+                  // Show toast notification with the number of fetched referrals
+                  toast.success(`${fetchedReferralIds.length} referral IDs fetched successfully`);
+                }}
+              >
+                Fetch All Referrals
+              </button>
+            </div>
+          </div>
+
+          {/* Update result display area */}
+          {loadingTweetEngagementData ? (
+            <div className="flex justify-center items-center my-5">
+              <Image src="/assets/common/loading.png" alt="loading" width={50} height={50} className="animate-spin" />
+            </div>
+          ) : engagementDataArray ? (
+            <div className="w-11/12 mt-5 mb-10 bg-gray-100 p-5 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-4">
+                Tweet Engagement Data 
+                {engagementDataArray.length > 0 && (
+                  <span className="text-sm">({engagementDataArray[0].fetchedAt.toLocaleString()})</span>
+                )}
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-md shadow-md">
+                  <thead className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                    <tr>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Referral Id</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Tweet</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Retweet</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Like</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Reply</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Quote</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Impression</th>
+                      <th className="py-3 px-6 text-right whitespace-nowrap">Bookmark</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-700 text-sm">
+                    {engagementDataArray.map((data, index) => (
+                      <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                        <td className="py-3 px-6 text-right">{data.referralId}</td>
+                        <td className="py-3 px-6 text-right">
+                          {data.tweetUrl ? (
+                            <a 
+                              href={data.tweetUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                            >
+                              <Image 
+                                src="/brand-assets/x.png" 
+                                alt="Open Tweet" 
+                                width={16} 
+                                height={16} 
+                                className="inline-block mr-2"
+                              />
+                            </a>
+                          ) : (
+                            <span className="text-gray-500">Not Submitted</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-6 text-right">{data.retweetCount}</td>
+                        <td className="py-3 px-6 text-right">{data.likeCount}</td>
+                        <td className="py-3 px-6 text-right">{data.replyCount}</td>
+                        <td className="py-3 px-6 text-right">{data.quoteCount}</td>
+                        <td className="py-3 px-6 text-right">{data.impressionCount}</td>
+                        <td className="py-3 px-6 text-right">{data.bookmarkCount}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <p className="text-md text-gray-600 my-5">No Data Yet...</p>
+          )}
+        </>
+      )}
+
     </div>
   );
 };
