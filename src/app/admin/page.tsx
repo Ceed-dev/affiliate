@@ -320,18 +320,22 @@ export default function Admin() {
       for (let i = 0; i < tweetIds.length; i += batchSize) {
         const tweetBatch = tweetIds.slice(i, i + batchSize);
         const tweetIdsBatch = tweetBatch.map(data => data!.tweetId).join(",");
-      
-        // Use the X API to get Tweet engagement data (Ref: https://developer.x.com/en/docs/x-api/tweets/lookup/api-reference/get-tweets)
-        const response = await fetch(`https://api.x.com/2/tweets?ids=${tweetIdsBatch}&tweet.fields=public_metrics`, {
+
+        // Call the internal API for fetching Tweet engagement data
+        const response = await fetch(`/api/fetchTweetEngagement?tweetIds=${tweetIdsBatch}`, {
           headers: {
-            "Authorization": `Bearer ${process.env.X_API_BEARER_TOKEN}`
-          }
+            "x-api-key": process.env.NEXT_PUBLIC_X_API_BEARER_TOKEN as string,
+          },
         });
+      
+        if (!response.ok) {
+          console.error(`Error fetching tweet engagement data: ${response.statusText}`);
+          continue;  // Skip this batch if the API request fails
+        }
       
         const engagementDataResponse = await response.json();
         const engagementDataArray = engagementDataResponse.data;
       
-        // Stores engagement data for each Tweet along with the referral ID and Tweet URL
         // Map the fetched engagement data using tweetId
         tweetBatch.forEach((tweetData) => {
           if (tweetData) {  // Add this check to ensure tweetData is not null
@@ -351,11 +355,18 @@ export default function Admin() {
               });
             }
           }
-        });        
-      }      
-  
+        });
+      }
+
       // Update the state with the final batched data
-      setEngagementDataArray(batchedTweetData);
+      if (batchedTweetData.length === 0) {
+        setEngagementDataArray(null);
+      } else {
+        setEngagementDataArray(batchedTweetData);
+      }
+
+      // Clear the input field
+      setReferralIdsForTweetEngagementData("");
   
     } catch (error) {
       console.error("Failed to fetch & update tweet engagement:", error);
@@ -779,7 +790,12 @@ export default function Admin() {
             </div>
           ) : engagementDataArray ? (
             <div className="w-11/12 mt-5 mb-10 bg-gray-100 p-5 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-4">Tweet Engagement Data <span className="text-sm">({engagementDataArray[0].fetchedAt.toLocaleString()})</span></h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Tweet Engagement Data 
+                {engagementDataArray.length > 0 && (
+                  <span className="text-sm">({engagementDataArray[0].fetchedAt.toLocaleString()})</span>
+                )}
+              </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white rounded-md shadow-md">
                   <thead className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
