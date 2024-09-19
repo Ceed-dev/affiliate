@@ -12,6 +12,7 @@ import { formatAddress, formatChainName } from "../utils/formatters";
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
   updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData, updateTweetEngagement,
+  fetchAllReferralIds,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData } from "../types";
@@ -796,6 +797,18 @@ export default function Admin() {
                 disabled={!referralIdsForTweetEngagementData}
               >
                 Fetch & Update
+              </button>
+              <button 
+                className="bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded" 
+                onClick={async () => {
+                  const fetchedReferralIds = await fetchAllReferralIds();
+                  setReferralIdsForTweetEngagementData(fetchedReferralIds.join(","));
+                  
+                  // Show toast notification with the number of fetched referrals
+                  toast.success(`${fetchedReferralIds.length} referral IDs fetched successfully`);
+                }}
+              >
+                Fetch All Referrals
               </button>
             </div>
           </div>
