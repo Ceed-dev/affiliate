@@ -11,7 +11,7 @@ import Link from "next/link";
 import { formatAddress, formatChainName } from "../utils/formatters";
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
-  updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData,
+  updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData, updateTweetEngagement,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData } from "../types";
@@ -363,6 +363,13 @@ export default function Admin() {
         setEngagementDataArray(null);
       } else {
         setEngagementDataArray(batchedTweetData);
+
+        // After setting the engagement data in the state, update Firestore
+        try {
+          await updateTweetEngagement(batchedTweetData);  // Add this to update Firestore
+        } catch (error) {
+          console.error("Error updating Firestore with Tweet engagement data:", error);
+        }
       }
 
       // Clear the input field

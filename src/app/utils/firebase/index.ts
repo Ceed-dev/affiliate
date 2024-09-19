@@ -26,6 +26,7 @@ import { checkIfProjectOwner } from "./checkIfProjectOwner";
 import { checkUserRole } from "./checkUserRole";
 import { fetchClickData } from "./fetchClickData";
 import { saveTweetUrl } from "./saveTweetUrl";
+import { updateTweetEngagement } from "./updateTweetEngagement";
 
 export {
   saveProjectToFirestore,
@@ -58,4 +59,5 @@ export {
   checkUserRole,
   fetchClickData,
   saveTweetUrl,
+  updateTweetEngagement,
 }
