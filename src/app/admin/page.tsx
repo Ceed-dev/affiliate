@@ -324,7 +324,7 @@ export default function Admin() {
         // Use the X API to get Tweet engagement data (Ref: https://developer.x.com/en/docs/x-api/tweets/lookup/api-reference/get-tweets)
         const response = await fetch(`https://api.x.com/2/tweets?ids=${tweetIdsBatch}&tweet.fields=public_metrics`, {
           headers: {
-            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_X_API_BEARER_TOKEN}`
+            "Authorization": `Bearer ${process.env.X_API_BEARER_TOKEN}`
           }
         });
       
@@ -334,22 +334,24 @@ export default function Admin() {
         // Stores engagement data for each Tweet along with the referral ID and Tweet URL
         // Map the fetched engagement data using tweetId
         tweetBatch.forEach((tweetData) => {
-          const matchingData = engagementDataArray.find((engagement: { id: string }) => engagement.id === tweetData.tweetId);
-          if (matchingData) {
-            const engagementData = matchingData.public_metrics;
-            batchedTweetData.push({
-              referralId: tweetData!.referralId,
-              tweetUrl: tweetData!.tweetUrl ?? "",
-              retweetCount: engagementData.retweet_count,
-              replyCount: engagementData.reply_count,
-              likeCount: engagementData.like_count,
-              quoteCount: engagementData.quote_count,
-              bookmarkCount: engagementData.bookmark_count,
-              impressionCount: engagementData.impression_count,
-              fetchedAt: new Date(),
-            });
+          if (tweetData) {  // Add this check to ensure tweetData is not null
+            const matchingData = engagementDataArray.find((engagement: { id: string }) => engagement.id === tweetData.tweetId);
+            if (matchingData) {
+              const engagementData = matchingData.public_metrics;
+              batchedTweetData.push({
+                referralId: tweetData.referralId,
+                tweetUrl: tweetData.tweetUrl ?? "",
+                retweetCount: engagementData.retweet_count,
+                replyCount: engagementData.reply_count,
+                likeCount: engagementData.like_count,
+                quoteCount: engagementData.quote_count,
+                bookmarkCount: engagementData.bookmark_count,
+                impressionCount: engagementData.impression_count,
+                fetchedAt: new Date(),
+              });
+            }
           }
-        });
+        });        
       }      
   
       // Update the state with the final batched data
