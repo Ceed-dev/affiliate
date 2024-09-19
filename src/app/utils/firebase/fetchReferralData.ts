@@ -37,7 +37,6 @@ export async function fetchReferralData(referralId: string): Promise<ReferralDat
           : undefined,
       };
       
-      console.log("Referral data:", JSON.stringify(referralData, null, 2));
       return referralData;
     } else {
       console.log("No such document or data validation failed!");

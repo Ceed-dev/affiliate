@@ -11,10 +11,10 @@ import Link from "next/link";
 import { formatAddress, formatChainName } from "../utils/formatters";
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
-  updateIsPaidFlag, fetchUnapprovedUsers, approveUser 
+  updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
-import { UnpaidConversionLog, UserData, ExtendedTweetEngagement } from "../types";
+import { UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
 import { xApiReferences } from "../constants/xApiReferences";
 
@@ -274,9 +274,89 @@ export default function Admin() {
 
   const handleFetchTweetEngagement = async () => {
     setLoadingTweetEngagementData(true);
+  
     try {
-      // Do something...
-      console.log(referralIdsForTweetEngagementData);
+      // Convert comma-separated Referral IDs to an array and trim excess whitespace
+      const referralIdsArray = referralIdsForTweetEngagementData
+        .split(",")
+        .map(id => id.trim())
+        .filter(id => id !== ""); // Remove empty IDs
+  
+      // Fetch referral data for each referral ID, handle errors gracefully
+      const referralDataPromises = referralIdsArray.map(async (referralId) => {
+        try {
+          const referralData = await fetchReferralData(referralId);
+          return referralData;
+        } catch (error) {
+          return null; // Skip invalid or failed referral ID
+        }
+      });
+  
+      // Use Promise.allSettled to process all requests and handle failures
+      const referralDataResults = await Promise.allSettled(referralDataPromises);
+  
+      // Filter out any failed requests or null results
+      const validReferralDataResults = referralDataResults
+        .filter((result): result is PromiseFulfilledResult<ReferralData | null> => result.status === "fulfilled" && result.value !== null)
+        .map(result => result.value as ReferralData);
+
+      // Extract tweet URLs and Tweet IDs from valid referral data
+      const tweetIds = validReferralDataResults
+        .map(referralData => {
+          const tweetUrl = referralData.tweetUrl;
+          const tweetIdMatch = tweetUrl?.match(/status\/(\d+)/);
+          if (!tweetIdMatch || !tweetIdMatch[1]) {
+            console.error(`Invalid tweet URL for referral ID: ${referralData.id}`);
+            return null;
+          }
+          return { tweetId: tweetIdMatch[1], tweetUrl, referralId: referralData.id! };
+        })
+        .filter(tweetData => tweetData !== null); // Filter out any invalid tweet URLs
+      
+      // Handle batching if more than 100 tweets
+      const batchSize = 100;
+      const batchedTweetData: ExtendedTweetEngagement[] = [];
+  
+      for (let i = 0; i < tweetIds.length; i += batchSize) {
+        const tweetBatch = tweetIds.slice(i, i + batchSize);
+        const tweetIdsBatch = tweetBatch.map(data => data!.tweetId).join(",");
+      
+        // Use the X API to get Tweet engagement data (Ref: https://developer.x.com/en/docs/x-api/tweets/lookup/api-reference/get-tweets)
+        const response = await fetch(`https://api.x.com/2/tweets?ids=${tweetIdsBatch}&tweet.fields=public_metrics`, {
+          headers: {
+            "Authorization": `Bearer ${process.env.X_API_BEARER_TOKEN}`
+          }
+        });
+      
+        const engagementDataResponse = await response.json();
+        const engagementDataArray = engagementDataResponse.data;
+      
+        // Stores engagement data for each Tweet along with the referral ID and Tweet URL
+        // Map the fetched engagement data using tweetId
+        tweetBatch.forEach((tweetData) => {
+          if (tweetData) {  // Add this check to ensure tweetData is not null
+            const matchingData = engagementDataArray.find((engagement: { id: string }) => engagement.id === tweetData.tweetId);
+            if (matchingData) {
+              const engagementData = matchingData.public_metrics;
+              batchedTweetData.push({
+                referralId: tweetData.referralId,
+                tweetUrl: tweetData.tweetUrl ?? "",
+                retweetCount: engagementData.retweet_count,
+                replyCount: engagementData.reply_count,
+                likeCount: engagementData.like_count,
+                quoteCount: engagementData.quote_count,
+                bookmarkCount: engagementData.bookmark_count,
+                impressionCount: engagementData.impression_count,
+                fetchedAt: new Date(),
+              });
+            }
+          }
+        });        
+      }      
+  
+      // Update the state with the final batched data
+      setEngagementDataArray(batchedTweetData);
+  
     } catch (error) {
       console.error("Failed to fetch & update tweet engagement:", error);
     } finally {
