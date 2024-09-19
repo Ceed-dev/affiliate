@@ -4,7 +4,7 @@ import {
 } from "./projectData";
 import { ExtendedProjectData } from "./extendedProjectData";
 import { ImageType, PreviewData } from "./imageType";
-import { TweetEngagement, ReferralData } from "./referralData";
+import { TweetEngagement, ExtendedTweetEngagement, ReferralData } from "./referralData";
 import { ExtendedReferralData } from "./extendedReferralData";
 import { AggregatedReferralData } from "./aggregatedReferralData";
 import { AffiliateInfo, UserRole } from "./affiliateInfo";
@@ -28,6 +28,7 @@ export type {
   ImageType,
   PreviewData,
   TweetEngagement,
+  ExtendedTweetEngagement,
   ReferralData,
   ExtendedReferralData,
   AggregatedReferralData,

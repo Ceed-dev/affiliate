@@ -1,3 +1,4 @@
+// TweetEngagement type for storing engagement data of tweets
 export type TweetEngagement = {
   retweetCount: number;
   replyCount: number;
@@ -8,6 +9,13 @@ export type TweetEngagement = {
   fetchedAt: Date; // Timestamp of when the data was fetched
 }
 
+// ExtendedTweetEngagement type for storing additional referral info
+export type ExtendedTweetEngagement = TweetEngagement & {
+  referralId: string;
+  tweetUrl: string;
+};
+
+// ReferralData type for storing referral-related information
 export type ReferralData = {
   id?: string;
   affiliateWallet: string;
@@ -17,5 +25,5 @@ export type ReferralData = {
   earnings: number;
   lastConversionDate: Date | null;
   tweetUrl?: string; // URL of the tweet shared by the affiliate
-  tweetEngagement?: TweetEngagement;
+  tweetEngagement?: TweetEngagement; // Tweet engagement data linked to the referral
 };
