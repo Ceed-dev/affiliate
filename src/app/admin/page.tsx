@@ -16,6 +16,7 @@ import {
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData, ExtendedTweetEngagement } from "../types";
 import { popularTokens } from "../constants/popularTokens";
+import { xApiReferences } from "../constants/xApiReferences";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 
@@ -655,6 +656,20 @@ export default function Admin() {
             <p className="text-lg text-red-500 font-bold underline mt-2">
               Note: X API allows up to 10,000 engagement data retrievals per month. Be mindful of the usage limits.
             </p>
+            {/* Display buttons for API references */}
+            <div className="mt-5 flex flex-row gap-2">
+              {xApiReferences.map((ref, index) => (
+                <a
+                  key={index}
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-orange-300 py-2 px-4 rounded-lg shadow-md text-center hover:bg-orange-500 transition"
+                >
+                  {ref.title}
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Referral IDs input section */}
