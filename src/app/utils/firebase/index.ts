@@ -27,6 +27,7 @@ import { checkUserRole } from "./checkUserRole";
 import { fetchClickData } from "./fetchClickData";
 import { saveTweetUrl } from "./saveTweetUrl";
 import { updateTweetEngagement } from "./updateTweetEngagement";
+import { fetchAllReferralIds } from "./fetchAllReferralIds";
 
 export {
   saveProjectToFirestore,
@@ -60,4 +61,5 @@ export {
   fetchClickData,
   saveTweetUrl,
   updateTweetEngagement,
+  fetchAllReferralIds,
 }
