@@ -274,8 +274,11 @@ export default function Admin() {
 
   const handleFetchTweetEngagement = async () => {
     setLoadingTweetEngagementData(true);
-  
+    
     try {
+      // Start the process - Show a toast notification
+      toast.info("Fetching Tweet engagement data...");
+  
       // Convert comma-separated Referral IDs to an array and trim excess whitespace
       const referralIdsArray = referralIdsForTweetEngagementData
         .split(",")
@@ -299,7 +302,7 @@ export default function Admin() {
       const validReferralDataResults = referralDataResults
         .filter((result): result is PromiseFulfilledResult<ReferralData | null> => result.status === "fulfilled" && result.value !== null)
         .map(result => result.value as ReferralData);
-
+  
       // Extract tweet URLs and Tweet IDs from valid referral data
       const tweetIds = validReferralDataResults
         .map(referralData => {
@@ -312,7 +315,7 @@ export default function Admin() {
           return { tweetId: tweetIdMatch[1], tweetUrl, referralId: referralData.id! };
         })
         .filter(tweetData => tweetData !== null); // Filter out any invalid tweet URLs
-      
+  
       // Handle batching if more than 100 tweets
       const batchSize = 100;
       const batchedTweetData: ExtendedTweetEngagement[] = [];
@@ -320,22 +323,23 @@ export default function Admin() {
       for (let i = 0; i < tweetIds.length; i += batchSize) {
         const tweetBatch = tweetIds.slice(i, i + batchSize);
         const tweetIdsBatch = tweetBatch.map(data => data!.tweetId).join(",");
-
+  
         // Call the internal API for fetching Tweet engagement data
         const response = await fetch(`/api/fetchTweetEngagement?tweetIds=${tweetIdsBatch}`, {
           headers: {
             "x-api-key": process.env.NEXT_PUBLIC_X_API_BEARER_TOKEN as string,
           },
         });
-      
+  
         if (!response.ok) {
           console.error(`Error fetching tweet engagement data: ${response.statusText}`);
+          toast.error(`Error fetching tweet engagement data: ${response.statusText}`); // Add toast for error
           continue;  // Skip this batch if the API request fails
         }
-      
+  
         const engagementDataResponse = await response.json();
         const engagementDataArray = engagementDataResponse.data;
-      
+  
         // Map the fetched engagement data using tweetId
         tweetBatch.forEach((tweetData) => {
           if (tweetData) {  // Add this check to ensure tweetData is not null
@@ -357,30 +361,34 @@ export default function Admin() {
           }
         });
       }
-
+  
       // Update the state with the final batched data
       if (batchedTweetData.length === 0) {
         setEngagementDataArray(null);
+        toast.warn("No engagement data found for the provided Tweet IDs.");
       } else {
         setEngagementDataArray(batchedTweetData);
-
+  
         // After setting the engagement data in the state, update Firestore
         try {
           await updateTweetEngagement(batchedTweetData);  // Add this to update Firestore
+          toast.success("Tweet engagement data successfully updated in Firestore.");
         } catch (error) {
           console.error("Error updating Firestore with Tweet engagement data:", error);
+          toast.error("Failed to update Firestore with Tweet engagement data.");
         }
       }
-
+  
       // Clear the input field
       setReferralIdsForTweetEngagementData("");
   
     } catch (error) {
       console.error("Failed to fetch & update tweet engagement:", error);
+      toast.error("Failed to fetch & update Tweet engagement data.");
     } finally {
       setLoadingTweetEngagementData(false);
     }
-  };
+  };  
   // =============== END TWEET ENGAGEMENT MANAGEMENT ==============
 
   return (
