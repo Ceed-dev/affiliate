@@ -21,7 +21,7 @@ import {
 } from "../types";
 import { popularTokens } from "../constants/popularTokens";
 import { xApiReferences } from "../constants/xApiReferences";
-import { Header, AdminHeaderWithReloadButton } from "../components/admin";
+import { Header, AdminHeaderWithReloadButton, AdminTabs } from "../components/admin";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 
@@ -409,34 +409,7 @@ export default function Admin() {
         loadUnapprovedUsers={loadUnapprovedUsers}
       />
 
-      <div className="w-11/12 border-b border-slate-400 my-5 overflow-x-auto">
-        <ul className="flex w-max">
-          <li className={`mr-1 ${activeTab === "unpaidConversionLogs" ? "text-sky-500" : ""}`}>
-            <button 
-              onClick={() => setActiveTab("unpaidConversionLogs")}
-              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "unpaidConversionLogs" ? "bg-slate-300 rounded-t-md" : ""}`}
-            >
-              Unpaid Conversion Logs & Token Summary
-            </button>
-          </li>
-          <li className={`mr-1 ${activeTab === "userApproval" ? "text-sky-500" : ""}`}>
-            <button 
-              onClick={() => setActiveTab("userApproval")}
-              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "userApproval" ? "bg-slate-300 rounded-t-md" : ""}`}
-            >
-              User Approval
-            </button>
-          </li>
-          <li className={`mr-1 ${activeTab === "manualTweetEngagementUpdate" ? "text-sky-500" : ""}`}>
-            <button 
-              onClick={() => setActiveTab("manualTweetEngagementUpdate")}
-              className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${activeTab === "manualTweetEngagementUpdate" ? "bg-slate-300 rounded-t-md" : ""}`}
-            >
-              Manual Tweet Engagement Update
-            </button>
-          </li>
-        </ul>
-      </div>
+      <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "unpaidConversionLogs" && (
         <>
