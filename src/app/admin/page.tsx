@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
-import { formatAddress, formatChainName } from "../utils/formatters";
+import { formatChainName } from "../utils/formatters";
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
   updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData, updateTweetEngagement,
@@ -18,6 +18,7 @@ import { initializeSigner, ERC20 } from "../utils/contracts";
 import { UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData } from "../types";
 import { popularTokens } from "../constants/popularTokens";
 import { xApiReferences } from "../constants/xApiReferences";
+import { Header } from "../components/admin";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 
@@ -395,24 +396,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen flex flex-col items-center">
 
-      <header className="w-full px-5 lg:px-0 py-2 border-b-2 border-sky-500 shadow-md">
-        <div className="flex flex-row justify-between w-full lg:w-2/3 mx-auto">
-          <Link href="/#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image
-              src="/qube.png"
-              alt="qube.png"
-              width={50}
-              height={50}
-            />
-            <p className="text-lg font-semibold">Qube</p>
-          </Link>
-          <button
-            className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            {address ? formatAddress(address) : "Not connected"}
-          </button>
-        </div>
-      </header>
+      <Header address={address ?? null} />
       
       <div className="w-11/12 flex justify-between items-center my-5">
         <h1 className="text-lg sm:text-2xl lg:text-4xl font-semibold">Admin Dashboard</h1>
