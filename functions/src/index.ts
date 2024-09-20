@@ -1,21 +1,70 @@
+// ============================
+// Environment and API Setup
+// ============================
+
+// Firebase Admin initialization for database interaction
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import {IncomingWebhook} from "@slack/webhook";
 import * as nodemailer from "nodemailer";
 
-// Initialize Firebase Admin
+// Initialize Firebase Admin SDK
 admin.initializeApp();
 const db = admin.firestore();
 
-// Slack Webhook URL
+// Slack Webhook URL for sending notifications
 const SLACK_WEBHOOK_URL = functions.config().slack.webhook_url;
+
+// X API Bearer Token for accessing the X (formerly Twitter) API
+const X_API_BEARER_TOKEN = functions.config().x_api.bearer_token;
 
 // Initialize Slack Webhook
 const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
 
+// Email environment variables for nodemailer setup
+const EMAIL_USER = functions.config().email.user;
+const EMAIL_PASS = functions.config().email.pass;
+
+// Nodemailer transport setup to send emails through Gmail
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
+  },
+});
+
+// Qube's official email address to be used for email notifications
+const qubeMailAddress = "\"Qube\" <official@0xqube.xyz>";
+
+// ============================
+// Type Definitions
+// ============================
+
 /**
- * Function to send a Slack notification
- * @param {object} message - The message to send to Slack
+ * Defines the structure for Tweet Engagement data.
+ * It includes metrics like retweets, replies, and impressions.
+ */
+type TweetEngagement = {
+  referralId: string;
+  tweetUrl: string;
+  retweetCount: number;
+  replyCount: number;
+  likeCount: number;
+  quoteCount: number;
+  bookmarkCount: number;
+  impressionCount: number;
+  fetchedAt: Date; // Date when the data was fetched
+};
+
+// ============================
+// Utility Functions
+// ============================
+
+/**
+ * Sends a Slack notification with the given message.
+ * @param {object} message - The message object to send to Slack.
  */
 async function sendSlackNotification(message: object): Promise<void> {
   await webhook.send({
@@ -23,8 +72,48 @@ async function sendSlackNotification(message: object): Promise<void> {
   });
 }
 
-// Cloud Firestore trigger for
-// when a document is created in the "users" collection
+/**
+ * Updates tweet engagement data in Firestore for each referral.
+ * This function iterates over an array of TweetEngagement objects,
+ * and updates the corresponding Firestore documents for each
+ * referral with the tweet engagement metrics.
+ *
+ * @param {TweetEngagement[]} tweetDataArray - Array of TweetEngagement objects
+ * with engagement data to be updated in Firestore.
+ */
+const updateTweetEngagement = async (tweetDataArray: TweetEngagement[]) => {
+  try {
+    const updatePromises = tweetDataArray.map(async (tweetData) => {
+      const referralDocRef = db.doc(`referrals/${tweetData.referralId}`);
+
+      await referralDocRef.update({
+        tweetEngagement: {
+          retweetCount: tweetData.retweetCount,
+          replyCount: tweetData.replyCount,
+          likeCount: tweetData.likeCount,
+          quoteCount: tweetData.quoteCount,
+          bookmarkCount: tweetData.bookmarkCount,
+          impressionCount: tweetData.impressionCount,
+          fetchedAt: tweetData.fetchedAt,
+        },
+      });
+    });
+
+    await Promise.all(updatePromises);
+    console.log("Firestore updated successfully.");
+  } catch (error) {
+    console.error("Firestore update failed:", error);
+  }
+};
+
+// ============================
+// Firestore Triggers
+// ============================
+
+/**
+ * Function triggered when a new user is created in Firestore.
+ * It sends a Slack notification with the user details.
+ */
 export const onUserCreated = functions.firestore
   .document("users/{walletAddress}")
   .onCreate(async (snap, context) => {
@@ -39,7 +128,7 @@ export const onUserCreated = functions.firestore
         userType = "Affiliater";
       }
 
-      const message: any = {
+      const message = {
         type: "user_created",
         walletAddress,
         createdAt: newUser.createdAt.toDate(),
@@ -47,40 +136,35 @@ export const onUserCreated = functions.firestore
         email: newUser.email,
         xProfileUrl: newUser.xProfileUrl,
         userType,
+        ...(newUser.projectUrl && {projectUrl: newUser.projectUrl}),
       };
-
-      // If projectUrl exists, add it to the message
-      if (newUser.projectUrl) {
-        message.projectUrl = newUser.projectUrl;
-      }
 
       await sendSlackNotification(message);
     }
   });
 
-// Cloud Firestore trigger for when a document is created
-// in the "conversionLogs" collection
+/**
+ * Function triggered when a new conversion log is created in Firestore.
+ * Sends a Slack notification with conversion details.
+ */
 export const onConversionLogCreated = functions.firestore
   .document("referrals/{referralId}/conversionLogs/{logId}")
   .onCreate(async (snap, context) => {
     const newConversionLog = snap.data();
     const referralId = context.params.referralId;
-    const logId = context.params.logId;
 
     if (newConversionLog) {
-      // Get the affiliateWallet from the referral document
+      // Fetch additional details from the database
       const referralDoc = await db.doc(`referrals/${referralId}`).get();
       const referralData = referralDoc.data();
       const affiliateWallet = referralData?.affiliateWallet;
-
-      // Get the selectedTokenAddress from the project document
       const projectId = referralData?.projectId;
+
       const projectDoc = await db.doc(`projects/${projectId}`).get();
       const projectData = projectDoc.data();
       const selectedTokenAddress = projectData?.selectedTokenAddress;
       const projectName = projectData?.projectName;
 
-      // Get the email from the users collection
       const userDoc = await db.doc(`users/${affiliateWallet}`).get();
       const userData = userDoc.data();
       const email = userData?.email;
@@ -94,44 +178,36 @@ export const onConversionLogCreated = functions.firestore
         email,
         referralId,
         projectPage: `https://www.0xqube.xyz/affiliate/${projectId}`,
-        logId,
+        logId: context.params.logId,
         projectName,
       };
       await sendSlackNotification(message);
     }
   });
 
-// Cloud Firestore trigger for
-// when a document is created in the "errors" collection
+/**
+ * Function triggered when an error is logged in Firestore.
+ * Sends a Slack notification with error details.
+ */
 export const onErrorLogged = functions.firestore
   .document("errors/{errorId}")
   .onCreate(async (snap, context) => {
     const newErrorLog = snap.data();
-    const errorId = context.params.errorId;
 
     if (newErrorLog) {
       const message = {
         message: newErrorLog.errorMessage,
         type: newErrorLog.errorType,
-        errorId,
+        errorId: context.params.errorId,
       };
       await sendSlackNotification(message);
     }
   });
 
-const EMAIL_USER = functions.config().email.user;
-const EMAIL_PASS = functions.config().email.pass;
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-});
-
-const qubeMailAddress = "\"Qube\" <official@0xqube.xyz>";
-
+/**
+ * Function triggered when a user's approval status changes.
+ * Sends an email if the user is approved.
+ */
 export const sendApprovalEmail = functions.firestore
   .document("users/{userId}")
   .onUpdate(async (change, context) => {
@@ -215,3 +291,138 @@ export const sendApprovalEmail = functions.firestore
       }
     }
   });
+
+// ============================
+// Scheduled Triggers
+// ============================
+
+/**
+ * Automated function that runs every Wednesday at 12 PM JST.
+ * Fetches tweet engagement data and updates Firestore.
+ */
+export const automatedTweetEngagementUpdate = onSchedule(
+  "0 3 * * 3",
+  async () => {
+    try {
+      console.log("Starting automated tweet engagement update...");
+
+      // Retrieve all referral IDs with a tweetUrl
+      const referralIds: {
+        tweetId: string,
+        tweetUrl: string,
+        referralId: string,
+      }[] = [];
+      const referralsSnapshot = await db.collection("referrals")
+        .where("tweetUrl", "!=", "") // Get documents with a tweetUrl
+        .get();
+
+      // Extract tweetId from the retrieved documents
+      referralsSnapshot.forEach((doc) => {
+        const referralData = doc.data();
+        const tweetUrl = referralData.tweetUrl;
+
+        // Extract Tweet ID from the Tweet URL
+        const tweetIdMatch = tweetUrl?.match(/status\/(\d+)/);
+        if (tweetIdMatch && tweetIdMatch[1]) {
+          referralIds.push({
+            tweetId: tweetIdMatch[1],
+            tweetUrl: tweetUrl,
+            referralId: doc.id,
+          });
+        }
+      });
+
+      if (referralIds.length === 0) {
+        console.log("No valid tweet URLs found.");
+        await sendSlackNotification({message: "No valid tweet URLs found."});
+        return;
+      }
+
+      console.log(
+        `Processing tweet engagement data for ${referralIds.length} tweets.`
+      );
+
+      // Process API calls in batches of 100
+      const batchSize = 100;
+      const batchedTweetData: TweetEngagement[] = [];
+
+      for (let i = 0; i < referralIds.length; i += batchSize) {
+        const tweetBatch = referralIds.slice(i, i + batchSize);
+        const tweetIdsBatch = tweetBatch.map((data) => data.tweetId).join(",");
+
+        // Call X API endpoint to retrieve engagement data
+        const url = `https://api.x.com/2/tweets?ids=${tweetIdsBatch}` +
+                    "&tweet.fields=public_metrics";
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${X_API_BEARER_TOKEN}`,
+          },
+        });
+
+        if (!response.ok) {
+          console.error(
+            `Error fetching tweet engagement data: ${response.statusText}`
+          );
+          await sendSlackNotification({
+            message:
+              `Error fetching tweet engagement data: ${response.statusText}`,
+          });
+          continue; // Skip this batch if the API request fails
+        }
+
+        const engagementDataResponse = await response.json();
+        const engagementDataArray = engagementDataResponse.data;
+
+        // Map engagement data based on tweetId
+        tweetBatch.forEach((tweetData) => {
+          const matchingData = engagementDataArray.find(
+            (engagement: { id: string }) => engagement.id === tweetData.tweetId
+          );
+          if (matchingData) {
+            const engagementData = matchingData.public_metrics;
+            batchedTweetData.push({
+              referralId: tweetData.referralId,
+              tweetUrl: tweetData.tweetUrl ?? "",
+              retweetCount: engagementData.retweet_count,
+              replyCount: engagementData.reply_count,
+              likeCount: engagementData.like_count,
+              quoteCount: engagementData.quote_count,
+              bookmarkCount: engagementData.bookmark_count,
+              impressionCount: engagementData.impression_count,
+              fetchedAt: new Date(),
+            });
+          }
+        });
+      }
+
+      if (batchedTweetData.length === 0) {
+        console.log("No tweet engagement data available for update.");
+        await sendSlackNotification({
+          message: "No tweet engagement data available for update.",
+        });
+      } else {
+        // Update Firestore with the new engagement data
+        await updateTweetEngagement(batchedTweetData);
+        console.log("Tweet engagement data successfully updated.");
+
+        // Send the Slack notification
+        // with separate fields for count and details
+        await sendSlackNotification({
+          message: "Tweet engagement data successfully updated.",
+          numberOfRecords: batchedTweetData.length,
+          details: JSON.stringify(batchedTweetData, null, 2),
+        });
+      }
+    } catch (error: any) {
+      console.error(
+        "An error occurred during the tweet engagement update:",
+        error
+      );
+      await sendSlackNotification({
+        message:
+          "An error occurred during the tweet engagement update: " +
+          error.message,
+      });
+    }
+  }
+);
