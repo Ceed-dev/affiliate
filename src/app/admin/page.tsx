@@ -15,10 +15,13 @@ import {
   fetchAllReferralIds,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
-import { UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData } from "../types";
+import { 
+  UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData,
+  ActiveTab,
+} from "../types";
 import { popularTokens } from "../constants/popularTokens";
 import { xApiReferences } from "../constants/xApiReferences";
-import { Header } from "../components/admin";
+import { Header, AdminHeaderWithReloadButton } from "../components/admin";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 
@@ -39,7 +42,7 @@ export default function Admin() {
   const [tokenSummary, setTokenSummary] = useState<{ 
     [tokenAddress: string]: { amount: number, chain: Chain } 
   }>({});
-  const [activeTab, setActiveTab] = useState("unpaidConversionLogs");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("unpaidConversionLogs");
   const [unapprovedUsers, setUnapprovedUsers] = useState<UserData[]>([]);
 
   useEffect(() => {
@@ -398,28 +401,13 @@ export default function Admin() {
 
       <Header address={address ?? null} />
       
-      <div className="w-11/12 flex justify-between items-center my-5">
-        <h1 className="text-lg sm:text-2xl lg:text-4xl font-semibold">Admin Dashboard</h1>
-        {activeTab !== "manualTweetEngagementUpdate" && (
-          <button 
-            className={`${(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? "bg-slate-400" : "bg-sky-500 hover:bg-sky-700"} text-white w-[130px] h-[40px] rounded transition`}
-            onClick={() => {
-              if (activeTab === "unpaidConversionLogs") {
-                loadUnpaidConversionLogs();
-              } else if (activeTab === "userApproval") {
-                loadUnapprovedUsers();
-              }
-            }}
-            disabled={(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading)}
-          >
-            {(activeTab === "unpaidConversionLogs" && unpaidLogsLoading) || (activeTab === "userApproval" && userApprovalLoading) ? (
-              <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin mx-auto" />
-            ) : (
-              "Reload Data"
-            )}
-          </button>
-        )}
-      </div>
+      <AdminHeaderWithReloadButton
+        activeTab={activeTab}
+        unpaidLogsLoading={unpaidLogsLoading}
+        userApprovalLoading={userApprovalLoading}
+        loadUnpaidConversionLogs={loadUnpaidConversionLogs}
+        loadUnapprovedUsers={loadUnapprovedUsers}
+      />
 
       <div className="w-11/12 border-b border-slate-400 my-5 overflow-x-auto">
         <ul className="flex w-max">
