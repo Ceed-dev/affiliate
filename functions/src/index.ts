@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import {IncomingWebhook} from "@slack/webhook";
 import * as nodemailer from "nodemailer";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -10,8 +11,23 @@ const db = admin.firestore();
 // Slack Webhook URL
 const SLACK_WEBHOOK_URL = functions.config().slack.webhook_url;
 
+// X API Bearer Token
+const X_API_BEARER_TOKEN = functions.config().x_api.bearer_token;
+
 // Initialize Slack Webhook
 const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
+
+type TweetEngagement = {
+  referralId: string;
+  tweetUrl: string;
+  retweetCount: number;
+  replyCount: number;
+  likeCount: number;
+  quoteCount: number;
+  bookmarkCount: number;
+  impressionCount: number;
+  fetchedAt: Date;
+}
 
 /**
  * Function to send a Slack notification
@@ -215,3 +231,155 @@ export const sendApprovalEmail = functions.firestore
       }
     }
   });
+
+export const automatedTweetEngagementUpdate = onSchedule(
+  "0 3 * * 3",
+  async () => {
+    try {
+      console.log("Starting automated tweet engagement update...");
+
+      // Retrieve all referral IDs with a tweetUrl
+      const referralIds: {
+        tweetId: string,
+        tweetUrl: string,
+        referralId: string,
+      }[] = [];
+      const referralsSnapshot = await db.collection("referrals")
+        .where("tweetUrl", "!=", "") // Get documents with a tweetUrl
+        .get();
+
+      // Extract tweetId from the retrieved documents
+      referralsSnapshot.forEach((doc) => {
+        const referralData = doc.data();
+        const tweetUrl = referralData.tweetUrl;
+
+        // Extract Tweet ID from the Tweet URL
+        const tweetIdMatch = tweetUrl?.match(/status\/(\d+)/);
+        if (tweetIdMatch && tweetIdMatch[1]) {
+          referralIds.push({
+            tweetId: tweetIdMatch[1],
+            tweetUrl: tweetUrl,
+            referralId: doc.id,
+          });
+        }
+      });
+
+      if (referralIds.length === 0) {
+        console.log("No valid tweet URLs found.");
+        await sendSlackNotification({message: "No valid tweet URLs found."});
+        return;
+      }
+
+      console.log(
+        `Processing tweet engagement data for ${referralIds.length} tweets.`
+      );
+
+      // Process API calls in batches of 100
+      const batchSize = 100;
+      const batchedTweetData: TweetEngagement[] = [];
+
+      for (let i = 0; i < referralIds.length; i += batchSize) {
+        const tweetBatch = referralIds.slice(i, i + batchSize);
+        const tweetIdsBatch = tweetBatch.map((data) => data.tweetId).join(",");
+
+        // Call X API endpoint to retrieve engagement data
+        const url = `https://api.x.com/2/tweets?ids=${tweetIdsBatch}` +
+                    "&tweet.fields=public_metrics";
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${X_API_BEARER_TOKEN}`,
+          },
+        });
+
+        if (!response.ok) {
+          console.error(
+            `Error fetching tweet engagement data: ${response.statusText}`
+          );
+          await sendSlackNotification({
+            message:
+              `Error fetching tweet engagement data: ${response.statusText}`,
+          });
+          continue; // Skip this batch if the API request fails
+        }
+
+        const engagementDataResponse = await response.json();
+        const engagementDataArray = engagementDataResponse.data;
+
+        // Map engagement data based on tweetId
+        tweetBatch.forEach((tweetData) => {
+          const matchingData = engagementDataArray.find(
+            (engagement: { id: string }) => engagement.id === tweetData.tweetId
+          );
+          if (matchingData) {
+            const engagementData = matchingData.public_metrics;
+            batchedTweetData.push({
+              referralId: tweetData.referralId,
+              tweetUrl: tweetData.tweetUrl ?? "",
+              retweetCount: engagementData.retweet_count,
+              replyCount: engagementData.reply_count,
+              likeCount: engagementData.like_count,
+              quoteCount: engagementData.quote_count,
+              bookmarkCount: engagementData.bookmark_count,
+              impressionCount: engagementData.impression_count,
+              fetchedAt: new Date(),
+            });
+          }
+        });
+      }
+
+      if (batchedTweetData.length === 0) {
+        console.log("No tweet engagement data available for update.");
+        await sendSlackNotification({
+          message: "No tweet engagement data available for update.",
+        });
+      } else {
+        // Update Firestore with the new engagement data
+        await updateTweetEngagement(batchedTweetData);
+        console.log("Tweet engagement data successfully updated.");
+
+        // Send the Slack notification
+        // with separate fields for count and details
+        await sendSlackNotification({
+          message: "Tweet engagement data successfully updated.",
+          numberOfRecords: batchedTweetData.length,
+          details: JSON.stringify(batchedTweetData, null, 2),
+        });
+      }
+    } catch (error: any) {
+      console.error(
+        "An error occurred during the tweet engagement update:",
+        error
+      );
+      await sendSlackNotification({
+        message:
+          "An error occurred during the tweet engagement update: " +
+          error.message,
+      });
+    }
+  }
+);
+
+const updateTweetEngagement = async (tweetDataArray: TweetEngagement[]) => {
+  try {
+    const updatePromises = tweetDataArray.map(async (tweetData) => {
+      const referralDocRef = db.doc(`referrals/${tweetData.referralId}`);
+
+      await referralDocRef.update({
+        tweetEngagement: {
+          retweetCount: tweetData.retweetCount,
+          replyCount: tweetData.replyCount,
+          likeCount: tweetData.likeCount,
+          quoteCount: tweetData.quoteCount,
+          bookmarkCount: tweetData.bookmarkCount,
+          impressionCount: tweetData.impressionCount,
+          fetchedAt: tweetData.fetchedAt,
+        },
+      });
+    });
+
+    await Promise.all(updatePromises);
+    console.log("Firestore updated successfully.");
+  } catch (error) {
+    console.error("Firestore update failed:", error);
+  }
+};
