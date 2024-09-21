@@ -3,6 +3,7 @@ import { AdminHeaderWithReloadButton } from "./AdminHeaderWithReloadButton";
 import { AdminTabs } from "./AdminTabs";
 import { TokenSummary } from "./TokenSummary";
 import { UnpaidConversionLogs } from "./UnpaidConversionLogs";
+import { UserApproval } from "./UserApproval";
 
 export {
   Header,
@@ -10,4 +11,5 @@ export {
   AdminTabs,
   TokenSummary,
   UnpaidConversionLogs,
+  UserApproval,
 }
