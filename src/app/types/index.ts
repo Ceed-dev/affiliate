@@ -16,6 +16,7 @@ import { ConversionLog } from "./conversionLog";
 import { UnpaidConversionLog } from "./unpaidConversionLog";
 import { ErrorType, ErrorLog } from "./error";
 import { ClickData } from "./clickData";
+import { ActiveTab } from "./admin";
 
 export type {
   DirectPaymentProjectData,
@@ -45,4 +46,5 @@ export type {
   ErrorType,
   ErrorLog,
   ClickData,
+  ActiveTab,
 }
