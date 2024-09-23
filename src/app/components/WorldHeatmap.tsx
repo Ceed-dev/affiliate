@@ -23,7 +23,7 @@ const generateTestData = () => {
     { country: "Thailand", clicks: 10, region: "Bangkok", city: "Bangkok" },   // Valid
     
     // North America countries
-    { country: "United States of America", clicks: 115, region: "California", city: "Los Angeles" }, // Valid
+    { country: "United States", clicks: 115, region: "California", city: "Los Angeles" }, // Valid
     { country: "Canad", clicks: 1, region: "Ontario", city: "Toronto" },                            // Invalid (intentional typo)
   
     // South America countries
