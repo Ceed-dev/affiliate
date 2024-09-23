@@ -6,4 +6,5 @@ export type ClickData = {
   region: string;
   city: string;
   userAgent: string;
+  referralId?: string;  // Optional referralId to track the referral source
 };
