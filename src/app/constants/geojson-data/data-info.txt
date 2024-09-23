@@ -1,5 +1,0 @@
-This JSON data was sourced from the following resource:
-
-- Source: https://github.com/johan/world.geo.json/blob/master/countries.geo.json?short_path=afdfc39
-- Last updated: September 21, 2024
-- Additional Notes: This data represents global country borders in GeoJSON format, containing the boundary information for each country.
