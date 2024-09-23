@@ -3,13 +3,13 @@ import { useAddress } from "@thirdweb-dev/react";
 import L from "leaflet";
 import { GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
-import countryData from "../constants/geojson-data/world-countries.json";
+import { combinedCountryData } from "../constants/geojson-data";
 import { ClickData } from "../types";
 import { getColorByPercentage, calculatePercentage } from "../utils/colorUtils";
 
 // Extract the list of valid country names from the geoJSON data
 const validCountryNames = new Set(
-  countryData.features.map((feature) => feature.properties.name)
+  combinedCountryData.features.map((feature) => feature.properties.name)
 );
 
 // Function to generate test click data for development and testing
@@ -150,7 +150,7 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
     });
 
     // Add GeoJSON layer to visualize data based on click distribution
-    const geoJsonLayer = L.geoJSON(countryData as GeoJsonObject, {
+    const geoJsonLayer = L.geoJSON(combinedCountryData as GeoJsonObject, {
       style: (feature) => {
         if (feature?.properties?.name) {
           const countryName = feature.properties.name;
