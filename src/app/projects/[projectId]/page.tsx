@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, BarChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
+import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
@@ -118,7 +119,11 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       setAllClickData(
         referralData
         ? referralData.reduce((acc: ClickData[], referral) => {
-            return [...acc, ...referral.clicks];
+            const clicksWithReferralId = referral.clicks.map(click => ({
+              ...click,
+              referralId: referral.id,
+            }));
+            return [...acc, ...clicksWithReferralId];
           }, [])
         : []
       );
@@ -223,6 +228,14 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             unit="PEOPLE"
           />
         </div> */}
+
+        {/* World Heatmap */}
+        <WorldHeatmap
+          dataPoints={allClickData}
+          unitLabel="clicks"
+          projectId={params.projectId}
+          useTestData={false}
+        />
 
         {/* Chart */}
         <div className="bg-white p-5 md:p-10 rounded-lg shadow">
