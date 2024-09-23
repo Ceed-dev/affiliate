@@ -77,8 +77,6 @@ type WorldHeatmapProps = {
   projectId: string;          // Project ID for tracking the relevant project
   height?: string;            // Optional: Height of the map container (default: 500px)
   center?: [number, number];  // Optional: Center coordinates for the map (default: [20, 0])
-  zoomLevel?: number;         // Optional: Initial zoom level (default: 2)
-  maxZoom?: number;           // Optional: Maximum zoom level (default: 18)
   useTestData?: boolean;      // Optional: Boolean to use test data instead of real data
 };
 
@@ -88,8 +86,6 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
   projectId,
   height = "500px",              // Default height is 500px
   center = [20, 0],              // Default center coordinates
-  zoomLevel = 2,                 // Default zoom level
-  maxZoom = 18,                  // Default maximum zoom level
   useTestData = false,           // Default is false
 }) => {
   const address = useAddress();  // Get the current user's address
@@ -117,15 +113,16 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
     // Initialize the map if not already initialized
     if (mapRef.current === null) {
       const map = L.map("map", {
-        zoomControl: false,        // Disable zoom controls
-        scrollWheelZoom: false,    // Disable scroll wheel zoom
-        doubleClickZoom: false,    // Disable double-click zoom
-        dragging: false,           // Disable map dragging
-      }).setView(center, zoomLevel); // Set the map center and zoom level
+        zoomControl: true,        // Enable zoom controls
+        scrollWheelZoom: true,    // Enable zooming via scroll wheel
+        doubleClickZoom: true,    // Enable zooming via double-click
+        dragging: true,           // Enable map dragging
+      }).setView(center, 2); // Set the initial map center and zoom level to a fixed value of 2
 
       // Add a tile layer (map background)
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: maxZoom,  // Set the maximum zoom level
+        minZoom: 2, // Set minimum zoom level (world view)
+        maxZoom: 8, // Set maximum zoom level to restrict excessive zoom-in
       }).addTo(map);
 
       mapRef.current = map;  // Save the map instance reference
@@ -188,7 +185,7 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
 
     geoJsonLayer.addTo(mapRef.current);  // Add the GeoJSON layer to the map
 
-  }, [validDataPoints, unitLabel, center, zoomLevel, maxZoom]);
+  }, [validDataPoints, unitLabel, center]);
 
   return (
     <>
