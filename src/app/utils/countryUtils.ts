@@ -21,6 +21,7 @@ export const getCountryCodeFromName = (countryName: string): string => {
   }
 
   // Attempt to retrieve the ISO Alpha-2 code for the given country name
+  // Northern Cyprus does not have a flag in flagcdn, so no flag will be displayed
   const isoCode = countryToAlpha2(countryName);
 
   // If no matching country is found, return 'unknown'
