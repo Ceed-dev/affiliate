@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { combinedCountryData } from "../constants/geojson-data";
 import { ClickData } from "../types";
 import { getColorByPercentage, calculatePercentage } from "../utils/colorUtils";
+import { getCountryCodeFromName } from "../utils/countryUtils";
 
 // Extract the list of valid country names from the geoJSON data
 const validCountryNames = new Set(
@@ -169,14 +170,26 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
         const countryName = feature.properties.name;
         const count = countryCounts[countryName] || 0;
         const percentage = calculatePercentage(count, totalDataPoints);
-        const popupContent = `${countryName}: ${count} ${unitLabel} (${percentage.toFixed(2)}%)`;
-
+      
+        // Get ISO Alpha-2 country code
+        const countryCode = getCountryCodeFromName(countryName);
+      
+        // If the country code is "unknown", no flag is displayed
+        const flagIcon = countryCode !== "unknown" 
+          ? `<img src="https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png" alt="${countryName} Flag" style="width: 18px; height: 12px; margin-right: 5px;" />`
+          : "";
+      
+        // Create the popup content with the flag and country name
+        const popupContent = `${flagIcon}${countryName}: ${count} ${unitLabel} (${percentage.toFixed(2)}%)`;
+      
+        // Show the popup when the mouse moves over the country
         layer.on("mousemove", function (e) {
           layer.bindPopup(popupContent, {
             closeButton: false,  // Hide close button in popups
           }).openPopup(e.latlng);
         });
 
+        // Close the popup when the mouse leaves the country
         layer.on("mouseout", function () {
           layer.closePopup();  // Close the popup when the mouse leaves the country
         });
