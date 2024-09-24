@@ -9,6 +9,11 @@ import { countryToAlpha2 } from "country-to-iso";
  *                     If the country name is not found, returns "unknown".
  */
 export const getCountryCodeFromName = (countryName: string): string => {
+  // Handle specific exceptions where the country name needs manual adjustment
+  if (countryName === "Myanmar (Burma)") {
+    countryName = "Myanmar";
+  }
+
   // Attempt to retrieve the ISO Alpha-2 code for the given country name
   const isoCode = countryToAlpha2(countryName);
 
