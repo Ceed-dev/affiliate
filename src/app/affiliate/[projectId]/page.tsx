@@ -14,6 +14,7 @@ import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { ToggleButton } from "../../components/ToggleButton";
 import { TieredDetailsModal } from "../../components/TieredDetailsModal";
+import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { 
   fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, 
   fetchConversionLogsForReferrals, fetchClickData, saveTweetUrl 
@@ -207,7 +208,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       
       fetchClickData(referralId!)
         .then(data => {
-          setClickData(data);
+          // Include referralId in the click data and handle the case where referralId is null
+          const clicksWithReferralId = data.map(click => ({
+            ...click,
+            referralId: referralId || undefined,  // Convert null to undefined
+          }));
+          
+          // Set the modified click data
+          setClickData(clicksWithReferralId);
           setLoadingClickData(false);
         })
         .catch(error => {
@@ -616,6 +624,16 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               loading={false}
               value={getNextPaymentDate()}
               unit={getTimeZoneSymbol()}
+            />
+          </div>
+
+          {/* World Heatmap */}
+          <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
+            <WorldHeatmap
+              dataPoints={clickData}
+              unitLabel="clicks"
+              projectId={params.projectId}
+              useTestData={false}
             />
           </div>
 
