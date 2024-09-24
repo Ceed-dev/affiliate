@@ -9,7 +9,19 @@ import { countryToAlpha2 } from "country-to-iso";
  *                     If the country name is not found, returns "unknown".
  */
 export const getCountryCodeFromName = (countryName: string): string => {
+  // Handle specific exceptions where the country name needs manual adjustment
+  if (countryName === "Myanmar (Burma)") {
+    countryName = "Myanmar";
+  } else if (countryName === "Republic of Serbia") {
+    countryName = "Serbia";
+  } else if (countryName === "Kosovo") {
+    return "XK";  // Return "XK" for Kosovo
+  } else if (countryName === "Macedonia") {
+    return "MK";  // Return "MK" for Macedonia
+  }
+
   // Attempt to retrieve the ISO Alpha-2 code for the given country name
+  // Northern Cyprus, Somaliland, and West Bank do not have flags in flagcdn, so no flag will be displayed
   const isoCode = countryToAlpha2(countryName);
 
   // If no matching country is found, return 'unknown'
