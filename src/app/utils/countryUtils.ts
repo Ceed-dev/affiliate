@@ -12,6 +12,8 @@ export const getCountryCodeFromName = (countryName: string): string => {
   // Handle specific exceptions where the country name needs manual adjustment
   if (countryName === "Myanmar (Burma)") {
     countryName = "Myanmar";
+  } else if (countryName === "Republic of Serbia") {
+    countryName = "Serbia";
   }
 
   // Attempt to retrieve the ISO Alpha-2 code for the given country name
