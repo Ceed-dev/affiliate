@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logClickData, validateApiKey, fetchReferralData } from "../../utils/firebase";
+import { logClickData, validateApiKey, fetchReferralData, logErrorToFirestore } from "../../utils/firebase";
 import { fetchLocationData } from "../../utils/geo/fetchLocationData";
 import { ClickData } from "../../types";
 
@@ -48,17 +48,34 @@ export async function POST(request: NextRequest) {
     // Step 5: Fetch geographic location data based on the provided IP address
     const locationData = await fetchLocationData(ip);
 
-    // Step 6: Prepare click data object with location and user agent information
+    // Step 6: Handle cases where location data is incomplete or invalid
+    if (!locationData?.country_name) {
+      // Log error to Firestore, including the referral and location data
+      await logErrorToFirestore("GeoLocationError", `Country unknown for IP: ${ip}`, {
+        locationData,
+        referral,  // Include the referral data in the error log
+      });
+
+      // Return error message to the client
+      return NextResponse.json(
+        {
+          error: "Failed to retrieve location data. Please ensure you are using a global IP address.",
+        },
+        { status: 400 }  // Bad Request - Location data could not be retrieved
+      );
+    }
+
+    // Step 7: Prepare click data object with location and user agent information
     const clickData: ClickData = {
       timestamp: new Date(),
       ip: ip,
-      country: locationData?.country_name || "unknown",
-      region: locationData?.region_name || "unknown",
-      city: locationData?.city || "unknown",
+      country: locationData.country_name,  // No need for "unknown" since it's validated earlier
+      region: locationData.region_name || "unknown",
+      city: locationData.city || "unknown",
       userAgent: userAgent,
     };
 
-    // Step 7: Attempt to log click data in Firestore
+    // Step 8: Attempt to log click data in Firestore
     try {
       await logClickData(referral, clickData);
     } catch (error) {
@@ -69,14 +86,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 8: Return success response
+    // Step 9: Return success response
     return NextResponse.json(
       { message: "Click logged successfully" },
       { status: 200 }  // Success - Click logged
     );
 
   } catch (error) {
-    // Step 9: Catch any unhandled errors and return a generic error response
+    // Step 10: Catch any unhandled errors and return a generic error response
     console.error("Unexpected error: ", error);
     return NextResponse.json(
       { error: "An unexpected error occurred" },
