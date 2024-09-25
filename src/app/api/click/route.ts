@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logClickData, validateApiKey, fetchReferralData, logErrorToFirestore } from "../../utils/firebase";
-import { fetchLocationData } from "../../utils/geo/fetchLocationData";
+import { fetchLocationData } from "../../utils/countryUtils";
 import { ClickData } from "../../types";
 
 /**
