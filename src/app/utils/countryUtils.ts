@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { countryToAlpha2 } from "country-to-iso";
 
 const ipstackApiKey = process.env.NEXT_PUBLIC_IPSTACK_API_KEY;
