@@ -7,7 +7,7 @@ import { isAddress } from "ethers/lib/utils";
 import { Chain } from "@thirdweb-dev/chains";
 import { Button } from "./Button";
 import { initializeSigner, ERC20, isEOA } from "../../utils/contracts";
-import { formatBalance } from "../../utils/formatUtil";
+import { formatBalance } from "../../utils/formatUtils";
 import { 
   WhitelistedAddress, WhitelistEntry, ProjectType, 
   PaymentType, ConversionPoint, Tier,

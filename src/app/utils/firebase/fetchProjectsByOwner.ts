@@ -1,6 +1,6 @@
 import { collection, query, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { isValidProjectData } from "../validationUtil";
+import { isValidProjectData } from "../validationUtils";
 import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData } from "../../types";
 
 export async function fetchProjectsByOwner(ownerAddress: string): Promise<ProjectData[]> {

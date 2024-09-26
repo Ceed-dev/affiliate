@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAddress } from "@thirdweb-dev/react";
-import { formatAddress } from "../utils/formatUtil";
+import { formatAddress } from "../utils/formatUtils";
 import { ChainSelector } from "../components/ChainSelector";
 
 export default function ProjectsLayout({

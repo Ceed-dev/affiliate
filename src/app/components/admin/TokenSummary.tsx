@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { Chain } from "@thirdweb-dev/chains"; // Importing Chain type from thirdweb-dev package
 import { toast } from "react-toastify"; // Importing toast for notifications
 import { popularTokens } from "../../constants/popularTokens"; // Predefined popular tokens list
-import { formatChainName } from "../../utils/formatUtil"; // Utility to format chain names for image sources
+import { formatChainName } from "../../utils/formatUtils"; // Utility to format chain names for image sources
 
 const ZERO_ADDRESS = ethers.constants.AddressZero; // Zero address constant for native tokens
 
