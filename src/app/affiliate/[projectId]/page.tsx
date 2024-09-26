@@ -26,7 +26,7 @@ import {
   getTimeZoneSymbol,
 } from "../../utils/dateUtils";
 import { formatChainName } from "../../utils/formatUtils";
-import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
+import { generateEmbedCode } from "../../utils/embedCodeUtil";
 import { useCountdown } from "../../hooks/useCountdown";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";
