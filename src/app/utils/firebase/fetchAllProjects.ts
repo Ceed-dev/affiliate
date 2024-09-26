@@ -1,6 +1,6 @@
 import { db } from "./firebaseConfig";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
-import { isValidProjectData } from "../validations";
+import { isValidProjectData } from "../validationUtil";
 import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData } from "../../types";
 import { toast } from "react-toastify";
 
