@@ -21,10 +21,12 @@ import {
 } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
 import { 
-  displayFormattedDateWithTimeZone, getNextPaymentDate, 
-  getTimeZoneSymbol, formatChainName 
-} from "../../utils/formatters";
-import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
+  displayFormattedDateWithTimeZone,
+  getNextPaymentDate,
+  getTimeZoneSymbol,
+} from "../../utils/dateUtils";
+import { formatChainName } from "../../utils/formatUtils";
+import { generateEmbedCode } from "../../utils/embedCodeUtil";
 import { useCountdown } from "../../hooks/useCountdown";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";

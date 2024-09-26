@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { formatAddress } from "../../utils/formatters"; // Import utility function to format address
+import { formatAddress } from "../../utils/formatUtils"; // Import utility function to format address
 
 interface HeaderProps {
   address: string | null; // Address prop can be either a string or null

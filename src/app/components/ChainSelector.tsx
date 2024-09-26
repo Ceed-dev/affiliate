@@ -4,7 +4,7 @@ import { useSwitchChain } from "@thirdweb-dev/react";
 import Image from "next/image";
 import { useChainContext } from "../context/chainContext";
 import { getChains } from "../utils/contracts";
-import { formatChainName } from "../utils/formatters";
+import { formatChainName } from "../utils/formatUtils";
 import { toast } from "react-toastify";
 
 interface ChainSelectorProps {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ExtendedProjectData } from "../types";
-import { formatChainName } from "../utils/formatters";
+import { formatChainName } from "../utils/formatUtils";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 
 type ProjectCardProps = {

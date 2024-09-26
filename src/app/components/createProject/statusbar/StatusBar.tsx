@@ -1,13 +1,13 @@
 import React from "react";
 import { StatusStep } from "./StatusStep";
-import { steps } from "../../../constants/stepts";
+import { projectCreationSteps } from "../../../constants/projectCreationSteps";
 import { ProjectType } from "../../../types";
 
 export const getSteps = (projectType: ProjectType | null) => {
   if (!projectType || projectType === "EscrowPayment") {
-    return steps;
+    return projectCreationSteps;
   } else {
-    return steps.filter(step => step !== "Media");
+    return projectCreationSteps.filter(step => step !== "Media");
   }
 };
 

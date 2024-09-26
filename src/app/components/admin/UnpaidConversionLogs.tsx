@@ -3,7 +3,7 @@ import Link from "next/link";
 import { toast } from "react-toastify"; // Importing toast for notifications
 import { ethers } from "ethers";
 import { popularTokens } from "../../constants/popularTokens"; // Importing list of popular tokens
-import { formatChainName } from "../../utils/formatters"; // Utility function to format chain names
+import { formatChainName } from "../../utils/formatUtils"; // Utility function to format chain names
 import { UnpaidConversionLog } from "../../types"; // Type for unpaid conversion logs
 
 const ZERO_ADDRESS = ethers.constants.AddressZero; // Constant for the zero address (used for native tokens)
