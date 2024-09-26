@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { ExtendedReferralData, AggregatedReferralData } from "../../types";
-import { formatAddress } from "../../utils/formatters";
+import { formatAddress } from "../../utils/formatUtil";
 import { toast } from "react-toastify";
 import { aggregateReferralData } from "../../utils/firebase";
 

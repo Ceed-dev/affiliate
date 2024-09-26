@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { PaymentTransaction } from "../../types";
-import { formatAddress } from "../../utils/formatters";
+import { formatAddress } from "../../utils/formatUtil";
 
 type ConversionsListProps = {
   explorerUrl: string;
