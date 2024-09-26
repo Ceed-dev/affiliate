@@ -1,4 +1,4 @@
-export const steps = [
+export const projectCreationSteps = [
   "Type",
   "Details",
   "Socials",
