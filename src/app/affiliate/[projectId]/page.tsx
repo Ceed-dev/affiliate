@@ -22,8 +22,9 @@ import {
 import { getProvider, ERC20 } from "../../utils/contracts";
 import { 
   displayFormattedDateWithTimeZone, getNextPaymentDate, 
-  getTimeZoneSymbol, formatChainName 
+  getTimeZoneSymbol,
 } from "../../utils/formatters";
+import { formatChainName } from "../../utils/formatUtil";
 import { generateEmbedCode } from "../../utils/embed/generateEmbedCode";
 import { useCountdown } from "../../hooks/useCountdown";
 import { chainRpcUrls } from "../../constants/chains";

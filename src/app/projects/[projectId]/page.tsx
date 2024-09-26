@@ -8,7 +8,7 @@ import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
-import { formatBalance } from "../../utils/formatters";
+import { formatBalance } from "../../utils/formatUtil";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";
 
