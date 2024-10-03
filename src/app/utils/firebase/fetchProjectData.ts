@@ -37,7 +37,6 @@ export async function fetchProjectData(projectId: string): Promise<ProjectData> 
         throw new Error("Unknown project type");
       }
 
-      console.log("Document data:", JSON.stringify(projectData, null, 2));
       return projectData;
     } else {
       console.log("No such document or data is invalid!");
