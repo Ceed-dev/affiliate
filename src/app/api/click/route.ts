@@ -1,7 +1,166 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logClickData, validateApiKey, fetchReferralData, logErrorToFirestore } from "../../utils/firebase";
+import { 
+  logClickData, fetchReferralData, fetchProjectData,
+  validateApiKey, logErrorToFirestore,
+} from "../../utils/firebase";
 import { fetchLocationData } from "../../utils/countryUtils";
-import { ClickData } from "../../types";
+import { ClickData, EscrowPaymentProjectData } from "../../types";
+
+/**
+ * Handles the GET request when a referral link is clicked.
+ * Logs click data and redirects the user to either the provided target URL (if available) 
+ * or the project-defined redirect URL retrieved from the database.
+ * 
+ * Two cases are handled:
+ * 1. If a target URL (t) is provided in the query parameters, the user is redirected to that URL.
+ * 2. If no target URL is provided, the project data is fetched from the database to obtain the redirect URL.
+ */
+export async function GET(request: NextRequest) {
+  try {
+    // Step 1: Extract referral ID and optional target URL from query parameters
+    const { searchParams } = new URL(request.url);
+    const referralId = searchParams.get("r");
+    const targetUrl = searchParams.get("t");  // If the target URL is specified directly
+
+    if (!referralId) {
+      return NextResponse.json(
+        { error: "Referral ID is missing" },
+        { status: 400 }  // Bad Request - Referral ID is required
+      );
+    }
+
+    // Step 2: Retrieve IP address and user agent from request headers
+    const ip = request.headers.get("x-forwarded-for") || request.ip;
+    if (!ip) {
+      return NextResponse.json(
+        { error: "IP address not found" },
+        { status: 400 }  // Bad Request - IP address is required
+      );
+    }
+    const userAgent = request.headers.get("user-agent") || "unknown";
+
+    // Step 3: Try to fetch geographic location data based on the IP address
+    let locationData;
+    try {
+      locationData = await fetchLocationData(ip);
+
+      // Step 3a: If country_name is missing, handle as an error
+      if (!locationData?.country_name) {
+        await logErrorToFirestore("GeoLocationError", `Country unknown for IP: ${ip}`, {
+          locationData,
+          referralId,  // Include the referral ID in the error log
+        });
+        console.error("Location data fetch error: country_name is missing");
+
+        // Skip logging click data and continue with the redirect
+        if (targetUrl) {
+          const decodedTargetUrl = decodeURIComponent(targetUrl);
+          const url = new URL(decodedTargetUrl);
+          url.searchParams.append("r", referralId);
+          return NextResponse.redirect(url.toString(), 302);
+        }
+      }
+    } catch (error: any) {
+      // Step 3b: If fetching location data fails, log the error and continue without logging the click data
+      await logErrorToFirestore("GeoLocationError", `Failed to retrieve location data for IP: ${ip}`, {
+        error: error.message,
+        referralId,
+      });
+      console.error("Location data fetch error: ", error);
+
+      // Continue with the redirect without logging the click data
+      if (targetUrl) {
+        const decodedTargetUrl = decodeURIComponent(targetUrl);
+        const url = new URL(decodedTargetUrl);
+        url.searchParams.append("r", referralId);
+        return NextResponse.redirect(url.toString(), 302);
+      }
+    }
+
+    // Step 4: If location data is valid, log the click data
+    if (locationData?.country_name) {
+      const clickData: ClickData = {
+        timestamp: new Date(),
+        ip: ip,
+        country: locationData.country_name,  // country_name is guaranteed to be valid here
+        region: locationData?.region_name || "unknown",
+        city: locationData?.city || "unknown",
+        userAgent: userAgent,
+      };
+
+      await logClickData(referralId, clickData);
+    }
+
+    // Step 5: If a target URL is provided, skip project data retrieval and redirect
+    if (targetUrl) {
+      const decodedTargetUrl = decodeURIComponent(targetUrl);
+      const url = new URL(decodedTargetUrl);
+      url.searchParams.append("r", referralId);
+      return NextResponse.redirect(url.toString(), 302);
+    }
+
+    // Step 6: Fetch referral data using the referral ID
+    const referralData = await fetchReferralData(referralId);
+    if (!referralData) {
+      return NextResponse.json(
+        { error: "Referral data not found" },
+        { status: 404 }  // Not Found - Referral data doesn't exist
+      );
+    }
+
+    // Step 7: Fetch project data using the projectId from referralData
+    const projectData = await fetchProjectData(referralData.projectId);
+    if (!projectData) {
+      return NextResponse.json(
+        { error: "Project data not found" },
+        { status: 404 }  // Not Found - Project data doesn't exist
+      );
+    }
+
+    // Step 8: Check if project type is EscrowPayment and retrieve the redirect URL
+    let redirectUrl: string | null = null;
+    if (projectData.projectType === "EscrowPayment") {
+      redirectUrl = (projectData as EscrowPaymentProjectData).redirectUrl;
+    } else {
+      return NextResponse.json(
+        { error: "Project type does not support redirection" },
+        { status: 400 }  // Bad Request - Unsupported project type
+      );
+    }
+
+    if (!redirectUrl) {
+      return NextResponse.json(
+        { error: "Redirect URL not found in project data" },
+        { status: 500 }  // Internal Server Error - Redirect URL missing
+      );
+    }
+
+    // Step 9: Redirect the user to the project's redirect URL with the referral ID as a query parameter
+    const url = new URL(redirectUrl);
+    url.searchParams.append("r", referralId);
+
+    return NextResponse.redirect(url.toString(), 302);
+
+  } catch (error) {
+    console.error("Error processing click: ", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }  // Internal Server Error - Generic error handling
+    );
+  }
+}
+
+// ==================================================================================
+
+/*
+  [Comment]: The GET method has been added as the new primary flow for handling referral links.
+  This GET method is now the preferred and future standard for use. However, the POST method
+  is retained temporarily for projects like "DBR," where clients and existing affiliates 
+  have already implemented the click API. This is to ensure that they do not need to immediately 
+  update their referral links to the new format. 
+
+  Both methods will coexist for a limited time until all referral links are transitioned to the new format.
+*/
 
 /**
  * Handles the POST request to log click data when a referral link is clicked.

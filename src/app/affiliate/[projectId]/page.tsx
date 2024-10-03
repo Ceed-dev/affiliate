@@ -112,7 +112,21 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         }
       } else if (projectData?.projectType === "EscrowPayment") {
         if (referralId) {
-          setReferralLink(`${projectData.redirectUrl}?r=${referralId}`);
+          // The conditional logic here checks if the project ID matches "FX26BxKbDVuJvaCtcTDf" (DBR project).
+          // For this specific project, we continue using the old referral link format for compatibility reasons
+          // to avoid requiring existing clients and affiliates to update their referral links.
+          // For all other projects, the new referral link format is used, which includes the target URL (t)
+          // as a query parameter. This optimization reduces unnecessary database lookups by passing
+          // the redirect URL directly, improving performance and reducing latency.
+          if (projectData.id === "FX26BxKbDVuJvaCtcTDf") {
+            setReferralLink(`${projectData.redirectUrl}?r=${referralId}`);
+          } else {
+            // The target URL (t) is included in the referral link to optimize performance.
+            // By passing the redirect URL (projectData.redirectUrl) as the `t` parameter in the API call, 
+            // we avoid unnecessary database lookups on the server side. This ensures the API can 
+            // directly use the provided URL for redirection, reducing latency and server load.
+            setReferralLink(`${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(projectData.redirectUrl)}`);
+          }
         } else {
           setReferralLink("");
         }
