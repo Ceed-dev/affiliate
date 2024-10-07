@@ -1,7 +1,9 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
-import { generateAuthUrl } from "../utils/xApiUtils";
+import { getAuthClient, generateAuthUrl } from "../utils/xApiUtils";
+import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserInfoModalProps = {
   isOpen: boolean;
@@ -23,6 +25,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   const [role, setRole] = useState<UserRole>("ProjectOwner");
   const [projectUrl, setProjectUrl] = useState<string>("");
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
+  const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (isOpen) {
@@ -32,6 +36,15 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       setXProfileUrl(localStorage.getItem("xProfileUrl") || "");
       setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner");
       setProjectUrl(localStorage.getItem("projectUrl") || "");
+
+      const storedTokenData = localStorage.getItem("xAuthTokenData");
+      if (storedTokenData) {
+        try {
+          setXAuthTokenData(JSON.parse(storedTokenData));
+        } catch (error) {
+          console.error("Failed to parse token data from localStorage:", error);
+        }
+      }
     }
   }, [isOpen]);
 
@@ -70,7 +83,49 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       (role !== "ProjectOwner" || validateUrl(projectUrl)) &&
       (!xProfileUrl || validateUrl(xProfileUrl))
     );
-  };  
+  };
+
+  useEffect(() => {
+    /**
+     * Fetch the OAuth access token using the authorization code and state from URL,
+     * then fetch the token and user data using getAuthClient.
+     */
+    const fetchAuthData = async () => {
+      const code = searchParams.get("code");
+      const state = searchParams.get("state");
+
+      if (!code || state !== (process.env.NEXT_PUBLIC_X_API_OAUTH_STATE as string)) {
+        console.error("Missing necessary parameters or invalid state.");
+        return;
+      }
+
+      try {
+        // Obtaining an access token from an authorization code
+        const response = await fetch(API_ENDPOINTS.AUTH(code, state));
+        const data = await response.json();
+
+        if (data.access_token) {
+          console.log("Access token received");
+
+          // Save the token information directly from the response data
+          setXAuthTokenData(data);
+          localStorage.setItem("xAuthTokenData", JSON.stringify(data));
+
+          // Get the authClient instance
+          const authClient = await getAuthClient();
+
+          // Manually set the token in the authClient
+          authClient.token = data;
+
+          console.log("X Account connected successfully");
+        }
+      } catch (error) {
+        console.error("Error fetching access token:", error);
+      }
+    };
+
+    fetchAuthData();
+  }, [searchParams]);
 
   const validateUsername = (username: string) => {
     return username.trim().length > 0;
@@ -107,6 +162,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
     localStorage.removeItem("xProfileUrl");
     localStorage.removeItem("role");
     localStorage.removeItem("projectUrl");
+    localStorage.removeItem("xAuthTokenData");
   };
 
   if (!isOpen) return null;
