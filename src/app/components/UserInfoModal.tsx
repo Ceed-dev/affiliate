@@ -2,7 +2,7 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
-import { getAuthClient, generateAuthUrl } from "../utils/xApiUtils";
+import { generateAuthUrl } from "../utils/xApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserInfoModalProps = {
@@ -29,6 +29,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
   const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);
   const [xUserData, setXUserData] = useState<any>(null);
+  const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,11 +102,13 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
      * Fetch the OAuth access token using the authorization code and state from URL.
      */
     const fetchAuthData = async () => {
+      setIsXApiLoading(true);
       const code = searchParams.get("code");
       const state = searchParams.get("state");
 
       if (!code || state !== (process.env.NEXT_PUBLIC_X_API_OAUTH_STATE as string)) {
         console.error("Missing necessary parameters or invalid state.");
+        setIsXApiLoading(false);
         return;
       }
 
@@ -125,6 +128,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
         }
       } catch (error) {
         console.error("Error fetching access token:", error);
+      } finally {
+        setIsXApiLoading(false);
       }
     };
 
@@ -138,6 +143,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
      * Fetch user data from the backend API using the access token.
      */
     const fetchUserData = async (tokenData: any) => {
+      setIsXApiLoading(true);
       try {
         // Call the backend API to get the user data
         const response = await fetch(API_ENDPOINTS.USER(tokenData));
@@ -154,6 +160,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setIsXApiLoading(false);
       }
     };
   
@@ -254,25 +262,39 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
               <label className="block mb-1 font-semibold">
                 X Account <span className="text-gray-500 text-xs">(optional)</span>
               </label>
-              <button
-                onClick={async () => {
-                  try {
-                    const authUrl = await generateAuthUrl();
-                    window.location.href = authUrl;
-                  } catch (error) {
-                    console.error("Failed to generate X auth URL", error);
-                  }
-                }}
-                className="w-full p-2 bg-black text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-gray-600"
-              >
-                <Image
-                  src="/brand-assets/x/white.png"
-                  alt="X Logo"
-                  width={20}
-                  height={20}
-                />
-                Connect X Account
-              </button>
+
+              {isXApiLoading ? (
+                <div className="flex justify-center items-center gap-2 text-sm text-gray-600">
+                  <Image
+                    src="/assets/common/loading.png"
+                    alt="loading"
+                    width={30}
+                    height={30}
+                    className="animate-spin"
+                  />
+                  Loading...
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    try {
+                      const authUrl = await generateAuthUrl();
+                      window.location.href = authUrl;
+                    } catch (error) {
+                      console.error("Failed to generate X auth URL", error);
+                    }
+                  }}
+                  className="w-full p-2 bg-black text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-gray-600"
+                >
+                  <Image
+                    src="/brand-assets/x/white.png"
+                    alt="X Logo"
+                    width={20}
+                    height={20}
+                  />
+                  Connect X Account
+                </button>
+              )}
             </div>
           )}
 
