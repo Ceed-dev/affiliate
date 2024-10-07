@@ -28,7 +28,7 @@ export const API_ENDPOINTS = {
    * @param {string} state - State parameter to ensure the validity of the request.
    * @returns {string} Full URL for the access token request.
    */
-  AUTH: (code: string, state: string): string => `/api/auth?code=${code}&state=${state}`,
+  AUTH: (code: string, state: string): string => `/api/x/auth?code=${code}&state=${state}`,
 
   /**
    * Endpoint for fetching user information.
