@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { AffiliateInfo, UserRole } from "../types";
+import { generateAuthUrl } from "../utils/xApiUtils";
 
 type UserInfoModalProps = {
   isOpen: boolean;
@@ -165,9 +166,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
               <button
                 onClick={async () => {
                   try {
-                    // const authUrl = await generateAuthUrl();
-                    // window.location.href = authUrl;
-                    console.log("Navigating to X auth page...");
+                    const authUrl = await generateAuthUrl();
+                    window.location.href = authUrl;
                   } catch (error) {
                     console.error("Failed to generate X auth URL", error);
                   }
