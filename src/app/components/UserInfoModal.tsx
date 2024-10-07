@@ -274,6 +274,24 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
                   />
                   Loading...
                 </div>
+              ) : xUserData ? (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={xUserData.profile_image_url}
+                    alt={xUserData.name}
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                  />
+                  <a
+                    href={`https://x.com/${xUserData.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 text-sm hover:underline"
+                  >
+                    @{xUserData.username}
+                  </a>
+                </div>
               ) : (
                 <button
                   onClick={async () => {
