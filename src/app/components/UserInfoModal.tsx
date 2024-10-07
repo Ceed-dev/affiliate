@@ -5,20 +5,60 @@ type UserInfoModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (info: AffiliateInfo) => void;
-  disableRoleSelection?: boolean; // Optional flag to disable role selection
+  disableRoleSelection?: boolean;
 };
 
-export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, onSave, disableRoleSelection = false }) => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [xProfileUrl, setXProfileUrl] = useState("");
+export const UserInfoModal: React.FC<UserInfoModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  disableRoleSelection = false,
+}) => {
+  // State to initialize when the modal opens
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [xProfileUrl, setXProfileUrl] = useState<string>("");
   const [role, setRole] = useState<UserRole>("ProjectOwner");
-  const [projectUrl, setProjectUrl] = useState("");
+  const [projectUrl, setProjectUrl] = useState<string>("");
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
 
   useEffect(() => {
-    setIsSaveEnabled(validateInputs());
-  }, [username, email, xProfileUrl, role, projectUrl]);
+    if (isOpen) {
+      // Get value from local storage only when modal is opened
+      setUsername(localStorage.getItem("username") || "");
+      setEmail(localStorage.getItem("email") || "");
+      setXProfileUrl(localStorage.getItem("xProfileUrl") || "");
+      setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner");
+      setProjectUrl(localStorage.getItem("projectUrl") || "");
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsSaveEnabled(validateInputs());
+    }
+  }, [username, email, xProfileUrl, role, projectUrl, isOpen]);
+
+  // Sync state changes to localStorage when modal is open
+  useEffect(() => {
+    if (isOpen) localStorage.setItem("username", username);
+  }, [username, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) localStorage.setItem("email", email);
+  }, [email, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) localStorage.setItem("xProfileUrl", xProfileUrl);
+  }, [xProfileUrl, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) localStorage.setItem("role", role);
+  }, [role, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) localStorage.setItem("projectUrl", projectUrl);
+  }, [projectUrl, isOpen]);
 
   const validateInputs = () => {
     return (
@@ -26,7 +66,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
       validateEmail(email) &&
       validateUrl(xProfileUrl) &&
       validateRole(role) &&
-      (role !== "ProjectOwner" || validateUrl(projectUrl)) // In the case of ProjectOwner, projectUrl is also validated.
+      (role !== "ProjectOwner" || validateUrl(projectUrl))
     );
   };
 
@@ -58,6 +98,13 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, o
     } else {
       onSave({ username, email, xProfileUrl, role });
     }
+    
+    // Delete from local storage after saving data
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    localStorage.removeItem("xProfileUrl");
+    localStorage.removeItem("role");
+    localStorage.removeItem("projectUrl");
   };
 
   if (!isOpen) return null;
