@@ -5,5 +5,4 @@ export type AffiliateInfo = {
   email: string;
   role: UserRole;
   projectUrl?: string;
-  xProfileUrl?: string;
 };

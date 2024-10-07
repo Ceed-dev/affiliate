@@ -33,11 +33,6 @@ export async function createNewUser(
     newUser.joinedProjectIds = [];
   }
 
-  // Add xProfileUrl only if it exists (optional field)
-  if (userInfo.xProfileUrl) {
-    newUser.xProfileUrl = userInfo.xProfileUrl;
-  }
-
   try {
     await setDoc(userDocRef, newUser);
     toast.success("Your account has been created successfully!");
