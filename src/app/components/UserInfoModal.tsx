@@ -64,11 +64,11 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
     return (
       validateUsername(username) &&
       validateEmail(email) &&
-      validateUrl(xProfileUrl) &&
       validateRole(role) &&
-      (role !== "ProjectOwner" || validateUrl(projectUrl))
+      (role !== "ProjectOwner" || validateUrl(projectUrl)) &&
+      (!xProfileUrl || validateUrl(xProfileUrl))
     );
-  };
+  };  
 
   const validateUsername = (username: string) => {
     return username.trim().length > 0;
@@ -94,9 +94,9 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
 
   const handleSave = () => {
     if (role === "ProjectOwner") {
-      onSave({ username, email, xProfileUrl, role, projectUrl });
+      onSave({ username, email, role, projectUrl });
     } else {
-      onSave({ username, email, xProfileUrl, role });
+      onSave({ username, email, role, xProfileUrl });
     }
     
     // Delete from local storage after saving data
@@ -114,7 +114,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md mx-auto">
         <h2 className="text-xl font-semibold mb-4">User Information</h2>
         <p className="text-sm text-gray-600 mb-4">
-          Please provide your username, email address, X profile URL, and select your role to complete your registration.
+          Please provide your username, email address, and select your role to complete your registration.
           {role === "ProjectOwner" && " As a Project Owner, you also need to provide your project URL."}
         </p>
         <div className="flex flex-col gap-5">
@@ -139,16 +139,6 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="block mb-1 font-semibold">X Profile URL <span className="text-red-500">*</span></label>
-            <input
-              type="url"
-              value={xProfileUrl}
-              onChange={(e) => setXProfileUrl(e.target.value)}
-              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
-              placeholder="https://x.com/0xQube"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
             <label className="block mb-1 font-semibold">Role <span className="text-red-500">*</span></label>
             {disableRoleSelection && (
               <p className="text-sm text-gray-500">
@@ -165,6 +155,21 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
               <option value="Affiliate">Affiliater</option>
             </select>
           </div>
+
+          {/* Show X Profile URL field only for when the role is "Affiliate" */}
+          {role === "Affiliate" && (
+            <div className="flex flex-col gap-2">
+              <label className="block mb-1 font-semibold">X Profile URL <span className="text-gray-500 text-xs">(optional)</span></label>
+              <input
+                type="url"
+                value={xProfileUrl}
+                onChange={(e) => setXProfileUrl(e.target.value)}
+                className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+                placeholder="https://x.com/0xQube"
+              />
+            </div>
+          )}
+
           {role === "ProjectOwner" && (
             <div className="flex flex-col gap-2">
               <label className="block mb-1 font-semibold">Project URL <span className="text-red-500">*</span></label>
