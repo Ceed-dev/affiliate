@@ -172,10 +172,10 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
                     console.error("Failed to generate X auth URL", error);
                   }
                 }}
-                className="w-full p-2 bg-blue-500 text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-blue-600"
+                className="w-full p-2 bg-black text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-gray-600"
               >
                 <Image
-                  src="/brand-assets/x.png"
+                  src="/brand-assets/x/white.png"
                   alt="X Logo"
                   width={20}
                   height={20}

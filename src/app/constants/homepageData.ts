@@ -92,7 +92,7 @@ export const faqs = [
 ];
 
 export const socialMediaLinks = [
-  { src: "/brand-assets/x.png", alt: "X", url: "https://x.com/0xQube" },
+  { src: "/brand-assets/x/black.png", alt: "X", url: "https://x.com/0xQube" },
 ];
 
 export const footerLinks = {
