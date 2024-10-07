@@ -126,7 +126,7 @@ export const ManualTweetEngagementUpdate: React.FC<ManualTweetEngagementUpdatePr
                           rel="noopener noreferrer" 
                         >
                           <Image 
-                            src="/brand-assets/x.png" 
+                            src="/brand-assets/x/black.png" 
                             alt="Open Tweet" 
                             width={16} 
                             height={16} 
