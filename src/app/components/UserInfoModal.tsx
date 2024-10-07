@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { AffiliateInfo, UserRole } from "../types";
 
@@ -156,17 +157,31 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
             </select>
           </div>
 
-          {/* Show X Profile URL field only for when the role is "Affiliate" */}
           {role === "Affiliate" && (
             <div className="flex flex-col gap-2">
-              <label className="block mb-1 font-semibold">X Profile URL <span className="text-gray-500 text-xs">(optional)</span></label>
-              <input
-                type="url"
-                value={xProfileUrl}
-                onChange={(e) => setXProfileUrl(e.target.value)}
-                className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
-                placeholder="https://x.com/0xQube"
-              />
+              <label className="block mb-1 font-semibold">
+                X Account <span className="text-gray-500 text-xs">(optional)</span>
+              </label>
+              <button
+                onClick={async () => {
+                  try {
+                    // const authUrl = await generateAuthUrl();
+                    // window.location.href = authUrl;
+                    console.log("Navigating to X auth page...");
+                  } catch (error) {
+                    console.error("Failed to generate X auth URL", error);
+                  }
+                }}
+                className="w-full p-2 bg-blue-500 text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-blue-600"
+              >
+                <Image
+                  src="/brand-assets/x.png"
+                  alt="X Logo"
+                  width={20}
+                  height={20}
+                />
+                Connect X Account
+              </button>
             </div>
           )}
 
