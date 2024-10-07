@@ -18,6 +18,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   onSave,
   disableRoleSelection = false,
 }) => {
+  const searchParams = useSearchParams();
+
   // State to initialize when the modal opens
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -26,7 +28,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   const [projectUrl, setProjectUrl] = useState<string>("");
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
   const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);
-  const searchParams = useSearchParams();
+  const [xUserData, setXUserData] = useState<any>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -37,12 +39,21 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner");
       setProjectUrl(localStorage.getItem("projectUrl") || "");
 
-      const storedTokenData = localStorage.getItem("xAuthTokenData");
-      if (storedTokenData) {
+      const storedXAuthTokenData = localStorage.getItem("xAuthTokenData");
+      if (storedXAuthTokenData) {
         try {
-          setXAuthTokenData(JSON.parse(storedTokenData));
+          setXAuthTokenData(JSON.parse(storedXAuthTokenData));
         } catch (error) {
-          console.error("Failed to parse token data from localStorage:", error);
+          console.error("Failed to parse x auth token data from localStorage:", error);
+        }
+      }
+
+      const storedXUserData = localStorage.getItem("xUserData");
+      if (storedXUserData) {
+        try {
+          setXUserData(JSON.parse(storedXUserData));
+        } catch (error) {
+          console.log("Failed to parse x user data from localStorage:", error);
         }
       }
     }
@@ -87,8 +98,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
 
   useEffect(() => {
     /**
-     * Fetch the OAuth access token using the authorization code and state from URL,
-     * then fetch the token and user data using getAuthClient.
+     * Fetch the OAuth access token using the authorization code and state from URL.
      */
     const fetchAuthData = async () => {
       const code = searchParams.get("code");
@@ -100,22 +110,16 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       }
 
       try {
-        // Obtaining an access token from an authorization code
+        // Obtain an access token from an authorization code
         const response = await fetch(API_ENDPOINTS.AUTH(code, state));
         const data = await response.json();
 
         if (data.access_token) {
           console.log("Access token received");
 
-          // Save the token information directly from the response data
+          // Save the token information in state and localStorage
           setXAuthTokenData(data);
           localStorage.setItem("xAuthTokenData", JSON.stringify(data));
-
-          // Get the authClient instance
-          const authClient = await getAuthClient();
-
-          // Manually set the token in the authClient
-          authClient.token = data;
 
           console.log("X Account connected successfully");
         }
@@ -126,6 +130,36 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
 
     fetchAuthData();
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!xAuthTokenData) return;
+  
+    /**
+     * Fetch user data from the backend API using the access token.
+     */
+    const fetchUserData = async (tokenData: any) => {
+      try {
+        // Call the backend API to get the user data
+        const response = await fetch(API_ENDPOINTS.USER(tokenData));
+        const userData = await response.json();
+  
+        if (userData.user) {
+          // Save the user information in state and localStorage
+          setXUserData(userData.user);
+          localStorage.setItem("xUserData", JSON.stringify(userData.user));
+  
+          console.log("X user data fetched successfully");
+        } else {
+          console.error("Failed to fetch user data.");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+  
+    // Fetch user data after receiving the auth token
+    fetchUserData(xAuthTokenData);
+  }, [xAuthTokenData]);  
 
   const validateUsername = (username: string) => {
     return username.trim().length > 0;
@@ -163,6 +197,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
     localStorage.removeItem("role");
     localStorage.removeItem("projectUrl");
     localStorage.removeItem("xAuthTokenData");
+    localStorage.removeItem("xUserData");
   };
 
   if (!isOpen) return null;

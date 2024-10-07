@@ -36,6 +36,6 @@ export const API_ENDPOINTS = {
    * @returns {string} Full URL for the user information request with encoded token data.
    */
   USER: (tokenData: { access_token: string, token_type: string, scope: string, refresh_token: string, expires_at: number }): string => {
-    return `/api/user?tokenData=${encodeURIComponent(JSON.stringify(tokenData))}`;
+    return `/api/x/user?tokenData=${encodeURIComponent(JSON.stringify(tokenData))}`;
   }
 };
