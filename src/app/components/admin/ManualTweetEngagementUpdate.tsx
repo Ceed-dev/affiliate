@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify"; // Import toast for notifications
-import { xApiReferences } from "../../constants/xApiReferences"; // X API reference links
+import { X_API_REFERENCES } from "../../constants/xApiConstants"; // X API reference links
 import { fetchAllReferralIds } from "../../utils/firebase"; // Fetch function to get all referral IDs from Firebase
 import { ExtendedTweetEngagement } from "../../types"; // Type definition for extended tweet engagement data
 
@@ -34,7 +34,7 @@ export const ManualTweetEngagementUpdate: React.FC<ManualTweetEngagementUpdatePr
 
         {/* Links to X API references */}
         <div className="mt-5 flex flex-row gap-2">
-          {xApiReferences.map((ref, index) => (
+          {X_API_REFERENCES.map((ref, index) => (
             <Link
               key={index}
               href={ref.url}
