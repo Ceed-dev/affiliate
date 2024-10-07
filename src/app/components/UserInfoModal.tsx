@@ -23,7 +23,6 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   // State to initialize when the modal opens
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [xProfileUrl, setXProfileUrl] = useState<string>("");
   const [role, setRole] = useState<UserRole>("ProjectOwner");
   const [projectUrl, setProjectUrl] = useState<string>("");
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
@@ -36,7 +35,6 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       // Get value from local storage only when modal is opened
       setUsername(localStorage.getItem("username") || "");
       setEmail(localStorage.getItem("email") || "");
-      setXProfileUrl(localStorage.getItem("xProfileUrl") || "");
       setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner");
       setProjectUrl(localStorage.getItem("projectUrl") || "");
 
@@ -64,7 +62,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
     if (isOpen) {
       setIsSaveEnabled(validateInputs());
     }
-  }, [username, email, xProfileUrl, role, projectUrl, isOpen]);
+  }, [username, email, role, projectUrl, isOpen]);
 
   // Sync state changes to localStorage when modal is open
   useEffect(() => {
@@ -74,10 +72,6 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   useEffect(() => {
     if (isOpen) localStorage.setItem("email", email);
   }, [email, isOpen]);
-
-  useEffect(() => {
-    if (isOpen) localStorage.setItem("xProfileUrl", xProfileUrl);
-  }, [xProfileUrl, isOpen]);
 
   useEffect(() => {
     if (isOpen) localStorage.setItem("role", role);
@@ -92,8 +86,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       validateUsername(username) &&
       validateEmail(email) &&
       validateRole(role) &&
-      (role !== "ProjectOwner" || validateUrl(projectUrl)) &&
-      (!xProfileUrl || validateUrl(xProfileUrl))
+      (role !== "ProjectOwner" || validateUrl(projectUrl))
     );
   };
 
@@ -195,13 +188,12 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
     if (role === "ProjectOwner") {
       onSave({ username, email, role, projectUrl });
     } else {
-      onSave({ username, email, role, xProfileUrl });
+      onSave({ username, email, role });
     }
     
     // Delete from local storage after saving data
     localStorage.removeItem("username");
     localStorage.removeItem("email");
-    localStorage.removeItem("xProfileUrl");
     localStorage.removeItem("role");
     localStorage.removeItem("projectUrl");
     localStorage.removeItem("xAuthTokenData");
