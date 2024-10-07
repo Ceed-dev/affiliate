@@ -31,7 +31,6 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
               {/* Table headers */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">X Profile URL</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wallet Address</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -41,7 +40,7 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
             {/* Show loading state if the data is being fetched */}
             {userApprovalLoading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-lg text-gray-500">
+                <td colSpan={5} className="px-6 py-4 text-lg text-gray-500">
                   <div className="flex flex-row items-center justify-center gap-5">
                     <Image src={"/assets/common/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
                     Loading..., this may take a while.
@@ -51,7 +50,7 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
             ) : unapprovedUsers.length === 0 ? (
               // Show message if no unapproved users are found
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-lg text-gray-500 text-center">
+                <td colSpan={5} className="px-6 py-4 text-lg text-gray-500 text-center">
                   No users awaiting approval.
                 </td>
               </tr>
@@ -69,16 +68,6 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
                       className="text-blue-500 hover:underline"
                     >
                       {user.email}
-                    </Link>
-                  </td>
-                  {/* X (formerly Twitter) Profile URL */}
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    <Link 
-                      href={user.xProfileUrl}
-                      target="_blank"
-                      className="text-blue-500 hover:underline"
-                    >
-                      {user.xProfileUrl}
                     </Link>
                   </td>
                   {/* Wallet address */}
