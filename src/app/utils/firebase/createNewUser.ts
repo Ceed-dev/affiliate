@@ -33,6 +33,15 @@ export async function createNewUser(
     newUser.joinedProjectIds = [];
   }
 
+  // Add X Auth Token and X Account Info if they exist
+  if (userInfo.xAuthToken) {
+    newUser.xAuthToken = userInfo.xAuthToken; // Save the X auth token data
+  }
+
+  if (userInfo.xAccountInfo) {
+    newUser.xAccountInfo = userInfo.xAccountInfo; // Save the X account information
+  }
+
   try {
     await setDoc(userDocRef, newUser);
     toast.success("Your account has been created successfully!");
