@@ -185,11 +185,23 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
   };
 
   const handleSave = () => {
-    if (role === "ProjectOwner") {
-      onSave({ username, email, role, projectUrl });
-    } else {
-      onSave({ username, email, role });
+    const userInfo: AffiliateInfo = {
+      username,
+      email,
+      role,
+    };
+  
+    if (role === "ProjectOwner" && projectUrl) {
+      userInfo.projectUrl = projectUrl;
     }
+  
+    if (xAuthTokenData && xUserData) {
+      userInfo.xAuthToken = xAuthTokenData;
+      userInfo.xAccountInfo = xUserData;
+    }
+  
+    // Save the user information
+    onSave(userInfo);
     
     // Delete from local storage after saving data
     localStorage.removeItem("username");
