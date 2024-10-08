@@ -5,100 +5,110 @@ import { AffiliateInfo, UserRole } from "../types";
 import { generateAuthUrl } from "../utils/xApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
-type UserInfoModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (info: AffiliateInfo) => void;
-  disableRoleSelection?: boolean;
+type UserAccountSetupModalProps = {
+  isOpen: boolean;                   // Indicates whether the modal is open or not
+  onClose: () => void;               // Function to close the modal
+  onSave: (info: AffiliateInfo) => void;  // Function to save the affiliate information
+  disableRoleSelection?: boolean;    // Option to disable role selection (default: false)
 };
 
-export const UserInfoModal: React.FC<UserInfoModalProps> = ({
+export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   isOpen,
   onClose,
   onSave,
   disableRoleSelection = false,
 }) => {
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams();  // Used to fetch query parameters from the URL
 
-  // State to initialize when the modal opens
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [role, setRole] = useState<UserRole>("ProjectOwner");
-  const [projectUrl, setProjectUrl] = useState<string>("");
-  const [isSaveEnabled, setIsSaveEnabled] = useState(false);
-  const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);
-  const [xUserData, setXUserData] = useState<any>(null);
-  const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false);
+  // State variables for form fields and data management
+  const [username, setUsername] = useState<string>("");      // Stores the user's input for username
+  const [email, setEmail] = useState<string>("");            // Stores the user's input for email
+  const [role, setRole] = useState<UserRole>("ProjectOwner"); // Manages selected user role
+  const [projectUrl, setProjectUrl] = useState<string>("");  // Project URL input for ProjectOwner role
+  const [isSaveEnabled, setIsSaveEnabled] = useState(false); // Enables save button when inputs are valid
 
+  // State variables for X API authentication and user data
+  const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);  // Stores X API authentication token data
+  const [xUserData, setXUserData] = useState<any>(null);            // Stores X user profile data
+  const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false); // Manages loading state during API calls
+
+  // Load data from localStorage when the modal is opened
   useEffect(() => {
     if (isOpen) {
-      // Get value from local storage only when modal is opened
-      setUsername(localStorage.getItem("username") || "");
-      setEmail(localStorage.getItem("email") || "");
-      setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner");
-      setProjectUrl(localStorage.getItem("projectUrl") || "");
-
-      const storedXAuthTokenData = localStorage.getItem("xAuthTokenData");
-      if (storedXAuthTokenData) {
-        try {
-          setXAuthTokenData(JSON.parse(storedXAuthTokenData));
-        } catch (error) {
-          console.error("Failed to parse x auth token data from localStorage:", error);
-        }
-      }
-
-      const storedXUserData = localStorage.getItem("xUserData");
-      if (storedXUserData) {
-        try {
-          setXUserData(JSON.parse(storedXUserData));
-        } catch (error) {
-          console.log("Failed to parse x user data from localStorage:", error);
-        }
-      }
+      loadLocalStorageData();  // Function to load data from localStorage
     }
   }, [isOpen]);
 
+  // Validate input fields when modal is open or form data changes
   useEffect(() => {
     if (isOpen) {
-      setIsSaveEnabled(validateInputs());
+      setIsSaveEnabled(validateInputs());  // Function to validate the user inputs
     }
   }, [username, email, role, projectUrl, isOpen]);
 
-  // Sync state changes to localStorage when modal is open
+  // Loads user input and API data from localStorage
+  const loadLocalStorageData = () => {
+    setUsername(localStorage.getItem("username") || "");     // Load stored username
+    setEmail(localStorage.getItem("email") || "");           // Load stored email
+    setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner"); // Load user role
+    setProjectUrl(localStorage.getItem("projectUrl") || ""); // Load project URL if applicable
+
+    // Load X API authentication token data if available
+    const storedXAuthTokenData = localStorage.getItem("xAuthTokenData");
+    if (storedXAuthTokenData) {
+      try {
+        setXAuthTokenData(JSON.parse(storedXAuthTokenData));  // Parse and store token data
+      } catch (error) {
+        console.error("Failed to parse X auth token data from localStorage:", error);
+      }
+    }
+
+    // Load X user data if available
+    const storedXUserData = localStorage.getItem("xUserData");
+    if (storedXUserData) {
+      try {
+        setXUserData(JSON.parse(storedXUserData));  // Parse and store user data
+      } catch (error) {
+        console.log("Failed to parse X user data from localStorage:", error);
+      }
+    }
+  };
+
+  // Sync user input changes to localStorage when the modal is open
   useEffect(() => {
-    if (isOpen) localStorage.setItem("username", username);
+    if (isOpen) localStorage.setItem("username", username);  // Store username in localStorage
   }, [username, isOpen]);
 
   useEffect(() => {
-    if (isOpen) localStorage.setItem("email", email);
+    if (isOpen) localStorage.setItem("email", email);        // Store email in localStorage
   }, [email, isOpen]);
 
   useEffect(() => {
-    if (isOpen) localStorage.setItem("role", role);
+    if (isOpen) localStorage.setItem("role", role);          // Store role in localStorage
   }, [role, isOpen]);
 
   useEffect(() => {
-    if (isOpen) localStorage.setItem("projectUrl", projectUrl);
+    if (isOpen) localStorage.setItem("projectUrl", projectUrl); // Store project URL in localStorage
   }, [projectUrl, isOpen]);
 
+  // Validates user inputs (username, email, role, and project URL)
   const validateInputs = () => {
     return (
       validateUsername(username) &&
       validateEmail(email) &&
       validateRole(role) &&
-      (role !== "ProjectOwner" || validateUrl(projectUrl))
+      (role !== "ProjectOwner" || validateUrl(projectUrl)) // Only validate project URL for ProjectOwner
     );
   };
 
+  // OAuth access token fetching from the X API after the user is redirected back
   useEffect(() => {
-    /**
-     * Fetch the OAuth access token using the authorization code and state from URL.
-     */
     const fetchAuthData = async () => {
-      setIsXApiLoading(true);
+      setIsXApiLoading(true);  // Set loading state during API call
       const code = searchParams.get("code");
       const state = searchParams.get("state");
 
+      // Validate presence of code and state parameter
       if (!code || state !== (process.env.NEXT_PUBLIC_X_API_OAUTH_STATE as string)) {
         console.error("Missing necessary parameters or invalid state.");
         setIsXApiLoading(false);
@@ -106,47 +116,41 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       }
 
       try {
-        // Obtain an access token from an authorization code
+        // Fetch the OAuth token from the X API using the authorization code
         const response = await fetch(API_ENDPOINTS.AUTH(code, state));
         const data = await response.json();
 
+        // If access token is received, store it in state and localStorage
         if (data.access_token) {
-          console.log("Access token received");
-
-          // Save the token information in state and localStorage
           setXAuthTokenData(data);
           localStorage.setItem("xAuthTokenData", JSON.stringify(data));
-
           console.log("X Account connected successfully");
         }
       } catch (error) {
         console.error("Error fetching access token:", error);
       } finally {
-        setIsXApiLoading(false);
+        setIsXApiLoading(false);  // Reset loading state
       }
     };
 
-    fetchAuthData();
+    fetchAuthData();  // Trigger OAuth token fetching
   }, [searchParams]);
 
+  // Fetch X user profile data using the access token
   useEffect(() => {
-    if (!xAuthTokenData) return;
-  
-    /**
-     * Fetch user data from the backend API using the access token.
-     */
+    if (!xAuthTokenData) return;  // Exit if token data is not available
+
     const fetchUserData = async (tokenData: any) => {
-      setIsXApiLoading(true);
+      setIsXApiLoading(true);  // Set loading state during API call
       try {
-        // Call the backend API to get the user data
+        // Fetch X user data from the backend API
         const response = await fetch(API_ENDPOINTS.USER(tokenData));
         const userData = await response.json();
-  
+
+        // If user data is received, store it in state and localStorage
         if (userData.user) {
-          // Save the user information in state and localStorage
           setXUserData(userData.user);
           localStorage.setItem("xUserData", JSON.stringify(userData.user));
-  
           console.log("X user data fetched successfully");
         } else {
           console.error("Failed to fetch user data.");
@@ -154,56 +158,63 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
-        setIsXApiLoading(false);
+        setIsXApiLoading(false);  // Reset loading state
       }
     };
-  
-    // Fetch user data after receiving the auth token
-    fetchUserData(xAuthTokenData);
-  }, [xAuthTokenData]);  
 
+    // Fetch user data after receiving the authentication token
+    fetchUserData(xAuthTokenData);
+  }, [xAuthTokenData]);
+
+  // Validate username input
   const validateUsername = (username: string) => {
-    return username.trim().length > 0;
+    return username.trim().length > 0;  // Ensure username is not empty
   };
 
+  // Validate email input using regex
   const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;  // Standard email format validation
     return emailRegex.test(email);
   };
 
+  // Validate project URL input (if applicable)
   const validateUrl = (url: string) => {
     try {
-      new URL(url);
+      new URL(url);  // Check if the URL is valid
       return true;
     } catch {
       return false;
     }
   };
 
+  // Validate user role (either ProjectOwner or Affiliate)
   const validateRole = (role: UserRole) => {
     return role === "ProjectOwner" || role === "Affiliate";
   };
 
+  // Handle save action: gathers user data and calls the onSave callback
   const handleSave = () => {
     const userInfo: AffiliateInfo = {
       username,
       email,
       role,
     };
-  
+
+    // If the user is a ProjectOwner, include the project URL
     if (role === "ProjectOwner" && projectUrl) {
       userInfo.projectUrl = projectUrl;
     }
-  
+
+    // If the user connected their X account, include token and account info
     if (xAuthTokenData && xUserData) {
       userInfo.xAuthToken = xAuthTokenData;
       userInfo.xAccountInfo = xUserData;
     }
-  
-    // Save the user information
+
+    // Call onSave with the constructed user information
     onSave(userInfo);
-    
-    // Delete from local storage after saving data
+
+    // Clear local storage after saving the data
     localStorage.removeItem("username");
     localStorage.removeItem("email");
     localStorage.removeItem("role");
@@ -212,7 +223,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
     localStorage.removeItem("xUserData");
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) return null;  // Do not render the modal if it's not open
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -223,6 +234,7 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
           {role === "ProjectOwner" && " As a Project Owner, you also need to provide your project URL."}
         </p>
         <div className="flex flex-col gap-5">
+          {/* Username Input Field */}
           <div className="flex flex-col gap-2">
             <label className="block mb-1 font-semibold">Username <span className="text-red-500">*</span></label>
             <input
@@ -233,6 +245,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
               placeholder="qube1234"
             />
           </div>
+
+          {/* Email Input Field */}
           <div className="flex flex-col gap-2">
             <label className="block mb-1 font-semibold">Email <span className="text-red-500">*</span></label>
             <input
@@ -243,6 +257,8 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
               placeholder="official@ceed.cloud"
             />
           </div>
+
+          {/* Role Selection Dropdown */}
           <div className="flex flex-col gap-2">
             <label className="block mb-1 font-semibold">Role <span className="text-red-500">*</span></label>
             {disableRoleSelection && (
@@ -261,6 +277,21 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
             </select>
           </div>
 
+          {/* Project URL Input Field for ProjectOwner */}
+          {role === "ProjectOwner" && (
+            <div className="flex flex-col gap-2">
+              <label className="block mb-1 font-semibold">Project URL <span className="text-red-500">*</span></label>
+              <input
+                type="url"
+                value={projectUrl}
+                onChange={(e) => setProjectUrl(e.target.value)}
+                className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+                placeholder="https://yourproject.com"
+              />
+            </div>
+          )}
+
+          {/* X Account Connect Button */}
           {role === "Affiliate" && (
             <div className="flex flex-col gap-2">
               <label className="block mb-1 font-semibold">
@@ -319,20 +350,9 @@ export const UserInfoModal: React.FC<UserInfoModalProps> = ({
               )}
             </div>
           )}
-
-          {role === "ProjectOwner" && (
-            <div className="flex flex-col gap-2">
-              <label className="block mb-1 font-semibold">Project URL <span className="text-red-500">*</span></label>
-              <input
-                type="url"
-                value={projectUrl}
-                onChange={(e) => setProjectUrl(e.target.value)}
-                className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
-                placeholder="https://yourproject.com"
-              />
-            </div>
-          )}
         </div>
+
+        {/* Save and Cancel Buttons */}
         <div className="flex justify-end space-x-2 mt-6">
           <button onClick={onClose} className="px-4 py-2 bg-gray-400 hover:bg-gray-500 hover:shadow-lg text-white rounded-lg">
             Cancel
