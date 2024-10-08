@@ -12,7 +12,6 @@ export async function createNewUser(
   const newUser: UserData = {
     username: userInfo.username,
     email: userInfo.email,
-    xProfileUrl: userInfo.xProfileUrl,
     role: userInfo.role,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -32,6 +31,15 @@ export async function createNewUser(
   // Add joinedProjectIds only if the role is Affiliate
   if (userInfo.role === "Affiliate") {
     newUser.joinedProjectIds = [];
+  }
+
+  // Add X Auth Token and X Account Info if they exist
+  if (userInfo.xAuthToken) {
+    newUser.xAuthToken = userInfo.xAuthToken; // Save the X auth token data
+  }
+
+  if (userInfo.xAccountInfo) {
+    newUser.xAccountInfo = userInfo.xAccountInfo; // Save the X account information
   }
 
   try {
