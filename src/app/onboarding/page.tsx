@@ -17,7 +17,7 @@ import {
   WalletInstance,
 } from "@thirdweb-dev/react";
 import { AffiliateInfo } from "../types";
-import { UserInfoModal } from "../components/UserInfoModal";
+import { UserAccountSetupModal } from "../components/UserAccountSetupModal";
 import { ChainSelector } from "../components/ChainSelector";
 import { checkUserAndPrompt, createNewUser, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
 import { useChainContext } from "../context/chainContext";
@@ -165,7 +165,7 @@ export default function Onboarding() {
         />  
       </div>
 
-      <UserInfoModal
+      <UserAccountSetupModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
