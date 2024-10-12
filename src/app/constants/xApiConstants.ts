@@ -37,5 +37,16 @@ export const API_ENDPOINTS = {
    */
   USER: (tokenData: { access_token: string, token_type: string, scope: string, refresh_token: string, expires_at: number }): string => {
     return `/api/x/user?tokenData=${encodeURIComponent(JSON.stringify(tokenData))}`;
+  },
+
+  /**
+   * Endpoint for recent tweet search.
+   * @param {string} username - The username of the user whose tweets are being searched.
+   * @param {string} referralId - The referral ID associated with the tweets.
+   * @param {string} tweetNewestId - (Optional) The newest tweet ID to filter tweets from a specific point in time.
+   * @returns {string} Full URL for the recent tweet search request.
+   */
+  TWEET_RECENT_SEARCH: (username: string, referralId: string, tweetNewestId?: string): string => {
+    return `/api/x/tweetRecentSearch?username=${username}&referralId=${referralId}${tweetNewestId ? `&tweetNewestId=${tweetNewestId}` : ""}`;
   }
 };
