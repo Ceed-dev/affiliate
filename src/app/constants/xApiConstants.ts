@@ -48,5 +48,14 @@ export const API_ENDPOINTS = {
    */
   TWEET_RECENT_SEARCH: (username: string, referralId: string, tweetNewestId?: string): string => {
     return `/api/x/tweetRecentSearch?username=${username}&referralId=${referralId}${tweetNewestId ? `&tweetNewestId=${tweetNewestId}` : ""}`;
+  },
+
+  /**
+   * Endpoint for fetching tweet engagement data for specific tweet IDs.
+   * @param {string[]} tweetIds - An array of tweet IDs to fetch engagement data for.
+   * @returns {string} Full URL for the tweet engagement request with encoded tweet IDs.
+   */
+  TWEET_LOOKUP: (tweetIds: string[]): string => {
+    return `/api/x/tweetLookup?tweetIds=${encodeURIComponent(tweetIds.join(","))}`;
   }
 };
