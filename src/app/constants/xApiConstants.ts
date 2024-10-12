@@ -11,6 +11,11 @@ export const X_API_REFERENCES = [
     // API documentation for the 'Get Tweets' endpoint, which allows you to look up tweets by various parameters.
   },
   {
+    title: "Search Tweets", 
+    url: "https://developer.x.com/en/docs/x-api/tweets/search/api-reference/get-tweets-search-recent"
+    // API documentation for the 'Search Tweets' endpoint, which allows you to search for tweets based on query parameters.
+  },
+  {
     title: "API Editor", 
     url: "https://developer.twitter.com/apitools/api?endpoint=%2F2%2Ftweets&method=get"
     // Link to the X API Editor where you can interactively test API endpoints like retrieving tweets.
