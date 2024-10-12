@@ -1,4 +1,5 @@
 import { auth, Client } from "twitter-api-sdk";
+import { XAuthToken } from "../types/affiliateInfo";
 
 // Initialize clients as null. They will be instantiated only once.
 let authClient: auth.OAuth2User | null = null;
@@ -64,7 +65,7 @@ export const generateAuthUrl = async (): Promise<string> => {
  * @param {boolean} useBearer - If true, uses the OAuth2Bearer client. Defaults to false (OAuth2User).
  * @returns {Promise<Client>} The X API client instance.
  */
-export const getApiClient = async (token: any | null = null, useBearer: boolean = false): Promise<Client> => {
+export const getApiClient = async (token: XAuthToken | null = null, useBearer: boolean = false): Promise<Client> => {
   // Always create a new client instance for different token types (bearer or OAuth2User)
   const client = useBearer ? getBearerClient() : await getAuthClient();
 
