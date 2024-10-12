@@ -51,3 +51,15 @@ export type TweetMetrics = {
   bookmarkCount: number;       // Number of bookmarks
   impressionCount: number;     // Number of impressions (views)
 };
+
+// Represents a tweet document within the tweets subcollection
+export type TweetData = {
+  tweetId?: string;             // Unique identifier for the tweet
+  tweetText: string;           // The content of the tweet
+  tweetUrl: string;            // URL link to the tweet
+  metrics: TweetMetrics;       // Engagement metrics (public or private)
+  createdAt: Date;             // The date and time the tweet was created (ISO8601 format)
+  firstFetchedAt: Date;        // The first time the tweet's engagement data was fetched
+  lastFetchedAt: Date;         // The last time the engagement data was updated
+  fetchCount: number;          // The number of times the engagement data has been fetched
+};
