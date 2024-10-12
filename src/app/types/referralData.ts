@@ -24,6 +24,6 @@ export type ReferralData = {
   conversions: number;
   earnings: number;
   lastConversionDate: Date | null;
-  tweetUrl?: string; // URL of the tweet shared by the affiliate
-  tweetEngagement?: TweetEngagement; // Tweet engagement data linked to the referral
+  tweetNewestId?: string;          // Optional: X newest tweet ID associated with the affiliate's tweets
+  tweetNewestCreatedAt?: Date;     // Optional: The date and time of the newest tweet
 };
