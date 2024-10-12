@@ -63,3 +63,24 @@ export type TweetData = {
   lastFetchedAt: Date;         // The last time the engagement data was updated
   fetchCount: number;          // The number of times the engagement data has been fetched
 };
+
+/**
+ * Represents the data required to update tweet engagement information.
+ * Used when fetching and updating tweet engagement metrics for a user's tweets.
+ */
+export type TweetEngagementUpdate = {
+  username: string;  // The username of the X account associated with the tweets.
+  referralId: string;  // The referral ID linked to the affiliate's tweets.
+  
+  /**
+   * An array of engagement data for past tweets.
+   * This field is optional and contains historical tweet metrics.
+   */
+  pastTweetEngagementData?: any[]; // Engagement data for past tweets (optional).
+
+  /**
+   * An array of engagement data for recent tweets.
+   * This field is optional and contains the latest tweet metrics.
+   */
+  recentTweetEngagementData?: any[]; // Engagement data for recent tweets (optional).
+};
