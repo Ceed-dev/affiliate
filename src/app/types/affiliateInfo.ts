@@ -7,8 +7,8 @@ export type AffiliateInfo = {
   email: string;                   // The email address of the affiliate user
   role: UserRole;                  // The role of the user, either "ProjectOwner" or "Affiliate"
   projectUrl?: string;             // The URL of the project (required if the role is "ProjectOwner")
-  xAuthToken?: XAuthToken;         // Optional X authentication token data, if the user has connected an X account
-  xAccountInfo?: XAccountInfo;     // Optional X account information, if the user has connected an X account
+  xAuthToken?: XAuthToken;         // Optional: X authentication token data, if the user has connected an X account
+  xAccountInfo?: XAccountInfo;     // Optional: X account information, if the user has connected an X account
 };
 
 // Token information returned after X OAuth authentication
@@ -40,4 +40,14 @@ export type XAccountInfo = {
   public_metrics: XPublicMetrics; // Public metrics such as follower count, tweet count, etc.
   profile_image_url: string;      // URL of the user's profile image
   name: string;                   // User's display name (e.g., "Qube")
+};
+
+// Represents the engagement data for a specific tweet (public or private)
+export type TweetMetrics = {
+  retweetCount: number;        // Number of retweets
+  replyCount: number;          // Number of replies
+  likeCount: number;           // Number of likes
+  quoteCount: number;          // Number of quotes
+  bookmarkCount: number;       // Number of bookmarks
+  impressionCount: number;     // Number of impressions (views)
 };
