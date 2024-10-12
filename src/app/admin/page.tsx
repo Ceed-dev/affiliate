@@ -325,7 +325,8 @@ export default function Admin() {
   
       const tweetIds = validReferralDataResults
         .map(referralData => {
-          const tweetUrl = referralData.tweetUrl;
+          // const tweetUrl = referralData.tweetUrl;
+          const tweetUrl = "";
           const tweetIdMatch = tweetUrl?.match(/status\/(\d+)/);
           if (!tweetIdMatch || !tweetIdMatch[1]) {
             console.error(`Invalid tweet URL for referral ID: ${referralData.id}`);
