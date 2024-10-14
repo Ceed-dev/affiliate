@@ -77,7 +77,7 @@ export const ManualTweetEngagementUpdate: React.FC<ManualTweetEngagementUpdatePr
           className={`bg-sky-300 hover:bg-sky-400 rounded-md py-2 px-5 shadow-md font-semibold ${
             isProcessing ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          onClick={async () => await fetchAndUpdateTweetEngagementData(setIsProcessing, addLog)} // Fetch and update data on click
+          // onClick={async () => await fetchAndUpdateTweetEngagementData(setIsProcessing, addLog)} // Fetch and update data on click
           disabled={isProcessing} // Disable button during processing
         >
           {isProcessing ? (
