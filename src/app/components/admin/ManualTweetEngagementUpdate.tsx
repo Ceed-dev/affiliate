@@ -112,7 +112,7 @@ export const ManualTweetEngagementUpdate: React.FC<ManualTweetEngagementUpdatePr
             <progress
               value={progress}
               max="100"
-              className={`w-full h-6 ${progress !== 100 ? "animate-pulse" : ""}`} // Animate if progress is not 100%
+              className={`${progress !== 100 ? "animate-pulse" : ""}`} // Animate if progress is not 100%
             />
             <p className="text-center mt-2">
               {Math.round(progress)}% Completed ({completedTasks}/{totalTasks} tasks)
