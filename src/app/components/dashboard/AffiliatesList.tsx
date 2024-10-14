@@ -40,14 +40,6 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
       });
   };
 
-  // ============= BEGIN ENGAGEMENT DATA ROW MANAGEMENT =============
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const toggleEngagementData = (index: number) => {
-    setActiveIndex(activeIndex === index ? null : index);
-  };
-  // ============= END ENGAGEMENT DATA ROW MANAGEMENT =============
-
   return (
     <div className="bg-white shadow rounded-lg p-5 md:p-10">
       <h2 className="text-lg leading-6 font-medium text-gray-900">
@@ -72,8 +64,6 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Conversion Date</th>
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Creation Date</th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Tweet</th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Engagement</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -95,71 +85,12 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">{referral.clicks.length}</td>
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.aggregatedLastConversionDate ? referral.aggregatedLastConversionDate.toLocaleDateString() : "N/A"}</td>
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.createdAt.toLocaleDateString()}</td>
-                      <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
-                        {/* {referral.tweetUrl ? (
-                          <a 
-                            href={referral.tweetUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                          >
-                            <Image 
-                              src="/brand-assets/x/black.png" 
-                              alt="Open Tweet" 
-                              width={16} 
-                              height={16} 
-                              className="inline-block mr-2"
-                            />
-                          </a>
-                        ) : ( */}
-                          <span className="text-gray-500">Not Submitted</span>
-                        {/* )} */}
-                      </td>
-                      <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
-                        {/* {referral.tweetEngagement ? (
-                          <button onClick={() => toggleEngagementData(index)} className="text-blue-500 hover:text-blue-700">
-                            {activeIndex === index ? "Hide" : "Show"}
-                          </button>
-                        ) : ( */}
-                          <span className="text-gray-500">N/A</span>
-                        {/* )} */}
-                      </td>
                     </tr>
-                    {/* View engagement data */}
-                    {/* {activeIndex === index && referral.tweetEngagement && (
-                      <tr>
-                        <td className="px-6 py-4"></td>
-                        <td colSpan={7} className="px-6 py-4 bg-slate-200">
-                          <div className="flex text-sm justify-between">
-                            <div>
-                              <strong>Retweets:</strong> {referral.tweetEngagement.retweetCount}
-                            </div>
-                            <div>
-                              <strong>Likes:</strong> {referral.tweetEngagement.likeCount}
-                            </div>
-                            <div>
-                              <strong>Replies:</strong> {referral.tweetEngagement.replyCount}
-                            </div>
-                            <div>
-                              <strong>Quotes:</strong> {referral.tweetEngagement.quoteCount}
-                            </div>
-                            <div>
-                              <strong>Impressions:</strong> {referral.tweetEngagement.impressionCount}
-                            </div>
-                            <div>
-                              <strong>Bookmarks:</strong> {referral.tweetEngagement.bookmarkCount}
-                            </div>
-                          </div>
-                          <div className="mt-4 text-right text-gray-500 text-sm">
-                            <strong>Fetched At:</strong> {new Date(referral.tweetEngagement.fetchedAt).toLocaleString()}
-                          </div>
-                        </td>
-                      </tr>
-                    )} */}
                   </React.Fragment>
                 ))
               ) : (
                 <tr className="text-gray-500">
-                  <td colSpan={8} className="text-center py-4">No Referral Data</td>
+                  <td colSpan={6} className="text-center py-4">No Referral Data</td>
                 </tr>
               )}
             </tbody>
