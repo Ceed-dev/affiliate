@@ -26,3 +26,30 @@
 html {
   scrollbar-width: none;
 }
+
+/* Common styling for progress bar */
+progress {
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Styling for background part of progress bar */
+progress::-webkit-progress-bar {
+  background-color: #c0c0c0; /* Background color */
+}
+
+progress::-moz-progress-bar {
+  background-color: #c0c0c0; /* Firefox-specific background color */
+}
+
+/* Styling for progress value (filled part of the bar) */
+progress::-webkit-progress-value {
+  background-color: #ff9ce1; /* Progress color */
+}
+
+progress::-moz-progress-bar {
+  background-color: #ff9ce1; /* Firefox-specific progress color */
+}

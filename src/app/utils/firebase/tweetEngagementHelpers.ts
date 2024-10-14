@@ -340,24 +340,34 @@ const updateTweetEngagementData = async (
 
 /**
  * Fetches and updates tweet engagement data for all affiliates with joined projects.
- * Manages loading state and logs the current operation in real-time.
+ * Manages loading state, logs the current operation, and updates the progress bar in real-time.
  *
  * @param setProcessing - A function to update the processing state (true/false).
  * @param addLog - A function to add a new log entry.
+ * @param setTotalTasks - A function to set the total number of tasks (for the progress bar).
+ * @param setCompletedTasks - A function to update the number of completed tasks.
  */
 export const fetchAndUpdateTweetEngagementData = async (
   setProcessing: (isProcessing: boolean) => void,
-  addLog: (log: string, logType: LogType, indentLevel?: number) => void
+  addLog: (log: string, logType: LogType, indentLevel?: number) => void,
+  setTotalTasks: (totalTasks: number) => void,
+  setCompletedTasks: (completedTasks: number) => void
 ): Promise<void> => {
   try {
     setProcessing(true);
     addLog("Fetching affiliate data...", "log");
 
-    // 1. Get affiliate user information (wallet address, project IDs, X account info)
+    // Step 1: Get affiliate user information
     const users = await getInfoForTweetEngagementData(addLog);
     addLog(`Found ${users.length} affiliates with joined projects.`, "log");
 
-    // 2. Loop through each user's wallet address and project IDs to get referral data
+    // Step 2: Calculate and set the total number of tasks
+    const totalTasks = users.reduce((acc, user) => acc + user.joinedProjectIds!.length, 0);
+    setTotalTasks(totalTasks); // Set total tasks for progress bar
+
+    let completedTasks = 0;
+
+    // Step 3: Loop through each user's wallet address and project IDs to fetch referral data
     for (const user of users) {
       const { walletAddress, joinedProjectIds, xAuthToken, xAccountInfo } = user;
 
@@ -366,35 +376,32 @@ export const fetchAndUpdateTweetEngagementData = async (
         const referral = await fetchReferralByWalletAndProject(walletAddress as string, projectId, addLog);
 
         if (referral) {
-          // Create a copy of referral to store fetched engagement data
           let result = {
             ...referral,
-            pastTweetEngagementData: undefined as any[] | undefined, // Set the type as any[] | undefined to allow assignment of an array later
-            recentTweetEngagementData: undefined as any[] | undefined, // Set the type as any[] | undefined to allow assignment of an array later
+            pastTweetEngagementData: undefined as any[] | undefined,
+            recentTweetEngagementData: undefined as any[] | undefined,
           };
 
-          // Step 1: Fetch past tweet engagement data if past tweet IDs exist
+          // Step 4: Fetch past tweet engagement data
           if (referral.pastTweetIds && referral.pastTweetIds.length > 0) {
             addLog(`Fetching past tweet engagement data for ${referral.pastTweetIds.length} tweets.`, "log", 2);
             const pastTweetEngagementData = await fetchTweetEngagementForPastTweets(referral.pastTweetIds, addLog);
             result.pastTweetEngagementData = pastTweetEngagementData;
           } else {
-            // Log when there are no past tweets
             addLog(`No past tweets found for referral ID: ${referral.referralId}.`, "warning", 2);
           }
 
-          // Step 2: Always execute a recent search for recent tweet engagement data
+          // Step 5: Always search for recent tweet engagement data
           let tweetNewestId = undefined;
 
           if (referral.tweetNewestCreatedAt) {
             addLog("Found tweetNewestCreatedAt. Checking if it's within the last week.", "log", 2);
 
             const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); // Get the date one week ago
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-            // Check if tweet is within the last week
             if (referral.tweetNewestCreatedAt >= oneWeekAgo) {
-              tweetNewestId = referral.tweetNewestId; // Use newest_id if within one week
+              tweetNewestId = referral.tweetNewestId;
               addLog(`tweetNewestId is within the last week. Using tweetNewestId: ${tweetNewestId}`, "log", 2);
             } else {
               addLog("tweetNewestId is older than one week. Not using it for recent search.", "warning", 2);
@@ -413,21 +420,23 @@ export const fetchAndUpdateTweetEngagementData = async (
           );
           result.recentTweetEngagementData = recentTweetEngagementData;
 
-          // Convert ReferralResult to TweetEngagementUpdate
+          // Step 6: Update the tweet engagement data in Firestore
           const tweetEngagementUpdate: TweetEngagementUpdate = {
             username: xAccountInfo?.username as string,
             referralId: referral.referralId as string,
             pastTweetEngagementData: result.pastTweetEngagementData,
             recentTweetEngagementData: result.recentTweetEngagementData,
           };
-
-          // Step 3: Update the tweet engagement data in the Firestore database
           addLog(`Updating tweet engagement data in Firestore for referral: ${referral.referralId}`, "log", 2);
           await updateTweetEngagementData(tweetEngagementUpdate, addLog);
 
         } else {
           addLog(`No referral found for wallet: ${walletAddress} and project: ${projectId}`, "warning", 1);
         }
+
+        // Step 7: Update the completed tasks count and progress
+        completedTasks += 1;
+        setCompletedTasks(completedTasks); // Update completed tasks for progress bar
       }
     }
 
