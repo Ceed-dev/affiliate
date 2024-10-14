@@ -20,7 +20,7 @@ export const statsInAbout = [
   { icon: "/assets/homepage/about-2.png", count: "7+", label: "Regions" },
 ];
 
-export const calendlyLink = "https://calendly.com/badhan998877/meeting";
+export const calendlyLink = "https://calendly.com/badhan998877/badhan-meeting";
 
 export const featureBlocks = [
   {
