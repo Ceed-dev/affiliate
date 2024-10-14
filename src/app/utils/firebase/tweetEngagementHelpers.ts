@@ -67,3 +67,60 @@ const getInfoForTweetEngagementData = async (
     throw new Error("Failed to fetch affiliates with projects and X account info");
   }
 };
+
+/**
+ * Fetches referral data based on the user's wallet address and project ID.
+ * Retrieves the referral ID, newest tweet ID, tweet creation date, and past tweet IDs from the referral's tweets subcollection.
+ * @param {string} walletAddress - The wallet address of the affiliate user.
+ * @param {string} projectId - The ID of the associated project.
+ * @param addLog - A function to add log entries for tracking the process.
+ * @returns {Promise<{referralId: string, tweetNewestId?: string, tweetNewestCreatedAt?: Date, pastTweetIds?: string[]}>} - Referral data including tweet information.
+ *    Returns referralId, tweetNewestId, tweetNewestCreatedAt, and an array of past tweet IDs if available.
+ */
+const fetchReferralByWalletAndProject = async (
+  walletAddress: string,
+  projectId: string,
+  addLog: (log: string, type: LogType, indentLevel?: number) => void
+): Promise<{ referralId: string, tweetNewestId?: string, tweetNewestCreatedAt?: Date, pastTweetIds?: string[] }> => {
+  const referralsCollectionRef = collection(db, "referrals");
+
+  try {
+    addLog(`Fetching referral data for wallet: ${walletAddress} and project: ${projectId}`, "log", 2);
+
+    // Query referrals collection by wallet address and project ID
+    const q = query(
+      referralsCollectionRef,
+      where("affiliateWallet", "==", walletAddress), // Filter by wallet address
+      where("projectId", "==", projectId) // Filter by project ID
+    );
+
+    const querySnapshot = await getDocs(q); // Execute Firestore query
+
+    const referralDoc = querySnapshot.docs[0];
+    const referralData = referralDoc.data();
+
+    addLog(`Referral data found for wallet: ${walletAddress} and project: ${projectId}`, "log", 2);
+
+    // Extract newest tweet ID and creation date, if available
+    const tweetNewestId = referralData.tweetNewestId ?? undefined;
+    const tweetNewestCreatedAt = referralData.tweetNewestCreatedAt ? referralData.tweetNewestCreatedAt.toDate() : undefined;
+
+    // Fetch past tweet IDs from the tweets subcollection
+    const tweetsCollectionRef = collection(db, `referrals/${referralDoc.id}/tweets`);
+    const tweetSnapshot = await getDocs(tweetsCollectionRef);
+    const pastTweetIds = tweetSnapshot.docs.map(tweetDoc => tweetDoc.id); // Map tweet IDs from document IDs
+
+    addLog(`Found ${pastTweetIds.length} past tweets for referral ID: ${referralDoc.id}`, "log", 2);
+
+    return {
+      referralId: referralDoc.id,
+      tweetNewestId,
+      tweetNewestCreatedAt,
+      pastTweetIds
+    };
+  } catch (error: any) {
+    addLog(`Error fetching referral data for wallet: ${walletAddress} and project: ${projectId}, Message: ${error.message}`, "error", 2);
+    console.error("Error fetching referral data:", error);
+    throw new Error("Failed to fetch referral data");
+  }
+};
