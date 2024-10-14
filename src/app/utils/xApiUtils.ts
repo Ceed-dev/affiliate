@@ -1,9 +1,9 @@
 import { auth, Client } from "twitter-api-sdk";
+import { XAuthToken } from "../types/affiliateInfo";
 
 // Initialize clients as null. They will be instantiated only once.
 let authClient: auth.OAuth2User | null = null;
 let bearerClient: auth.OAuth2Bearer | null = null;
-let apiClient: Client | null = null;
 
 /**
  * Get the OAuth2User client instance.
@@ -65,23 +65,20 @@ export const generateAuthUrl = async (): Promise<string> => {
  * @param {boolean} useBearer - If true, uses the OAuth2Bearer client. Defaults to false (OAuth2User).
  * @returns {Promise<Client>} The X API client instance.
  */
-export const getApiClient = async (token: any | null = null, useBearer: boolean = false): Promise<Client> => {
-  if (!apiClient) {
-    // Use OAuth2Bearer client if useBearer is true, otherwise use OAuth2User client
-    const client = useBearer ? getBearerClient() : await getAuthClient();
+export const getApiClient = async (token: XAuthToken | null = null, useBearer: boolean = false): Promise<Client> => {
+  // Always create a new client instance for different token types (bearer or OAuth2User)
+  const client = useBearer ? getBearerClient() : await getAuthClient();
 
-    // If useBearer is false (using OAuth2User), ensure token is provided
-    if (!useBearer && !token) {
-      throw new Error("Token is required when using OAuth2User.");
-    }
-
-    // If a token is provided, manually set the token in the authClient
-    if (token && !useBearer) {
-      (client as auth.OAuth2User).token = token;
-    }
-
-    apiClient = new Client(client);
+  // If useBearer is false (using OAuth2User), ensure token is provided
+  if (!useBearer && !token) {
+    throw new Error("Token is required when using OAuth2User.");
   }
 
-  return apiClient;
+  // If a token is provided and not using bearer token, manually set the token in the authClient
+  if (token && !useBearer) {
+    (client as auth.OAuth2User).token = token;
+  }
+
+  // Return a new Client instance for each API request to ensure the correct token is used
+  return new Client(client);
 };

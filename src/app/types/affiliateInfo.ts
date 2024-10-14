@@ -7,8 +7,8 @@ export type AffiliateInfo = {
   email: string;                   // The email address of the affiliate user
   role: UserRole;                  // The role of the user, either "ProjectOwner" or "Affiliate"
   projectUrl?: string;             // The URL of the project (required if the role is "ProjectOwner")
-  xAuthToken?: XAuthToken;         // Optional X authentication token data, if the user has connected an X account
-  xAccountInfo?: XAccountInfo;     // Optional X account information, if the user has connected an X account
+  xAuthToken?: XAuthToken;         // Optional: X authentication token data, if the user has connected an X account
+  xAccountInfo?: XAccountInfo;     // Optional: X account information, if the user has connected an X account
 };
 
 // Token information returned after X OAuth authentication
@@ -40,4 +40,47 @@ export type XAccountInfo = {
   public_metrics: XPublicMetrics; // Public metrics such as follower count, tweet count, etc.
   profile_image_url: string;      // URL of the user's profile image
   name: string;                   // User's display name (e.g., "Qube")
+};
+
+// Represents the engagement data for a specific tweet (public or private)
+export type TweetMetrics = {
+  retweetCount: number;        // Number of retweets
+  replyCount: number;          // Number of replies
+  likeCount: number;           // Number of likes
+  quoteCount: number;          // Number of quotes
+  bookmarkCount: number;       // Number of bookmarks
+  impressionCount: number;     // Number of impressions (views)
+};
+
+// Represents a tweet document within the tweets subcollection
+export type TweetData = {
+  tweetId?: string;             // Unique identifier for the tweet
+  tweetText: string;           // The content of the tweet
+  tweetUrl: string;            // URL link to the tweet
+  metrics: TweetMetrics;       // Engagement metrics (public or private)
+  createdAt: Date;             // The date and time the tweet was created (ISO8601 format)
+  firstFetchedAt: Date;        // The first time the tweet's engagement data was fetched
+  lastFetchedAt: Date;         // The last time the engagement data was updated
+  fetchCount: number;          // The number of times the engagement data has been fetched
+};
+
+/**
+ * Represents the data required to update tweet engagement information.
+ * Used when fetching and updating tweet engagement metrics for a user's tweets.
+ */
+export type TweetEngagementUpdate = {
+  username: string;  // The username of the X account associated with the tweets.
+  referralId: string;  // The referral ID linked to the affiliate's tweets.
+  
+  /**
+   * An array of engagement data for past tweets.
+   * This field is optional and contains historical tweet metrics.
+   */
+  pastTweetEngagementData?: any[]; // Engagement data for past tweets (optional).
+
+  /**
+   * An array of engagement data for recent tweets.
+   * This field is optional and contains the latest tweet metrics.
+   */
+  recentTweetEngagementData?: any[]; // Engagement data for recent tweets (optional).
 };
