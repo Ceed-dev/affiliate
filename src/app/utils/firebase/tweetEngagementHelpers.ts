@@ -337,3 +337,105 @@ const updateTweetEngagementData = async (
     throw new Error(`Failed to update tweet engagement data for referralId: ${referralId}`);
   }
 };
+
+/**
+ * Fetches and updates tweet engagement data for all affiliates with joined projects.
+ * Manages loading state and logs the current operation in real-time.
+ *
+ * @param setProcessing - A function to update the processing state (true/false).
+ * @param addLog - A function to add a new log entry.
+ */
+export const fetchAndUpdateTweetEngagementData = async (
+  setProcessing: (isProcessing: boolean) => void,
+  addLog: (log: string, logType: LogType, indentLevel?: number) => void
+): Promise<void> => {
+  try {
+    setProcessing(true);
+    addLog("Fetching affiliate data...", "log");
+
+    // 1. Get affiliate user information (wallet address, project IDs, X account info)
+    const users = await getInfoForTweetEngagementData(addLog);
+    addLog(`Found ${users.length} affiliates with joined projects.`, "log");
+
+    // 2. Loop through each user's wallet address and project IDs to get referral data
+    for (const user of users) {
+      const { walletAddress, joinedProjectIds, xAuthToken, xAccountInfo } = user;
+
+      for (const projectId of joinedProjectIds!) {
+        addLog(`Processing wallet: ${walletAddress}, project: ${projectId}`, "log", 1);
+        const referral = await fetchReferralByWalletAndProject(walletAddress as string, projectId, addLog);
+
+        if (referral) {
+          // Create a copy of referral to store fetched engagement data
+          let result = {
+            ...referral,
+            pastTweetEngagementData: undefined as any[] | undefined, // Set the type as any[] | undefined to allow assignment of an array later
+            recentTweetEngagementData: undefined as any[] | undefined, // Set the type as any[] | undefined to allow assignment of an array later
+          };
+
+          // Step 1: Fetch past tweet engagement data if past tweet IDs exist
+          if (referral.pastTweetIds && referral.pastTweetIds.length > 0) {
+            addLog(`Fetching past tweet engagement data for ${referral.pastTweetIds.length} tweets.`, "log", 2);
+            const pastTweetEngagementData = await fetchTweetEngagementForPastTweets(referral.pastTweetIds, addLog);
+            result.pastTweetEngagementData = pastTweetEngagementData;
+          } else {
+            // Log when there are no past tweets
+            addLog(`No past tweets found for referral ID: ${referral.referralId}.`, "warning", 2);
+          }
+
+          // Step 2: Always execute a recent search for recent tweet engagement data
+          let tweetNewestId = undefined;
+
+          if (referral.tweetNewestCreatedAt) {
+            addLog("Found tweetNewestCreatedAt. Checking if it's within the last week.", "log", 2);
+
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); // Get the date one week ago
+
+            // Check if tweet is within the last week
+            if (referral.tweetNewestCreatedAt >= oneWeekAgo) {
+              tweetNewestId = referral.tweetNewestId; // Use newest_id if within one week
+              addLog(`tweetNewestId is within the last week. Using tweetNewestId: ${tweetNewestId}`, "log", 2);
+            } else {
+              addLog("tweetNewestId is older than one week. Not using it for recent search.", "warning", 2);
+            }
+          } else {
+            addLog("No tweetNewestCreatedAt found. Proceeding without tweetNewestId.", "warning", 2);
+          }
+
+          addLog(`Fetching recent tweet engagement data for user: ${xAccountInfo?.username}`, "log", 2);
+          const recentTweetEngagementData = await fetchTweetEngagementForRecentTweets(
+            xAccountInfo?.username as string,
+            referral.referralId as string,
+            xAuthToken?.access_token as string,
+            addLog,
+            tweetNewestId
+          );
+          result.recentTweetEngagementData = recentTweetEngagementData;
+
+          // Convert ReferralResult to TweetEngagementUpdate
+          const tweetEngagementUpdate: TweetEngagementUpdate = {
+            username: xAccountInfo?.username as string,
+            referralId: referral.referralId as string,
+            pastTweetEngagementData: result.pastTweetEngagementData,
+            recentTweetEngagementData: result.recentTweetEngagementData,
+          };
+
+          // Step 3: Update the tweet engagement data in the Firestore database
+          addLog(`Updating tweet engagement data in Firestore for referral: ${referral.referralId}`, "log", 2);
+          await updateTweetEngagementData(tweetEngagementUpdate, addLog);
+
+        } else {
+          addLog(`No referral found for wallet: ${walletAddress} and project: ${projectId}`, "warning", 1);
+        }
+      }
+    }
+
+    addLog("All affiliate data has been successfully processed.", "log");
+  } catch (error: any) {
+    addLog(`Error fetching and updating tweet engagement data. Message: ${error.message}`, "error");
+    console.error("Error fetching and updating tweet engagement data:", error);
+  } finally {
+    setProcessing(false);
+  }
+};
