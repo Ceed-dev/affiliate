@@ -124,3 +124,46 @@ const fetchReferralByWalletAndProject = async (
     throw new Error("Failed to fetch referral data");
   }
 };
+
+/**
+ * Fetches the latest tweet engagement data for the given array of past tweet IDs by calling the Qube product's tweet lookup API.
+ * 
+ * @param {string[]} pastTweetIds - Array of tweet IDs to fetch engagement data for.
+ * @param addLog - A function to log messages during the fetching process.
+ * @returns {Promise<any[]>} - A promise that resolves to an array of engagement data for each tweet.
+ */
+const fetchTweetEngagementForPastTweets = async (
+  pastTweetIds: string[],
+  addLog: (log: string, type: LogType, indentLevel?: number) => void
+): Promise<any[]> => {
+  try {
+    // Construct the full URL for the tweet lookup API
+    const apiUrl = API_ENDPOINTS.TWEET_LOOKUP(pastTweetIds);
+
+    addLog(`Calling API: ${apiUrl}`, "log", 3);
+
+    // Send a GET request to the Qube API's tweet lookup endpoint, passing the tweet IDs
+    const response = await fetch(apiUrl, {
+      method: "GET",  // Using GET method to retrieve data
+      headers: {
+        "internal-api-key": INTERNAL_API_KEY,  // Send internal API key
+      }
+    });
+
+    // Check if the API request was successful
+    if (!response.ok) {
+      addLog(`Failed to fetch tweet engagement data: ${response.statusText}`, "error", 3);
+      throw new Error(`Failed to fetch tweet engagement data: ${response.statusText}`);
+    }
+
+    // Parse and return the response as JSON, which contains the tweet engagement data
+    const tweetEngagementData = await response.json();
+    addLog(`Successfully fetched engagement data for ${pastTweetIds.length} past tweets.`, "log", 3);
+
+    return tweetEngagementData;
+  } catch (error: any) {
+    addLog(`Error fetching tweet engagement data for past tweets. Message: ${error.message}`, "error", 3);
+    console.error("Error fetching tweet engagement data for past tweets:", error);
+    throw new Error("Failed to fetch tweet engagement data for past tweets");
+  }
+};
