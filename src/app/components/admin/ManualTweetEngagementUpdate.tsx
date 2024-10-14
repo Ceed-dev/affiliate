@@ -1,9 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { toast } from "react-toastify"; // Import toast for notifications
 import { X_API_REFERENCES } from "../../constants/xApiConstants"; // X API reference links
 import { fetchAllReferralIds } from "../../utils/firebase"; // Fetch function to get all referral IDs from Firebase
+import { fetchAndUpdateTweetEngagementData } from "../../utils/firebase/tweetEngagementHelpers";
+import { createLogEntry } from "../../utils/logUtils";
 import { ExtendedTweetEngagement } from "../../types"; // Type definition for extended tweet engagement data
+import { LogType, LogEntry } from "../../types/log";
+import { LogTable } from "../LogTable";
 
 // Props interface for ManualTweetEngagementUpdate component
 interface ManualTweetEngagementUpdateProps {
@@ -22,12 +27,29 @@ export const ManualTweetEngagementUpdate: React.FC<ManualTweetEngagementUpdatePr
   loadingTweetEngagementData,
   engagementDataArray,
 }) => {
+  const [logs, setLogs] = useState<LogEntry[]>([]); // State to hold log entries
+  const [isProcessing, setIsProcessing] = useState(false); // State to manage processing status
+
+  /**
+   * Function to add a log entry.
+   * It updates the logs state by adding the new log to the beginning of the array.
+   *
+   * @param log - The log message.
+   * @param type - The type of log (log, warning, error).
+   * @param indentLevel - The indentation level of the log (default is 0).
+   */
+  const addLog = (log: string, type: LogType, indentLevel: number = 0) => {
+    setLogs((prevLogs) => [
+      createLogEntry(log, type, indentLevel), // Create a new log entry
+      ...prevLogs, // Keep previous logs
+    ]);
+  };
+  
   return (
     <>
       {/* Header section with instructions */}
       <div className="w-11/12">
         <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Manually update Tweet engagement data</h2>
-        <p className="text-sm text-gray-600">Enter specific Referral IDs to manually retrieve and update the latest engagement data.</p>
         <p className="text-lg text-red-500 font-bold underline mt-2">
           Note: X API allows up to 10,000 engagement data retrievals per month. Be mindful of the usage limits.
         </p>
@@ -46,6 +68,31 @@ export const ManualTweetEngagementUpdate: React.FC<ManualTweetEngagementUpdatePr
             </Link>
           ))}
         </div>
+      </div>
+
+      {/* Fetch tweet engagement data with a loading spinner and log display */}
+      <div className="w-11/12 mt-5">
+        {/* Button to fetch tweet engagement data */}
+        <button
+          className={`bg-sky-300 hover:bg-sky-400 rounded-md py-2 px-5 shadow-md font-semibold ${
+            isProcessing ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          onClick={async () => await fetchAndUpdateTweetEngagementData(setIsProcessing, addLog)} // Fetch and update data on click
+          disabled={isProcessing} // Disable button during processing
+        >
+          {isProcessing ? (
+            <div className="flex flex-row items-center gap-2">
+              {/* Loading spinner during processing */}
+              <Image src="/assets/common/loading.png" alt="loading" width={30} height={30} className="animate-spin" />
+              <span className="animate-pulse">Processing...</span>
+            </div>
+          ) : (
+            "Fetch Tweet Engagement Data"
+          )}
+        </button>
+
+        {/* Log table to display the logs */}
+        <LogTable logs={logs} />
       </div>
 
       {/* Input for referral IDs */}
