@@ -11,15 +11,7 @@ export async function fetchReferralData(referralId: string): Promise<ReferralDat
       const data = docSnap.data() as ReferralData & {
         createdAt: Timestamp;
         lastConversionDate?: Timestamp | null;
-        tweetEngagement?: {
-          retweetCount: number;
-          replyCount: number;
-          likeCount: number;
-          quoteCount: number;
-          bookmarkCount: number;
-          impressionCount: number;
-          fetchedAt: Timestamp;
-        }
+        tweetNewestCreatedAt?: Timestamp | null;
       };
 
       // Build the referral data, converting timestamps to Date objects where necessary
@@ -28,13 +20,8 @@ export async function fetchReferralData(referralId: string): Promise<ReferralDat
         id: docSnap.id,
         createdAt: data.createdAt.toDate(),
         lastConversionDate: data.lastConversionDate?.toDate() || null,
-        tweetUrl: data.tweetUrl || "",
-        tweetEngagement: data.tweetEngagement
-          ? {
-              ...data.tweetEngagement,
-              fetchedAt: data.tweetEngagement.fetchedAt.toDate(), // Convert fetchedAt timestamp to Date
-            }
-          : undefined,
+        tweetNewestId: data.tweetNewestId || undefined,
+        tweetNewestCreatedAt: data.tweetNewestCreatedAt ? data.tweetNewestCreatedAt.toDate() : undefined,
       };
       
       return referralData;
