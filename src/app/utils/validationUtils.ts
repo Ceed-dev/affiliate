@@ -144,17 +144,9 @@ export function isValidReferralData(data: DocumentData): data is ReferralData {
     typeof data.conversions === "number" &&     // Validate conversions count
     typeof data.earnings === "number" &&        // Validate earnings amount
     (data.lastConversionDate === null || data.lastConversionDate.toDate() instanceof Date) && // Validate last conversion date
-    // Validate tweetUrl if present, it must be a string
-    (typeof data.tweetUrl === "undefined" || typeof data.tweetUrl === "string") &&
-    // Validate tweetEngagement object if present
-    (typeof data.tweetEngagement === "undefined" || (
-      typeof data.tweetEngagement.retweetCount === "number" &&
-      typeof data.tweetEngagement.replyCount === "number" &&
-      typeof data.tweetEngagement.likeCount === "number" &&
-      typeof data.tweetEngagement.quoteCount === "number" &&
-      typeof data.tweetEngagement.bookmarkCount === "number" &&
-      typeof data.tweetEngagement.impressionCount === "number" &&
-      data.tweetEngagement.fetchedAt.toDate() instanceof Date // Validate the fetchedAt date
-    ))
+    // Validate tweetNewestId if present, it must be a string
+    (typeof data.tweetNewestId === "undefined" || typeof data.tweetNewestId === "string") &&
+    // Validate tweetNewestCreatedAt if present, it must be a valid Date
+    (typeof data.tweetNewestCreatedAt === "undefined" || data.tweetNewestCreatedAt.toDate() instanceof Date)
   );
 }
