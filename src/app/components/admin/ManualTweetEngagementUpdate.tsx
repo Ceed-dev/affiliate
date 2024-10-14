@@ -68,7 +68,7 @@ export const ManualTweetEngagementUpdate = ({}) => {
       </div>
 
       {/* Fetch tweet engagement data with a loading spinner and log display */}
-      <div className="w-11/12 mt-5">
+      <div className="w-11/12 my-5">
         {/* Button to fetch tweet engagement data */}
         <button
           className={`bg-sky-300 hover:bg-sky-400 rounded-md py-2 px-5 shadow-md font-semibold ${

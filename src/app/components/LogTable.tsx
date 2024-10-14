@@ -20,12 +20,12 @@ export const LogTable: React.FC<LogTableProps> = ({ logs }) => {
         Processing Logs: ({logs.length} {logs.length === 1 ? "log" : "logs"})
       </h3>
 
-      <div className="bg-gray-100 p-3 rounded-md mt-3 overflow-auto max-h-[500px]">
+      <div className="bg-gray-100 p-3 rounded-md mt-3 overflow-auto max-h-[700px]">
         {/* Table for displaying logs */}
         <table className="table-auto w-full border-collapse border border-gray-300 text-md">
           <thead>
             <tr>
-              <th className="border border-gray-300 px-2 py-1 text-left">Timestamp</th>
+              <th className="border border-gray-300 px-2 py-1 text-left whitespace-no-wrap">Timestamp</th>
               <th className="border border-gray-300 px-2 py-1 text-left">Type</th>
               <th className="border border-gray-300 px-2 py-1 text-left">Log Message</th>
             </tr>
