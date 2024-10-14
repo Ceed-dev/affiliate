@@ -10,14 +10,12 @@ import { ethers } from "ethers";
 // Import utility functions and contract-related functions
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
-  updateIsPaidFlag, fetchUnapprovedUsers, approveUser, fetchReferralData, updateTweetEngagement,
+  updateIsPaidFlag, fetchUnapprovedUsers, approveUser,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 
 // Import component types
-import { 
-  UnpaidConversionLog, UserData, ExtendedTweetEngagement, ReferralData, ActiveTab,
-} from "../types";
+import { UnpaidConversionLog, UserData, ActiveTab } from "../types";
 
 // Import UI components
 import { 
@@ -291,120 +289,6 @@ export default function Admin() {
 
   // ========================= END USER APPROVAL HANDLING =========================
 
-  // ========================= BEGIN TWEET ENGAGEMENT MANAGEMENT =========================
-
-  const [referralIdsForTweetEngagementData, setReferralIdsForTweetEngagementData] = useState("");
-  const [engagementDataArray, setEngagementDataArray] = useState<ExtendedTweetEngagement[] | null>(null);
-  const [loadingTweetEngagementData, setLoadingTweetEngagementData] = useState(false);
-
-  const handleFetchTweetEngagement = async () => {
-    setLoadingTweetEngagementData(true);
-    
-    try {
-      toast.info("Fetching Tweet engagement data...");
-  
-      // Convert comma-separated Referral IDs to array
-      const referralIdsArray = referralIdsForTweetEngagementData
-        .split(",")
-        .map(id => id.trim())
-        .filter(id => id !== "");
-  
-      const referralDataPromises = referralIdsArray.map(async (referralId) => {
-        try {
-          return await fetchReferralData(referralId);
-        } catch (error) {
-          return null; // Skip invalid or failed referral ID
-        }
-      });
-  
-      const referralDataResults = await Promise.allSettled(referralDataPromises);
-  
-      const validReferralDataResults = referralDataResults
-        .filter((result): result is PromiseFulfilledResult<ReferralData | null> => result.status === "fulfilled" && result.value !== null)
-        .map(result => result.value as ReferralData);
-  
-      const tweetIds = validReferralDataResults
-        .map(referralData => {
-          // const tweetUrl = referralData.tweetUrl;
-          const tweetUrl = "";
-          const tweetIdMatch = tweetUrl?.match(/status\/(\d+)/);
-          if (!tweetIdMatch || !tweetIdMatch[1]) {
-            console.error(`Invalid tweet URL for referral ID: ${referralData.id}`);
-            return null;
-          }
-          return { tweetId: tweetIdMatch[1], tweetUrl, referralId: referralData.id! };
-        })
-        .filter(tweetData => tweetData !== null);
-  
-      const batchSize = 100;
-      const batchedTweetData: ExtendedTweetEngagement[] = [];
-  
-      for (let i = 0; i < tweetIds.length; i += batchSize) {
-        const tweetBatch = tweetIds.slice(i, i + batchSize);
-        const tweetIdsBatch = tweetBatch.map(data => data!.tweetId).join(",");
-  
-        const response = await fetch(`/api/fetchTweetEngagement?tweetIds=${tweetIdsBatch}`, {
-          headers: {
-            "x-api-key": process.env.NEXT_PUBLIC_X_API_BEARER_TOKEN as string,
-          },
-        });
-  
-        if (!response.ok) {
-          console.error(`Error fetching tweet engagement data: ${response.statusText}`);
-          toast.error(`Error fetching tweet engagement data: ${response.statusText}`);
-          continue;
-        }
-  
-        const engagementDataResponse = await response.json();
-        const engagementDataArray = engagementDataResponse.data;
-  
-        tweetBatch.forEach((tweetData) => {
-          if (tweetData) {
-            const matchingData = engagementDataArray.find((engagement: { id: string }) => engagement.id === tweetData.tweetId);
-            if (matchingData) {
-              const engagementData = matchingData.public_metrics;
-              batchedTweetData.push({
-                referralId: tweetData.referralId,
-                tweetUrl: tweetData.tweetUrl ?? "",
-                retweetCount: engagementData.retweet_count,
-                replyCount: engagementData.reply_count,
-                likeCount: engagementData.like_count,
-                quoteCount: engagementData.quote_count,
-                bookmarkCount: engagementData.bookmark_count,
-                impressionCount: engagementData.impression_count,
-                fetchedAt: new Date(),
-              });
-            }
-          }
-        });
-      }
-  
-      if (batchedTweetData.length === 0) {
-        setEngagementDataArray(null);
-        toast.warn("No engagement data found for the provided Tweet IDs.");
-      } else {
-        setEngagementDataArray(batchedTweetData);
-        try {
-          await updateTweetEngagement(batchedTweetData);
-          toast.success("Tweet engagement data successfully updated in Firestore.");
-        } catch (error) {
-          console.error("Error updating Firestore with Tweet engagement data:", error);
-          toast.error("Failed to update Firestore with Tweet engagement data.");
-        }
-      }
-  
-      setReferralIdsForTweetEngagementData("");
-  
-    } catch (error) {
-      console.error("Failed to fetch & update tweet engagement:", error);
-      toast.error("Failed to fetch & update Tweet engagement data.");
-    } finally {
-      setLoadingTweetEngagementData(false);
-    }
-  };
-
-  // ========================= END TWEET ENGAGEMENT MANAGEMENT =========================
-
   return (
     <div className="min-h-screen flex flex-col items-center">
       {/* Header component */}
@@ -443,15 +327,7 @@ export default function Admin() {
         />
       )}
 
-      {activeTab === "manualTweetEngagementUpdate" && (
-        <ManualTweetEngagementUpdate
-          referralIdsForTweetEngagementData={referralIdsForTweetEngagementData}
-          setReferralIdsForTweetEngagementData={setReferralIdsForTweetEngagementData}
-          handleFetchTweetEngagement={handleFetchTweetEngagement}
-          loadingTweetEngagementData={loadingTweetEngagementData}
-          engagementDataArray={engagementDataArray}
-        />
-      )}
+      {activeTab === "manualTweetEngagementUpdate" && <ManualTweetEngagementUpdate />}
     </div>
   );
 };
