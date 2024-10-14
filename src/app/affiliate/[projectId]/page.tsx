@@ -196,9 +196,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           setLoadingReferral(false);
 
           // If a tweetUrl is present in the referral data, set it
-          if (data.tweetUrl) {
-            setTweetUrl(data.tweetUrl); // Set the existing tweet URL
-          }
+          // if (data.tweetUrl) {
+          //   setTweetUrl(data.tweetUrl); // Set the existing tweet URL
+          // }
         })
         .catch(error => {
           const message = (error instanceof Error) ? error.message : "Unknown error";
@@ -674,7 +674,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10 mt-10">
             <h3 className="text-lg font-semibold text-gray-800 pb-4 flex items-center">
               Tweet Engagement Data
-              {referralData.tweetUrl && (
+              {/* {referralData.tweetUrl && (
                 <a
                   href={referralData.tweetUrl}
                   target="_blank"
@@ -689,9 +689,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     className="inline-block"
                   />
                 </a>
-              )}
+              )} */}
             </h3>
-            <div className="overflow-x-auto">
+            {/* <div className="overflow-x-auto">
               <table className="min-w-full table-auto">
                 <thead className="bg-gray-100">
                   <tr>
@@ -733,7 +733,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   )}
                 </tbody>
               </table>
-            </div>
+            </div> */}
           </div>
         </>
       }
