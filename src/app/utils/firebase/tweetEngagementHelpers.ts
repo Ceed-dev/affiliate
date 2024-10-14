@@ -217,3 +217,123 @@ const fetchTweetEngagementForRecentTweets = async (
     throw new Error(`Failed to fetch recent tweet engagement data for username: ${username} and referralId: ${referralId}`);
   }
 };
+
+/**
+ * Updates or creates tweet engagement data in Firestore based on the provided engagement data.
+ * 
+ * @param tweetEngagementData - The engagement data for past and recent tweets.
+ * @param addLog - A function to add log entries for tracking the process.
+ */
+const updateTweetEngagementData = async (
+  tweetEngagementData: TweetEngagementUpdate,
+  addLog: (log: string, type: LogType, indentLevel?: number) => void
+): Promise<void> => {
+  const { username, referralId, pastTweetEngagementData, recentTweetEngagementData } = tweetEngagementData;
+
+  if (!referralId) {
+    const errorMessage = "Referral ID is missing.";
+    addLog(errorMessage, "error", 3);
+    console.error(errorMessage);
+    throw new Error("Referral ID is required to update tweet engagement data.");
+  }
+
+  try {
+    addLog(`Starting update for referralId: ${referralId}`, "log", 3);
+
+    // Reference to the tweets subcollection within the referral document in Firestore
+    const tweetsCollectionRef = collection(db, `referrals/${referralId}/tweets`);
+
+    // Step 1: Update past tweets engagement data if available
+    if (pastTweetEngagementData?.length) {
+      addLog(`Updating past tweet engagement data for ${pastTweetEngagementData.length} tweets.`, "log", 3);
+
+      await Promise.all(
+        pastTweetEngagementData.map(async (tweet) => {
+          const tweetDocRef = doc(tweetsCollectionRef, tweet.id);
+
+          const tweetDocSnap = await getDoc(tweetDocRef);
+          if (tweetDocSnap.exists()) {
+            const existingTweetData = tweetDocSnap.data() as TweetData;
+
+            // Update engagement metrics and the fetch count
+            await updateDoc(tweetDocRef, {
+              metrics: {
+                retweetCount: tweet.public_metrics.retweet_count,
+                replyCount: tweet.public_metrics.reply_count,
+                likeCount: tweet.public_metrics.like_count,
+                quoteCount: tweet.public_metrics.quote_count,
+                bookmarkCount: tweet.public_metrics.bookmark_count,
+                impressionCount: tweet.public_metrics.impression_count,
+              },
+              lastFetchedAt: new Date(), // Update the last fetched timestamp
+              fetchCount: existingTweetData.fetchCount + 1, // Increment the fetch count
+            });
+
+            addLog(`Updated engagement data for past tweet ID: ${tweet.id}`, "log", 3);
+          }
+        })
+      );
+    } else {
+      addLog("No past tweet engagement data to update.", "warning", 3);
+    }
+
+    // Step 2: Add new tweets engagement data if available
+    if (recentTweetEngagementData?.length) {
+      addLog(`Adding new tweet engagement data for ${recentTweetEngagementData.length} tweets.`, "log", 3);
+
+      let newestTweetId: string | null = null;
+      let newestTweetCreatedAt: Date | null = null;
+
+      await Promise.all(
+        recentTweetEngagementData.map(async (tweet) => {
+          const tweetDocRef = doc(tweetsCollectionRef, tweet.id);
+
+          // Create a new document for each new tweet
+          await setDoc(tweetDocRef, {
+            tweetText: tweet.text,
+            tweetUrl: `https://x.com/${username}/status/${tweet.id}`,
+            metrics: {
+              retweetCount: tweet.public_metrics.retweet_count,
+              replyCount: tweet.public_metrics.reply_count,
+              likeCount: tweet.public_metrics.like_count,
+              quoteCount: tweet.public_metrics.quote_count,
+              bookmarkCount: tweet.public_metrics.bookmark_count,
+              impressionCount: tweet.public_metrics.impression_count,
+            },
+            createdAt: new Date(tweet.created_at), // Record the tweet creation date
+            firstFetchedAt: new Date(), // Record when the engagement data was first fetched
+            lastFetchedAt: new Date(), // Record when the engagement data was last fetched
+            fetchCount: 1, // Initial fetch count is 1
+          });
+
+          addLog(`Added new tweet engagement data for tweet ID: ${tweet.id}`, "log", 3);
+
+          // Identify the newest tweet based on creation date
+          const tweetCreatedAt = new Date(tweet.created_at);
+          if (!newestTweetCreatedAt || tweetCreatedAt > newestTweetCreatedAt) {
+            newestTweetCreatedAt = tweetCreatedAt;
+            newestTweetId = tweet.id;
+          }
+        })
+      );
+
+      // Step 3: Update referral document with the newest tweet's ID and creation date
+      if (newestTweetId && newestTweetCreatedAt) {
+        const referralDocRef = doc(db, `referrals/${referralId}`);
+
+        await updateDoc(referralDocRef, {
+          tweetNewestId: newestTweetId,
+          tweetNewestCreatedAt: newestTweetCreatedAt,
+        });
+
+        addLog(`Updated referral document with newest tweet ID: ${newestTweetId}`, "log", 3);
+      }
+    } else {
+      addLog("No recent tweet engagement data to add.", "warning", 3);
+    }
+  } catch (error: any) {
+    addLog(`Error updating tweet engagement data for referralId: ${referralId}, Message: ${error.message}`, "error", 3);
+    console.error("Error updating tweet engagement data:", error);
+    throw new Error(`Failed to update tweet engagement data for referralId: ${referralId}`);
+  }
+};
