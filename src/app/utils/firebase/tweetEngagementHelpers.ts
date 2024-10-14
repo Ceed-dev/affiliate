@@ -167,3 +167,53 @@ const fetchTweetEngagementForPastTweets = async (
     throw new Error("Failed to fetch tweet engagement data for past tweets");
   }
 };
+
+/**
+ * Fetches recent tweet engagement data for a given username and referral ID.
+ * Calls the Qube API's recent tweet search endpoint.
+ *
+ * @param username - The username of the X account to search for tweets.
+ * @param referralId - The referral ID associated with the tweets.
+ * @param xAuthToken - The user's X API authentication token.
+ * @param addLog - A function to add log entries for tracking the process.
+ * @param tweetNewestId - (Optional) The newest tweet ID to filter tweets from a specific point in time.
+ * @returns {Promise<any[]>} - An array of engagement data for the fetched tweets.
+ */
+const fetchTweetEngagementForRecentTweets = async (
+  username: string, 
+  referralId: string, 
+  xAuthToken: string, 
+  addLog: (log: string, type: LogType, indentLevel?: number) => void,
+  tweetNewestId?: string,
+): Promise<any[]> => {
+  try {
+    // Construct the full URL for the recent tweet search API
+    const apiUrl = API_ENDPOINTS.TWEET_RECENT_SEARCH(username, referralId, tweetNewestId);
+
+    addLog(`Calling API: ${apiUrl}`, "log", 3);
+
+    // Call the Qube API to fetch the tweet engagement data
+    const response = await fetch(apiUrl, {
+      method: "GET", // Using GET method to retrieve data
+      headers: {
+        "internal-api-key": INTERNAL_API_KEY,  // Send internal API key
+      },
+    });
+
+    // Check if the API request was successful
+    if (!response.ok) {
+      addLog(`Failed to fetch tweet engagement data: ${response.statusText}`, "error", 3);
+      throw new Error(`Failed to fetch recent tweet engagement data: ${response.statusText}`);
+    }
+
+    addLog("Successfully fetched recent tweet engagement data.", "log", 3);
+
+    // Return the tweet engagement data as JSON
+    const tweetEngagementData = await response.json();
+    return tweetEngagementData;
+  } catch (error: any) {
+    addLog(`Error fetching tweet engagement data for username: ${username} and referralId: ${referralId}, Message: ${error.message}`, "error", 3);
+    console.error(`Error fetching recent tweet engagement data for username: ${username} and referralId: ${referralId}`, error);
+    throw new Error(`Failed to fetch recent tweet engagement data for username: ${username} and referralId: ${referralId}`);
+  }
+};
