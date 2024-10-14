@@ -96,7 +96,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.aggregatedLastConversionDate ? referral.aggregatedLastConversionDate.toLocaleDateString() : "N/A"}</td>
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">{referral.createdAt.toLocaleDateString()}</td>
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
-                        {referral.tweetUrl ? (
+                        {/* {referral.tweetUrl ? (
                           <a 
                             href={referral.tweetUrl} 
                             target="_blank" 
@@ -110,24 +110,23 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                               className="inline-block mr-2"
                             />
                           </a>
-                        ) : (
+                        ) : ( */}
                           <span className="text-gray-500">Not Submitted</span>
-                        )}
+                        {/* )} */}
                       </td>
                       <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 hidden lg:table-cell">
-                        {referral.tweetEngagement ? (
+                        {/* {referral.tweetEngagement ? (
                           <button onClick={() => toggleEngagementData(index)} className="text-blue-500 hover:text-blue-700">
                             {activeIndex === index ? "Hide" : "Show"}
                           </button>
-                        ) : (
+                        ) : ( */}
                           <span className="text-gray-500">N/A</span>
-                        )}
+                        {/* )} */}
                       </td>
                     </tr>
                     {/* View engagement data */}
-                    {activeIndex === index && referral.tweetEngagement && (
+                    {/* {activeIndex === index && referral.tweetEngagement && (
                       <tr>
-                        {/* Add blank cells to display data in the right column */}
                         <td className="px-6 py-4"></td>
                         <td colSpan={7} className="px-6 py-4 bg-slate-200">
                           <div className="flex text-sm justify-between">
@@ -155,7 +154,7 @@ export const AffiliatesList: React.FC<AffiliatesListProps> = ({ referrals, selec
                           </div>
                         </td>
                       </tr>
-                    )}
+                    )} */}
                   </React.Fragment>
                 ))
               ) : (
