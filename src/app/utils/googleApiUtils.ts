@@ -9,7 +9,7 @@ let oauth2Client: OAuth2Client | null = null;
  * If the client doesn't exist yet, it will be created with the necessary parameters.
  * @returns {Promise<OAuth2Client>} The OAuth2Client instance.
  */
-export const getOAuth2Client = async (): Promise<OAuth2Client> => {
+export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
   if (!oauth2Client) {
     oauth2Client = new google.auth.OAuth2({
       clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
@@ -35,8 +35,8 @@ export const getOAuth2Client = async (): Promise<OAuth2Client> => {
  * This URL is used to redirect the user to Google's OAuth 2.0 authentication flow.
  * @returns {Promise<string>} The generated authorization URL.
  */
-export const generateAuthUrl = async (): Promise<string> => {
-  const oauth2Client = await getOAuth2Client();
+export const generateGoogleAuthUrl = async (): Promise<string> => {
+  const oauth2Client = await getGoogleOAuth2Client();
   
   // Generate the auth URL with the necessary scopes
   const authUrl = oauth2Client.generateAuthUrl({
@@ -54,8 +54,8 @@ export const generateAuthUrl = async (): Promise<string> => {
  * @param {string} code - The authorization code returned by Google OAuth2.
  * @returns {Promise<OAuth2Client>} The OAuth2Client with tokens set.
  */
-export const getTokenFromCode = async (code: string): Promise<OAuth2Client> => {
-  const oauth2Client = await getOAuth2Client();
+export const getGoogleTokenFromCode = async (code: string): Promise<OAuth2Client> => {
+  const oauth2Client = await getGoogleOAuth2Client();
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
   return oauth2Client;
@@ -68,7 +68,7 @@ export const getTokenFromCode = async (code: string): Promise<OAuth2Client> => {
  * @returns {Promise<any>} The YouTube API client instance.
  */
 export const getYouTubeApiClient = async (token: any = null): Promise<any> => {
-  const oauth2Client = await getOAuth2Client();
+  const oauth2Client = await getGoogleOAuth2Client();
 
   if (token) {
     oauth2Client.setCredentials(token);
