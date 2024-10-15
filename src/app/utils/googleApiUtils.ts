@@ -1,5 +1,9 @@
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
+import { GOOGLE_API_ENDPOINTS } from "../constants/googleApiConstants";
+
+// Include the internal API key from environment variables
+const INTERNAL_API_KEY = process.env.NEXT_PUBLIC_INTERNAL_API_KEY as string;
 
 // Initialize OAuth2 client as null. It will be instantiated only once.
 let oauth2Client: OAuth2Client | null = null;
@@ -31,22 +35,28 @@ export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
 };
 
 /**
- * Generate the authorization URL.
+ * Generate the authorization URL via the API.
  * This URL is used to redirect the user to Google's OAuth 2.0 authentication flow.
- * @returns {Promise<string>} The generated authorization URL.
+ * @returns {Promise<string | undefined>} The generated authorization URL.
  */
-export const generateGoogleAuthUrl = async (): Promise<string> => {
-  const oauth2Client = await getGoogleOAuth2Client();
-  
-  // Generate the auth URL with the necessary scopes
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline", // "offline" to get a refresh token
-    scope: [
-      "https://www.googleapis.com/auth/youtube.readonly", // Grants read-only access to YouTube data, including video engagement metrics like views, likes, and comments.
-    ],    
-  });
+export const generateGoogleAuthUrl = async (): Promise<string | undefined> => {
+  try {
+    // Fetch the Google OAuth2.0 authorization URL from the backend API
+    const response = await fetch(GOOGLE_API_ENDPOINTS.AUTH_URL(), {
+      headers: { "internal-api-key": INTERNAL_API_KEY }
+    });
 
-  return authUrl;
+    if (!response.ok) {
+      throw new Error("Failed to fetch Google OAuth2 URL");
+    }
+
+    const { authUrl } = await response.json();
+
+    return authUrl;  // Return the authorization URL
+  } catch (error) {
+    console.error("Error during Google OAuth2 authentication:", error);
+    return undefined;  // Return undefined in case of an error
+  }
 };
 
 /**
