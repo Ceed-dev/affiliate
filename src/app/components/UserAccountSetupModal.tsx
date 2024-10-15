@@ -32,6 +32,11 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const [xUserData, setXUserData] = useState<any>(null);            // Stores X user profile data
   const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false); // Manages loading state during API calls
 
+  // State variables for Google API authentication and user data
+  const [googleAuthTokenData, setGoogleAuthTokenData] = useState<any>(null);  // Stores Google API authentication token data
+  const [googleUserData, setGoogleUserData] = useState<any>(null);            // Stores Google user profile data
+  const [isGoogleApiLoading, setIsGoogleApiLoading] = useState<boolean>(false); // Manages loading state during API calls
+
   // Load data from localStorage when the modal is opened
   useEffect(() => {
     if (isOpen) {
@@ -346,6 +351,66 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                     height={20}
                   />
                   Connect X Account
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Google Account Connect Button */}
+          {role === "Affiliate" && (
+            <div className="flex flex-col gap-2">
+              <label className="block mb-1 font-semibold">
+                Google Account <span className="text-gray-500 text-xs">(optional)</span>
+              </label>
+
+              {isGoogleApiLoading ? (
+                <div className="flex justify-center items-center gap-2 text-sm text-gray-600">
+                  <Image
+                    src="/assets/common/loading.png"
+                    alt="loading"
+                    width={30}
+                    height={30}
+                    className="animate-spin"
+                  />
+                  Loading...
+                </div>
+              ) : googleUserData ? (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={googleUserData.picture}
+                    alt={googleUserData.name}
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                  />
+                  <a
+                    href={`https://myaccount.google.com/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 text-sm hover:underline"
+                  >
+                    {googleUserData.name}
+                  </a>
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    try {
+                      // const authUrl = await generateGoogleAuthUrl();
+                      // window.location.href = authUrl;
+                    } catch (error) {
+                      console.error("Failed to generate Google auth URL", error);
+                    }
+                  }}
+                  className="w-full p-2 bg-sky-400 hover:bg-sky-500 text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2"
+                >
+                  <Image
+                    src="/brand-assets/google.png"
+                    alt="Google Logo"
+                    width={20}
+                    height={20}
+                  />
+                  Connect Google Account
                 </button>
               )}
             </div>
