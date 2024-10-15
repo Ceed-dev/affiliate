@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApiClient } from "../../../utils/xApiUtils";
+import { getXApiClient } from "../../../utils/xApiUtils";
 
 /**
  * Handles the GET request to retrieve tweet engagement data based on a list of tweet IDs.
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Initialize an array to hold the fetched tweet data
     const allTweets: any[] = [];
 
-    const client = await getApiClient(null, true); // Bearer token client
+    const client = await getXApiClient(null, true); // Bearer token client
 
     // Step 3: Fetch tweets in batches of 100 to comply with API limits
     for (let i = 0; i < tweetIdsArray.length; i += batchSize) {

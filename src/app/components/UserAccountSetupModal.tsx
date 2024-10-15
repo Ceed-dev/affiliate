@@ -2,7 +2,7 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
-import { generateAuthUrl } from "../utils/xApiUtils";
+import { generateXAuthUrl } from "../utils/xApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserAccountSetupModalProps = {
@@ -331,7 +331,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 <button
                   onClick={async () => {
                     try {
-                      const authUrl = await generateAuthUrl();
+                      const authUrl = await generateXAuthUrl();
                       window.location.href = authUrl;
                     } catch (error) {
                       console.error("Failed to generate X auth URL", error);
