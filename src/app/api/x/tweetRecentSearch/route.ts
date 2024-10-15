@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApiClient } from "../../../utils/xApiUtils";
+import { getXApiClient } from "../../../utils/xApiUtils";
 
 /**
  * Handles the GET request to retrieve recent tweets for a specific user and referral.
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     let nextToken: string | null = null;
 
     // Get the API client using a Bearer token
-    const client = await getApiClient(null, true);
+    const client = await getXApiClient(null, true);
 
     // Construct the search query to find tweets containing referral links
     // The query searches for tweets from the specified username that include the referralId as part of the tweet text,

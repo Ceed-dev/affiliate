@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApiClient } from "../../../utils/xApiUtils";
+import { getXApiClient } from "../../../utils/xApiUtils";
 
 /**
  * Handle GET request to fetch user information from the X API.
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Initialize the X API client with the tokenData
-    const client = await getApiClient(tokenData); // Pass the full token object to getApiClient
+    const client = await getXApiClient(tokenData); // Pass the full token object to getXApiClient
 
     // Fetch user data with additional fields like profile_image_url, public_metrics, and description
     const userResponse = await client.users.findMyUser({
