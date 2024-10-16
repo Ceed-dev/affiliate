@@ -11,8 +11,7 @@ export const GOOGLE_API_ENDPOINTS = {
 
   /**
    * Endpoint for exchanging the Google OAuth authorization code for tokens.
-   * @param {string} code - The authorization code received from Google OAuth.
    * @returns {string} Full URL to exchange the code for tokens.
    */
-  GET_TOKEN: (code: string): string => `/api/google/auth/getToken?code=${code}`,
+  GET_TOKEN: (): string => `/api/google/auth/getToken`,
 };

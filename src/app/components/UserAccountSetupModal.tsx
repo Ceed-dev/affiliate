@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
 import { generateXAuthUrl } from "../utils/xApiUtils";
-import { generateGoogleAuthUrl } from "../utils/googleApiUtils";
+import { generateGoogleAuthUrl, getGoogleTokens } from "../utils/googleApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserAccountSetupModalProps = {
@@ -107,39 +107,66 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     );
   };
 
-  // OAuth access token fetching from the X API after the user is redirected back
+  // OAuth access token fetching from the X or Google API after the user is redirected back
   useEffect(() => {
     const fetchAuthData = async () => {
-      setIsXApiLoading(true);  // Set loading state during API call
       const code = searchParams.get("code");
       const state = searchParams.get("state");
 
-      // Validate presence of code and state parameter
-      if (!code || state !== (process.env.NEXT_PUBLIC_X_API_OAUTH_STATE as string)) {
-        console.error("Missing necessary parameters or invalid state.");
-        setIsXApiLoading(false);
+      if (!code) {
+        console.error("Authorization code is missing.");
         return;
       }
 
-      try {
-        // Fetch the OAuth token from the X API using the authorization code
-        const response = await fetch(API_ENDPOINTS.AUTH(code, state));
-        const data = await response.json();
-
-        // If access token is received, store it in state and localStorage
-        if (data.access_token) {
-          setXAuthTokenData(data);
-          localStorage.setItem("xAuthTokenData", JSON.stringify(data));
-          console.log("X Account connected successfully");
+      if (state) {
+        // X authentication process
+        if (state !== process.env.NEXT_PUBLIC_X_API_OAUTH_STATE) {
+          console.error("Invalid state parameter for X API.");
+          return;
         }
-      } catch (error) {
-        console.error("Error fetching access token:", error);
-      } finally {
-        setIsXApiLoading(false);  // Reset loading state
+
+        setIsXApiLoading(true);
+        try {
+          // TODO: Fix to use utility function
+          // Fetch the OAuth token from the X API using the authorization code
+          const response = await fetch(API_ENDPOINTS.AUTH(code, state));
+          const data = await response.json();
+
+          // If access token is received, store it in state and localStorage
+          if (data.access_token) {
+            setXAuthTokenData(data);
+            localStorage.setItem("xAuthTokenData", JSON.stringify(data));
+            console.log("X Account connected successfully");
+          }
+        } catch (error) {
+          console.error("Error fetching access token from X:", error);
+        } finally {
+          setIsXApiLoading(false);
+        }
+      } else {
+        // Google authentication process
+        setIsGoogleApiLoading(true);
+        try {
+          // Use the utility function to exchange the authorization code for tokens
+          const tokenData = await getGoogleTokens(code);
+
+          // If access token is received, store it in state and localStorage
+          if (tokenData?.tokens?.access_token) {
+            setGoogleAuthTokenData(tokenData.tokens);
+            localStorage.setItem("googleAuthTokenData", JSON.stringify(tokenData.tokens));
+            console.log("Google Account connected successfully");
+          } else {
+            console.error("Failed to receive Google token data.");
+          }
+        } catch (error) {
+          console.error("Error fetching access token from Google:", error);
+        } finally {
+          setIsGoogleApiLoading(false);
+        }
       }
     };
 
-    fetchAuthData();  // Trigger OAuth token fetching
+    fetchAuthData(); // Trigger OAuth token fetching
   }, [searchParams]);
 
   // Fetch X user profile data using the access token
@@ -336,11 +363,14 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
               ) : (
                 <button
                   onClick={async () => {
+                    setIsXApiLoading(true); // Set loading state to true immediately after the button is clicked
                     try {
                       const authUrl = await generateXAuthUrl();
                       window.location.href = authUrl;
                     } catch (error) {
                       console.error("Failed to generate X auth URL", error);
+                    } finally {
+                      setIsXApiLoading(false); // Reset loading state in case of error
                     }
                   }}
                   className="w-full p-2 bg-black text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-gray-600"
@@ -396,6 +426,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
               ) : (
                 <button
                   onClick={async () => {
+                    setIsGoogleApiLoading(true); // Set loading state to true immediately after the button is clicked
                     try {
                       const authUrl = await generateGoogleAuthUrl();
                       if (authUrl) {
@@ -405,6 +436,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                       }
                     } catch (error) {
                       console.error("Failed to generate Google auth URL", error);
+                    } finally {
+                      setIsGoogleApiLoading(false); // Reset loading state in case of error
                     }
                   }}
                   className="w-full p-2 bg-sky-400 hover:bg-sky-500 text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2"
