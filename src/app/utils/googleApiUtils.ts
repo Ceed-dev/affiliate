@@ -37,8 +37,13 @@ export const generateGoogleAuthUrl = async (): Promise<string | undefined> => {
 export const getGoogleTokens = async (code: string): Promise<any | undefined> => {
   try {
     // Fetch tokens using the Google OAuth2.0 authorization code from the backend API
-    const response = await fetch(GOOGLE_API_ENDPOINTS.GET_TOKEN(code), {
-      headers: { "internal-api-key": INTERNAL_API_KEY }
+    const response = await fetch(GOOGLE_API_ENDPOINTS.GET_TOKEN(), {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "internal-api-key": INTERNAL_API_KEY,
+      },
+      body: JSON.stringify({ code }),
     });
 
     if (!response.ok) {
