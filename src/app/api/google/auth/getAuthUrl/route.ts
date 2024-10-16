@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGoogleOAuth2Client } from "../../../utils/googleApiUtils";
+import { getGoogleOAuth2Client } from "../../apiUtils";
 
 /**
  * Handles the GET request to generate a Google OAuth2.0 authorization URL.

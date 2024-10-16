@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
 import { generateXAuthUrl } from "../utils/xApiUtils";
+import { generateGoogleAuthUrl } from "../utils/googleApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserAccountSetupModalProps = {
@@ -396,8 +397,12 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 <button
                   onClick={async () => {
                     try {
-                      // const authUrl = await generateGoogleAuthUrl();
-                      // window.location.href = authUrl;
+                      const authUrl = await generateGoogleAuthUrl();
+                      if (authUrl) {
+                        window.location.href = authUrl;
+                      } else {
+                        console.error("Failed to generate Google auth URL. The URL is undefined.");
+                      }
                     } catch (error) {
                       console.error("Failed to generate Google auth URL", error);
                     }
