@@ -49,3 +49,22 @@ export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
  * is no longer valid.
  * [Ref: https://github.com/googleapis/google-api-nodejs-client?tab=readme-ov-file#handling-refresh-tokens]
  */
+
+/**
+ * Get the YouTube Data API client instance.
+ * If using OAuth2User, it checks for token expiration and refreshes if necessary.
+ * @param {any} token - The OAuth2User token to be used for authentication.
+ * @returns {Promise<any>} The YouTube API client instance.
+ */
+export const getYouTubeApiClient = async (token: any = null): Promise<any> => {
+  const oauth2Client = await getGoogleOAuth2Client();
+
+  if (token) {
+    oauth2Client.setCredentials(token);
+  }
+
+  return google.youtube({
+    version: "v3",
+    auth: oauth2Client,
+  });
+};
