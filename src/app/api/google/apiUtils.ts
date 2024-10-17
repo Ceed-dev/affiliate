@@ -59,6 +59,8 @@ export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
 export const getYouTubeApiClient = async (token: any = null): Promise<any> => {
   const oauth2Client = await getGoogleOAuth2Client();
 
+  // If a token is provided, set it in the OAuth2 client.
+  // This allows the client to use the provided access token and refresh it automatically if it expires.
   if (token) {
     oauth2Client.setCredentials(token);
   }
