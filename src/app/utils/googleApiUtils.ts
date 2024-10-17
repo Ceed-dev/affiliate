@@ -1,4 +1,5 @@
 import { GOOGLE_API_ENDPOINTS } from "../constants/googleApiConstants";
+import { GoogleAuthToken, YouTubeAccountInfo } from "../types/affiliateInfo";
 
 // Include the internal API key from environment variables
 const INTERNAL_API_KEY = process.env.NEXT_PUBLIC_INTERNAL_API_KEY as string;
@@ -62,10 +63,10 @@ export const getGoogleTokens = async (code: string): Promise<any | undefined> =>
 /**
  * Fetch YouTube account information using the provided tokens.
  * This function contacts the backend to retrieve the authenticated user's YouTube account information.
- * @param {any} tokenData - The token data including access_token, refresh_token, and other necessary info.
- * @returns {Promise<any | undefined>} The YouTube account information.
+ * @param {GoogleAuthToken} tokenData - The token data including access_token, refresh_token, and other necessary info.
+ * @returns {Promise<YouTubeAccountInfo[] | undefined>} The YouTube account information.
  */
-export const getYouTubeAccountInfo = async (tokenData: any): Promise<any | undefined> => {
+export const getYouTubeAccountInfo = async (tokenData: GoogleAuthToken): Promise<YouTubeAccountInfo[] | undefined> => {
   try {
     // Fetch YouTube account info using the provided tokens from the backend API
     const response = await fetch(GOOGLE_API_ENDPOINTS.YOUTUBE_USER_INFO(), {
@@ -83,7 +84,8 @@ export const getYouTubeAccountInfo = async (tokenData: any): Promise<any | undef
 
     const accountInfo = await response.json();
 
-    return accountInfo;  // Return the account information
+    // Return the items array which contains the YouTube account data
+    return accountInfo.items;
   } catch (error) {
     console.error("Error retrieving YouTube account information:", error);
     return undefined;  // Return undefined in case of an error
