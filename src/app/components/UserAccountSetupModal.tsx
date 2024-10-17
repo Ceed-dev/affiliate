@@ -2,6 +2,7 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
+import { GoogleAuthToken, YouTubeAccountInfo } from "../types/affiliateInfo";
 import { generateXAuthUrl } from "../utils/xApiUtils";
 import { generateGoogleAuthUrl, getGoogleTokens, getYouTubeAccountInfo } from "../utils/googleApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
@@ -26,7 +27,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const [email, setEmail] = useState<string>("");            // Stores the user's input for email
   const [role, setRole] = useState<UserRole>("ProjectOwner"); // Manages selected user role
   const [projectUrl, setProjectUrl] = useState<string>("");  // Project URL input for ProjectOwner role
-  const [isSaveEnabled, setIsSaveEnabled] = useState(false); // Enables save button when inputs are valid
+  const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false); // Enables save button when inputs are valid
 
   // State variables for X API authentication and user data
   const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);  // Stores X API authentication token data
@@ -34,8 +35,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false); // Manages loading state during API calls
 
   // State variables for Google API authentication and YouTube user data
-  const [googleAuthTokenData, setGoogleAuthTokenData] = useState<any>(null);  // Stores Google API authentication token data
-  const [youtubeUserData, setYouTubeUserData] = useState<any>(null);            // Stores YouTube user profile data
+  const [googleAuthTokenData, setGoogleAuthTokenData] = useState<GoogleAuthToken | null>(null);  // Stores Google API authentication token data
+  const [youtubeUserData, setYouTubeUserData] = useState<YouTubeAccountInfo | "no_account" | null>(null);            // Stores YouTube user profile data
   const [isGoogleApiLoading, setIsGoogleApiLoading] = useState<boolean>(false); // Manages loading state during API calls
 
   // Load data from localStorage when the modal is opened
@@ -225,16 +226,16 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     // Exit if token data is not available or user data has already been processed
     if (!googleAuthTokenData || youtubeUserData) return;
 
-    const fetchYouTubeUserData = async (tokenData: any) => {
+    const fetchYouTubeUserData = async (tokenData: GoogleAuthToken) => {
       setIsGoogleApiLoading(true);  // Set loading state during API call
       try {
         // Fetch YouTube user data using the utility function
         const userData = await getYouTubeAccountInfo(tokenData);
 
         // If user data is received, store it in state and localStorage
-        if (userData?.items && userData.items.length > 0) {
-          setYouTubeUserData(userData.items[0]);  // Store the first item, which represents the user's channel data
-          localStorage.setItem("youtubeUserData", JSON.stringify(userData.items[0]));
+        if (userData && userData.length > 0) {
+          setYouTubeUserData(userData[0]);  // Store the first item, which represents the user's channel data
+          localStorage.setItem("youtubeUserData", JSON.stringify(userData[0]));
           console.log("YouTube user data fetched successfully");
         } else {
           // Handle the case where the user has no YouTube account or no accessible channel information
@@ -487,7 +488,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 ) : (
                   <div className="flex items-center gap-2">
                     <Image
-                      src={youtubeUserData.snippet?.thumbnails?.default?.url}
+                      src={youtubeUserData.snippet?.thumbnails?.default?.url as string}
                       alt={youtubeUserData.snippet?.customUrl || "YouTube User"}
                       width={30}
                       height={30}
