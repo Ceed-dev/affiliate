@@ -33,9 +33,9 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const [xUserData, setXUserData] = useState<any>(null);            // Stores X user profile data
   const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false); // Manages loading state during API calls
 
-  // State variables for Google API authentication and user data
+  // State variables for Google API authentication and YouTube user data
   const [googleAuthTokenData, setGoogleAuthTokenData] = useState<any>(null);  // Stores Google API authentication token data
-  const [googleUserData, setGoogleUserData] = useState<any>(null);            // Stores Google user profile data
+  const [youtubeUserData, setYouTubeUserData] = useState<any>(null);            // Stores YouTube user profile data
   const [isGoogleApiLoading, setIsGoogleApiLoading] = useState<boolean>(false); // Manages loading state during API calls
 
   // Load data from localStorage when the modal is opened
@@ -89,13 +89,13 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       }
     }
 
-    // Load Google user data if available
-    const storedGoogleUserData = localStorage.getItem("googleUserData");
-    if (storedGoogleUserData) {
+    // Load YouTube user data if available
+    const storedYouTubeUserData = localStorage.getItem("youtubeUserData");
+    if (storedYouTubeUserData) {
       try {
-        setGoogleUserData(JSON.parse(storedGoogleUserData));  // Parse and store user data
+        setYouTubeUserData(JSON.parse(storedYouTubeUserData));  // Parse and store user data
       } catch (error) {
-        console.log("Failed to parse Google user data from localStorage:", error);
+        console.log("Failed to parse YouTube user data from localStorage:", error);
       }
     }
   };
@@ -223,7 +223,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   // Fetch YouTube user profile data using the access token
   useEffect(() => {
     // Exit if token data is not available or user data has already been processed
-    if (!googleAuthTokenData || googleUserData) return;
+    if (!googleAuthTokenData || youtubeUserData) return;
 
     const fetchYouTubeUserData = async (tokenData: any) => {
       setIsGoogleApiLoading(true);  // Set loading state during API call
@@ -233,14 +233,14 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
 
         // If user data is received, store it in state and localStorage
         if (userData?.items && userData.items.length > 0) {
-          setGoogleUserData(userData.items[0]);  // Store the first item, which represents the user's channel data
-          localStorage.setItem("googleUserData", JSON.stringify(userData.items[0]));
-          console.log("Google user data fetched successfully");
+          setYouTubeUserData(userData.items[0]);  // Store the first item, which represents the user's channel data
+          localStorage.setItem("youtubeUserData", JSON.stringify(userData.items[0]));
+          console.log("YouTube user data fetched successfully");
         } else {
           // Handle the case where the user has no YouTube account or no accessible channel information
           console.error("No YouTube account found or user data could not be retrieved.");
-          setGoogleUserData("no_account"); // Indicate that no YouTube data is available
-          localStorage.setItem("googleUserData", "no_account"); // Store this state in local storage
+          setYouTubeUserData("no_account"); // Indicate that no YouTube data is available
+          localStorage.setItem("youtubeUserData", "no_account"); // Store this state in local storage
         }
       } catch (error) {
         console.error("Error fetching user data from Google:", error);
@@ -298,6 +298,15 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       userInfo.xAccountInfo = xUserData;
     }
 
+    // If the user connected their Google account, include token and account info
+    if (googleAuthTokenData) {
+      userInfo.googleAuthToken = googleAuthTokenData;
+      // Only include googleAccountInfo if googleUserData is not "no_account" and not null
+      if (youtubeUserData && youtubeUserData !== "no_account") {
+        userInfo.youtubeAccountInfo = youtubeUserData;
+      }
+    }
+
     // Call onSave with the constructed user information
     onSave(userInfo);
 
@@ -308,6 +317,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     localStorage.removeItem("projectUrl");
     localStorage.removeItem("xAuthTokenData");
     localStorage.removeItem("xUserData");
+    localStorage.removeItem("googleAuthTokenData");
+    localStorage.removeItem("youtubeUserData");
   };
 
   if (!isOpen) return null;  // Do not render the modal if it's not open
@@ -459,8 +470,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                   />
                   Loading...
                 </div>
-              ) : googleUserData ? (
-                googleUserData === "no_account" ? (
+              ) : youtubeUserData ? (
+                youtubeUserData === "no_account" ? (
                   <div className="flex items-center gap-2">
                     <Image
                       src="/brand-assets/google.png"
@@ -476,19 +487,19 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 ) : (
                   <div className="flex items-center gap-2">
                     <Image
-                      src={googleUserData.snippet?.thumbnails?.default?.url}
-                      alt={googleUserData.snippet?.customUrl || "YouTube User"}
+                      src={youtubeUserData.snippet?.thumbnails?.default?.url}
+                      alt={youtubeUserData.snippet?.customUrl || "YouTube User"}
                       width={30}
                       height={30}
                       className="rounded-full"
                     />
                     <a
-                      href={`https://www.youtube.com/${googleUserData.snippet?.customUrl}`}
+                      href={`https://www.youtube.com/${youtubeUserData.snippet?.customUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-500 text-sm hover:underline"
                     >
-                      {googleUserData.snippet?.customUrl || "YouTube User"}
+                      {youtubeUserData.snippet?.customUrl || "YouTube User"}
                     </a>
                   </div>
                 )
