@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["firebasestorage.googleapis.com", "pbs.twimg.com"],
+    domains: [
+      "firebasestorage.googleapis.com",
+      "pbs.twimg.com",
+      "yt3.ggpht.com",
+    ],
   },
   /** 
    * Disabling React's Strict Mode.

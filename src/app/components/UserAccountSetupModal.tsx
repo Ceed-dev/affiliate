@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
 import { generateXAuthUrl } from "../utils/xApiUtils";
-import { generateGoogleAuthUrl, getGoogleTokens } from "../utils/googleApiUtils";
+import { generateGoogleAuthUrl, getGoogleTokens, getYouTubeAccountInfo } from "../utils/googleApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserAccountSetupModalProps = {
@@ -76,6 +76,26 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
         setXUserData(JSON.parse(storedXUserData));  // Parse and store user data
       } catch (error) {
         console.log("Failed to parse X user data from localStorage:", error);
+      }
+    }
+
+    // Load Google API authentication token data if available
+    const storedGoogleAuthTokenData = localStorage.getItem("googleAuthTokenData");
+    if (storedGoogleAuthTokenData) {
+      try {
+        setGoogleAuthTokenData(JSON.parse(storedGoogleAuthTokenData));  // Parse and store token data
+      } catch (error) {
+        console.error("Failed to parse Google auth token data from localStorage:", error);
+      }
+    }
+
+    // Load Google user data if available
+    const storedGoogleUserData = localStorage.getItem("googleUserData");
+    if (storedGoogleUserData) {
+      try {
+        setGoogleUserData(JSON.parse(storedGoogleUserData));  // Parse and store user data
+      } catch (error) {
+        console.log("Failed to parse Google user data from localStorage:", error);
       }
     }
   };
@@ -171,7 +191,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
 
   // Fetch X user profile data using the access token
   useEffect(() => {
-    if (!xAuthTokenData) return;  // Exit if token data is not available
+    // Exit if token data is not available or user data is already set
+    if (!xAuthTokenData || xUserData) return;
 
     const fetchUserData = async (tokenData: any) => {
       setIsXApiLoading(true);  // Set loading state during API call
@@ -198,6 +219,39 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     // Fetch user data after receiving the authentication token
     fetchUserData(xAuthTokenData);
   }, [xAuthTokenData]);
+
+  // Fetch YouTube user profile data using the access token
+  useEffect(() => {
+    // Exit if token data is not available or user data has already been processed
+    if (!googleAuthTokenData || googleUserData) return;
+
+    const fetchYouTubeUserData = async (tokenData: any) => {
+      setIsGoogleApiLoading(true);  // Set loading state during API call
+      try {
+        // Fetch YouTube user data using the utility function
+        const userData = await getYouTubeAccountInfo(tokenData);
+
+        // If user data is received, store it in state and localStorage
+        if (userData?.items && userData.items.length > 0) {
+          setGoogleUserData(userData.items[0]);  // Store the first item, which represents the user's channel data
+          localStorage.setItem("googleUserData", JSON.stringify(userData.items[0]));
+          console.log("Google user data fetched successfully");
+        } else {
+          // Handle the case where the user has no YouTube account or no accessible channel information
+          console.error("No YouTube account found or user data could not be retrieved.");
+          setGoogleUserData("no_account"); // Indicate that no YouTube data is available
+          localStorage.setItem("googleUserData", "no_account"); // Store this state in local storage
+        }
+      } catch (error) {
+        console.error("Error fetching user data from Google:", error);
+      } finally {
+        setIsGoogleApiLoading(false);  // Reset loading state
+      }
+    };
+
+    // Fetch user data after receiving the authentication token
+    fetchYouTubeUserData(googleAuthTokenData);
+  }, [googleAuthTokenData]);
 
   // Validate username input
   const validateUsername = (username: string) => {
@@ -406,23 +460,38 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                   Loading...
                 </div>
               ) : googleUserData ? (
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={googleUserData.picture}
-                    alt={googleUserData.name}
-                    width={30}
-                    height={30}
-                    className="rounded-full"
-                  />
-                  <a
-                    href={`https://myaccount.google.com/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 text-sm hover:underline"
-                  >
-                    {googleUserData.name}
-                  </a>
-                </div>
+                googleUserData === "no_account" ? (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/brand-assets/google.png"
+                      alt="Google Logo"
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
+                    <span className="text-gray-500 text-sm">
+                      Connected, No YouTube Account Found.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={googleUserData.snippet?.thumbnails?.default?.url}
+                      alt={googleUserData.snippet?.customUrl || "YouTube User"}
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
+                    <a
+                      href={`https://www.youtube.com/${googleUserData.snippet?.customUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-500 text-sm hover:underline"
+                    >
+                      {googleUserData.snippet?.customUrl || "YouTube User"}
+                    </a>
+                  </div>
+                )
               ) : (
                 <button
                   onClick={async () => {
