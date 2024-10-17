@@ -14,4 +14,10 @@ export const GOOGLE_API_ENDPOINTS = {
    * @returns {string} Full URL to exchange the code for tokens.
    */
   GET_TOKEN: (): string => `/api/google/auth/getToken`,
+
+  /**
+   * Endpoint for retrieving YouTube account information.
+   * @returns {string} Full URL to get the YouTube account information.
+   */
+  YOUTUBE_USER_INFO: (): string => `/api/google/youtube/user`,
 };
