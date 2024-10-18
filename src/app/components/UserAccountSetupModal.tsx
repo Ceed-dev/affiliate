@@ -2,7 +2,9 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AffiliateInfo, UserRole } from "../types";
-import { generateAuthUrl } from "../utils/xApiUtils";
+import { GoogleAuthToken, YouTubeAccountInfo } from "../types/affiliateInfo";
+import { generateXAuthUrl } from "../utils/xApiUtils";
+import { generateGoogleAuthUrl, getGoogleTokens, getYouTubeAccountInfo } from "../utils/googleApiUtils";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type UserAccountSetupModalProps = {
@@ -25,12 +27,17 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const [email, setEmail] = useState<string>("");            // Stores the user's input for email
   const [role, setRole] = useState<UserRole>("ProjectOwner"); // Manages selected user role
   const [projectUrl, setProjectUrl] = useState<string>("");  // Project URL input for ProjectOwner role
-  const [isSaveEnabled, setIsSaveEnabled] = useState(false); // Enables save button when inputs are valid
+  const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false); // Enables save button when inputs are valid
 
   // State variables for X API authentication and user data
   const [xAuthTokenData, setXAuthTokenData] = useState<any>(null);  // Stores X API authentication token data
   const [xUserData, setXUserData] = useState<any>(null);            // Stores X user profile data
   const [isXApiLoading, setIsXApiLoading] = useState<boolean>(false); // Manages loading state during API calls
+
+  // State variables for Google API authentication and YouTube user data
+  const [googleAuthTokenData, setGoogleAuthTokenData] = useState<GoogleAuthToken | null>(null);  // Stores Google API authentication token data
+  const [youtubeUserData, setYouTubeUserData] = useState<YouTubeAccountInfo | "no_account" | null>(null);            // Stores YouTube user profile data
+  const [isGoogleApiLoading, setIsGoogleApiLoading] = useState<boolean>(false); // Manages loading state during API calls
 
   // Load data from localStorage when the modal is opened
   useEffect(() => {
@@ -72,6 +79,26 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
         console.log("Failed to parse X user data from localStorage:", error);
       }
     }
+
+    // Load Google API authentication token data if available
+    const storedGoogleAuthTokenData = localStorage.getItem("googleAuthTokenData");
+    if (storedGoogleAuthTokenData) {
+      try {
+        setGoogleAuthTokenData(JSON.parse(storedGoogleAuthTokenData));  // Parse and store token data
+      } catch (error) {
+        console.error("Failed to parse Google auth token data from localStorage:", error);
+      }
+    }
+
+    // Load YouTube user data if available
+    const storedYouTubeUserData = localStorage.getItem("youtubeUserData");
+    if (storedYouTubeUserData) {
+      try {
+        setYouTubeUserData(JSON.parse(storedYouTubeUserData));  // Parse and store user data
+      } catch (error) {
+        console.log("Failed to parse YouTube user data from localStorage:", error);
+      }
+    }
   };
 
   // Sync user input changes to localStorage when the modal is open
@@ -101,44 +128,72 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     );
   };
 
-  // OAuth access token fetching from the X API after the user is redirected back
+  // OAuth access token fetching from the X or Google API after the user is redirected back
   useEffect(() => {
     const fetchAuthData = async () => {
-      setIsXApiLoading(true);  // Set loading state during API call
       const code = searchParams.get("code");
       const state = searchParams.get("state");
 
-      // Validate presence of code and state parameter
-      if (!code || state !== (process.env.NEXT_PUBLIC_X_API_OAUTH_STATE as string)) {
-        console.error("Missing necessary parameters or invalid state.");
-        setIsXApiLoading(false);
+      if (!code) {
+        console.error("Authorization code is missing.");
         return;
       }
 
-      try {
-        // Fetch the OAuth token from the X API using the authorization code
-        const response = await fetch(API_ENDPOINTS.AUTH(code, state));
-        const data = await response.json();
-
-        // If access token is received, store it in state and localStorage
-        if (data.access_token) {
-          setXAuthTokenData(data);
-          localStorage.setItem("xAuthTokenData", JSON.stringify(data));
-          console.log("X Account connected successfully");
+      if (state) {
+        // X authentication process
+        if (state !== process.env.NEXT_PUBLIC_X_API_OAUTH_STATE) {
+          console.error("Invalid state parameter for X API.");
+          return;
         }
-      } catch (error) {
-        console.error("Error fetching access token:", error);
-      } finally {
-        setIsXApiLoading(false);  // Reset loading state
+
+        setIsXApiLoading(true);
+        try {
+          // TODO: Fix to use utility function
+          // Fetch the OAuth token from the X API using the authorization code
+          const response = await fetch(API_ENDPOINTS.AUTH(code, state));
+          const data = await response.json();
+
+          // If access token is received, store it in state and localStorage
+          if (data.access_token) {
+            setXAuthTokenData(data);
+            localStorage.setItem("xAuthTokenData", JSON.stringify(data));
+            console.log("X Account connected successfully");
+          }
+        } catch (error) {
+          console.error("Error fetching access token from X:", error);
+        } finally {
+          setIsXApiLoading(false);
+        }
+      } else {
+        // Google authentication process
+        setIsGoogleApiLoading(true);
+        try {
+          // Use the utility function to exchange the authorization code for tokens
+          const tokenData = await getGoogleTokens(code);
+
+          // If access token is received, store it in state and localStorage
+          if (tokenData?.tokens?.access_token) {
+            setGoogleAuthTokenData(tokenData.tokens);
+            localStorage.setItem("googleAuthTokenData", JSON.stringify(tokenData.tokens));
+            console.log("Google Account connected successfully");
+          } else {
+            console.error("Failed to receive Google token data.");
+          }
+        } catch (error) {
+          console.error("Error fetching access token from Google:", error);
+        } finally {
+          setIsGoogleApiLoading(false);
+        }
       }
     };
 
-    fetchAuthData();  // Trigger OAuth token fetching
+    fetchAuthData(); // Trigger OAuth token fetching
   }, [searchParams]);
 
   // Fetch X user profile data using the access token
   useEffect(() => {
-    if (!xAuthTokenData) return;  // Exit if token data is not available
+    // Exit if token data is not available or user data is already set
+    if (!xAuthTokenData || xUserData) return;
 
     const fetchUserData = async (tokenData: any) => {
       setIsXApiLoading(true);  // Set loading state during API call
@@ -165,6 +220,39 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     // Fetch user data after receiving the authentication token
     fetchUserData(xAuthTokenData);
   }, [xAuthTokenData]);
+
+  // Fetch YouTube user profile data using the access token
+  useEffect(() => {
+    // Exit if token data is not available or user data has already been processed
+    if (!googleAuthTokenData || youtubeUserData) return;
+
+    const fetchYouTubeUserData = async (tokenData: GoogleAuthToken) => {
+      setIsGoogleApiLoading(true);  // Set loading state during API call
+      try {
+        // Fetch YouTube user data using the utility function
+        const userData = await getYouTubeAccountInfo(tokenData);
+
+        // If user data is received, store it in state and localStorage
+        if (userData && userData.length > 0) {
+          setYouTubeUserData(userData[0]);  // Store the first item, which represents the user's channel data
+          localStorage.setItem("youtubeUserData", JSON.stringify(userData[0]));
+          console.log("YouTube user data fetched successfully");
+        } else {
+          // Handle the case where the user has no YouTube account or no accessible channel information
+          console.error("No YouTube account found or user data could not be retrieved.");
+          setYouTubeUserData("no_account"); // Indicate that no YouTube data is available
+          localStorage.setItem("youtubeUserData", "no_account"); // Store this state in local storage
+        }
+      } catch (error) {
+        console.error("Error fetching user data from Google:", error);
+      } finally {
+        setIsGoogleApiLoading(false);  // Reset loading state
+      }
+    };
+
+    // Fetch user data after receiving the authentication token
+    fetchYouTubeUserData(googleAuthTokenData);
+  }, [googleAuthTokenData]);
 
   // Validate username input
   const validateUsername = (username: string) => {
@@ -211,6 +299,15 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       userInfo.xAccountInfo = xUserData;
     }
 
+    // If the user connected their Google account, include token and account info
+    if (googleAuthTokenData) {
+      userInfo.googleAuthToken = googleAuthTokenData;
+      // Only include googleAccountInfo if googleUserData is not "no_account" and not null
+      if (youtubeUserData && youtubeUserData !== "no_account") {
+        userInfo.youtubeAccountInfo = youtubeUserData;
+      }
+    }
+
     // Call onSave with the constructed user information
     onSave(userInfo);
 
@@ -221,6 +318,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     localStorage.removeItem("projectUrl");
     localStorage.removeItem("xAuthTokenData");
     localStorage.removeItem("xUserData");
+    localStorage.removeItem("googleAuthTokenData");
+    localStorage.removeItem("youtubeUserData");
   };
 
   if (!isOpen) return null;  // Do not render the modal if it's not open
@@ -330,11 +429,14 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
               ) : (
                 <button
                   onClick={async () => {
+                    setIsXApiLoading(true); // Set loading state to true immediately after the button is clicked
                     try {
-                      const authUrl = await generateAuthUrl();
+                      const authUrl = await generateXAuthUrl();
                       window.location.href = authUrl;
                     } catch (error) {
                       console.error("Failed to generate X auth URL", error);
+                    } finally {
+                      setIsXApiLoading(false); // Reset loading state in case of error
                     }
                   }}
                   className="w-full p-2 bg-black text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2 hover:bg-gray-600"
@@ -346,6 +448,88 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                     height={20}
                   />
                   Connect X Account
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Google Account Connect Button */}
+          {role === "Affiliate" && (
+            <div className="flex flex-col gap-2">
+              <label className="block mb-1 font-semibold">
+                Google Account <span className="text-gray-500 text-xs">(optional)</span>
+              </label>
+
+              {isGoogleApiLoading ? (
+                <div className="flex justify-center items-center gap-2 text-sm text-gray-600">
+                  <Image
+                    src="/assets/common/loading.png"
+                    alt="loading"
+                    width={30}
+                    height={30}
+                    className="animate-spin"
+                  />
+                  Loading...
+                </div>
+              ) : youtubeUserData ? (
+                youtubeUserData === "no_account" ? (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/brand-assets/google.png"
+                      alt="Google Logo"
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
+                    <span className="text-gray-500 text-sm">
+                      Connected, No YouTube Account Found.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={youtubeUserData.snippet?.thumbnails?.default?.url as string}
+                      alt={youtubeUserData.snippet?.customUrl || "YouTube User"}
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
+                    <a
+                      href={`https://www.youtube.com/${youtubeUserData.snippet?.customUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-500 text-sm hover:underline"
+                    >
+                      {youtubeUserData.snippet?.customUrl || "YouTube User"}
+                    </a>
+                  </div>
+                )
+              ) : (
+                <button
+                  onClick={async () => {
+                    setIsGoogleApiLoading(true); // Set loading state to true immediately after the button is clicked
+                    try {
+                      const authUrl = await generateGoogleAuthUrl();
+                      if (authUrl) {
+                        window.location.href = authUrl;
+                      } else {
+                        console.error("Failed to generate Google auth URL. The URL is undefined.");
+                      }
+                    } catch (error) {
+                      console.error("Failed to generate Google auth URL", error);
+                    } finally {
+                      setIsGoogleApiLoading(false); // Reset loading state in case of error
+                    }
+                  }}
+                  className="w-full p-2 bg-sky-400 hover:bg-sky-500 text-white rounded-lg text-sm outline-none flex items-center justify-center gap-2"
+                >
+                  <Image
+                    src="/brand-assets/google.png"
+                    alt="Google Logo"
+                    width={20}
+                    height={20}
+                  />
+                  Connect Google Account
                 </button>
               )}
             </div>

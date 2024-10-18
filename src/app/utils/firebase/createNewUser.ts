@@ -42,6 +42,15 @@ export async function createNewUser(
     newUser.xAccountInfo = userInfo.xAccountInfo; // Save the X account information
   }
 
+  // Add Google Auth Token and YouTube Account Info if they exist
+  if (userInfo.googleAuthToken) {
+    newUser.googleAuthToken = userInfo.googleAuthToken; // Save the Google auth token data
+  }
+
+  if (userInfo.youtubeAccountInfo) {
+    newUser.youtubeAccountInfo = userInfo.youtubeAccountInfo; // Save the YouTube account information
+  }
+
   try {
     await setDoc(userDocRef, newUser);
     toast.success("Your account has been created successfully!");

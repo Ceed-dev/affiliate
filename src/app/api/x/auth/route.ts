@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthClient, generateAuthUrl } from "../../../utils/xApiUtils";
+import { getXAuthClient, generateXAuthUrl } from "../../../utils/xApiUtils";
 
 /**
  * Handle GET request for OAuth access token.
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log("Code received:", code);
 
-    const authClient = await getAuthClient(); // Retrieve the OAuth client instance
+    const authClient = await getXAuthClient(); // Retrieve the OAuth client instance
 
     /**
      * Although this line doesn't perform any action in this context, removing it causes an error.
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
      * For more details, refer to: 
      * https://community.make.com/t/error-missing-required-parameter-code-verifier-from-http-module-with-oauth-2-0-request/17420/4
      */
-    await generateAuthUrl(); // Necessary call to prevent "code_verifier" error
+    await generateXAuthUrl(); // Necessary call to prevent "code_verifier" error
 
     console.log("Requesting access token...");
 

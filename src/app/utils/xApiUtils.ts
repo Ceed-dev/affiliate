@@ -11,7 +11,7 @@ let bearerClient: auth.OAuth2Bearer | null = null;
  * This is used for user-specific authentication.
  * @returns {auth.OAuth2User} The OAuth2User client instance.
  */
-export const getAuthClient = async (): Promise<auth.OAuth2User> => {
+export const getXAuthClient = async (): Promise<auth.OAuth2User> => {
   if (!authClient) {
     authClient = new auth.OAuth2User({
       client_id: process.env.NEXT_PUBLIC_X_API_CLIENT_ID as string,
@@ -36,7 +36,7 @@ export const getAuthClient = async (): Promise<auth.OAuth2User> => {
  * This is used for application-level authentication (Bearer token).
  * @returns {auth.OAuth2Bearer} The OAuth2Bearer client instance.
  */
-export const getBearerClient = (): auth.OAuth2Bearer => {
+export const getXBearerClient = (): auth.OAuth2Bearer => {
   if (!bearerClient) {
     bearerClient = new auth.OAuth2Bearer(process.env.NEXT_PUBLIC_X_API_BEARER_TOKEN as string);
   }
@@ -48,8 +48,8 @@ export const getBearerClient = (): auth.OAuth2Bearer => {
  * This URL is used to redirect the user to X's OAuth 2.0 authentication flow.
  * @returns {Promise<string>} The generated authorization URL.
  */
-export const generateAuthUrl = async (): Promise<string> => {
-  const authClient = await getAuthClient(); // Await the promise from getAuthClient
+export const generateXAuthUrl = async (): Promise<string> => {
+  const authClient = await getXAuthClient(); // Await the promise from getXAuthClient
   return authClient.generateAuthURL({
     state: process.env.NEXT_PUBLIC_X_API_OAUTH_STATE as string, // Use environment variable for OAUTH_STATE
     code_challenge: "sushi", // In "plain" method, code_verifier is directly used as the challenge
@@ -65,9 +65,9 @@ export const generateAuthUrl = async (): Promise<string> => {
  * @param {boolean} useBearer - If true, uses the OAuth2Bearer client. Defaults to false (OAuth2User).
  * @returns {Promise<Client>} The X API client instance.
  */
-export const getApiClient = async (token: XAuthToken | null = null, useBearer: boolean = false): Promise<Client> => {
+export const getXApiClient = async (token: XAuthToken | null = null, useBearer: boolean = false): Promise<Client> => {
   // Always create a new client instance for different token types (bearer or OAuth2User)
-  const client = useBearer ? getBearerClient() : await getAuthClient();
+  const client = useBearer ? getXBearerClient() : await getXAuthClient();
 
   // If useBearer is false (using OAuth2User), ensure token is provided
   if (!useBearer && !token) {

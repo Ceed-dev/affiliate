@@ -3,12 +3,14 @@ export type UserRole = "ProjectOwner" | "Affiliate";
 
 // Represents the information related to an affiliate user
 export type AffiliateInfo = {
-  username: string;                // The username of the affiliate user
-  email: string;                   // The email address of the affiliate user
-  role: UserRole;                  // The role of the user, either "ProjectOwner" or "Affiliate"
-  projectUrl?: string;             // The URL of the project (required if the role is "ProjectOwner")
-  xAuthToken?: XAuthToken;         // Optional: X authentication token data, if the user has connected an X account
-  xAccountInfo?: XAccountInfo;     // Optional: X account information, if the user has connected an X account
+  username: string;                        // The username of the affiliate user
+  email: string;                           // The email address of the affiliate user
+  role: UserRole;                          // The role of the user, either "ProjectOwner" or "Affiliate"
+  projectUrl?: string;                     // The URL of the project (required if the role is "ProjectOwner")
+  xAuthToken?: XAuthToken;                 // Optional: X authentication token data, if the user has connected an X account
+  xAccountInfo?: XAccountInfo;             // Optional: X account information, if the user has connected an X account
+  googleAuthToken?: GoogleAuthToken;       // Optional: Google authentication token data, if the user has connected a Google account
+  youtubeAccountInfo?: YouTubeAccountInfo; // Optional: YouTube account information, if available
 };
 
 // Token information returned after X OAuth authentication
@@ -83,4 +85,47 @@ export type TweetEngagementUpdate = {
    * This field is optional and contains the latest tweet metrics.
    */
   recentTweetEngagementData?: any[]; // Engagement data for recent tweets (optional).
+};
+
+// Token information returned after Google OAuth authentication
+export type GoogleAuthToken = {
+  access_token: string;      // Access token used to authenticate API requests
+  refresh_token: string;     // Token used to refresh the access token when it expires
+  scope: string;             // Permissions granted by the token (e.g., "https://www.googleapis.com/auth/youtube.readonly")
+  token_type: string;        // Type of token, typically "Bearer"
+  expiry_date: number;       // Expiration time of the access token in UNIX timestamp format
+};
+
+// YouTube account information, containing channel details
+export type YouTubeAccountInfo = {
+  kind: string;                     // Type of resource ("youtube#channel")
+  etag: string;                     // ETag of the resource
+  id: string;                       // Unique identifier for the YouTube channel
+  snippet?: {
+    title: string;                  // Title of the YouTube channel
+    description: string;            // Description of the YouTube channel
+    customUrl?: string;             // Custom URL of the YouTube channel
+    publishedAt: string;            // The date and time the channel was created (ISO8601 format)
+    thumbnails: {
+      default?: { url: string; width: number; height: number };
+      medium?: { url: string; width: number; height: number };
+      high?: { url: string; width: number; height: number };
+    };
+    localized?: {
+      title: string;                // Localized title of the YouTube channel
+      description: string;          // Localized description of the YouTube channel
+    };
+  };
+  contentDetails?: {
+    relatedPlaylists: {
+      likes?: string;               // Playlist ID of the user's liked videos
+      uploads: string;              // Playlist ID of the user's uploaded videos
+    };
+  };
+  statistics?: {
+    viewCount: string;              // Total views of the channel
+    subscriberCount: string;        // Number of subscribers
+    hiddenSubscriberCount: boolean; // Indicates if the subscriber count is hidden
+    videoCount: string;             // Total number of videos uploaded by the user
+  };
 };
