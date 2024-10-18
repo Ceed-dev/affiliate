@@ -109,7 +109,7 @@ export const footerLinks = {
       label: "Terms and Conditions",
     },
     {
-      url: "https://veroo.notion.site/Privacy-Policy-4538184bcaee4835a2dedcc464496cdd",
+      url: "https://qubexyz.notion.site/Privacy-and-Policy-0ef230ec7f81439baa1e0d4d6b78cfe8",
       label: "Privacy Policy",
     },
   ],
