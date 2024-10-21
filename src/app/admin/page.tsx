@@ -20,7 +20,7 @@ import { UnpaidConversionLog, UserData, ActiveTab } from "../types";
 // Import UI components
 import { 
   Header, AdminHeaderWithReloadButton, AdminTabs, TokenSummary, UnpaidConversionLogs,
-  UserApproval, ManualTweetEngagementUpdate,
+  UserApproval, ManualTweetEngagementUpdate, ManualYouTubeVideoEngagementUpdate,
 } from "../components/admin";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero; // Constant for zero address
@@ -328,6 +328,8 @@ export default function Admin() {
       )}
 
       {activeTab === "manualTweetEngagementUpdate" && <ManualTweetEngagementUpdate />}
+
+      {activeTab === "manualYouTubeVideoEngagementUpdate" && <ManualYouTubeVideoEngagementUpdate />}
     </div>
   );
 };
