@@ -50,6 +50,12 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, setActiveTab })
           label="Manual Tweet Engagement Update" 
           onClick={() => setActiveTab("manualTweetEngagementUpdate")} // Set the active tab to manualTweetEngagementUpdate when clicked
         />
+        {/* Tab for manual YouTube video engagement update */}
+        <TabButton 
+          isActive={activeTab === "manualYouTubeVideoEngagementUpdate"} // Check if the current tab is manualYouTubeVideoEngagementUpdate
+          label="Manual YouTube Video Engagement Update" 
+          onClick={() => setActiveTab("manualYouTubeVideoEngagementUpdate")} // Set the active tab to manualYouTubeVideoEngagementUpdate when clicked
+        />
       </ul>
     </div>
   );

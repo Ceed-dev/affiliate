@@ -5,6 +5,7 @@ import { TokenSummary } from "./TokenSummary";
 import { UnpaidConversionLogs } from "./UnpaidConversionLogs";
 import { UserApproval } from "./UserApproval";
 import { ManualTweetEngagementUpdate } from "./ManualTweetEngagementUpdate";
+import { ManualYouTubeVideoEngagementUpdate } from "./ManualYouTubeVideoEngagementUpdate";
 
 export {
   Header,
@@ -14,4 +15,5 @@ export {
   UnpaidConversionLogs,
   UserApproval,
   ManualTweetEngagementUpdate,
+  ManualYouTubeVideoEngagementUpdate,
 }
