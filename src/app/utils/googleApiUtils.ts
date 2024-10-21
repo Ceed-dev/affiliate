@@ -91,3 +91,41 @@ export const getYouTubeAccountInfo = async (tokenData: GoogleAuthToken): Promise
     return undefined;  // Return undefined in case of an error
   }
 };
+
+/**
+ * Fetch YouTube videos filtered by description keywords using the provided tokens.
+ * This function contacts the backend to retrieve videos from a specific channel and filters them based on the description.
+ * @param {GoogleAuthToken} tokenData - The token data including access_token, refresh_token, and other necessary info.
+ * @param {string} channelId - The YouTube channel ID from which to retrieve videos.
+ * @param {string} filterKeyword - The keyword to filter videos by their description.
+ * @returns {Promise<any[] | undefined>} The filtered video information.
+ */
+export const getFilteredYouTubeVideos = async (
+  tokenData: GoogleAuthToken,
+  channelId: string,
+  filterKeyword: string
+): Promise<any[] | undefined> => {
+  try {
+    // Fetch filtered YouTube videos using the provided tokens from the backend API
+    const response = await fetch(GOOGLE_API_ENDPOINTS.YOUTUBE_VIDEO_FETCH(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "internal-api-key": INTERNAL_API_KEY,
+      },
+      body: JSON.stringify({ tokenData, channelId, filterKeyword }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to retrieve filtered YouTube videos");
+    }
+
+    const videoData = await response.json();
+
+    // Return the filtered videos array
+    return videoData.filteredVideos;
+  } catch (error) {
+    console.error("Error retrieving filtered YouTube videos:", error);
+    return undefined; // Return undefined in case of an error
+  }
+};
