@@ -20,4 +20,10 @@ export const GOOGLE_API_ENDPOINTS = {
    * @returns {string} Full URL to get the YouTube account information.
    */
   YOUTUBE_USER_INFO: (): string => `/api/google/youtube/user`,
+
+  /**
+   * Endpoint for fetching YouTube videos filtered by description keyword.
+   * @returns {string} Full URL to retrieve YouTube videos with engagement data.
+   */
+  YOUTUBE_VIDEO_FETCH: (): string => `/api/google/youtube/video`,
 };
