@@ -10,20 +10,26 @@ import { GoogleAuthToken } from "../../../../types/affiliateInfo";
  */
 export async function POST(request: NextRequest) {
   try {
-    // Step 1: Parse the request body to get the token data, channelId, and filter keyword
+    // Step 1: Validate the API key from request headers
+    const apiKey = request.headers.get("internal-api-key");
+    if (!apiKey || apiKey !== process.env.NEXT_PUBLIC_INTERNAL_API_KEY) {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+
+    // Step 2: Parse the request body to get the token data, channelId, and filter keyword
     const { tokenData, channelId, filterKeyword } = await request.json();
 
     if (!tokenData || !channelId || !filterKeyword) {
       return NextResponse.json({ error: "Token data, channel ID, and filter keyword are required" }, { status: 400 });
     }
 
-    // Step 2: Get the YouTube API client with the provided token
+    // Step 3: Get the YouTube API client with the provided token
     const youtubeClient = await getYouTubeApiClient(tokenData as GoogleAuthToken);
 
     let nextPageToken: string | null = null;
     let filteredVideos = [];
 
-    // Step 3: Retrieve all videos for the channel
+    // Step 4: Retrieve all videos for the channel
     do {
       const response: any = await youtubeClient.search.list({
         part: ["snippet"],
@@ -36,7 +42,7 @@ export async function POST(request: NextRequest) {
       const videos = response.data.items || [];
       nextPageToken = response.data.nextPageToken || null;
 
-      // Step 4: Filter videos by description keyword and retrieve engagement data
+      // Step 5: Filter videos by description keyword and retrieve engagement data
       for (const video of videos) {
         const videoId = video.id.videoId;
         const videoDescription = video.snippet?.description || "";
@@ -64,7 +70,7 @@ export async function POST(request: NextRequest) {
       }
     } while (nextPageToken);
 
-    // Step 5: Return the filtered videos and engagement data
+    // Step 6: Return the filtered videos and engagement data
     return NextResponse.json({ filteredVideos }, { status: 200 });
   } catch (error) {
     console.error("Error retrieving YouTube video data:", error);
