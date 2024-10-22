@@ -108,20 +108,34 @@ const getInfoForEngagementData = async (
   }
 };
 
+type XReferralData = {
+  referralId: string;
+  tweetNewestId?: string;
+  tweetNewestCreatedAt?: Date;
+  pastTweetIds?: string[];
+};
+
+type YouTubeReferralData = {
+  referralId: string;
+};
+
 /**
- * Fetches referral data based on the user's wallet address and project ID.
- * Retrieves the referral ID, newest tweet ID, tweet creation date, and past tweet IDs from the referral's tweets subcollection.
+ * Fetches referral data based on the user's wallet address and project ID, and platform type.
+ * For X, retrieves the referral ID, newest tweet ID, tweet creation date, and past tweet IDs from the referral's tweets subcollection.
+ * For YouTube, retrieves only the referral ID.
+ * 
  * @param {string} walletAddress - The wallet address of the affiliate user.
  * @param {string} projectId - The ID of the associated project.
+ * @param {string} platform - The platform type ("X" or "YouTube").
  * @param addLog - A function to add log entries for tracking the process.
- * @returns {Promise<{referralId: string, tweetNewestId?: string, tweetNewestCreatedAt?: Date, pastTweetIds?: string[]}>} - Referral data including tweet information.
- *    Returns referralId, tweetNewestId, tweetNewestCreatedAt, and an array of past tweet IDs if available.
+ * @returns {Promise<XReferralData | YouTubeReferralData>} - Referral data including platform-specific information.
  */
 const fetchReferralByWalletAndProject = async (
   walletAddress: string,
   projectId: string,
+  platform: "X" | "YouTube",
   addLog: (log: string, type: LogType, indentLevel?: number) => void
-): Promise<{ referralId: string, tweetNewestId?: string, tweetNewestCreatedAt?: Date, pastTweetIds?: string[] }> => {
+): Promise<XReferralData | YouTubeReferralData> => {
   const referralsCollectionRef = collection(db, "referrals");
 
   try {
@@ -141,23 +155,32 @@ const fetchReferralByWalletAndProject = async (
 
     addLog(`Referral data found for wallet: ${walletAddress} and project: ${projectId}`, "log", 2);
 
-    // Extract newest tweet ID and creation date, if available
-    const tweetNewestId = referralData.tweetNewestId ?? undefined;
-    const tweetNewestCreatedAt = referralData.tweetNewestCreatedAt ? referralData.tweetNewestCreatedAt.toDate() : undefined;
+    if (platform === "X") {
+      // For X platform, extract newest tweet ID, creation date, and past tweet IDs
+      const tweetNewestId = referralData.tweetNewestId ?? undefined;
+      const tweetNewestCreatedAt = referralData.tweetNewestCreatedAt ? referralData.tweetNewestCreatedAt.toDate() : undefined;
 
-    // Fetch past tweet IDs from the tweets subcollection
-    const tweetsCollectionRef = collection(db, `referrals/${referralDoc.id}/tweets`);
-    const tweetSnapshot = await getDocs(tweetsCollectionRef);
-    const pastTweetIds = tweetSnapshot.docs.map(tweetDoc => tweetDoc.id); // Map tweet IDs from document IDs
+      // Fetch past tweet IDs from the tweets subcollection
+      const tweetsCollectionRef = collection(db, `referrals/${referralDoc.id}/tweets`);
+      const tweetSnapshot = await getDocs(tweetsCollectionRef);
+      const pastTweetIds = tweetSnapshot.docs.map((tweetDoc) => tweetDoc.id); // Map tweet IDs from document IDs
 
-    addLog(`Found ${pastTweetIds.length} past tweets for referral ID: ${referralDoc.id}`, "log", 2);
+      addLog(`Found ${pastTweetIds.length} past tweets for referral ID: ${referralDoc.id}`, "log", 2);
 
-    return {
-      referralId: referralDoc.id,
-      tweetNewestId,
-      tweetNewestCreatedAt,
-      pastTweetIds
-    };
+      return {
+        referralId: referralDoc.id,
+        tweetNewestId,
+        tweetNewestCreatedAt,
+        pastTweetIds
+      };
+    } else if (platform === "YouTube") {
+      // For YouTube platform, return only the referral ID
+      return {
+        referralId: referralDoc.id
+      };
+    } else {
+      throw new Error("Invalid platform type provided");
+    }
   } catch (error: any) {
     addLog(`Error fetching referral data for wallet: ${walletAddress} and project: ${projectId}, Message: ${error.message}`, "error", 2);
     console.error("Error fetching referral data:", error);
@@ -415,7 +438,7 @@ export const fetchAndUpdateTweetEngagementData = async (
 
       for (const projectId of joinedProjectIds!) {
         addLog(`Processing wallet: ${walletAddress}, project: ${projectId}`, "log", 1);
-        const referral = await fetchReferralByWalletAndProject(walletAddress as string, projectId, addLog);
+        const referral: XReferralData = await fetchReferralByWalletAndProject(walletAddress as string, projectId, "X", addLog);
 
         if (referral) {
           let result = {
