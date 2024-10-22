@@ -34,7 +34,7 @@ export const LogTable: React.FC<LogTableProps> = ({ logs }) => {
             {logs.map((log, index) => (
               <tr key={index} className="mb-1">
                 {/* Display the timestamp of the log */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-1 whitespace-nowrap">
                   <span className="text-gray-700">
                     {log.timestamp.toLocaleTimeString()}
                   </span>
