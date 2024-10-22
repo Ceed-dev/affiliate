@@ -1,22 +1,41 @@
 import { collection, query, where, getDocs, getDoc, DocumentData, doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { UserData } from "../../types";
-import { XAuthToken, XAccountInfo, TweetData, TweetEngagementUpdate } from "../../types/affiliateInfo";
+import { XAuthToken, XAccountInfo, GoogleAuthToken, YouTubeAccountInfo, TweetData, TweetEngagementUpdate } from "../../types/affiliateInfo";
 import { LogType } from "../../types/log";
 import { API_ENDPOINTS } from "../../constants/xApiConstants";
 
 // Include the internal API key from environment variables
 const INTERNAL_API_KEY = process.env.NEXT_PUBLIC_INTERNAL_API_KEY as string;
 
+type XData = {
+  platform: "X";
+  walletAddress: string;
+  joinedProjectIds: string[];
+  xAuthToken: XAuthToken;
+  xAccountInfo: XAccountInfo;
+};
+
+type YouTubeData = {
+  platform: "YouTube";
+  walletAddress: string;
+  joinedProjectIds: string[];
+  googleAuthToken: GoogleAuthToken;
+  youtubeAccountInfo: YouTubeAccountInfo;
+};
+
+type PlatformData = XData | YouTubeData;
+
 /**
- * Fetches the affiliate users with project data and X account information necessary for retrieving tweet engagement data.
- * Filters the users based on their role as "Affiliate" and ensures they have joined projects and valid X authentication tokens.
+ * Fetches the affiliate users with project data and platform account information necessary for retrieving engagement data.
+ * Filters the users based on their role as "Affiliate" and ensures they have joined projects and valid platform authentication tokens.
  * @param addLog - A function to add log entries for tracking the process (used only for error logging).
- * @returns {Promise<Pick<UserData, "walletAddress" | "joinedProjectIds" | "xAuthToken" | "xAccountInfo">[]>} An array of affiliate user data necessary for tweet engagement processing.
+ * @param platform - The platform for which engagement data is being retrieved ("X" or "YouTube").
+ * @returns {Promise<PlatformData[]>} An array of affiliate user data necessary for engagement processing.
  */
-const getInfoForTweetEngagementData = async (
-  addLog: (log: string, type: LogType, indentLevel?: number) => void
-): Promise<Pick<UserData, "walletAddress" | "joinedProjectIds" | "xAuthToken" | "xAccountInfo">[]> => {
+const getInfoForEngagementData = async (
+  addLog: (log: string, type: LogType, indentLevel?: number) => void,
+  platform: "X" | "YouTube"
+): Promise<PlatformData[]> => {
   const usersCollectionRef = collection(db, "users"); // Reference to the users collection
 
   try {
@@ -29,14 +48,15 @@ const getInfoForTweetEngagementData = async (
 
     const querySnapshot = await getDocs(q); // Execute the Firestore query
 
-    // Map the query results to extract necessary data for X authentication and account info
+    // Map the query results to extract necessary data for platform authentication and account info
     const filteredUsers = querySnapshot.docs
       .map(doc => {
         const data = doc.data() as DocumentData;
 
-        // Check for valid XAuthToken and XAccountInfo
-        if (data.xAuthToken && data.xAccountInfo) {
+        // Platform-specific authentication and account info
+        if (platform === "X" && data.xAuthToken && data.xAccountInfo) {
           return {
+            platform: "X",  // Distinguish X platform
             walletAddress: doc.id, // Use the document ID as the wallet address
             joinedProjectIds: data.joinedProjectIds, // Joined project IDs
 
@@ -54,17 +74,37 @@ const getInfoForTweetEngagementData = async (
               username: data.xAccountInfo.username, // User's X account username
             } as XAccountInfo,
           };
+        } else if (platform === "YouTube" && data.googleAuthToken && data.youtubeAccountInfo) {
+          return {
+            platform: "YouTube",  // Distinguish YouTube platform
+            walletAddress: doc.id, // Use the document ID as the wallet address
+            joinedProjectIds: data.joinedProjectIds, // Joined project IDs
+
+            // Provide all required GoogleAuthToken data
+            googleAuthToken: {
+              token_type: data.googleAuthToken.token_type, // Token type
+              access_token: data.googleAuthToken.access_token, // Access token
+              scope: data.googleAuthToken.scope, // Token scope
+              refresh_token: data.googleAuthToken.refresh_token, // Refresh token
+              expiry_date: data.googleAuthToken.expiry_date, // Token expiration time
+            } as GoogleAuthToken,
+
+            // Provide only the required YouTubeAccountInfo (id)
+            youtubeAccountInfo: {
+              id: data.youtubeAccountInfo.id, // User's YouTube account id
+            } as YouTubeAccountInfo,
+          };
         } else {
-          return null;
+          return null; // Skip if the required platform info is not available
         }
       })
-      .filter(user => user !== null); // Remove any null results
+      .filter((user): user is PlatformData => user !== null); // Remove any null results
 
-    return filteredUsers as Pick<UserData, "walletAddress" | "joinedProjectIds" | "xAuthToken" | "xAccountInfo">[];
+    return filteredUsers;
   } catch (error: any) {
-    addLog(`Error fetching affiliates with projects and X account info: ${error.message}`, "error");
-    console.error("Error fetching affiliates with projects and X account info:", error);
-    throw new Error("Failed to fetch affiliates with projects and X account info");
+    addLog(`Error fetching affiliates with projects and ${platform} account info: ${error.message}`, "error");
+    console.error(`Error fetching affiliates with projects and ${platform} account info:`, error);
+    throw new Error(`Failed to fetch affiliates with projects and ${platform} account info`);
   }
 };
 
@@ -358,17 +398,19 @@ export const fetchAndUpdateTweetEngagementData = async (
     addLog("Fetching affiliate data...", "log");
 
     // Step 1: Get affiliate user information
-    const users = await getInfoForTweetEngagementData(addLog);
-    addLog(`Found ${users.length} affiliates with joined projects.`, "log");
+    const users = await getInfoForEngagementData(addLog, "X");
+    // Filter the users to ensure they are of type XData
+    const xUsers: XData[] = users.filter((user): user is XData => user.platform === "X");
+    addLog(`Found ${xUsers.length} affiliates with joined projects.`, "log");
 
     // Step 2: Calculate and set the total number of tasks
-    const totalTasks = users.reduce((acc, user) => acc + user.joinedProjectIds!.length, 0);
+    const totalTasks = xUsers.reduce((acc, user) => acc + user.joinedProjectIds!.length, 0);
     setTotalTasks(totalTasks); // Set total tasks for progress bar
 
     let completedTasks = 0;
 
     // Step 3: Loop through each user's wallet address and project IDs to fetch referral data
-    for (const user of users) {
+    for (const user of xUsers) {
       const { walletAddress, joinedProjectIds, xAuthToken, xAccountInfo } = user;
 
       for (const projectId of joinedProjectIds!) {

@@ -12,7 +12,7 @@ import {
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
   updateIsPaidFlag, fetchUnapprovedUsers, approveUser,
 } from "../utils/firebase";
-import { fetchAndUpdateTweetEngagementData } from "../utils/firebase/tweetEngagementHelpers";
+import { fetchAndUpdateTweetEngagementData } from "../utils/firebase/engagementHelpers";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 
 // Import component types
