@@ -3,6 +3,7 @@ import { db } from "./firebaseConfig";
 import { XAuthToken, XAccountInfo, GoogleAuthToken, YouTubeAccountInfo, TweetData, TweetEngagementUpdate } from "../../types/affiliateInfo";
 import { LogType } from "../../types/log";
 import { fetchTweetEngagementForPastTweets, fetchTweetEngagementForRecentTweets } from "../xApiUtils";
+import { getFilteredYouTubeVideos } from "../googleApiUtils";
 
 type XData = {
   platform: "X";
@@ -37,6 +38,12 @@ const getInfoForEngagementData = async (
 
   try {
     // Firestore query to filter users based on role and joinedProjectIds
+    // TODO: Currently, this query includes users with empty arrays for `joinedProjectIds`.
+    // Firestore does not support filtering out empty arrays directly. As a result, users
+    // with `joinedProjectIds: []` are still being fetched. 
+    // To fix this, we need to manually filter out users with empty `joinedProjectIds` after
+    // fetching the results by adding a length check. This issue doesn't cause errors, 
+    // but it leads to unnecessary data being processed.
     const q = query(
       usersCollectionRef,
       where("role", "==", "Affiliate"), // Filter by affiliate role
@@ -406,10 +413,27 @@ export const fetchAndUpdateEngagementData = async (
 
         } else if (platform === "YouTube" && referral) {
           const { googleAuthToken, youtubeAccountInfo } = user as YouTubeData;
-          
+  
           addLog(`YouTube platform detected. Fetching engagement data for channel: ${youtubeAccountInfo.id}`, "log", 2);
           
-          // TODO: YouTubeのエンゲージメントデータ取得処理をここに実装
+          // Step 4: Fetch YouTube video engagement data using referralId as the keyword
+          const filterKeyword = referral.referralId;
+          const videoEngagementData = await getFilteredYouTubeVideos(googleAuthToken, youtubeAccountInfo.id, filterKeyword, addLog);
+
+          if (videoEngagementData && videoEngagementData.length > 0) {
+            addLog(`Fetched ${videoEngagementData.length} videos for channel: ${youtubeAccountInfo.id}`, "log", 2);
+
+            // Step 5: Update the YouTube engagement data in Firestore
+            // const youtubeEngagementUpdate: YouTubeEngagementUpdate = {
+            //   channelId: youtubeAccountInfo.id,
+            //   referralId: referral.referralId,  // YouTubeではこのIDで管理
+            //   videoEngagementData: videoEngagementData,
+            // };
+            // addLog(`Updating YouTube engagement data in Firestore for referral: ${referral.referralId}`, "log", 2);
+            // await updateYouTubeEngagementData(youtubeEngagementUpdate, addLog);
+          } else {
+            addLog(`No videos found for channel: ${youtubeAccountInfo.id} with keyword: ${filterKeyword}`, "warning", 2);
+          }
         }
 
         // Step 7: Update the completed tasks count and progress
