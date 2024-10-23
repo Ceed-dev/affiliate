@@ -2,10 +2,7 @@ import { collection, query, where, getDocs, getDoc, DocumentData, doc, updateDoc
 import { db } from "./firebaseConfig";
 import { XAuthToken, XAccountInfo, GoogleAuthToken, YouTubeAccountInfo, TweetData, TweetEngagementUpdate } from "../../types/affiliateInfo";
 import { LogType } from "../../types/log";
-import { API_ENDPOINTS } from "../../constants/xApiConstants";
-
-// Include the internal API key from environment variables
-const INTERNAL_API_KEY = process.env.NEXT_PUBLIC_INTERNAL_API_KEY as string;
+import { fetchTweetEngagementForPastTweets, fetchTweetEngagementForRecentTweets } from "../xApiUtils";
 
 type XData = {
   platform: "X";
@@ -185,99 +182,6 @@ const fetchReferralByWalletAndProject = async (
     addLog(`Error fetching referral data for wallet: ${walletAddress} and project: ${projectId}, Message: ${error.message}`, "error", 2);
     console.error("Error fetching referral data:", error);
     throw new Error("Failed to fetch referral data");
-  }
-};
-
-/**
- * Fetches the latest tweet engagement data for the given array of past tweet IDs by calling the Qube product's tweet lookup API.
- * 
- * @param {string[]} pastTweetIds - Array of tweet IDs to fetch engagement data for.
- * @param addLog - A function to log messages during the fetching process.
- * @returns {Promise<any[]>} - A promise that resolves to an array of engagement data for each tweet.
- */
-const fetchTweetEngagementForPastTweets = async (
-  pastTweetIds: string[],
-  addLog: (log: string, type: LogType, indentLevel?: number) => void
-): Promise<any[]> => {
-  try {
-    // Construct the full URL for the tweet lookup API
-    const apiUrl = API_ENDPOINTS.TWEET_LOOKUP(pastTweetIds);
-
-    addLog(`Calling API: ${apiUrl}`, "log", 3);
-
-    // Send a GET request to the Qube API's tweet lookup endpoint, passing the tweet IDs
-    const response = await fetch(apiUrl, {
-      method: "GET",  // Using GET method to retrieve data
-      headers: {
-        "internal-api-key": INTERNAL_API_KEY,  // Send internal API key
-      }
-    });
-
-    // Check if the API request was successful
-    if (!response.ok) {
-      addLog(`Failed to fetch tweet engagement data: ${response.statusText}`, "error", 3);
-      throw new Error(`Failed to fetch tweet engagement data: ${response.statusText}`);
-    }
-
-    // Parse and return the response as JSON, which contains the tweet engagement data
-    const tweetEngagementData = await response.json();
-    addLog(`Successfully fetched engagement data for ${pastTweetIds.length} past tweets.`, "log", 3);
-
-    return tweetEngagementData;
-  } catch (error: any) {
-    addLog(`Error fetching tweet engagement data for past tweets. Message: ${error.message}`, "error", 3);
-    console.error("Error fetching tweet engagement data for past tweets:", error);
-    throw new Error("Failed to fetch tweet engagement data for past tweets");
-  }
-};
-
-/**
- * Fetches recent tweet engagement data for a given username and referral ID.
- * Calls the Qube API's recent tweet search endpoint.
- *
- * @param username - The username of the X account to search for tweets.
- * @param referralId - The referral ID associated with the tweets.
- * @param xAuthToken - The user's X API authentication token.
- * @param addLog - A function to add log entries for tracking the process.
- * @param tweetNewestId - (Optional) The newest tweet ID to filter tweets from a specific point in time.
- * @returns {Promise<any[]>} - An array of engagement data for the fetched tweets.
- */
-const fetchTweetEngagementForRecentTweets = async (
-  username: string, 
-  referralId: string, 
-  xAuthToken: string, 
-  addLog: (log: string, type: LogType, indentLevel?: number) => void,
-  tweetNewestId?: string,
-): Promise<any[]> => {
-  try {
-    // Construct the full URL for the recent tweet search API
-    const apiUrl = API_ENDPOINTS.TWEET_RECENT_SEARCH(username, referralId, tweetNewestId);
-
-    addLog(`Calling API: ${apiUrl}`, "log", 3);
-
-    // Call the Qube API to fetch the tweet engagement data
-    const response = await fetch(apiUrl, {
-      method: "GET", // Using GET method to retrieve data
-      headers: {
-        "internal-api-key": INTERNAL_API_KEY,  // Send internal API key
-      },
-    });
-
-    // Check if the API request was successful
-    if (!response.ok) {
-      addLog(`Failed to fetch tweet engagement data: ${response.statusText}`, "error", 3);
-      throw new Error(`Failed to fetch recent tweet engagement data: ${response.statusText}`);
-    }
-
-    addLog("Successfully fetched recent tweet engagement data.", "log", 3);
-
-    // Return the tweet engagement data as JSON
-    const tweetEngagementData = await response.json();
-    return tweetEngagementData;
-  } catch (error: any) {
-    addLog(`Error fetching tweet engagement data for username: ${username} and referralId: ${referralId}, Message: ${error.message}`, "error", 3);
-    console.error(`Error fetching recent tweet engagement data for username: ${username} and referralId: ${referralId}`, error);
-    throw new Error(`Failed to fetch recent tweet engagement data for username: ${username} and referralId: ${referralId}`);
   }
 };
 
