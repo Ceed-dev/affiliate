@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, getDoc, DocumentData, doc, updateDoc, setDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc, DocumentData, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { XAuthToken, XAccountInfo, GoogleAuthToken, YouTubeAccountInfo, TweetData, TweetEngagementUpdate } from "../../types/affiliateInfo";
 import { LogType } from "../../types/log";
@@ -313,6 +313,95 @@ const updateTweetEngagementData = async (
 };
 
 /**
+ * Updates or creates YouTube engagement data in Firestore based on the provided engagement data.
+ * 
+ * @param referralId - The ID of the referral, used to identify which referral's YouTube engagement data to update.
+ * @param newVideoEngagementData - The engagement data for the YouTube videos retrieved from the API.
+ * @param addLog - A function to add log entries for tracking the process.
+ */
+const updateYouTubeVideoEngagementData = async (
+  referralId: string,
+  newVideoEngagementData: any[],
+  addLog: (log: string, type: LogType, indentLevel?: number) => void
+): Promise<void> => {
+  try {
+    // Reference to the youtubeVideos subcollection within the referral document in Firestore
+    const videosCollectionRef = collection(db, `referrals/${referralId}/youtubeVideos`);
+
+    // Get the existing YouTube videos already stored in Firestore for this referral
+    const existingVideosSnapshot = await getDocs(videosCollectionRef);
+    const existingVideos = existingVideosSnapshot.docs.map(doc => ({
+      videoId: doc.id,  // Firestore stores the video ID as the document ID
+      fetchCount: doc.data().fetchCount || 0,  // Track how many times the video data has been fetched
+      ...doc.data(),
+    }));
+
+    // Step 1: Loop through the new video engagement data and either update existing video entries or add new ones
+    for (const video of newVideoEngagementData) {
+      const videoDocRef = doc(videosCollectionRef, video.videoId);  // Reference to the video document in Firestore
+
+      const matchingVideo = existingVideos.find(v => v.videoId === video.videoId);  // Check if the video is already in Firestore
+      if (matchingVideo) {
+        // If video exists, update its data and increment the fetchCount
+        const statistics = {
+          viewCount: Number(video.statistics.viewCount),
+          likeCount: Number(video.statistics.likeCount),
+          dislikeCount: Number(video.statistics.dislikeCount),
+          favoriteCount: Number(video.statistics.favoriteCount),
+          commentCount: Number(video.statistics.commentCount),
+        };
+
+        await updateDoc(videoDocRef, {
+          title: video.title,  // Update title in case it has changed
+          description: video.description,  // Update description in case it has changed
+          thumbnails: video.thumbnails,  // Update thumbnails
+          statistics: statistics,  // Update engagement statistics
+          lastFetchedAt: new Date(),  // Update the last fetched timestamp
+          fetchCount: matchingVideo.fetchCount + 1,  // Increment the fetch count
+        });
+
+        addLog(`Updated existing video: ${video.videoId}`, "log", 3);
+      } else {
+        // If video does not exist, create a new entry in Firestore
+        await setDoc(videoDocRef, {
+          title: video.title,
+          description: video.description,
+          thumbnails: video.thumbnails,
+          statistics: {
+            viewCount: Number(video.statistics.viewCount),
+            likeCount: Number(video.statistics.likeCount),
+            dislikeCount: Number(video.statistics.dislikeCount),
+            favoriteCount: Number(video.statistics.favoriteCount),
+            commentCount: Number(video.statistics.commentCount),
+          },
+          publishedAt: new Date(video.publishedAt),  // Record the published date of the video
+          lastFetchedAt: new Date(),  // Record the current date when the data was fetched
+          fetchCount: 1,  // Initial fetch count for new videos
+        });
+
+        addLog(`Added new video: ${video.videoId}`, "log", 3);
+      }
+    }
+
+    // Step 2: Remove videos that are in Firestore but not in the latest engagement data
+    for (const existingVideo of existingVideos) {
+      const isInNewData = newVideoEngagementData.some(video => video.videoId === existingVideo.videoId);
+      if (!isInNewData) {
+        const videoDocRef = doc(videosCollectionRef, existingVideo.videoId);
+        await deleteDoc(videoDocRef);  // Delete the video document from Firestore
+        addLog(`Deleted old video: ${existingVideo.videoId}`, "log", 3);
+      }
+    }
+
+    addLog("YouTube engagement data update complete.", "log", 3);
+  } catch (error: any) {
+    addLog(`Error updating YouTube engagement data: ${error.message}`, "error", 3);
+    console.error(`Error updating YouTube engagement data for referralId: ${referralId}`, error);
+    throw new Error(`Failed to update YouTube engagement data for referralId: ${referralId}`);
+  }
+};
+
+/**
  * Fetches and updates engagement data for all affiliates with joined projects on the specified platform (X or YouTube).
  * Manages loading state, logs the current operation, and updates the progress bar in real-time.
  *
@@ -424,13 +513,8 @@ export const fetchAndUpdateEngagementData = async (
             addLog(`Fetched ${videoEngagementData.length} videos for channel: ${youtubeAccountInfo.id}`, "log", 2);
 
             // Step 5: Update the YouTube engagement data in Firestore
-            // const youtubeEngagementUpdate: YouTubeEngagementUpdate = {
-            //   channelId: youtubeAccountInfo.id,
-            //   referralId: referral.referralId,  // YouTubeではこのIDで管理
-            //   videoEngagementData: videoEngagementData,
-            // };
-            // addLog(`Updating YouTube engagement data in Firestore for referral: ${referral.referralId}`, "log", 2);
-            // await updateYouTubeEngagementData(youtubeEngagementUpdate, addLog);
+            addLog(`Updating YouTube engagement data in Firestore for referral: ${referral.referralId}`, "log", 2);
+            await updateYouTubeVideoEngagementData(referral.referralId, videoEngagementData, addLog);
           } else {
             addLog(`No videos found for channel: ${youtubeAccountInfo.id} with keyword: ${filterKeyword}`, "warning", 2);
           }
