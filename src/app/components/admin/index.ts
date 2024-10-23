@@ -4,7 +4,7 @@ import { AdminTabs } from "./AdminTabs";
 import { TokenSummary } from "./TokenSummary";
 import { UnpaidConversionLogs } from "./UnpaidConversionLogs";
 import { UserApproval } from "./UserApproval";
-import { ManualTweetEngagementUpdate } from "./ManualTweetEngagementUpdate";
+import { ManualEngagementUpdate } from "./ManualEngagementUpdate";
 
 export {
   Header,
@@ -13,5 +13,5 @@ export {
   TokenSummary,
   UnpaidConversionLogs,
   UserApproval,
-  ManualTweetEngagementUpdate,
+  ManualEngagementUpdate,
 }

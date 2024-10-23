@@ -20,8 +20,12 @@ import { UnpaidConversionLog, UserData, ActiveTab } from "../types";
 // Import UI components
 import { 
   Header, AdminHeaderWithReloadButton, AdminTabs, TokenSummary, UnpaidConversionLogs,
-  UserApproval, ManualTweetEngagementUpdate,
+  UserApproval, ManualEngagementUpdate,
 } from "../components/admin";
+
+// Import constants
+import { X_API_REFERENCES } from "../constants/xApiConstants";
+import { YOUTUBE_API_REFERENCES } from "../constants/googleApiConstants";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero; // Constant for zero address
 
@@ -327,7 +331,23 @@ export default function Admin() {
         />
       )}
 
-      {activeTab === "manualTweetEngagementUpdate" && <ManualTweetEngagementUpdate />}
+      {activeTab === "manualTweetEngagementUpdate" && (
+        <ManualEngagementUpdate
+          title="Manually update Tweet engagement data"
+          quotaNote="Note: X API allows up to 10,000 engagement data retrievals per month. Be mindful of the usage limits."
+          apiReferences={X_API_REFERENCES}
+          platform="X"
+        />
+      )}
+
+      {activeTab === "manualYouTubeVideoEngagementUpdate" && (
+        <ManualEngagementUpdate
+          title="Manually update YouTube video engagement data"
+          quotaNote="Note: YouTube Data API has a quota limit. Be mindful of the usage limits."
+          apiReferences={YOUTUBE_API_REFERENCES}
+          platform="YouTube"
+        />
+      )}
     </div>
   );
 };

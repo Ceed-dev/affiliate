@@ -67,8 +67,8 @@ export const AdminHeaderWithReloadButton: React.FC<CommonProps> = ({
       {/* Admin dashboard title */}
       <h1 className="text-lg sm:text-2xl lg:text-4xl font-semibold">Admin Dashboard</h1>
       
-      {/* Only show the reload button if the active tab is not "manualTweetEngagementUpdate" */}
-      {activeTab !== "manualTweetEngagementUpdate" && (
+      {/* Only show the reload button if the active tab is not "manualTweetEngagementUpdate" or "manualYouTubeVideoEngagementUpdate" */}
+      {activeTab !== "manualTweetEngagementUpdate" && activeTab !== "manualYouTubeVideoEngagementUpdate" && (
         <ButtonWithLoading
           activeTab={activeTab}
           unpaidLogsLoading={unpaidLogsLoading}

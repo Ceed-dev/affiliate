@@ -28,28 +28,26 @@ interface AdminTabsProps {
 
 // AdminTabs component: Displays the tabs for switching between different views in the admin dashboard
 export const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, setActiveTab }) => {
+  // Define the tab data as an array of objects
+  const tabs = [
+    { label: "Unpaid Conversion Logs & Token Summary", value: "unpaidConversionLogs" as ActiveTab },
+    { label: "User Approval", value: "userApproval" as ActiveTab },
+    { label: "Manual Tweet Engagement Update", value: "manualTweetEngagementUpdate" as ActiveTab },
+    { label: "Manual YouTube Video Engagement Update", value: "manualYouTubeVideoEngagementUpdate" as ActiveTab }
+  ];
+
   return (
     <div className="w-11/12 border-b border-slate-400 my-5 overflow-x-auto">
       {/* Unordered list that holds the tab buttons */}
       <ul className="flex w-max">
-        {/* Tab for unpaid conversion logs and token summary */}
-        <TabButton 
-          isActive={activeTab === "unpaidConversionLogs"} // Check if the current tab is unpaidConversionLogs
-          label="Unpaid Conversion Logs & Token Summary" 
-          onClick={() => setActiveTab("unpaidConversionLogs")} // Set the active tab to unpaidConversionLogs when clicked
-        />
-        {/* Tab for user approval */}
-        <TabButton 
-          isActive={activeTab === "userApproval"} // Check if the current tab is userApproval
-          label="User Approval" 
-          onClick={() => setActiveTab("userApproval")} // Set the active tab to userApproval when clicked
-        />
-        {/* Tab for manual tweet engagement update */}
-        <TabButton 
-          isActive={activeTab === "manualTweetEngagementUpdate"} // Check if the current tab is manualTweetEngagementUpdate
-          label="Manual Tweet Engagement Update" 
-          onClick={() => setActiveTab("manualTweetEngagementUpdate")} // Set the active tab to manualTweetEngagementUpdate when clicked
-        />
+        {tabs.map((tab) => (
+          <TabButton 
+            key={tab.value}
+            isActive={activeTab === tab.value} // Check if the current tab is active
+            label={tab.label} 
+            onClick={() => setActiveTab(tab.value)} // Set the active tab when clicked
+          />
+        ))}
       </ul>
     </div>
   );

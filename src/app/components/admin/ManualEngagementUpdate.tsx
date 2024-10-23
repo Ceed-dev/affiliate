@@ -1,14 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { X_API_REFERENCES } from "../../constants/xApiConstants"; // X API reference links
-import { fetchAndUpdateTweetEngagementData } from "../../utils/firebase/tweetEngagementHelpers";
+import { fetchAndUpdateEngagementData } from "../../utils/firebase/engagementHelpers";
 import { createLogEntry } from "../../utils/logUtils";
 import { LogType, LogEntry } from "../../types/log";
 import { LogTable } from "../LogTable";
 
-// ManualTweetEngagementUpdate component: Handles manual update of tweet engagement data
-export const ManualTweetEngagementUpdate = ({}) => {
+// Props for ManualEngagementUpdate component
+interface ManualEngagementUpdateProps {
+  title: string;
+  quotaNote: string;
+  apiReferences: { title: string; url: string }[];
+  platform: "X" | "YouTube";
+}
+
+// ManualEngagementUpdate component: Handles manual update of engagement data for various services
+export const ManualEngagementUpdate = ({
+  title,
+  quotaNote,
+  apiReferences,
+  platform,
+}: ManualEngagementUpdateProps) => {
   // State variables for logs, processing status, and task progress
   const [logs, setLogs] = useState<LogEntry[]>([]); // Holds log entries
   const [isProcessing, setIsProcessing] = useState(false); // Manages processing state
@@ -46,14 +58,12 @@ export const ManualTweetEngagementUpdate = ({}) => {
     <>
       {/* Header section with instructions */}
       <div className="w-11/12">
-        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Manually update Tweet engagement data</h2>
-        <p className="text-lg text-red-500 font-bold underline mt-2">
-          Note: X API allows up to 10,000 engagement data retrievals per month. Be mindful of the usage limits.
-        </p>
+        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">{title}</h2>
+        <p className="text-lg text-red-500 font-bold underline mt-2">{quotaNote}</p>
 
-        {/* Links to X API references */}
+        {/* Links to API references */}
         <div className="mt-5 flex flex-row gap-2">
-          {X_API_REFERENCES.map((ref, index) => (
+          {apiReferences.map((ref, index) => (
             <Link
               key={index}
               href={ref.url}
@@ -67,14 +77,14 @@ export const ManualTweetEngagementUpdate = ({}) => {
         </div>
       </div>
 
-      {/* Fetch tweet engagement data with a loading spinner and log display */}
+      {/* Fetch engagement data with a loading spinner and log display */}
       <div className="w-11/12 my-5">
-        {/* Button to fetch tweet engagement data */}
+        {/* Button to fetch engagement data */}
         <button
           className={`bg-sky-300 hover:bg-sky-400 rounded-md py-2 px-5 shadow-md font-semibold ${
             isProcessing ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          onClick={async () => await fetchAndUpdateTweetEngagementData(setIsProcessing, addLog, setTotalTasks, setCompletedTasks)} // Fetch and update data on click
+          onClick={async () => await fetchAndUpdateEngagementData(platform, setIsProcessing, addLog, setTotalTasks, setCompletedTasks)}
           disabled={isProcessing} // Disable button during processing
         >
           {isProcessing ? (
@@ -84,7 +94,7 @@ export const ManualTweetEngagementUpdate = ({}) => {
               <span className="animate-pulse">Processing...</span>
             </div>
           ) : (
-            "Fetch Tweet Engagement Data"
+            "Fetch Engagement Data"
           )}
         </button>
 
@@ -105,7 +115,6 @@ export const ManualTweetEngagementUpdate = ({}) => {
         {/* Log table to display the logs */}
         <LogTable logs={logs} />
       </div>
-
     </>
   );
-}
+};
