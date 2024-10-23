@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { fetchAndUpdateEngagementData } from "../../utils/firebase/engagementHelpers";
 import { createLogEntry } from "../../utils/logUtils";
 import { LogType, LogEntry } from "../../types/log";
 import { LogTable } from "../LogTable";
@@ -10,12 +11,7 @@ interface ManualEngagementUpdateProps {
   title: string;
   quotaNote: string;
   apiReferences: { title: string; url: string }[];
-  fetchEngagementData: (
-    setIsProcessing: (processing: boolean) => void,
-    addLog: (log: string, type: LogType, indentLevel?: number) => void,
-    setTotalTasks: (tasks: number) => void,
-    setCompletedTasks: (tasks: number) => void
-  ) => Promise<void>;
+  platform: "X" | "YouTube";
 }
 
 // ManualEngagementUpdate component: Handles manual update of engagement data for various services
@@ -23,7 +19,7 @@ export const ManualEngagementUpdate = ({
   title,
   quotaNote,
   apiReferences,
-  fetchEngagementData,
+  platform,
 }: ManualEngagementUpdateProps) => {
   // State variables for logs, processing status, and task progress
   const [logs, setLogs] = useState<LogEntry[]>([]); // Holds log entries
@@ -88,7 +84,7 @@ export const ManualEngagementUpdate = ({
           className={`bg-sky-300 hover:bg-sky-400 rounded-md py-2 px-5 shadow-md font-semibold ${
             isProcessing ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          onClick={async () => await fetchEngagementData(setIsProcessing, addLog, setTotalTasks, setCompletedTasks)}
+          onClick={async () => await fetchAndUpdateEngagementData(platform, setIsProcessing, addLog, setTotalTasks, setCompletedTasks)}
           disabled={isProcessing} // Disable button during processing
         >
           {isProcessing ? (

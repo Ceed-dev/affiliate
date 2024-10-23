@@ -12,7 +12,6 @@ import {
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
   updateIsPaidFlag, fetchUnapprovedUsers, approveUser,
 } from "../utils/firebase";
-import { fetchAndUpdateTweetEngagementData } from "../utils/firebase/engagementHelpers";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 
 // Import component types
@@ -337,7 +336,7 @@ export default function Admin() {
           title="Manually update Tweet engagement data"
           quotaNote="Note: X API allows up to 10,000 engagement data retrievals per month. Be mindful of the usage limits."
           apiReferences={X_API_REFERENCES}
-          fetchEngagementData={fetchAndUpdateTweetEngagementData}
+          platform="X"
         />
       )}
 
@@ -346,7 +345,7 @@ export default function Admin() {
           title="Manually update YouTube video engagement data"
           quotaNote="Note: YouTube Data API has a quota limit. Be mindful of the usage limits."
           apiReferences={YOUTUBE_API_REFERENCES}
-          fetchEngagementData={async () => {}}
+          platform="YouTube"
         />
       )}
     </div>

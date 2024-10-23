@@ -402,15 +402,19 @@ const updateTweetEngagementData = async (
 };
 
 /**
- * Fetches and updates tweet engagement data for all affiliates with joined projects.
+ * Fetches and updates engagement data for all affiliates with joined projects on the specified platform (X or YouTube).
  * Manages loading state, logs the current operation, and updates the progress bar in real-time.
  *
- * @param setProcessing - A function to update the processing state (true/false).
- * @param addLog - A function to add a new log entry.
- * @param setTotalTasks - A function to set the total number of tasks (for the progress bar).
- * @param setCompletedTasks - A function to update the number of completed tasks.
+ * @param { "X" | "YouTube" } platform - The platform for which engagement data is being retrieved and updated (either "X" or "YouTube").
+ * @param {function} setProcessing - A function to update the processing state (true/false) to indicate if the process is currently running.
+ * @param {function} addLog - A function to add a new log entry for tracking the process. Takes the log message, log type ("log", "warning", "error"), and an optional indentation level.
+ * @param {function} setTotalTasks - A function to set the total number of tasks, primarily used for the progress bar to indicate how many tasks need to be completed.
+ * @param {function} setCompletedTasks - A function to update the number of completed tasks, used to track progress for each user/project pair processed.
+ *
+ * @returns {Promise<void>} - A promise that resolves when all engagement data has been fetched and updated for the specified platform.
  */
-export const fetchAndUpdateTweetEngagementData = async (
+export const fetchAndUpdateEngagementData = async (
+  platform: "X" | "YouTube",
   setProcessing: (isProcessing: boolean) => void,
   addLog: (log: string, logType: LogType, indentLevel?: number) => void,
   setTotalTasks: (totalTasks: number) => void,
@@ -418,55 +422,56 @@ export const fetchAndUpdateTweetEngagementData = async (
 ): Promise<void> => {
   try {
     setProcessing(true);
-    addLog("Fetching affiliate data...", "log");
+    addLog(`Fetching affiliate data for platform: ${platform}`, "log");
 
     // Step 1: Get affiliate user information
-    const users = await getInfoForEngagementData(addLog, "X");
-    // Filter the users to ensure they are of type XData
-    const xUsers: XData[] = users.filter((user): user is XData => user.platform === "X");
-    addLog(`Found ${xUsers.length} affiliates with joined projects.`, "log");
+    const users = await getInfoForEngagementData(addLog, platform);
+    addLog(`Found ${users.length} affiliates with joined projects for platform: ${platform}.`, "log");
 
     // Step 2: Calculate and set the total number of tasks
-    const totalTasks = xUsers.reduce((acc, user) => acc + user.joinedProjectIds!.length, 0);
+    const totalTasks = users.reduce((acc, user) => acc + user.joinedProjectIds!.length, 0);
     setTotalTasks(totalTasks); // Set total tasks for progress bar
 
     let completedTasks = 0;
 
     // Step 3: Loop through each user's wallet address and project IDs to fetch referral data
-    for (const user of xUsers) {
-      const { walletAddress, joinedProjectIds, xAuthToken, xAccountInfo } = user;
+    for (const user of users) {
+      const { walletAddress, joinedProjectIds } = user;
 
       for (const projectId of joinedProjectIds!) {
-        addLog(`Processing wallet: ${walletAddress}, project: ${projectId}`, "log", 1);
-        const referral: XReferralData = await fetchReferralByWalletAndProject(walletAddress as string, projectId, "X", addLog);
+        addLog(`Processing wallet: ${walletAddress}, project: ${projectId} for platform: ${platform}`, "log", 1);
 
-        if (referral) {
+        const referral = await fetchReferralByWalletAndProject(walletAddress, projectId, platform, addLog);
+
+        if (platform === "X" && referral) {
+          const { xAuthToken, xAccountInfo } = user as XData;
+          const xReferral = referral as XReferralData;
           let result = {
-            ...referral,
+            ...xReferral,
             pastTweetEngagementData: undefined as any[] | undefined,
             recentTweetEngagementData: undefined as any[] | undefined,
           };
 
           // Step 4: Fetch past tweet engagement data
-          if (referral.pastTweetIds && referral.pastTweetIds.length > 0) {
-            addLog(`Fetching past tweet engagement data for ${referral.pastTweetIds.length} tweets.`, "log", 2);
-            const pastTweetEngagementData = await fetchTweetEngagementForPastTweets(referral.pastTweetIds, addLog);
+          if (xReferral.pastTweetIds && xReferral.pastTweetIds.length > 0) {
+            addLog(`Fetching past tweet engagement data for ${xReferral.pastTweetIds.length} tweets.`, "log", 2);
+            const pastTweetEngagementData = await fetchTweetEngagementForPastTweets(xReferral.pastTweetIds, addLog);
             result.pastTweetEngagementData = pastTweetEngagementData;
           } else {
-            addLog(`No past tweets found for referral ID: ${referral.referralId}.`, "warning", 2);
+            addLog(`No past tweets found for referral ID: ${xReferral.referralId}.`, "warning", 2);
           }
 
           // Step 5: Always search for recent tweet engagement data
           let tweetNewestId = undefined;
 
-          if (referral.tweetNewestCreatedAt) {
+          if (xReferral.tweetNewestCreatedAt) {
             addLog("Found tweetNewestCreatedAt. Checking if it's within the last week.", "log", 2);
 
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-            if (referral.tweetNewestCreatedAt >= oneWeekAgo) {
-              tweetNewestId = referral.tweetNewestId;
+            if (xReferral.tweetNewestCreatedAt >= oneWeekAgo) {
+              tweetNewestId = xReferral.tweetNewestId;
               addLog(`tweetNewestId is within the last week. Using tweetNewestId: ${tweetNewestId}`, "log", 2);
             } else {
               addLog("tweetNewestId is older than one week. Not using it for recent search.", "warning", 2);
@@ -478,7 +483,7 @@ export const fetchAndUpdateTweetEngagementData = async (
           addLog(`Fetching recent tweet engagement data for user: ${xAccountInfo?.username}`, "log", 2);
           const recentTweetEngagementData = await fetchTweetEngagementForRecentTweets(
             xAccountInfo?.username as string,
-            referral.referralId as string,
+            xReferral.referralId as string,
             xAuthToken?.access_token as string,
             addLog,
             tweetNewestId
@@ -488,15 +493,19 @@ export const fetchAndUpdateTweetEngagementData = async (
           // Step 6: Update the tweet engagement data in Firestore
           const tweetEngagementUpdate: TweetEngagementUpdate = {
             username: xAccountInfo?.username as string,
-            referralId: referral.referralId as string,
+            referralId: xReferral.referralId as string,
             pastTweetEngagementData: result.pastTweetEngagementData,
             recentTweetEngagementData: result.recentTweetEngagementData,
           };
-          addLog(`Updating tweet engagement data in Firestore for referral: ${referral.referralId}`, "log", 2);
+          addLog(`Updating tweet engagement data in Firestore for referral: ${xReferral.referralId}`, "log", 2);
           await updateTweetEngagementData(tweetEngagementUpdate, addLog);
 
-        } else {
-          addLog(`No referral found for wallet: ${walletAddress} and project: ${projectId}`, "warning", 1);
+        } else if (platform === "YouTube" && referral) {
+          const { googleAuthToken, youtubeAccountInfo } = user as YouTubeData;
+          
+          addLog(`YouTube platform detected. Fetching engagement data for channel: ${youtubeAccountInfo.id}`, "log", 2);
+          
+          // TODO: YouTubeのエンゲージメントデータ取得処理をここに実装
         }
 
         // Step 7: Update the completed tasks count and progress
@@ -505,10 +514,10 @@ export const fetchAndUpdateTweetEngagementData = async (
       }
     }
 
-    addLog("All affiliate data has been successfully processed.", "log");
+    addLog(`All affiliate data processed successfully for platform: ${platform}`, "log");
   } catch (error: any) {
-    addLog(`Error fetching and updating tweet engagement data. Message: ${error.message}`, "error");
-    console.error("Error fetching and updating tweet engagement data:", error);
+    addLog(`Error fetching and updating engagement data for platform: ${platform}. Message: ${error.message}`, "error");
+    console.error(`Error fetching and updating engagement data for platform: ${platform}`, error);
   } finally {
     setProcessing(false);
   }
