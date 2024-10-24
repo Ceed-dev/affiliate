@@ -105,11 +105,11 @@ export const footerLinks = {
   "Help": [
     { url: `${calendlyLink}`, label: "Book Demo" },
     {
-      url: "https://veroo.notion.site/Terms-and-Conditions-e56f60533a834abbbd1213c6bf0cd36f",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/terms-and-conditions`,
       label: "Terms and Conditions",
     },
     {
-      url: "https://qubexyz.notion.site/Privacy-and-Policy-0ef230ec7f81439baa1e0d4d6b78cfe8",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy`,
       label: "Privacy Policy",
     },
   ],
