@@ -105,7 +105,7 @@ export const footerLinks = {
   "Help": [
     { url: `${calendlyLink}`, label: "Book Demo" },
     {
-      url: "https://veroo.notion.site/Terms-and-Conditions-e56f60533a834abbbd1213c6bf0cd36f",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/terms-and-conditions`,
       label: "Terms and Conditions",
     },
     {
