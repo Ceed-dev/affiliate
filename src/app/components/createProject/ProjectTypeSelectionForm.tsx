@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Button } from "./Button";
 import { ProjectType } from "../../types";
-import { projectTypes } from "../../constants/projectTypes";
+import { projectTypes } from "../../constants/projectCreationConfig";
 
 type ProjectTypeSelectionFormProps = {
   handleProjectTypeChange: (type: ProjectType) => void;
