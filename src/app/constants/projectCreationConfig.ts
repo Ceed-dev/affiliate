@@ -1,3 +1,4 @@
+// Project types for selection during the project creation process
 import { ProjectType } from "../types";
 
 export const projectTypes = [
@@ -17,4 +18,15 @@ export const projectTypes = [
     title: "Escrow Payment",
     description: "Use an escrow service for automated payments and secure transactions via API calls from the escrow contract."
   }
+];
+
+// Project creation steps used during the project creation process
+export const projectCreationSteps = [
+  "Type",
+  "Details",
+  "Socials",
+  "Logo",
+  // Display "Media" step only if ProjectType is null or EscrowPayment
+  "Media",
+  "Affiliates",
 ];

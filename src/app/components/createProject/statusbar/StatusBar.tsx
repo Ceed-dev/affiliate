@@ -1,6 +1,6 @@
 import React from "react";
 import { StatusStep } from "./StatusStep";
-import { projectCreationSteps } from "../../../constants/projectCreationSteps";
+import { projectCreationSteps } from "../../../constants/projectCreationConfig";
 import { ProjectType } from "../../../types";
 
 export const getSteps = (projectType: ProjectType | null) => {
