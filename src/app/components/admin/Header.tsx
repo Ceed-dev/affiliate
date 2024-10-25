@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
+import { useDisconnect } from "@thirdweb-dev/react";
 import { formatAddress } from "../../utils/formatUtils"; // Import utility function to format address
 
 interface HeaderProps {
@@ -8,6 +10,32 @@ interface HeaderProps {
 
 // Header component: Displays formatted address if connected, otherwise shows "Not connected"
 export const Header: React.FC<HeaderProps> = ({ address }) => {
+  const disconnect = useDisconnect();
+  const [showDisconnect, setShowDisconnect] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const disconnectRef = useRef<HTMLButtonElement | null>(null);
+
+  const toggleDisconnectButton = () => {
+    setShowDisconnect((prev) => !prev);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      (buttonRef.current && buttonRef.current.contains(event.target as Node)) ||
+      (disconnectRef.current && disconnectRef.current.contains(event.target as Node))
+    ) {
+      return;
+    }
+    setShowDisconnect(false);
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     // Header layout and styling
     <header className="w-full px-5 lg:px-0 py-2 border-b-2 border-sky-500 shadow-md">
@@ -30,14 +58,30 @@ export const Header: React.FC<HeaderProps> = ({ address }) => {
           <p className="text-lg font-semibold">Qube</p>
         </Link>
 
-        {/* Button: Shows formatted address if connected, otherwise "Not connected" */}
-        <button
-          className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-          // Adds hover effect to scale up the button slightly
-        >
-          {address ? formatAddress(address) : "Not connected"} 
-          {/* Display formatted address if connected, else "Not connected" */}
-        </button>
+        <div className="relative">
+          {/* Button: Shows formatted address if connected, otherwise "Not connected" */}
+          <button
+            className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+            // Adds hover effect to scale up the button slightly
+            onClick={toggleDisconnectButton}
+            ref={buttonRef}
+          >
+            {address ? formatAddress(address) : "Not connected"} 
+            {/* Display formatted address if connected, else "Not connected" */}
+          </button>
+          {showDisconnect && address && (
+            <button
+              className="absolute top-12 right-0 bg-red-500 text-white text-sm py-2 px-4 border-2 border-white shadow-lg rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+              onClick={() => {
+                disconnect();
+                setShowDisconnect(false);
+              }}
+              ref={disconnectRef}
+            >
+              Disconnect
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );
