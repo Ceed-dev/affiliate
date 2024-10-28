@@ -1,3 +1,9 @@
+// ==============================================
+// This code manages the embed images feature for affiliates to select and display ads within projects.
+// Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+// Uncomment to re-enable the embed images feature in the future.
+// ==============================================
+
 import React from "react";
 import Image from "next/image";
 import { Button } from "./Button";
