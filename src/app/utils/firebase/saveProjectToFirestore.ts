@@ -30,16 +30,21 @@ export const saveProjectToFirestore = async (
       updatedAt: now
     };
 
-    if (projectData.projectType === "EscrowPayment") {
-      const escrowProjectData = projectData as EscrowPaymentProjectData;
+    // ==============================================
+    // This code manages the embed images feature for affiliates to select and display ads within projects.
+    // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+    // Uncomment to re-enable the embed images feature in the future.
+    // if (projectData.projectType === "EscrowPayment") {
+    //   const escrowProjectData = projectData as EscrowPaymentProjectData;
 
-      const embedURLs = await Promise.all(
-        escrowProjectData.embeds.map((embed, index) =>
-          embed instanceof File ? uploadImageAndGetURL(embed, projectId, "embeds") : embed
-        )
-      );
-      (projectDataToSave as EscrowPaymentProjectData).embeds = embedURLs.filter((url): url is string => url !== null);
-    }
+    //   const embedURLs = await Promise.all(
+    //     escrowProjectData.embeds.map((embed, index) =>
+    //       embed instanceof File ? uploadImageAndGetURL(embed, projectId, "embeds") : embed
+    //     )
+    //   );
+    //   (projectDataToSave as EscrowPaymentProjectData).embeds = embedURLs.filter((url): url is string => url !== null);
+    // }
+    // ==============================================
 
     await setDoc(projectRef, projectDataToSave);
     console.log("Document written with ID: ", projectId);

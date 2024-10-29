@@ -59,41 +59,42 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
-  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
-
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const toggleDescriptionExpand = () => setIsDescriptionExpanded(!isDescriptionExpanded);
   const description = projectData?.description || "";
   const shouldShowDescriptionToggle = description.length > 350;
 
   // ============== Embed Images Modal Management ==============
-  const [currentEmbedIndex, setCurrentEmbedIndex] = useState(0);
+  // This code manages the embed images feature for affiliates to select and display ads within projects.
+  // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+  // Uncomment to re-enable the embed images feature in the future.
+  // const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
+  // const [currentEmbedIndex, setCurrentEmbedIndex] = useState(0);
+  // const [embedCode, setEmbedCode] = useState("");
 
-  const handleNextEmbed = () => {
-    if (projectData?.projectType === "EscrowPayment") {
-      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
-      setCurrentEmbedIndex((prevIndex) => (prevIndex + 1) % embedsLength);
-    }
-  };
+  // const handleNextEmbed = () => {
+  //   if (projectData?.projectType === "EscrowPayment") {
+  //     const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
+  //     setCurrentEmbedIndex((prevIndex) => (prevIndex + 1) % embedsLength);
+  //   }
+  // };
   
-  const handlePreviousEmbed = () => {
-    if (projectData?.projectType === "EscrowPayment") {
-      const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
-      setCurrentEmbedIndex((prevIndex) => (prevIndex - 1 + embedsLength) % embedsLength);
-    }
-  };
+  // const handlePreviousEmbed = () => {
+  //   if (projectData?.projectType === "EscrowPayment") {
+  //     const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
+  //     setCurrentEmbedIndex((prevIndex) => (prevIndex - 1 + embedsLength) % embedsLength);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (projectData && projectData.projectType === "EscrowPayment") {
+  //     const escrowProjectData = projectData as EscrowPaymentProjectData;
+  //     if (escrowProjectData.embeds && typeof escrowProjectData.embeds[currentEmbedIndex] === "string") {
+  //       setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex] as string, referralLink));
+  //     }
+  //   }
+  // }, [currentEmbedIndex, projectData, referralLink]);
   // ===========================================================
-
-  const [embedCode, setEmbedCode] = useState("");
-
-  useEffect(() => {
-    if (projectData && projectData.projectType === "EscrowPayment") {
-      const escrowProjectData = projectData as EscrowPaymentProjectData;
-      if (escrowProjectData.embeds && typeof escrowProjectData.embeds[currentEmbedIndex] === "string") {
-        setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex] as string, referralLink));
-      }
-    }
-  }, [currentEmbedIndex, projectData, referralLink]);
 
   const countdown = useCountdown(
     projectData?.projectType === "DirectPayment"
@@ -320,15 +321,20 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
-  const copyEmbedCodeToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(embedCode);
-      toast.success("Embed code copied to clipboard!");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-      toast.error("Failed to copy embed code. Please try again.");
-    }
-  };
+  // ==============================================
+  // This code manages the embed images feature for affiliates to select and display ads within projects.
+  // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+  // Uncomment to re-enable the embed images feature in the future.
+  // const copyEmbedCodeToClipboard = async () => {
+  //   try {
+  //     await navigator.clipboard.writeText(embedCode);
+  //     toast.success("Embed code copied to clipboard!");
+  //   } catch (err) {
+  //     console.error("Failed to copy: ", err);
+  //     toast.error("Failed to copy embed code. Please try again.");
+  //   }
+  // };
+  // ==============================================
 
   // ===== BEGIN TIER MODAL MANAGEMENT =====
 
@@ -432,7 +438,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   {buttonLabel}
                 </button>
               </div>
-              {projectData?.projectType === "EscrowPayment" && address && referralId && (
+              {/* ============================================== */}
+              {/* This code manages the embed images feature for affiliates to select and display ads within projects. */}
+              {/* Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426). */}
+              {/* Uncomment to re-enable the embed images feature in the future. */}
+              {/* {projectData?.projectType === "EscrowPayment" && address && referralId && (
                 <>
                   <button
                     className="bg-green-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
@@ -441,7 +451,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     Show Embed Code
                   </button>
                 </>
-              )}
+              )} */}
+              {/* ============================================== */}
             </div>
           ) : (
             <button
@@ -471,6 +482,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             <table className="w-full">
               <thead>
                 <tr>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
                   <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
                   <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
                   <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Activate/Deactivate</th>
@@ -480,6 +492,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 {projectData.conversionPoints && projectData.conversionPoints.length > 0 ? (
                   projectData.conversionPoints.map((point, index) => (
                     <tr key={point.id}>
+                      <td className="px-6 py-4 max-w-[200px] overflow-hidden truncate">{point.title}</td>
                       <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
                       <td className="px-6 py-4 overflow-hidden truncate">
                         {point.paymentType === "FixedAmount" ? point.rewardAmount : 
@@ -507,7 +520,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={3} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
+                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
                   </tr>
                 )}
               </tbody>
@@ -602,7 +615,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </>
       }
 
-      {isEmbedModalOpen && (
+      {/* ============================================== */}
+      {/* This code manages the embed images feature for affiliates to select and display ads within projects. */}
+      {/* Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426). */}
+      {/* Uncomment to re-enable the embed images feature in the future. */}
+      {/* {isEmbedModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-xl">
             <div className="flex flex-row justify-between items-center mb-4">
@@ -646,7 +663,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             </div>
           </div>
         </div>
-      )}
+      )} */}
+      {/* ============================================== */}
 
     </div>
   );
