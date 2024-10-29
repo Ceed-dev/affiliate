@@ -99,6 +99,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
   // State to hold the currently edited conversion point
   const [newConversionPoint, setNewConversionPoint] = useState<Partial<ConversionPoint>>({
     id: "", // ID will be generated later
+    title: "", // New title field for conversion point
     paymentType: "FixedAmount", // Default paymentType
     rewardAmount: 0, // Default rewardAmount
   });
@@ -108,18 +109,21 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
     if (paymentType === "FixedAmount") {
       setNewConversionPoint({
         id: "", // ID will be generated later
+        title: "",
         paymentType,
         rewardAmount: 0,
       });
     } else if (paymentType === "RevenueShare") {
       setNewConversionPoint({
         id: "", // ID will be generated later
+        title: "",
         paymentType,
         percentage: 0,
       });
     } else if (paymentType === "Tiered") {
       setNewConversionPoint({
         id: "", // ID will be generated later
+        title: "",
         paymentType,
         tiers: [], // Empty array for tiers
       });
@@ -557,6 +561,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                 <thead>
                   <tr>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
                     <th className="px-6 py-3 bg-gray-50">{isEditing ? "Activate/Deactivate" : "Remove"}</th>
@@ -567,6 +572,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     data.conversionPoints.map((point, index) => (
                       <tr key={point.id}>
                         <td className="px-6 py-4 overflow-hidden truncate">{point.id}</td>
+                        <td className="px-6 py-4 max-w-[200px] overflow-hidden truncate">{point.title}</td>
                         <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
                         <td className="px-6 py-4 overflow-hidden truncate">
                           {point.paymentType === "FixedAmount" ? point.rewardAmount : 
@@ -605,7 +611,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
+                      <td colSpan={5} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
                     </tr>
                   )}
                 </tbody>
@@ -615,7 +621,22 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
             {/* Reward Settings Section */}
             {!isEditing && (
               <div className="ml-4 mt-4 bg-white p-4 rounded-lg shadow-inner">
-                <h3 className="text-md font-semibold">How do you want to reward affiliates? <span className="text-red-500">*</span></h3>
+                <h3 className="text-md font-semibold">Conversion Point Title <span className="text-red-500">*</span></h3>
+                <div className="rounded-lg border border-[#D1D5DB] flex items-center mt-2">
+                  <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-1">Title:</span>
+                  <input
+                    type="text"
+                    value={newConversionPoint.title || ""}
+                    onChange={(e) => setNewConversionPoint(prevPoint => ({
+                      ...prevPoint,
+                      title: e.target.value
+                    }))}
+                    placeholder="Enter conversion point title"
+                    className="w-full outline-none p-2"
+                  />
+                </div>
+
+                <h3 className="text-md font-semibold mt-4">How do you want to reward affiliates? <span className="text-red-500">*</span></h3>
                 <div className="flex flex-col mt-2">
                   <label className={`p-3 border border-gray-300 rounded-t-lg cursor-pointer transition ${newConversionPoint.paymentType === "FixedAmount" ? "bg-blue-50" : "hover:bg-gray-100"}`}>
                     <div className="flex items-center">
@@ -801,6 +822,12 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                       return;
                     }
 
+                    // Validation for Title
+                    if (!newConversionPoint.title || newConversionPoint.title.trim() === "") {
+                      toast.error("Please provide a valid title for the conversion point.");
+                      return;
+                    }
+
                     // Validation for FixedAmount
                     if (newConversionPoint.paymentType === "FixedAmount" && (!newConversionPoint.rewardAmount || newConversionPoint.rewardAmount <= 0)) {
                       toast.error("Please provide a valid reward amount for FixedAmount.");
@@ -822,6 +849,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     // Generate short ID to the current newConversionPoint
                     const completeConversionPoint: ConversionPoint = {
                       id: generateSimpleAlphanumericId(),
+                      title: newConversionPoint.title.trim(),
                       paymentType: newConversionPoint.paymentType as PaymentType,
                       // Set appropriate property depending on paymentType
                       ...(newConversionPoint.paymentType === "FixedAmount" && {
@@ -842,6 +870,7 @@ export const AffiliatesForm: React.FC<AffiliatesFormProps> = ({
                     // Reset Form
                     setNewConversionPoint({
                       id: "",
+                      title: "",
                       paymentType: "FixedAmount",
                       rewardAmount: 0,
                     });

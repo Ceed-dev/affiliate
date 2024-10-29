@@ -40,6 +40,7 @@ export type Tier = {
 
 export type ConversionPoint = {
   id: string; // Stores the automatically generated alphanumeric ID
+  title: string; // Title to indicate the purpose of the conversion point
   paymentType: PaymentType; // Type of reward distribution
   rewardAmount?: number; // Used when the reward type is FixedAmount
   percentage?: number; // Used when the reward type is RevenueShare
