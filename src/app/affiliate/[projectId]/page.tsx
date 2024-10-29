@@ -482,6 +482,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             <table className="w-full">
               <thead>
                 <tr>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
                   <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
                   <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
                   <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Activate/Deactivate</th>
@@ -491,6 +492,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 {projectData.conversionPoints && projectData.conversionPoints.length > 0 ? (
                   projectData.conversionPoints.map((point, index) => (
                     <tr key={point.id}>
+                      <td className="px-6 py-4 max-w-[200px] overflow-hidden truncate">{point.title}</td>
                       <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
                       <td className="px-6 py-4 overflow-hidden truncate">
                         {point.paymentType === "FixedAmount" ? point.rewardAmount : 
@@ -518,7 +520,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={3} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
+                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
                   </tr>
                 )}
               </tbody>
