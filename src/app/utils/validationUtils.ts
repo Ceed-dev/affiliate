@@ -112,8 +112,13 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
       typeof data.redirectUrl === "string" &&
       typeof data.totalPaidOut === "number" &&
       (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
-      Array.isArray(data.embeds) &&
-      data.embeds.every((embed: any) => typeof embed === "string") &&
+      // ==============================================
+      // This code manages the embed images feature for affiliates to select and display ads within projects.
+      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+      // Uncomment to re-enable the embed images feature in the future.
+      // Array.isArray(data.embeds) &&
+      // data.embeds.every((embed: any) => typeof embed === "string") &&
+      // ==============================================
       typeof data.isReferralEnabled === "boolean" &&
       Array.isArray(data.conversionPoints) &&
       isValidConversionPoints(data.conversionPoints)

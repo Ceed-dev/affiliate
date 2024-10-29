@@ -35,7 +35,12 @@ export default function CreateProject() {
   const [previewData, setPreviewData] = useState<PreviewData>({
     logoPreview: "",
     coverPreview: "",
-    embedPreviews: [],
+    // ==============================================
+    // This code manages the embed images feature for affiliates to select and display ads within projects.
+    // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+    // Uncomment to re-enable the embed images feature in the future.
+    // embedPreviews: [],
+    // ==============================================
   });
   const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
   const [conversionPoints, setConversionPoints] = useState<ConversionPoint[]>([]);
@@ -99,7 +104,12 @@ export default function CreateProject() {
         redirectUrl: "",
         totalPaidOut: 0,
         lastPaymentDate: null,
-        embeds: [],
+        // ==============================================
+        // This code manages the embed images feature for affiliates to select and display ads within projects.
+        // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+        // Uncomment to re-enable the embed images feature in the future.
+        // embeds: [],
+        // ==============================================
         isReferralEnabled: false,
         conversionPoints: [],
       } as EscrowPaymentProjectData);
@@ -210,38 +220,47 @@ export default function CreateProject() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewData(prev => {
-          if (type === "embeds") {
-            const newPreviews = [...prev.embedPreviews];
-            if (index !== undefined) {
-              newPreviews[index] = reader.result as string;
-            } else {
-              newPreviews.push(reader.result as string);
-            }
-            return { ...prev, embedPreviews: newPreviews };
-          } else {
+          // ==============================================
+          // This code manages the embed images feature for affiliates to select and display ads within projects.
+          // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+          // Uncomment to re-enable the embed images feature in the future.
+          // if (type === "embeds") {
+          //   const newPreviews = [...prev.embedPreviews];
+          //   if (index !== undefined) {
+          //     newPreviews[index] = reader.result as string;
+          //   } else {
+          //     newPreviews.push(reader.result as string);
+          //   }
+          //   return { ...prev, embedPreviews: newPreviews };
+          // } else {
             return { ...prev, [`${type}Preview`]: reader.result as string };
-          }
+          // }
+          // ==============================================
         });
         setProjectData(prev => {
           if (!prev) return prev;
-  
-          if (type === "embeds" && prev.projectType === "EscrowPayment") {
-            const newEmbeds = [...(prev.embeds || [])];
-            if (index !== undefined) {
-              newEmbeds[index] = file;
-            } else {
-              newEmbeds.push(file);
-            }
-            return {
-              ...prev,
-              embeds: newEmbeds
-            };
-          } else {
+          // ==============================================
+          // This code manages the embed images feature for affiliates to select and display ads within projects.
+          // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+          // Uncomment to re-enable the embed images feature in the future.
+          // if (type === "embeds" && prev.projectType === "EscrowPayment") {
+          //   const newEmbeds = [...(prev.embeds || [])];
+          //   if (index !== undefined) {
+          //     newEmbeds[index] = file;
+          //   } else {
+          //     newEmbeds.push(file);
+          //   }
+          //   return {
+          //     ...prev,
+          //     embeds: newEmbeds
+          //   };
+          // } else {
             return {
               ...prev,
               [type]: file
             };
-          }
+          // }
+          // ==============================================
         });
       };
       reader.readAsDataURL(file);
@@ -250,28 +269,37 @@ export default function CreateProject() {
   
   const removeImage = (type: ImageType, index?: number) => () => {
     setPreviewData(prev => {
-      if (type === "embeds") {
-        const newPreviews = prev.embedPreviews.filter((_, i) => i !== index);
-        return { ...prev, embedPreviews: newPreviews };
-      } else {
+      // ==============================================
+      // This code manages the embed images feature for affiliates to select and display ads within projects.
+      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+      // Uncomment to re-enable the embed images feature in the future.
+      // if (type === "embeds") {
+      //   const newPreviews = prev.embedPreviews.filter((_, i) => i !== index);
+      //   return { ...prev, embedPreviews: newPreviews };
+      // } else {
         return { ...prev, [`${type}Preview`]: "" };
-      }
+      // }
+      // ==============================================
     });
     setProjectData(prev => {
       if (!prev) return prev;
-  
-      if (type === "embeds" && prev.projectType === "EscrowPayment") {
-        const newEmbeds = (prev.embeds || []).filter((_, i) => i !== index);
-        return {
-          ...prev,
-          embeds: newEmbeds
-        };
-      } else {
+      // ==============================================
+      // This code manages the embed images feature for affiliates to select and display ads within projects.
+      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+      // Uncomment to re-enable the embed images feature in the future.
+      // if (type === "embeds" && prev.projectType === "EscrowPayment") {
+      //   const newEmbeds = (prev.embeds || []).filter((_, i) => i !== index);
+      //   return {
+      //     ...prev,
+      //     embeds: newEmbeds
+      //   };
+      // } else {
         return {
           ...prev,
           [type]: null
         };
-      }
+      // }
+      // ==============================================
     });
   };
 
@@ -441,18 +469,23 @@ export default function CreateProject() {
             previousStep={previousStep}
           />
         );
-      case "Media":
-        return (
-          <EmbedImageForm
-            data={{
-              embedPreviews: previewData.embedPreviews,
-            }}
-            handleImageChange={handleImageChange}
-            removeImage={removeImage}
-            nextStep={nextStep}
-            previousStep={previousStep}
-          />
-        );
+      // ==============================================
+      // This code manages the embed images feature for affiliates to select and display ads within projects.
+      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
+      // Uncomment to re-enable the embed images feature in the future.
+      // case "Media":
+      //   return (
+      //     <EmbedImageForm
+      //       data={{
+      //         embedPreviews: previewData.embedPreviews,
+      //       }}
+      //       handleImageChange={handleImageChange}
+      //       removeImage={removeImage}
+      //       nextStep={nextStep}
+      //       previousStep={previousStep}
+      //     />
+      //   );
+      // ==============================================
       case "Affiliates":
         return (
           <AffiliatesForm
