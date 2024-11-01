@@ -7,7 +7,6 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../utils/firebase";
-import { EscrowPaymentProjectData } from "../../types";
 
 /**
  * Handles the POST request to log a conversion for a referral link.
@@ -73,18 +72,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 7: Ensure the project is of type EscrowPayment
-    if (projectData.projectType !== "EscrowPayment") {
-      return NextResponse.json(
-        { error: "Invalid project type" },
-        { status: 400 }
-      );
-    }
-
-    const escrowProjectData = projectData as EscrowPaymentProjectData;
-
-    // Step 8: Find the specific conversion point using conversionId
-    const conversionPoint = escrowProjectData.conversionPoints.find(point => point.id === conversionId);
+    // Step 7: Find the specific conversion point using conversionId
+    const conversionPoint = projectData.conversionPoints.find(point => point.id === conversionId);
     if (!conversionPoint) {
       return NextResponse.json(
         { error: "Conversion point not found" },
@@ -92,7 +81,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 9: Check if the conversion point is active
+    // Step 8: Check if the conversion point is active
     if (!conversionPoint.isActive) {
       return NextResponse.json(
         { message: "Conversion point is inactive" },
@@ -100,7 +89,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 10: Determine reward amount based on payment type
+    // Step 9: Determine reward amount based on payment type
     let rewardAmount = 0;
     if (conversionPoint.paymentType === "FixedAmount") {
       rewardAmount = conversionPoint.rewardAmount || 0;
@@ -129,9 +118,9 @@ export async function POST(request: NextRequest) {
       rewardAmount = appropriateTier.rewardAmount;
     }
 
-    // Step 11: Handle referral feature (if enabled) and check user wallet address
+    // Step 10: Handle referral feature (if enabled) and check user wallet address
     let userWalletAddress;
-    if (escrowProjectData.isReferralEnabled) {
+    if (projectData.isReferralEnabled) {
       userWalletAddress = request.nextUrl.searchParams.get("userWalletAddress");
       if (!userWalletAddress || !ethers.utils.isAddress(userWalletAddress)) {
         return NextResponse.json(
@@ -141,10 +130,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 12: Record successful conversions (without actual payment processing)
+    // Step 11: Record successful conversions (without actual payment processing)
     await logConversion(`${referralData.id}`, conversionId, rewardAmount, userWalletAddress);
 
-    // Step 13: Return success response
+    // Step 12: Return success response
     return NextResponse.json(
       { message: "Conversion successful", referralId: referral },
       { status: 200 }
