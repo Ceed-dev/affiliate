@@ -5,10 +5,7 @@ import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
-import { 
-  ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData, ReferralData, 
-  ConversionLog, ClickData, Tier,
-} from "../../types";
+import { ProjectData, ReferralData, ConversionLog, ClickData, Tier } from "../../types";
 import { ConversionsList, ProjectHeader } from "../../components/affiliate";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
@@ -20,14 +17,8 @@ import {
   fetchConversionLogsForReferrals, fetchClickData,
 } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
-import { 
-  displayFormattedDateWithTimeZone,
-  getNextPaymentDate,
-  getTimeZoneSymbol,
-} from "../../utils/dateUtils";
+import { getNextPaymentDate, getTimeZoneSymbol } from "../../utils/dateUtils";
 import { formatChainName } from "../../utils/formatUtils";
-import { generateEmbedCode } from "../../utils/embedCodeUtil";
-import { useCountdown } from "../../hooks/useCountdown";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";
 
@@ -64,86 +55,31 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const description = projectData?.description || "";
   const shouldShowDescriptionToggle = description.length > 350;
 
-  // ============== Embed Images Modal Management ==============
-  // This code manages the embed images feature for affiliates to select and display ads within projects.
-  // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-  // Uncomment to re-enable the embed images feature in the future.
-  // const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
-  // const [currentEmbedIndex, setCurrentEmbedIndex] = useState(0);
-  // const [embedCode, setEmbedCode] = useState("");
-
-  // const handleNextEmbed = () => {
-  //   if (projectData?.projectType === "EscrowPayment") {
-  //     const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
-  //     setCurrentEmbedIndex((prevIndex) => (prevIndex + 1) % embedsLength);
-  //   }
-  // };
-  
-  // const handlePreviousEmbed = () => {
-  //   if (projectData?.projectType === "EscrowPayment") {
-  //     const embedsLength = (projectData as EscrowPaymentProjectData).embeds.length;
-  //     setCurrentEmbedIndex((prevIndex) => (prevIndex - 1 + embedsLength) % embedsLength);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (projectData && projectData.projectType === "EscrowPayment") {
-  //     const escrowProjectData = projectData as EscrowPaymentProjectData;
-  //     if (escrowProjectData.embeds && typeof escrowProjectData.embeds[currentEmbedIndex] === "string") {
-  //       setEmbedCode(generateEmbedCode(escrowProjectData.embeds[currentEmbedIndex] as string, referralLink));
-  //     }
-  //   }
-  // }, [currentEmbedIndex, projectData, referralLink]);
-  // ===========================================================
-
-  const countdown = useCountdown(
-    projectData?.projectType === "DirectPayment"
-      ? (projectData as DirectPaymentProjectData).deadline ?? undefined
-      : undefined
-  );
-
   useEffect(() => {
     const updateReferralLink = () => {
-      if (projectData?.projectType === "DirectPayment") {
-        const directPaymentProject = projectData as DirectPaymentProjectData;
-        if (address && directPaymentProject?.whitelistedAddresses[address]) {
-          setReferralLink(directPaymentProject.whitelistedAddresses[address].redirectUrl);
+      if (referralId && projectData) {
+        // The conditional logic here checks if the project ID matches "FX26BxKbDVuJvaCtcTDf" (DBR project).
+        // For this specific project, we continue using the old referral link format for compatibility reasons
+        // to avoid requiring existing clients and affiliates to update their referral links.
+        // For all other projects, the new referral link format is used, which includes the target URL (t)
+        // as a query parameter. This optimization reduces unnecessary database lookups by passing
+        // the redirect URL directly, improving performance and reducing latency.
+        if (projectData.id === "FX26BxKbDVuJvaCtcTDf") {
+          setReferralLink(`${projectData.redirectUrl}?r=${referralId}`);
         } else {
-          setReferralLink("");
+          // The target URL (t) is included in the referral link to optimize performance.
+          // By passing the redirect URL (projectData.redirectUrl) as the `t` parameter in the API call, 
+          // we avoid unnecessary database lookups on the server side. This ensures the API can 
+          // directly use the provided URL for redirection, reducing latency and server load.
+          setReferralLink(`${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(projectData.redirectUrl)}`);
         }
-      } else if (projectData?.projectType === "EscrowPayment") {
-        if (referralId) {
-          // The conditional logic here checks if the project ID matches "FX26BxKbDVuJvaCtcTDf" (DBR project).
-          // For this specific project, we continue using the old referral link format for compatibility reasons
-          // to avoid requiring existing clients and affiliates to update their referral links.
-          // For all other projects, the new referral link format is used, which includes the target URL (t)
-          // as a query parameter. This optimization reduces unnecessary database lookups by passing
-          // the redirect URL directly, improving performance and reducing latency.
-          if (projectData.id === "FX26BxKbDVuJvaCtcTDf") {
-            setReferralLink(`${projectData.redirectUrl}?r=${referralId}`);
-          } else {
-            // The target URL (t) is included in the referral link to optimize performance.
-            // By passing the redirect URL (projectData.redirectUrl) as the `t` parameter in the API call, 
-            // we avoid unnecessary database lookups on the server side. This ensures the API can 
-            // directly use the provided URL for redirection, reducing latency and server load.
-            setReferralLink(`${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(projectData.redirectUrl)}`);
-          }
-        } else {
-          setReferralLink("");
-        }
+      } else {
+        setReferralLink("");
       }
     };
   
     updateReferralLink();
-  }, [address, projectData, projectData?.projectType, referralId]);  
-
-  useEffect(() => {
-    if (projectData?.projectType === "DirectPayment" && address && (projectData as DirectPaymentProjectData).whitelistedAddresses[address]) {
-      setIsWhitelisted(true);
-    } else {
-      setIsWhitelisted(false);
-    }
-  }, [address, projectData]);
+  }, [address, projectData, referralId]);  
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -258,37 +194,15 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   }, [projectData?.selectedChainId]);
   // ===========================================
 
-  // useEffect(() => {
-  //   if (referralData) {
-  //     fetchTransactionsForReferrals([referralData], setTransactionData)
-  //       .then(() => {
-  //         setLoadingTransactionData(false);
-  //       })
-  //       .catch(error => {
-  //         console.error("Error fetching transactions: ", error.message);
-  //         toast.error(`Error fetching transactions: ${error.message}`);
-  //         setLoadingTransactionData(false);
-  //       });
-  //   }
-  // }, [referralData]);
-
   const handleJoinProject = async () => {
-    if (projectData?.projectType === "DirectPayment") {
-      if (!projectData?.whitelistedAddresses[address!]) {
-        toast.error("Your wallet address is not whitelisted for this project.");
-        return;
-      }
-    } else if (projectData?.projectType === "EscrowPayment") {
-      const allConversionPointsInactive = projectData?.conversionPoints?.every(point => !point.isActive);
-
-      try {
-        const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive);
-        console.log("Referral ID from existing user: ", referralId);
-        setReferralId(referralId);
-      } catch (error: any) {
-        console.error("Failed to join project: ", error);
-        toast.error(`Failed to join project: ${error.message}`);
-      }
+    const allConversionPointsInactive = projectData!.conversionPoints.every(point => !point.isActive);
+    try {
+      const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive);
+      console.log("Referral ID from existing user: ", referralId);
+      setReferralId(referralId);
+    } catch (error: any) {
+      console.error("Failed to join project: ", error);
+      toast.error(`Failed to join project: ${error.message}`);
     }
   };
 
@@ -321,21 +235,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
-  // ==============================================
-  // This code manages the embed images feature for affiliates to select and display ads within projects.
-  // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-  // Uncomment to re-enable the embed images feature in the future.
-  // const copyEmbedCodeToClipboard = async () => {
-  //   try {
-  //     await navigator.clipboard.writeText(embedCode);
-  //     toast.success("Embed code copied to clipboard!");
-  //   } catch (err) {
-  //     console.error("Failed to copy: ", err);
-  //     toast.error("Failed to copy embed code. Please try again.");
-  //   }
-  // };
-  // ==============================================
-
   // ===== BEGIN TIER MODAL MANAGEMENT =====
 
   const [isTierModalOpen, setIsTierModalOpen] = useState(false);
@@ -358,30 +257,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
       {/* Header */}
       <ProjectHeader projectData={projectData} loading={loadingProject} />
-
-      {/* Project Status Overview */}
-      {projectData?.projectType === "DirectPayment" && (
-        <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
-          <StatisticCard
-            title="Remaining Duration"
-            loading={loadingProject}
-            value={countdown || "Calculating time left..."}
-            unit={`Until ${displayFormattedDateWithTimeZone(projectData?.deadline ?? undefined)}`}
-          />
-          <StatisticCard
-            title="Remaining Slots"
-            loading={loadingProject}
-            value={`${projectData?.slots.remaining}/${projectData?.slots.total}`}
-            unit="Slots"
-          />
-          <StatisticCard
-            title="Budget Balance"
-            loading={loadingProject || loadingTokenSymbol}
-            value={`${projectData?.budget.remaining}/${projectData?.budget.total}`}
-            unit={tokenSymbol}
-          />
-        </div>
-      )}
 
       {/* Project Description and Action Panel */}
       <div className="w-11/12 sm:w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
@@ -413,15 +288,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             )}
           </h2>
           <p className="text-gray-600 pb-4">
-            {projectData?.projectType === "DirectPayment" && isWhitelisted 
-              ? "Share your link with others and start earning!"
-              : projectData?.projectType === "EscrowPayment" && address && referralId
+            {address && referralId
               ? "Share your link with others and start earning!"
               : "Join the project to start referring others."
             }
           </p>
-          {(projectData?.projectType === "DirectPayment" && isWhitelisted) ||
-           (projectData?.projectType === "EscrowPayment" && address && referralId) ? (
+          {(address && referralId) ? (
             <div className="flex flex-col gap-3">
               <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
                 <input
@@ -438,21 +310,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   {buttonLabel}
                 </button>
               </div>
-              {/* ============================================== */}
-              {/* This code manages the embed images feature for affiliates to select and display ads within projects. */}
-              {/* Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426). */}
-              {/* Uncomment to re-enable the embed images feature in the future. */}
-              {/* {projectData?.projectType === "EscrowPayment" && address && referralId && (
-                <>
-                  <button
-                    className="bg-green-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-                    onClick={() => setIsEmbedModalOpen(true)}
-                  >
-                    Show Embed Code
-                  </button>
-                </>
-              )} */}
-              {/* ============================================== */}
             </div>
           ) : (
             <button
@@ -466,68 +323,66 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       </div>
 
       {/* Conversion Points Table */}
-      {projectData?.projectType === "EscrowPayment" && (
-        <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
-          <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
-            {projectData.conversionPoints?.every(point => !point.isActive) && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-                <strong className="font-bold">Notice:</strong>
-                <span className="block sm:inline"> All conversion points are currently inactive. New users cannot join this project at the moment.</span>
-              </div>
-            )}
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Reward Details</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Below are the reward details for each conversion point, including whether each point is currently active or inactive. You can see the reward type and value associated with each point.
-            </p>
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Activate/Deactivate</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {projectData.conversionPoints && projectData.conversionPoints.length > 0 ? (
-                  projectData.conversionPoints.map((point, index) => (
-                    <tr key={point.id}>
-                      <td className="px-6 py-4 max-w-[200px] overflow-hidden truncate">{point.title}</td>
-                      <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
-                      <td className="px-6 py-4 overflow-hidden truncate">
-                        {point.paymentType === "FixedAmount" ? point.rewardAmount : 
-                        point.paymentType === "RevenueShare" ? `${point.percentage}%` : 
-                        point.paymentType === "Tiered" && point.tiers ? (
-                          <div className="flex items-center">
-                            <span>{`${point.tiers.length} Tiers`}</span>
-                            <button 
-                              onClick={() => point.tiers && openTierModal(point.tiers)} 
-                              className="ml-2"
-                            >
-                              <Image src="/assets/common/new-tab.png" alt="new-tab.png" width={15} height={15} />
-                            </button>
-                          </div>
-                        ) : ""}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <ToggleButton 
-                          isOn={point.isActive} 
-                          onToggle={() => {}}
-                          disabled={true} 
-                        />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
+      <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
+        <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
+          {projectData && projectData.conversionPoints.every(point => !point.isActive) && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+              <strong className="font-bold">Notice:</strong>
+              <span className="block sm:inline"> All conversion points are currently inactive. New users cannot join this project at the moment.</span>
+            </div>
+          )}
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Reward Details</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Below are the reward details for each conversion point, including whether each point is currently active or inactive. You can see the reward type and value associated with each point.
+          </p>
+          <table className="w-full">
+            <thead>
+              <tr>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Activate/Deactivate</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {projectData && projectData.conversionPoints.length > 0 ? (
+                projectData!.conversionPoints.map((point, index) => (
+                  <tr key={point.id}>
+                    <td className="px-6 py-4 max-w-[200px] overflow-hidden truncate">{point.title}</td>
+                    <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
+                    <td className="px-6 py-4 overflow-hidden truncate">
+                      {point.paymentType === "FixedAmount" ? point.rewardAmount : 
+                      point.paymentType === "RevenueShare" ? `${point.percentage}%` : 
+                      point.paymentType === "Tiered" && point.tiers ? (
+                        <div className="flex items-center">
+                          <span>{`${point.tiers.length} Tiers`}</span>
+                          <button 
+                            onClick={() => point.tiers && openTierModal(point.tiers)} 
+                            className="ml-2"
+                          >
+                            <Image src="/assets/common/new-tab.png" alt="new-tab.png" width={15} height={15} />
+                          </button>
+                        </div>
+                      ) : ""}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <ToggleButton 
+                        isOn={point.isActive} 
+                        onToggle={() => {}}
+                        disabled={true} 
+                      />
+                    </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
       {isTierModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 p-5">
@@ -537,7 +392,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       )}
 
-      {projectData?.projectType === "EscrowPayment" && address && referralId && referralData &&
+      {address && referralId && referralData &&
         <>
           <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
             {/* <StatisticCard
@@ -614,57 +469,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
         </>
       }
-
-      {/* ============================================== */}
-      {/* This code manages the embed images feature for affiliates to select and display ads within projects. */}
-      {/* Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426). */}
-      {/* Uncomment to re-enable the embed images feature in the future. */}
-      {/* {isEmbedModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-md p-6 m-2 max-w-xl">
-            <div className="flex flex-row justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Embed Code</h2>
-              <button onClick={() => setIsEmbedModalOpen(false)} >
-                <Image src="/assets/common/close-black.png" alt="Close Icon" width={15} height={15} />
-              </button>
-            </div>
-            <textarea
-              readOnly
-              value={embedCode}
-              className="w-full p-2 border outline-none border-[#D1D5DB] rounded-lg text-sm mb-4"
-              rows={6}
-            />
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={copyEmbedCodeToClipboard}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-              >
-                Copy to Clipboard
-              </button>
-            </div>
-            <h3 className="text-lg font-semibold mt-4">Preview</h3>
-            <div className="mt-4 border border-gray-300 p-2 rounded overflow-hidden max-w-full flex flex-col items-center justify-center">
-              <div className="my-4">
-                <Image
-                  src={(projectData as EscrowPaymentProjectData).embeds[currentEmbedIndex] as string}
-                  alt="Preview Image"
-                  layout="responsive"
-                  width={300}
-                  height={200}
-                  className="object-contain"
-                />
-              </div>
-              {(projectData as EscrowPaymentProjectData).embeds.length > 1 && (
-                <div className="flex gap-5 w-full">
-                  <button onClick={handlePreviousEmbed} className="bg-blue-300 hover:bg-blue-500 hover:text-white flex-1 p-2 rounded">Previous</button>
-                  <button onClick={handleNextEmbed} className="bg-green-300 hover:bg-green-500 hover:text-white flex-1 p-2 rounded">Next</button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )} */}
-      {/* ============================================== */}
 
     </div>
   );

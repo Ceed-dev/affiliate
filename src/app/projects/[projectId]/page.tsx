@@ -5,8 +5,8 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { NavBar, BarChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
-import { ProjectData, EscrowPaymentProjectData, ExtendedReferralData, PaymentTransaction, ConversionLog, ClickData } from "../../types";
-import { fetchProjectData, fetchReferralsByProjectId, fetchTransactionsForReferrals, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
+import { ProjectData, ExtendedReferralData, ConversionLog, ClickData } from "../../types";
+import { fetchProjectData, fetchReferralsByProjectId, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
 import { formatBalance } from "../../utils/formatUtils";
 import { chainRpcUrls } from "../../constants/chains";
@@ -142,22 +142,20 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   }, [referralData]);
 
   useEffect(() => {
-    if (projectData?.projectType === "EscrowPayment") {
-      const fetchApiKey = async () => {
-        try {
-          const apiKeyData = await getApiKeyData(params.projectId);
-          if (apiKeyData) {
-            setApiKey(apiKeyData.apiKey);
-          }
-        } catch (error: any) {
-          console.error("Error fetching API key: ", error);
-          toast.error(`Error fetching API key: ${error.message}`);
+    const fetchApiKey = async () => {
+      try {
+        const apiKeyData = await getApiKeyData(params.projectId);
+        if (apiKeyData) {
+          setApiKey(apiKeyData.apiKey);
         }
-      };
-  
-      fetchApiKey();
-    }
-  }, [params.projectId, projectData?.projectType]);  
+      } catch (error: any) {
+        console.error("Error fetching API key: ", error);
+        toast.error(`Error fetching API key: ${error.message}`);
+      }
+    };
+
+    fetchApiKey();
+  }, [params.projectId]);  
 
   const handleCopyApiKey = () => {
     if (apiKey) {
@@ -173,7 +171,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   return (
     <>
-      <NavBar projectId={params.projectId} projectType={projectData?.projectType!} />
+      <NavBar projectId={params.projectId} />
       <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
 
         {/* Title & API Key */}

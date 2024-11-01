@@ -23,7 +23,7 @@ const deleteAllFilesInFolder = async (folderPath: string) => {
 };
 
 // Project deletion function (including storage deletion)
-export const deleteProject = async (projectId: string) => {
+export const deleteProjectFromFirebase = async (projectId: string) => {
   try {
     await runTransaction(db, async (transaction) => {
       // Step 1: Remove the project from the projects collection

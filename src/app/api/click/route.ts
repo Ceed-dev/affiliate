@@ -4,7 +4,7 @@ import {
   validateApiKey, logErrorToFirestore,
 } from "../../utils/firebase";
 import { fetchLocationData } from "../../utils/countryUtils";
-import { ClickData, EscrowPaymentProjectData } from "../../types";
+import { ClickData } from "../../types";
 
 /**
  * Handles the GET request when a referral link is clicked.
@@ -117,26 +117,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Step 8: Check if project type is EscrowPayment and retrieve the redirect URL
-    let redirectUrl: string | null = null;
-    if (projectData.projectType === "EscrowPayment") {
-      redirectUrl = (projectData as EscrowPaymentProjectData).redirectUrl;
-    } else {
-      return NextResponse.json(
-        { error: "Project type does not support redirection" },
-        { status: 400 }  // Bad Request - Unsupported project type
-      );
-    }
-
-    if (!redirectUrl) {
-      return NextResponse.json(
-        { error: "Redirect URL not found in project data" },
-        { status: 500 }  // Internal Server Error - Redirect URL missing
-      );
-    }
-
-    // Step 9: Redirect the user to the project's redirect URL with the referral ID as a query parameter
-    const url = new URL(redirectUrl);
+    // Step 8: Redirect the user to the project's redirect URL with the referral ID as a query parameter
+    const url = new URL(projectData.redirectUrl);
     url.searchParams.append("r", referralId);
 
     return NextResponse.redirect(url.toString(), 302);

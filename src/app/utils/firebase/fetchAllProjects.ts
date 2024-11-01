@@ -1,42 +1,43 @@
 import { db } from "./firebaseConfig";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { isValidProjectData } from "../validationUtils";
-import { ProjectData, DirectPaymentProjectData, EscrowPaymentProjectData } from "../../types";
+import { ProjectData } from "../../types";
 import { toast } from "react-toastify";
 
+/**
+ * Fetches all projects from Firestore, validates, and returns them in the correct format.
+ * @returns {Promise<ProjectData[]>} - An array of formatted project data objects
+ * @throws {Error} - If there is an error during the fetch or data validation
+ */
 export async function fetchAllProjects(): Promise<ProjectData[]> {
   try {
     const querySnapshot = await getDocs(collection(db, "projects"));
     const projects: ProjectData[] = [];
+
     querySnapshot.forEach((doc) => {
       const data = doc.data() as ProjectData & {
         createdAt: Timestamp;
         updatedAt: Timestamp;
         lastPaymentDate?: Timestamp | null;
-        deadline?: Timestamp | null;
       };
+
       if (isValidProjectData(data)) {
-        if (data.projectType === "DirectPayment") {
-          const directPaymentProject = {
-            ...data,
-            id: doc.id,
-            createdAt: data.createdAt.toDate(),
-            updatedAt: data.updatedAt.toDate(),
-            deadline: data.deadline?.toDate() || null,
-          } as DirectPaymentProjectData;
-          projects.push(directPaymentProject);
-        } else if (data.projectType === "EscrowPayment") {
-          const escrowPaymentProject = {
-            ...data,
-            id: doc.id,
-            createdAt: data.createdAt.toDate(),
-            updatedAt: data.updatedAt.toDate(),
-            lastPaymentDate: data.lastPaymentDate?.toDate() || null,
-          } as EscrowPaymentProjectData;
-          projects.push(escrowPaymentProject);
-        }
+        // Helper function to convert Timestamp to Date
+        const convertTimestamp = (timestamp?: Timestamp | null) => timestamp?.toDate() || null;
+
+        // Format project data based on project type
+        const projectData: ProjectData = {
+          ...data,
+          id: doc.id,
+          createdAt: convertTimestamp(data.createdAt),
+          updatedAt: convertTimestamp(data.updatedAt),
+          lastPaymentDate: convertTimestamp(data.lastPaymentDate),
+        } as ProjectData;
+
+        projects.push(projectData);
       }
     });
+
     return projects;
   } catch (error) {
     console.error("Error fetching projects: ", error);

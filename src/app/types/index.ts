@@ -1,7 +1,4 @@
-import { 
-  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData,
-  ProjectData, ConversionPoint, PaymentType, Tier,
-} from "./projectData";
+import { ProjectData, ConversionPoint, PaymentType, Tier } from "./projectData";
 import { ExtendedProjectData } from "./extendedProjectData";
 import { ImageType, PreviewData } from "./imageType";
 import { ReferralData } from "./referralData";
@@ -10,7 +7,6 @@ import { AggregatedReferralData } from "./aggregatedReferralData";
 import { AffiliateInfo, UserRole } from "./affiliateInfo";
 import { UserData } from "./userData";
 import { PaymentTransaction } from "./paymentTransaction";
-import { WhitelistedAddress, WhitelistEntry } from "./whitelistedAddress";
 import { ApiKeyData } from "./apiKeyData";
 import { ConversionLog } from "./conversionLog";
 import { UnpaidConversionLog } from "./unpaidConversionLog";
@@ -19,8 +15,6 @@ import { ClickData } from "./clickData";
 import { ActiveTab } from "./admin";
 
 export type {
-  DirectPaymentProjectData,
-  EscrowPaymentProjectData,
   ProjectData,
   ExtendedProjectData,
   ConversionPoint,
@@ -35,9 +29,6 @@ export type {
   UserRole,
   UserData,
   PaymentTransaction,
-  WhitelistedAddress,
-  WhitelistEntry,
-  ProjectType,
   ApiKeyData,
   ConversionLog,
   UnpaidConversionLog,
