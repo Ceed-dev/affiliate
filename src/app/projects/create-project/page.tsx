@@ -1,523 +1,262 @@
-"use client";
+"use client"; // This directive allows the component to be rendered on the client side only
 
+// External Libraries
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { DateValueType } from "react-tailwindcss-datepicker";
+import Image from "next/image";
+
+// Components
 import { 
-  getSteps,
-  StatusBar,
-  ProjectTypeSelectionForm,
-  ProjectDetailsForm,
-  AffiliatesForm,
-  LogoForm,
-  EmbedImageForm,
-  SocialLinksForm
-} from "../../components/createProject";
-import { saveProjectToFirestore, saveApiKeyToFirestore, deleteProject } from "../../utils/firebase";
-import { approveToken, depositToken } from "../../utils/contracts";
-import { 
-  ProjectType, DirectPaymentProjectData, EscrowPaymentProjectData, 
-  ProjectData, ImageType, PreviewData, WhitelistedAddress, ConversionPoint,
-} from "../../types";
+  GeneralForm, 
+  BrandResourceForm, 
+  MemberForm, 
+  RewardForm, 
+  SaveButton 
+} from "../../components/project";
+
+// Utilities
+import {
+  handleUpdateConversionPoints,
+  createHandleChange,
+  createHandleOwnerChange,
+  createHandleImageChange,
+  createRemoveImage,
+  saveProject
+} from "../../utils/projectUtils";
+
+// Types and Interfaces
+import { ProjectData, ImageType, PreviewData, ConversionPoint } from "../../types";
+
+// Context Providers
 import { useChainContext } from "../../context/chainContext";
 
+/**
+ * Create Project Page
+ * ---------------------------
+ * This page provides a form interface for users to create a new project within the application.
+ * 
+ * Overview:
+ * - Collects necessary project information such as name, description, and branding images.
+ * - Allows configuration of chain selection, token address, and optional referral features.
+ * - Supports setting up conversion points, including options for reward types (Fixed Amount, Revenue Share, Tiered).
+ * - Includes preview functionality for uploaded images.
+ * - Saves project data to Firestore and generates an API key for integration with external systems.
+ * 
+ * Access Control:
+ * - Accessible only to authenticated users with project creation permissions.
+ * - Redirects the user to the project dashboard upon successful project creation.
+ * 
+ * Usage:
+ * - Used primarily by project owners and admins setting up new projects for the platform.
+ * - The page ensures validation of all required inputs before submission.
+ * 
+ * @page
+ * @returns {JSX.Element} Rendered Create Project page
+ */
 export default function CreateProject() {
+  // Router and context
   const router = useRouter();
   const { selectedChain } = useChainContext();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [initialStatus, setInitialStatus] = useState<string>("");
-  const [saveAndDepositStatus, setSaveAndDepositStatus] = useState<string>("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [hideSaveAndDepositButton, setHideSaveAndDepositButton] = useState(false);
-  const [projectType, setProjectType] = useState<ProjectType | null>(null);
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+
+  // ========================== State Definitions ==========================
+
+  // Holds all project data entered by the user or retrieved from the database
+  const [projectData, setProjectData] = useState<ProjectData>({
+    projectName: "",
+    description: "",
+    selectedChainId: selectedChain.chainId, // Stores the chain ID of the selected blockchain
+    selectedTokenAddress: "", // Token address associated with the project
+
+    // Media assets for project representation
+    logo: null,
+    cover: null,
+
+    // URLs related to the project
+    websiteUrl: "",
+    xUrl: "",
+    discordUrl: "",
+
+    // Affiliates and other settings
+    ownerAddresses: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    redirectUrl: "",
+
+    // Financial tracking fields
+    totalPaidOut: 0,
+    lastPaymentDate: null,
+
+    // Referral and conversion point settings
+    isReferralEnabled: false,
+    conversionPoints: [],
+  }); 
+
+  // Preview data for displaying project images before upload
   const [previewData, setPreviewData] = useState<PreviewData>({
     logoPreview: "",
     coverPreview: "",
-    // ==============================================
-    // This code manages the embed images feature for affiliates to select and display ads within projects.
-    // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-    // Uncomment to re-enable the embed images feature in the future.
-    // embedPreviews: [],
-    // ==============================================
   });
+
+  // Boolean state to enable or disable the referral feature for the project
   const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
+
+  // Stores all conversion points added to the project
   const [conversionPoints, setConversionPoints] = useState<ConversionPoint[]>([]);
 
-  const handleUpdateConversionPoints = (action: "add" | "remove", point?: ConversionPoint) => {
-    setConversionPoints(prevPoints => {
-      if (action === "add" && point) {
-        return [...prevPoints, point];
-      } else if (action === "remove" && point?.id) {
-        return prevPoints.filter(p => p.id !== point.id);
-      }
-      return prevPoints;
-    });
-  };
+  // Tracks the presence of validation errors in the social links form.
+  // - `true` indicates that one or more fields contain errors.
+  // - `false` means all fields are valid.
+  // This state is used to prevent form submission when validation errors exist.
+  const [socialLinkFormError, setSocialLinkFormError] = useState(false);
 
-  const nextStep = () => setCurrentStep(currentStep + 1);
-  const previousStep = () => setCurrentStep(currentStep - 1);
+  // Tracks the validation state of the token selection.
+  // - `true` indicates an error in the token address, validity, or ERC20 compliance.
+  // - `false` means the token selection is valid.
+  // This state is checked before form submission to ensure the token meets validation criteria.
+  const [tokenError, setTokenError] = useState(false);
 
-  const handleProjectTypeChange = (type: ProjectType) => {
-    setProjectType(type);
+  // Tracks the validation state of the redirect link.
+  // - `true` indicates an error in the redirect link format or value.
+  // - `false` means the redirect link is valid.
+  // This state is checked before form submission to ensure all fields meet the required validation criteria.
+  const [redirectLinkError, setRedirectLinkError] = useState(false);
 
-    // const status = type === "DirectPayment" ? "Save" : "Save & Deposit";
-    const status = "Save";
-    setInitialStatus(status);
-    setSaveAndDepositStatus(status);
+  // State to manage the save process: if true, saving is in progress
+  const [isSaving, setIsSaving] = useState(false);
 
-    const commonData = {
-      projectName: "",
-      description: "",
-      selectedChainId: selectedChain.chainId,
-      selectedTokenAddress: "",
-      logo: null,
-      cover: null,
-      websiteUrl: "",
-      xUrl: "",
-      discordUrl: "",
-      ownerAddresses: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  // State to manage save completion status: if true, the project has been saved successfully
+  const [isSaved, setIsSaved] = useState(false);
 
-    if (type === "DirectPayment") {
-      setProjectData({
-        ...commonData,
-        projectType: "DirectPayment",
-        whitelistedAddresses: {},
-        slots: {
-          total: 0,
-          remaining: 0,
-        },
-        budget: {
-          total: 0,
-          remaining: 0,
-        },
-        deadline: null,
-      } as DirectPaymentProjectData);
-    } else if (type === "EscrowPayment") {
-      setProjectData({
-        ...commonData,
-        projectType: "EscrowPayment",
-        redirectUrl: "",
-        totalPaidOut: 0,
-        lastPaymentDate: null,
-        // ==============================================
-        // This code manages the embed images feature for affiliates to select and display ads within projects.
-        // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-        // Uncomment to re-enable the embed images feature in the future.
-        // embeds: [],
-        // ==============================================
-        isReferralEnabled: false,
-        conversionPoints: [],
-      } as EscrowPaymentProjectData);
-    }
-  };
+  // ========================== Function Definitions ==========================
 
-  // handleChange is a higher-order function that creates an event handler for form elements.
-  // It takes a `field` string that can include dot notation for nested objects (e.g., "slots.remaining").
-  // `isNumeric` is an optional parameter that when set to true, will parse the input value as a number.
-  const handleChange = (field: string, isNumeric?: boolean, isFloat?: boolean) => 
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      let value: any;
+  /**
+   * Handles adding or removing conversion points in the project data.
+   * - Uses `handleUpdateConversionPoints` to modify the conversion points list based on the specified action.
+   * - The `setConversionPoints` state updater is passed to ensure the project data is updated.
+   *
+   * @param action - The action to perform, either "add" or "remove".
+   * @param point - The conversion point to add or remove (optional).
+   */
+  const updateConversionPoints = (action: "add" | "remove", point?: ConversionPoint) => 
+    handleUpdateConversionPoints(action, point, setConversionPoints);
 
-      // Split the `field` string into keys for accessing nested properties.
-      const keys = field.split(".");
-    
-      // Parse the event value based on the `isNumeric` and `isFloat` flags.
-      if (isNumeric) {
-        value = isFloat ? parseFloat(event.target.value) : parseInt(event.target.value, 10);
-        if (isFloat && !isNaN(value)) {
-          value = Math.round(value * 10) / 10; // Limited to one decimal place
-        }
-        if (isNaN(value)) value = 0;  // Default to 0 if parsing fails.
+  // Initialize `handleChange` with `setProjectData` to create an event handler function.
+  // This handler updates specific fields within the `projectData` state using dot notation for nested properties.
+  // `handleChange` can parse values as numeric or float types based on optional flags.
+  const handleChange = createHandleChange(setProjectData);
 
-        // Add validation for FixedAmount and RevenueShare
-        if (keys.includes("rewardAmount")) {
-          if (value < 1 || value > 10000) {
-            toast.error("Value must be between 1 and 10000.");
-            return;
-          }
-        } else if (keys.includes("percentage")) {
-          if (value < 0.1 || value > 100) {
-            toast.error("Percentage must be between 0.1 and 100.");
-            return;
-          }
-        }
-      } else {
-        value = event.target.value;
-      }
-      
-      // Set the new state of project data.
-      setProjectData(prev => {
-        if (!prev) return prev;
+  // Initialize `handleOwnerChange` with `setProjectData` to manage owner address updates in the project state.
+  // `handleOwnerChange` replaces the existing owner addresses with a provided list of new addresses.
+  const handleOwnerChange = createHandleOwnerChange(setProjectData);
 
-        // Create a shallow copy of the previous state to maintain immutability.
-        let updated = { ...prev } as any;
+  /**
+   * Initializes the image change handler for managing image uploads in the project.
+   * - Uses `setPreviewData` to update the preview display for the selected image.
+   * - Updates the actual project data with the uploaded file using `setProjectData`.
+   * 
+   * This handler enables dynamic handling of different image types (e.g., "logo", "cover") 
+   * by specifying the type directly in component calls.
+   * 
+   * Example usage:
+   * ```jsx
+   * <input
+   *   type="file"
+   *   accept="image/*"
+   *   onChange={handleImageChange("logo")}
+   * />
+   * ```
+   */
+  const handleImageChange = createHandleImageChange(setPreviewData, setProjectData);
 
-        // Traverse the keys to access the correct nested property.
-        // `item` is used to reference the current level of the state object.
-        let item = updated;
-        for (let i = 0; i < keys.length - 1; i++) {
-          if (!item[keys[i]]) {
-            item[keys[i]] = {};  // Ensure the nested object exists.
-          }
-          item = item[keys[i]];  // Navigate deeper into the nested object.
-        }
+  /**
+   * Creates a function to handle the removal of an image based on the specified type.
+   * - Clears the preview data for the specified image type (e.g., "logo" or "cover").
+   * - Sets the project data field for the specified image type to `null`.
+   *
+   * @param type - The type of image to remove (e.g., "logo" or "cover").
+   * @returns A function that, when invoked, removes the specified image from both the preview and project data states.
+   */
+  const removeImage = (type: ImageType) => createRemoveImage(setPreviewData, setProjectData, type);
 
-        // Set the new value at the final key. This updates the nested property.
-        item[keys[keys.length - 1]] = value;
-
-        // Return the updated state to update the state in React.
-        return updated;
-      });
-    };
-
-  const handleOwnerChange = async (newOwnerAddresses: string[]) => {
-    setProjectData(prevData => {
-      if (!prevData) return prevData;
-  
-      return {
-        ...prevData,
-        ownerAddresses: newOwnerAddresses
-      };
-    });
-  };
-
-  const handleDateChange = (newValue: DateValueType) => {
-    setProjectData(prev => {
-      if (!prev) return prev;
-
-      let deadline = null;
-      if (newValue?.startDate) {
-        const date = new Date(newValue.startDate);
-        date.setHours(23, 59, 59, 999);
-        deadline = date;
-      }
-      return {
-        ...prev,
-        deadline,
-      };
-    });
-  };
-
-  const handleWhitelistChange = (newWhitelistedAddresses: { [address: string]: WhitelistedAddress }) => {
-    setProjectData(prevData => {
-      if (!prevData) return prevData;
-  
-      return {
-        ...prevData,
-        whitelistedAddresses: newWhitelistedAddresses
-      };
-    });
-  };
-
-  const handleImageChange = (type: ImageType, index?: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewData(prev => {
-          // ==============================================
-          // This code manages the embed images feature for affiliates to select and display ads within projects.
-          // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-          // Uncomment to re-enable the embed images feature in the future.
-          // if (type === "embeds") {
-          //   const newPreviews = [...prev.embedPreviews];
-          //   if (index !== undefined) {
-          //     newPreviews[index] = reader.result as string;
-          //   } else {
-          //     newPreviews.push(reader.result as string);
-          //   }
-          //   return { ...prev, embedPreviews: newPreviews };
-          // } else {
-            return { ...prev, [`${type}Preview`]: reader.result as string };
-          // }
-          // ==============================================
-        });
-        setProjectData(prev => {
-          if (!prev) return prev;
-          // ==============================================
-          // This code manages the embed images feature for affiliates to select and display ads within projects.
-          // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-          // Uncomment to re-enable the embed images feature in the future.
-          // if (type === "embeds" && prev.projectType === "EscrowPayment") {
-          //   const newEmbeds = [...(prev.embeds || [])];
-          //   if (index !== undefined) {
-          //     newEmbeds[index] = file;
-          //   } else {
-          //     newEmbeds.push(file);
-          //   }
-          //   return {
-          //     ...prev,
-          //     embeds: newEmbeds
-          //   };
-          // } else {
-            return {
-              ...prev,
-              [type]: file
-            };
-          // }
-          // ==============================================
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };  
-  
-  const removeImage = (type: ImageType, index?: number) => () => {
-    setPreviewData(prev => {
-      // ==============================================
-      // This code manages the embed images feature for affiliates to select and display ads within projects.
-      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-      // Uncomment to re-enable the embed images feature in the future.
-      // if (type === "embeds") {
-      //   const newPreviews = prev.embedPreviews.filter((_, i) => i !== index);
-      //   return { ...prev, embedPreviews: newPreviews };
-      // } else {
-        return { ...prev, [`${type}Preview`]: "" };
-      // }
-      // ==============================================
-    });
-    setProjectData(prev => {
-      if (!prev) return prev;
-      // ==============================================
-      // This code manages the embed images feature for affiliates to select and display ads within projects.
-      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-      // Uncomment to re-enable the embed images feature in the future.
-      // if (type === "embeds" && prev.projectType === "EscrowPayment") {
-      //   const newEmbeds = (prev.embeds || []).filter((_, i) => i !== index);
-      //   return {
-      //     ...prev,
-      //     embeds: newEmbeds
-      //   };
-      // } else {
-        return {
-          ...prev,
-          [type]: null
-        };
-      // }
-      // ==============================================
-    });
-  };
-
-  const saveProjectAndDepositToken = async () => {
-    if (!projectData) {
-      toast.error("Project data is not available. Please try again.");
-      return;
-    }
-
-    setIsSaving(true);
-
-    let updatedProjectData: ProjectData = {
-      ...projectData,
-      selectedChainId: selectedChain.chainId,
-    };
-
-    // Set remaining values to be equal to total values
-    if (projectType === "DirectPayment") {
-      const directPaymentData = projectData as DirectPaymentProjectData;
-      updatedProjectData = {
-        ...directPaymentData,
-        slots: {
-          ...directPaymentData.slots,
-          remaining: directPaymentData.slots.total
-        },
-        budget: {
-          ...directPaymentData.budget,
-          remaining: directPaymentData.budget.total
-        }
-      };
-    }
-
-    // Include conversionPoints and other relevant data before saving to Firestore
-    if (projectType === "EscrowPayment") {
-      const escrowPaymentData = projectData as EscrowPaymentProjectData;
-
-      // Ensure the first conversion point is active
-      const updatedConversionPoints = conversionPoints.map((point, index) => ({
-        ...point,
-        isActive: index === 0 ? true : point.isActive,
-      }));
-
-      updatedProjectData = {
-        ...escrowPaymentData,
-        isReferralEnabled: isReferralEnabled,
-        conversionPoints: updatedConversionPoints, // Add conversionPoints to the project data
-      };
-    }
-
-    setSaveAndDepositStatus("Saving project to Firestore...");
-    const result = await saveProjectToFirestore(updatedProjectData);
-    if (!result) {
-      toast.error("Failed to save project. Please try again.");
-      setSaveAndDepositStatus(initialStatus);
-      setIsSaving(false);
-      return;
-    }
-    const { projectId } = result;
-
-    if (projectType === "EscrowPayment") {
-      setSaveAndDepositStatus("Generating API key...");
-      const apiKey = await saveApiKeyToFirestore(projectId);
-      if (!apiKey) {
-        toast.error("Failed to generate API key. Please try again.");
-        setSaveAndDepositStatus(initialStatus);
-        setIsSaving(false);
-        await deleteProject(projectId);
-        return;
-      }
-    }
-
-    // Remove the deposit token logic as it's no longer needed
-    /*
-    if (projectType === "EscrowPayment") {
-      const depositAmount = 10; //TODO: Fix later
-  
-      setSaveAndDepositStatus("Approving tokens...");
-      const approveSuccess = await approveToken(projectData.selectedTokenAddress, depositAmount);
-      if (!approveSuccess) {
-        toast.error("Failed to approve token. Please try again.");
-        setSaveAndDepositStatus(initialStatus);
-        setIsSaving(false);
-        await deleteProject(projectId);
-        return;
-      }
-  
-      setSaveAndDepositStatus("Depositing tokens...");
-      const depositSuccess = await depositToken(projectId, projectData.selectedTokenAddress, depositAmount);
-      if (!depositSuccess) {
-        toast.error("Failed to deposit token. Please try again.");
-        setSaveAndDepositStatus(initialStatus);
-        setIsSaving(false);
-        await deleteProject(projectId);
-        return;
-      }
-    }
-    */
-
-    setHideSaveAndDepositButton(true);
-    nextStep();
-    setIsSaving(false);
-
-    const redirectUrl = projectType === "DirectPayment" 
-      ? `/projects/${projectId}/settings`
-      : `/projects/${projectId}`;
-
-    toast.success("Project saved successfully! Redirecting to the dashboard...", {
-      onClose: () => router.push(redirectUrl)
-    });
-  };
-
-  const renderForm = () => {
-    const steps = getSteps(projectType);
-
-    switch (steps[Math.min(currentStep - 1, steps.length - 1)]) {
-      case "Type":
-        return (
-          <ProjectTypeSelectionForm
-            handleProjectTypeChange={handleProjectTypeChange}
-            nextStep={nextStep}
-          />
-        );
-      case "Details":
-        return (
-          <ProjectDetailsForm
-            data={{
-              projectType: projectType!,
-              projectName: projectData?.projectName ?? "",
-              description: projectData?.description ?? "",
-              ownerAddresses: projectData?.ownerAddresses ?? [],
-              ...(projectType === "DirectPayment" && {
-                totalSlots: (projectData as DirectPaymentProjectData).slots.total,
-                totalBudget: (projectData as DirectPaymentProjectData).budget.total,
-                deadline: (projectData as DirectPaymentProjectData).deadline,
-              }),
-            }}
-            handleChange={handleChange}
-            handleOwnerChange={handleOwnerChange}
-            handleDateChange={projectType === "DirectPayment" ? handleDateChange : undefined}
-            nextStep={nextStep}
-            previousStep={previousStep}
-          />
-        );
-      case "Socials":
-        return (
-          <SocialLinksForm
-            data={{
-              websiteUrl: projectData?.websiteUrl ?? "",
-              xUrl: projectData?.xUrl ?? "",
-              discordUrl: projectData?.discordUrl ?? "",
-            }}
-            handleChange={handleChange}
-            nextStep={nextStep}
-            previousStep={previousStep}
-          />
-        );
-      case "Logo":
-        return (
-          <LogoForm
-            data={{
-              logoPreview: previewData.logoPreview,
-              coverPreview: previewData.coverPreview,
-            }}
-            handleImageChange={handleImageChange}
-            removeImage={(type) => removeImage(type)}
-            nextStep={nextStep}
-            previousStep={previousStep}
-          />
-        );
-      // ==============================================
-      // This code manages the embed images feature for affiliates to select and display ads within projects.
-      // Temporarily disabled on [2024-10-28] in version [v2.29.6] (Issue #1426).
-      // Uncomment to re-enable the embed images feature in the future.
-      // case "Media":
-      //   return (
-      //     <EmbedImageForm
-      //       data={{
-      //         embedPreviews: previewData.embedPreviews,
-      //       }}
-      //       handleImageChange={handleImageChange}
-      //       removeImage={removeImage}
-      //       nextStep={nextStep}
-      //       previousStep={previousStep}
-      //     />
-      //   );
-      // ==============================================
-      case "Affiliates":
-        return (
-          <AffiliatesForm
-            data={{
-              projectType: projectType!,
-              selectedTokenAddress: projectData?.selectedTokenAddress ?? "",
-              whitelistedAddresses: projectType === "DirectPayment" ? (projectData as DirectPaymentProjectData)?.whitelistedAddresses ?? {} : undefined,
-              redirectUrl: projectType === "EscrowPayment" ? (projectData as EscrowPaymentProjectData)?.redirectUrl ?? "" : undefined,
-              isReferralEnabled: projectType === "EscrowPayment" ? isReferralEnabled : undefined,
-              conversionPoints: projectType === "EscrowPayment" ? conversionPoints : undefined,
-            }}
-            handleChange={handleChange}
-            handleUpdateConversionPoints={projectType === "EscrowPayment" ? handleUpdateConversionPoints : undefined}
-            handleWhitelistChange={projectType === "DirectPayment" ? handleWhitelistChange : undefined}
-            setIsReferralEnabled={projectType === "EscrowPayment" ? setIsReferralEnabled : undefined}
-            nextStep={saveProjectAndDepositToken}
-            previousStep={previousStep}
-            isSaving={isSaving}
-            hideButton={hideSaveAndDepositButton}
-            status={saveAndDepositStatus}
-          />
-        );
-      default:
-        return <div>No step selected</div>;
-    }
+  /**
+   * Handles saving the project data by calling the `saveProject` function with necessary parameters.
+   * - This function consolidates and validates the project data before initiating the save process.
+   * - Invokes `saveProject`, which performs the required validation checks and saves the data to Firestore.
+   * - Sets appropriate loading and saved states to provide user feedback during the save process.
+   *
+   * @returns A promise that resolves once the project data has been processed and saved.
+   */
+  const handleSaveProject = async () => {
+    await saveProject(
+      projectData,               // Object containing all the project's main data fields
+      selectedChain.chainId,     // The ID of the blockchain chain selected for this project
+      conversionPoints,          // Array of conversion points associated with the project
+      isReferralEnabled,         // Boolean indicating if the referral feature is enabled
+      socialLinkFormError,       // Error state for social link validation
+      tokenError,                // Error state for token selection
+      redirectLinkError,         // Error state for redirect link validation
+      setIsSaving,               // Function to set the loading state during the save process
+      setIsSaved,                // Function to set the saved state upon successful save
+      router                     // Next.js router for page navigation upon completion
+    );
   };
 
   return (
-    <div className="flex flex-col">
-      <StatusBar currentStep={currentStep} projectType={projectType} />
-      <div className="w-11/12 md:w-8/12 mx-auto">
-        {renderForm()}
+    <div className="bg-white flex flex-col items-center py-20">
+      <div className="w-full max-w-4xl space-y-10">
+        <h1 className="font-bold text-3xl">Project Setup</h1>
+        <GeneralForm
+          projectName={projectData.projectName}
+          description={projectData.description}
+          handleChange={handleChange}
+        />
+        <BrandResourceForm
+          websiteUrl={projectData.websiteUrl}
+          xUrl={projectData.xUrl}
+          discordUrl={projectData.discordUrl}
+          logoPreview={previewData.logoPreview}
+          coverPreview={previewData.coverPreview}
+          handleChange={handleChange}
+          handleImageChange={handleImageChange}
+          removeImage={removeImage}
+          setSocialLinkFormError={setSocialLinkFormError}
+        />
+        <MemberForm
+          ownerAddresses={projectData.ownerAddresses}
+          handleOwnerChange={handleOwnerChange}
+        />
+        <RewardForm
+          isReferralEnabled={isReferralEnabled}
+          selectedTokenAddress={projectData.selectedTokenAddress}
+          conversionPoints={conversionPoints}
+          redirectUrl={projectData.redirectUrl}
+          handleChange={handleChange}
+          setIsReferralEnabled={setIsReferralEnabled}
+          handleUpdateConversionPoints={updateConversionPoints}
+          setTokenError={setTokenError}
+          setRedirectLinkError={setRedirectLinkError}
+        />
+        <SaveButton 
+          onClick={handleSaveProject}
+          disabled={isSaving || isSaved}
+        >
+          {isSaving ? (
+            <div className="flex flex-row items-center justify-center gap-5">
+              <Image 
+                src={"/assets/common/loading.png"} 
+                height={30} 
+                width={30} 
+                alt="loading.png" 
+                className="animate-spin" 
+              />
+              <span className="animate-pulse">Saving...</span>
+            </div>
+          ) : isSaved ? (
+            <span className="text-green-500 font-bold">Saved!</span>
+          ) : (
+            "Save"
+          )}
+        </SaveButton>
       </div>
     </div>
   );
