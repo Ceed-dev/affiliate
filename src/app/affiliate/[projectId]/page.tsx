@@ -440,14 +440,14 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           </div>
 
           {/* World Heatmap */}
-          <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
+          {/* <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
             <WorldHeatmap
               dataPoints={clickData}
               unitLabel="clicks"
               projectId={params.projectId}
               useTestData={false}
             />
-          </div>
+          </div> */}
 
           {/* {loadingTransactionData
             ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
@@ -463,7 +463,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
               </div>
             : <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10">
-                <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} />
+                <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
               </div>
           }
 
