@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAddress, useDisconnect } from "@thirdweb-dev/react";
 import { formatAddress } from "../utils/formatUtils";
@@ -15,6 +15,7 @@ export default function AffiliateLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
+  const pathname = usePathname();
   const address = useAddress();
   const disconnect = useDisconnect();
   const [showDisconnect, setShowDisconnect] = useState(false);
@@ -49,22 +50,47 @@ export default function AffiliateLayout({
     }
   }, [address, router]);
 
+  const isMarketplacePath = pathname.endsWith("marketplace"); // Check if the path ends with "marketplace"
+
   return (
     <>
-      <div className="flex flex-row justify-between px-3 md:px-10 py-2 border-b-2 border-sky-500 shadow-md bg-slate-100">
-        <div className="flex flex-row items-center gap-3 md:gap-20">
+      <div className="flex flex-row justify-between px-3 md:px-10 py-2 shadow-md bg-slate-100">
+        <div className={`w-full flex flex-row items-center ${isMarketplacePath ? "justify-center" : "justify-between"}`}>
+          {/* Conditionally render the back button */}
+          {!isMarketplacePath && (
+            <Link href="/affiliate/marketplace">
+              <Image
+                src="/assets/common/left-arrow.png"
+                alt="Go Back Icon"
+                width={20}
+                height={20}
+              />
+            </Link>
+          )}
           <Link href="/#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
             <Image
               src="/qube.png"
               alt="qube.png"
-              width={50}
-              height={50}
+              width={40}
+              height={40}
             />
             <p className="text-lg font-semibold">Qube</p>
           </Link>
-          <Link className="text-sm text-gray-500 hover:text-black" href="/affiliate/marketplace">Marketplace</Link>
+          {/* Conditionally render the share button */}
+          {!isMarketplacePath && (
+            // <button>
+            //   <Image
+            //     src="/assets/common/share.png"
+            //     alt="Share Icon"
+            //     width={20}
+            //     height={20}
+            //   />
+            // </button>
+            <div></div>
+          )}
+          {/* <Link className="text-sm text-gray-500 hover:text-black" href="/affiliate/marketplace">Marketplace</Link> */}
         </div>
-        <div className="flex flex-row items-center gap-5 relative">
+        {/* <div className="flex flex-row items-center gap-5 relative">
           <ChainSelector useSwitch={true} />
           <button
             className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
@@ -85,7 +111,7 @@ export default function AffiliateLayout({
               Disconnect
             </button>
           )}
-        </div>
+        </div> */}
       </div>
       {children}
     </>
