@@ -18,18 +18,23 @@ const getRandomColor = () => {
 // Define the component's prop types
 type BarChartProps = {
   dataMap: Record<string, (PaymentTransaction | ConversionLog | ClickData)[]>;
+  timeRange: "week" | "month";
 };
 
 // BarChart component to display data over date
-export const BarChart: React.FC<BarChartProps> = ({ dataMap }) => {
+export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
   // Define the range of dates to display in the chart
   const today = new Date();
-  const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+  const rangeStartDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - (timeRange === "week" ? 7 : 30) // Adjust range based on timeRange
+  );
 
   const labels: string[] = [];
   const datasets: ChartDataset<"bar", number[]>[] = [];
 
-  for (let day = new Date(oneMonthAgo); day <= today; day.setDate(day.getDate() + 1)) {
+  for (let day = new Date(rangeStartDate); day <= today; day.setDate(day.getDate() + 1)) {
     const key = `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
     labels.push(key);
   }
@@ -37,7 +42,7 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap }) => {
   Object.entries(dataMap).forEach(([title, transactions], index) => {
     const transactionCounts = transactions.reduce<Record<string, number>>((acc, transaction) => {
       const transactionDate = new Date(transaction.timestamp);
-      if (transactionDate >= oneMonthAgo && transactionDate <= today) {
+      if (transactionDate >= rangeStartDate && transactionDate <= today) {
         const key = `${transactionDate.getFullYear()}-${transactionDate.getMonth() + 1}-${transactionDate.getDate()}`;
         acc[key] = (acc[key] || 0) + 1;
       }
