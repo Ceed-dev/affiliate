@@ -49,7 +49,7 @@ export default function Marketplace() {
             <p className="text-sm text-gray-500">Check back later for new opportunities to join exciting projects.</p>
           </div>
         ) : (
-          <div className="mt-6 grid grid-cols-2">
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
             {projects.map((project: ExtendedProjectData) => (
               <ProjectCard 
                 key={project.id} 
