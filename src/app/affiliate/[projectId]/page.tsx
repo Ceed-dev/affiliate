@@ -268,69 +268,30 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         />
       }
 
-      {/* Project Description and Action Panel */}
-      <div className="w-11/12 sm:w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
-        {/* Project Description Container */}
-        <div className={`basis-3/5 border rounded-lg shadow-md p-6 text-lg bg-white ${loadingProject ? "animate-pulse" : ""}`}>
-          {isDescriptionExpanded ? description : `${description.substring(0, 350)}${shouldShowDescriptionToggle ? "..." : ""}`}
-          {shouldShowDescriptionToggle && (
-            <button onClick={toggleDescriptionExpand} className="text-blue-500 hover:underline ml-2">
-              {isDescriptionExpanded ? "Read less" : "Read more"}
-            </button>
-          )}
-        </div>
-        {/* Join Project and Referral Actions */}
-        <div className="basis-2/5 border rounded-lg shadow-md p-6 h-min bg-white">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Earn <span className="bg-green-200 px-2 py-1 rounded-md border border-white">{tokenSymbol}</span> for each successful referral
-            {chainName && (
-              <>
-                {" on "}
-                <span className="text-purple-700 underline animate-pulse">{chainName}</span>
-                <Image 
-                  src={`/chains/${formatChainName(chainName)}.png`} 
-                  alt={chainName} 
-                  width={18} 
-                  height={18} 
-                  className="m-1 inline" 
-                />
-              </>
-            )}
-          </h2>
-          <p className="text-gray-600 pb-4">
-            {address && referralId
-              ? "Share your link with others and start earning!"
-              : "Join the project to start referring others."
-            }
+      {/* Invite Code Panel */}
+      {referralLink && (
+        <div className="bg-slate-200 rounded-lg p-5">
+          <p className="text-green-500 font-bold mb-2">Joined!</p>
+          <p className="font-semibold">Invite Code</p>
+          <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
+            {referralLink}
           </p>
-          {(address && referralId) ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex bg-[#F3F4F6] rounded-md p-2 gap-3">
-                <input
-                  type="text"
-                  value={referralLink}
-                  readOnly
-                  className="font-roboto text-sm bg-transparent outline-none w-full"
-                />
-                <button
-                  type="button"
-                  className="text-sm text-[#2563EB] font-bold bg-transparent hover:underline"
-                  onClick={copyReferralLinkToClipboard}
-                >
-                  {buttonLabel}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              className="bg-sky-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-              onClick={handleJoinProject}
-            >
-              Join Project
-            </button>
-          )}
+          <button
+            type="button"
+            className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-2xl py-2 mt-2"
+            onClick={copyReferralLinkToClipboard}
+          >
+            Copy
+          </button>
         </div>
-      </div>
+      )}
+
+      <button
+        className="bg-sky-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+        onClick={handleJoinProject}
+      >
+        Join Project
+      </button>
 
       {/* Conversion Points Table */}
       <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
