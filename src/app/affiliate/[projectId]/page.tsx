@@ -1,210 +1,234 @@
 "use client";
 
+// React and Next.js Imports
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
+
+// Libraries and External Utilities
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
-import { ProjectData, ReferralData, ConversionLog, ClickData, Tier } from "../../types";
+
+// Components
 import { ProjectHeader, ConversionPointsTable } from "../../components/project";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
+
+// Types
+import { ProjectData, ReferralData, ConversionLog, ClickData, Tier } from "../../types";
+
+// Firebase and Blockchain Utilities
 import { 
-  fetchProjectData, fetchReferralData, joinProject, 
-  fetchConversionLogsForReferrals, fetchClickData,
+  fetchProjectData, 
+  fetchReferralData, 
+  joinProject, 
+  fetchConversionLogsForReferrals, 
+  fetchClickData 
 } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
+
+// Date Utilities and Constants
 import { getNextPaymentDate, getTimeZoneSymbol } from "../../utils/dateUtils";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";
 
+/**
+ * Affiliate Page
+ * ---------------------------
+ * This page displays the details of an affiliate project for users.
+ * 
+ * Overview:
+ * - Renders project information such as header details, invite codes, analytics, and conversion charts.
+ * - Provides users with an interface to join the project and view rewards and conversion points.
+ * - Retrieves project data, referral data, and user-specific analytics from the database.
+ * - Shows loading states and handles errors for seamless data fetching.
+ * 
+ * Props:
+ * - `params`: Contains route parameters, specifically the `projectId` which identifies the project.
+ * 
+ * @component
+ * @param {Object} params - Contains the route parameters.
+ * @param {string} params.projectId - The ID of the project to display.
+ * @returns {JSX.Element} Rendered Affiliate project page.
+ */
 export default function Affiliate({ params }: { params: { projectId: string } }) {
   const address = useAddress();
 
+  // ========================= State Variables ===========================
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
-  const [loadingReferral, setLoadingReferral] = useState(true);
-
   const [referralId, setReferralId] = useState<string | null>(null);
 
   const [conversionLogs, setConversionLogs] = useState<ConversionLog[]>([]);
-  const [loadingConversionLogs, setLoadingConversionLogs] = useState(true);
-
   const [clickData, setClickData] = useState<ClickData[]>([]);
-  const [loadingClickData, setLoadingClickData] = useState(true);
-
+  
   const [tokenSymbol, setTokenSymbol] = useState("");
-  const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
+  const [chainName, setChainName] = useState<string | undefined>();
+
+  // Loading states
+  const [loading, setLoading] = useState({
+    project: true,
+    referral: true,
+    tokenSymbol: true,
+    conversionLogs: true,
+    clickData: true,
+  });
 
   const [referralLink, setReferralLink] = useState("");
 
+  // ====================== Effect Hooks =======================
+
+  // Fetch project data and set referral link
   useEffect(() => {
-    const updateReferralLink = () => {
-      if (referralId && projectData) {
-        // The conditional logic here checks if the project ID matches "FX26BxKbDVuJvaCtcTDf" (DBR project).
-        // For this specific project, we continue using the old referral link format for compatibility reasons
-        // to avoid requiring existing clients and affiliates to update their referral links.
-        // For all other projects, the new referral link format is used, which includes the target URL (t)
-        // as a query parameter. This optimization reduces unnecessary database lookups by passing
-        // the redirect URL directly, improving performance and reducing latency.
-        if (projectData.id === "FX26BxKbDVuJvaCtcTDf") {
-          setReferralLink(`${projectData.redirectUrl}?r=${referralId}`);
-        } else {
-          // The target URL (t) is included in the referral link to optimize performance.
-          // By passing the redirect URL (projectData.redirectUrl) as the `t` parameter in the API call, 
-          // we avoid unnecessary database lookups on the server side. This ensures the API can 
-          // directly use the provided URL for redirection, reducing latency and server load.
-          setReferralLink(`${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(projectData.redirectUrl)}`);
-        }
-      } else {
-        setReferralLink("");
+    const fetchProjectDetails = async () => {
+      try {
+        const data = await fetchProjectData(params.projectId);
+        setProjectData(data);
+        setReferralLink(generateReferralLink(data, referralId));
+      } catch (error) {
+        handleError("project", error);
+      } finally {
+        setLoading(prev => ({ ...prev, project: false }));
       }
     };
-  
-    updateReferralLink();
-  }, [address, projectData, referralId]);  
+    fetchProjectDetails();
+  }, [params.projectId, referralId]);
 
-  useEffect(() => {
-    fetchProjectData(params.projectId)
-      .then(data => {
-        setProjectData(data);
-      })
-      .catch(error => {
-        const message = (error instanceof Error) ? error.message : "Unknown error";
-        console.error("Error loading the project: ", message);
-        toast.error(`Error loading the project: ${message}`);
-      });
-  }, [params.projectId]);
-
+  // Fetch token symbol if project data is available
   useEffect(() => {
     if (!projectData) return;
-
-    const fetchTokenDetails = async () => {
+    const fetchTokenSymbol = async () => {
       try {
-        const predefinedToken = (popularTokens[projectData.selectedChainId] || []).find(token => token.address === projectData.selectedTokenAddress);
-
-        if (predefinedToken) {
-          setTokenSymbol(predefinedToken.symbol);
-        } else {
-          const rpcUrl = chainRpcUrls[projectData.selectedChainId];
-          if (!rpcUrl) {
-            throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
-          }
-
-          const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
-          const symbol = await erc20.getSymbol();
-          setTokenSymbol(symbol);
-        }
-      } catch (error: any) {
-        console.error("Error fetching token details: ", error);
-        toast.error(`Error fetching token details: ${error.message}`);
+        const symbol = await getTokenSymbol(projectData.selectedChainId, projectData.selectedTokenAddress);
+        setTokenSymbol(symbol);
+      } catch (error) {
+        handleError("tokenSymbol", error);
       } finally {
-        setLoadingTokenSymbol(false);
+        setLoading(prev => ({ ...prev, tokenSymbol: false }));
       }
     };
-
-    fetchTokenDetails();
+    fetchTokenSymbol();
   }, [projectData]);
 
+  // Fetch referral data if referral ID is available
   useEffect(() => {
-    if (referralId) {
-      fetchReferralData(referralId)
-        .then(data => {
-          setReferralData(data);
-          setLoadingReferral(false);
-        })
-        .catch(error => {
-          const message = (error instanceof Error) ? error.message : "Unknown error";
-          console.error("Error loading the referral: ", message);
-          toast.error(`Error loading the referral: ${message}`);
-          setLoadingReferral(false);
-        });
-    }
-  }, [referralId]);
-
-  useEffect(() => {
-    if (referralData) {
-      fetchConversionLogsForReferrals([referralData], setConversionLogs)
-        .then(() => {
-          setLoadingConversionLogs(false);
-        })
-        .catch(error => {
-          const message = (error instanceof Error) ? error.message : "Unknown error";
-          console.error("Error loading conversion logs: ", message);
-          toast.error(`Error loading conversion logs: ${message}`);
-          setLoadingConversionLogs(false);
-        })
-      
-      fetchClickData(referralId!)
-        .then(data => {
-          // Include referralId in the click data and handle the case where referralId is null
-          const clicksWithReferralId = data.map(click => ({
-            ...click,
-            referralId: referralId || undefined,  // Convert null to undefined
-          }));
-          
-          // Set the modified click data
-          setClickData(clicksWithReferralId);
-          setLoadingClickData(false);
-        })
-        .catch(error => {
-          const message = (error instanceof Error) ? error.message : "Unknown error";
-          console.error("Error loading click data: ", message);
-          toast.error(`Error loading click data: ${message}`);
-          setLoadingClickData(false);
-        });
-    }
-  }, [referralData, referralId]);
-
-  // ============== Get Chain Name =============
-  const [chainName, setChainName] = useState<string | undefined>();
-
-  useEffect(() => {
-    const fetchChainName = async () => {
+    if (!referralId) return;
+    const fetchReferralDetails = async () => {
       try {
-        const chain = await getChainByChainIdAsync(projectData?.selectedChainId!);
-        setChainName(chain.name);
+        const data = await fetchReferralData(referralId);
+        setReferralData(data);
       } catch (error) {
-        console.error(`Failed to get chain name for chain ID ${projectData?.selectedChainId}:`, error);
+        handleError("referral", error);
+      } finally {
+        setLoading(prev => ({ ...prev, referral: false }));
       }
     };
+    fetchReferralDetails();
+  }, [referralId]);
 
-    if (projectData?.selectedChainId) {
-      fetchChainName();
-    }
+  // Fetch chain name if chain ID is available in project data
+  useEffect(() => {
+    if (!projectData?.selectedChainId) return;
+    const fetchChainNameAsync = async () => {
+      try {
+        const chain = await getChainByChainIdAsync(projectData.selectedChainId);
+        setChainName(chain.name);
+      } catch (error) {
+        console.error("Failed to get chain name:", error);
+      }
+    };
+    fetchChainNameAsync();
   }, [projectData?.selectedChainId]);
-  // ===========================================
+
+  // Fetch conversion logs and click data if referral data is available
+  useEffect(() => {
+    if (!referralData) return;
+
+    const fetchAnalyticsData = async () => {
+      try {
+        const logs = await fetchConversionLogsForReferrals([referralData]);
+        setConversionLogs(logs);
+        setLoading(prev => ({ ...prev, conversionLogs: false }));
+        
+        const clicks = await fetchClickData(referralId!);
+        setClickData(clicks);
+        setLoading(prev => ({ ...prev, clickData: false }));
+      } catch (error) {
+        handleError("conversionLogs or clickData", error);
+      }
+    };
+    fetchAnalyticsData();
+  }, [referralData, referralId]);
+
+  // ====================== Helper Functions =======================
 
   const handleJoinProject = async () => {
     const allConversionPointsInactive = projectData!.conversionPoints.every(point => !point.isActive);
     try {
       const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive);
-      console.log("Referral ID from existing user: ", referralId);
       setReferralId(referralId);
-    } catch (error: any) {
-      console.error("Failed to join project: ", error);
-      toast.error(`Failed to join project: ${error.message}`);
+    } catch (error) {
+      handleError("join project", error);
     }
   };
 
-  const calculateEarningsAndConversions = (conversionLogs: ConversionLog[], currentMonth: Date): { totalEarnings: number, totalConversions: number } => {
+  /**
+   * Generates the referral link based on the project data and referral ID.
+   * 
+   * For the project with ID "FX26BxKbDVuJvaCtcTDf" (DBR project), the old referral link format is used to ensure
+   * compatibility, preventing the need for existing clients and affiliates to update their referral links.
+   * 
+   * For all other projects, the new referral link format is used, including the target URL (`t`) as a query parameter.
+   * This approach reduces unnecessary database lookups by passing the redirect URL directly, improving performance 
+   * and reducing latency on the server side. The API can then use this URL for redirection without additional queries.
+   * 
+   * @param {ProjectData} data - The project data containing redirect URL and project ID
+   * @param {string | null} referralId - The referral ID associated with the affiliate
+   * @returns {string} - The generated referral link based on the project's compatibility requirements
+   */
+  const generateReferralLink = (data: ProjectData, referralId: string | null) => {
+    if (!referralId) return "";
+
+    // Conditional logic to check if the project ID matches the DBR project
+    if (data.id === "FX26BxKbDVuJvaCtcTDf") {
+      // Use the old referral link format for DBR project compatibility
+      return `${data.redirectUrl}?r=${referralId}`;
+    } else {
+      // Use the new referral link format with the target URL (`t`) for all other projects
+      return `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(data.redirectUrl)}`;
+    }
+  };
+
+  const getTokenSymbol = async (chainId: number, tokenAddress: string) => {
+    const predefinedToken = (popularTokens[chainId] || []).find(token => token.address === tokenAddress);
+    if (predefinedToken) return predefinedToken.symbol;
+
+    const rpcUrl = chainRpcUrls[chainId];
+    if (!rpcUrl) throw new Error(`RPC URL for chain ID ${chainId} not found.`);
+    
+    const erc20 = new ERC20(tokenAddress, getProvider(rpcUrl));
+    return await erc20.getSymbol();
+  };
+
+  const handleError = (context: string, error: any) => {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error(`Error in ${context}: `, message);
+    toast.error(`Error in ${context}: ${message}`);
+  };
+
+  const calculateEarningsAndConversions = (conversionLogs: ConversionLog[], currentMonth: Date) => {
     const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-  
     const filteredLogs = conversionLogs.filter(log => {
       const logDate = new Date(log.timestamp);
-      return logDate >= startOfMonth && logDate <= endOfMonth;
+      return logDate >= startOfMonth;
     });
-  
+
     const totalEarnings = filteredLogs.reduce((sum, log) => sum + log.amount, 0);
-    const totalConversions = filteredLogs.length;
-  
-    return { totalEarnings, totalConversions };
+    return { totalEarnings, totalConversions: filteredLogs.length };
   };
 
   const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
-  
+
   const copyReferralLinkToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(referralLink);
@@ -270,19 +294,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                 <div className="grid grid-cols-2 gap-3">
                   <StatisticCard
                     title="Conversions (This month)"
-                    loading={loadingReferral || loadingConversionLogs}
+                    loading={loading.referral || loading.conversionLogs}
                     value={`${totalConversions}`}
                     unit="TIMES"
                   />
                   <StatisticCard
                     title="Earnings (This month)"
-                    loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
+                    loading={loading.referral || loading.tokenSymbol || loading.conversionLogs}
                     value={`${totalEarnings}`}
                     unit={tokenSymbol}
                   />
                   <StatisticCard
                     title="Total Clicks (All time)"
-                    loading={loadingClickData}
+                    loading={loading.clickData}
                     value={`${clickData.length}`}
                     unit="TIMES"
                   />
@@ -298,7 +322,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               {/* Conversion Chart */}
               <div className="space-y-2">
                 <h1 className="font-bold">Click/Conversion Chart</h1>
-                {loadingConversionLogs || loadingClickData ? (
+                {loading.conversionLogs || loading.clickData ? (
                   <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
                     <Image
                       src="/assets/common/loading.png"

@@ -32,7 +32,7 @@ export const ConversionPointsTable: React.FC<ConversionPointsTableProps> = ({ co
         )}
 
         {/* List of active conversion points */}
-        <div className="divide-y divide-gray-200 space-y-2">
+        <div className="space-y-2">
           {conversionPoints
             .filter(point => point.isActive) // Only display active conversion points
             .map(point => (
