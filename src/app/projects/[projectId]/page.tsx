@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { NavBar, BarChart, StatisticCard, AffiliatesList } from "../../components/dashboard";
+import { NavBar, AffiliatesList } from "../../components/dashboard";
+import { BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { ProjectData, ExtendedReferralData, ConversionLog, ClickData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
@@ -204,28 +205,6 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             </div>
           )}
         </div>
-
-        {/* Statistic Cards */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <StatisticCard
-            title="Deposit Balance"
-            loading={loadingDepositBalance || loadingTokenSymbol}
-            value={depositBalance}
-            unit={tokenSymbol}
-          />
-          <StatisticCard
-            title="Total Paid Out"
-            loading={loadingProject || loadingTokenSymbol}
-            value={projectData?.projectType === "EscrowPayment" ? `${(projectData as EscrowPaymentProjectData).totalPaidOut}` : "N/A"}
-            unit={tokenSymbol}
-          />
-          <StatisticCard
-            title="Total Affiliates"
-            loading={loadingReferral}
-            value={`${referralData?.length || 0}`}
-            unit="PEOPLE"
-          />
-        </div> */}
 
         {/* World Heatmap */}
         <WorldHeatmap
