@@ -256,7 +256,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
 
       {/* Header */}
-      {projectData &&
+      {projectData && (
         <ProjectHeader 
           cover={projectData.cover as string}
           logo={projectData.logo as string}
@@ -266,7 +266,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           xUrl={projectData.xUrl}
           discordUrl={projectData.discordUrl}
         />
-      }
+      )}
 
       {/* Invite Code Panel */}
       {referralLink && (
@@ -286,12 +286,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       )}
 
-      <button
-        className="bg-sky-500 text-white w-full text-sm py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-        onClick={handleJoinProject}
-      >
-        Join Project
-      </button>
+      {/* Join Project Button */}
+      {!referralId && (
+        <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
+          <button
+            className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
+            onClick={handleJoinProject}
+          >
+            Join Project
+          </button>
+        </div>
+      )}
 
       {/* Conversion Points Table */}
       <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
