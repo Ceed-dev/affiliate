@@ -4,6 +4,7 @@ import { MemberForm } from "./MemberForm";
 import { RewardForm } from "./RewardForm";
 import { SaveButton } from "./SaveButton";
 import { DeleteProject } from "./DeleteProject";
+import { ProjectHeader } from "./ProjectHeader";
 
 export {
   GeneralForm,
@@ -12,4 +13,5 @@ export {
   RewardForm,
   SaveButton,
   DeleteProject,
+  ProjectHeader,
 }
