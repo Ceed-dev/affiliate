@@ -5,6 +5,7 @@ import { RewardForm } from "./RewardForm";
 import { SaveButton } from "./SaveButton";
 import { DeleteProject } from "./DeleteProject";
 import { ProjectHeader } from "./ProjectHeader";
+import { ConversionPointsTable } from "./ConversionPointsTable";
 
 export {
   GeneralForm,
@@ -14,4 +15,5 @@ export {
   SaveButton,
   DeleteProject,
   ProjectHeader,
+  ConversionPointsTable,
 }
