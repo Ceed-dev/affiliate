@@ -36,7 +36,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
   ];
 
   return (
-    <>
+    <div>
       {/* Cover Image Section */}
       <div className="h-[200px] relative mb-16">
         <Image
@@ -67,7 +67,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
                   key={index}
                   href={link.url}
                   target="_blank"
-                  className="w-10 h-10 p-2 bg-slate-100 rounded-full flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105"
+                  className="w-10 h-10 p-2 bg-slate-200 rounded-full flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105"
                 >
                   <Image
                     src={link.icon}
@@ -83,8 +83,8 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
       </div>
 
       {/* Project Title and Description */}
-      <h1 className="font-bold">{projectName}</h1>
+      <h1 className="font-bold mb-2">{projectName}</h1>
       <p className="text-slate-600 text-sm">{description}</p>
-    </>
+    </div>
   );
 };
