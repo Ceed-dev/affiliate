@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { NavBar, BarChart, AffiliatesList } from "../../components/dashboard";
+import { NavBar, AffiliatesList } from "../../components/dashboard";
+import { BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { ProjectData, ExtendedReferralData, ConversionLog, ClickData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
