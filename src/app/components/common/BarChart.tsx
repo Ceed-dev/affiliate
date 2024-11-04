@@ -1,10 +1,15 @@
+import React from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataset } from "chart.js";
 import { PaymentTransaction, ConversionLog, ClickData } from "../../types";
 
-// Register the necessary chart components from Chart.js
+// Register necessary chart components from Chart.js
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+/**
+ * Generates a random color for chart bars.
+ * Used for distinguishing between different datasets visually.
+ */
 const getRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
   const g = Math.floor(Math.random() * 256);
@@ -21,25 +26,35 @@ type BarChartProps = {
   timeRange: "week" | "month";
 };
 
-// BarChart component to display data over date
+/**
+ * BarChart Component
+ *
+ * Displays bar chart data over a specified date range (week or month).
+ * @param {dataMap} - Object containing data grouped by categories (e.g., conversions, clicks)
+ * @param {timeRange} - The time range to display: "week" (last 7 days) or "month" (last 30 days)
+ */
 export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
-  // Define the range of dates to display in the chart
+  // Calculate the date range based on timeRange prop
   const today = new Date();
   const rangeStartDate = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate() - (timeRange === "week" ? 7 : 30) // Adjust range based on timeRange
+    today.getDate() - (timeRange === "week" ? 7 : 30)
   );
 
+  // Generate labels for each date in the selected range
   const labels: string[] = [];
   const datasets: ChartDataset<"bar", number[]>[] = [];
 
+  // Populate labels with each date within the range
   for (let day = new Date(rangeStartDate); day <= today; day.setDate(day.getDate() + 1)) {
     const key = `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
     labels.push(key);
   }
 
-  Object.entries(dataMap).forEach(([title, transactions], index) => {
+  // Process each dataset in dataMap and prepare for chart display
+  Object.entries(dataMap).forEach(([title, transactions]) => {
+    // Count occurrences per day within the range
     const transactionCounts = transactions.reduce<Record<string, number>>((acc, transaction) => {
       const transactionDate = new Date(transaction.timestamp);
       if (transactionDate >= rangeStartDate && transactionDate <= today) {
@@ -49,8 +64,10 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
       return acc;
     }, {});
 
+    // Map data points to match each date label
     const dataPoints = labels.map(label => transactionCounts[label] || 0);
 
+    // Create a dataset with a random color for each entry
     datasets.push({
       label: title,
       data: dataPoints,
@@ -59,21 +76,22 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
     });
   });
 
+  // Chart data configuration
   const data = {
     labels,
     datasets,
   };
 
-  // Chart configuration options
+  // Chart options for display customization
   const options = {
     scales: {
       y: {
-        beginAtZero: true, // Start the y-axis at 0
+        beginAtZero: true,
         ticks: {
-          stepSize: 1, // Use a step size of 1 to show whole numbers only
-          precision: 0 // No decimal places in y-axis ticks
-        }
-      }
+          stepSize: 1,
+          precision: 0,
+        },
+      },
     },
   };
 
