@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 
 // Components
 import { ProjectHeader, ConversionPointsTable } from "../../components/project";
-import { StatisticCard } from "../../components/dashboard/StatisticCard";
+import { StatisticCard } from "../../components/common";
 import { BarChart } from "../../components/dashboard";
 
 // Types
