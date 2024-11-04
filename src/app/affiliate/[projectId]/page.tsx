@@ -6,7 +6,7 @@ import { useAddress } from "@thirdweb-dev/react";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
 import { ProjectData, ReferralData, ConversionLog, ClickData, Tier } from "../../types";
-import { ConversionsList, ProjectHeader } from "../../components/affiliate";
+import { ProjectHeader } from "../../components/project";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { ToggleButton } from "../../components/ToggleButton";
@@ -256,7 +256,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
 
       {/* Header */}
-      <ProjectHeader projectData={projectData} loading={loadingProject} />
+      {projectData &&
+        <ProjectHeader 
+          cover={projectData.cover as string}
+          logo={projectData.logo as string}
+          projectName={projectData.projectName}
+          description={projectData.description}
+          websiteUrl={projectData.websiteUrl}
+          xUrl={projectData.xUrl}
+          discordUrl={projectData.discordUrl}
+        />
+      }
 
       {/* Project Description and Action Panel */}
       <div className="w-11/12 sm:w-2/3 flex flex-col lg:flex-row mx-auto gap-10 mb-10">
