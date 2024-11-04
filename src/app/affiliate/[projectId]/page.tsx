@@ -22,7 +22,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const address = useAddress();
 
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [loadingProject, setLoadingProject] = useState(true);
 
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
@@ -70,13 +69,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     fetchProjectData(params.projectId)
       .then(data => {
         setProjectData(data);
-        setLoadingProject(false);
       })
       .catch(error => {
         const message = (error instanceof Error) ? error.message : "Unknown error";
         console.error("Error loading the project: ", message);
         toast.error(`Error loading the project: ${message}`);
-        setLoadingProject(false);
       });
   }, [params.projectId]);
 
@@ -218,29 +215,25 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     }
   };
 
-  // ===== BEGIN TIER MODAL MANAGEMENT =====
-
-  const [isTierModalOpen, setIsTierModalOpen] = useState(false);
-  const [selectedTierDetails, setSelectedTierDetails] = useState<Tier[] | null>(null);
-
-  const openTierModal = (tiers: Tier[]) => {
-    setSelectedTierDetails(tiers);
-    setIsTierModalOpen(true);
-  };
-
-  const closeTierModal = () => {
-    setIsTierModalOpen(false);
-    setSelectedTierDetails(null);
-  };
-  
-  // ===== END TIER MODAL MANAGEMENT =====
-
   return (
     <div>
-      <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-3 pb-20">
-
-        {/* Header */}
-        {projectData && (
+      {/* Loading Screen */}
+      {!projectData ? (
+        <div className="w-screen h-screen flex flex-row items-center justify-center gap-5">
+          <Image
+            src="/assets/common/loading.png"
+            alt="loading"
+            width={30}
+            height={30}
+            className="animate-spin"
+          />
+          <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+        </div>
+      ) : (
+        // Main Content
+        <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-3 pb-20">
+  
+          {/* Header */}
           <ProjectHeader 
             cover={projectData.cover as string}
             logo={projectData.logo as string}
@@ -250,92 +243,93 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             xUrl={projectData.xUrl}
             discordUrl={projectData.discordUrl}
           />
-        )}
-
-        {/* Invite Code Panel */}
-        {referralLink && (
-          <div className="bg-slate-200 rounded-lg p-5">
-            <p className="text-green-500 font-bold mb-2">Joined!</p>
-            <p className="font-semibold">Invite Code</p>
-            <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
-              {referralLink}
-            </p>
-            <button
-              type="button"
-              className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-2xl py-2 mt-2"
-              onClick={copyReferralLinkToClipboard}
-            >
-              Copy
-            </button>
-          </div>
-        )}
-
-        
-
-        {address && referralId && referralData &&
-          <>
-            <p className="font-bold text-xl">Analytics</p>
-            <div className="grid grid-cols-2 gap-3">
-              <StatisticCard
-                title="Conversions (This month)"
-                loading={loadingReferral || loadingConversionLogs}
-                value={`${totalConversions}`}
-                unit="TIMES"
-              />
-              <StatisticCard
-                title="Earnings (This month)"
-                loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
-                value={`${totalEarnings}`}
-                unit={tokenSymbol}
-              />
-              <StatisticCard
-                title="Total Clicks (All time)"
-                loading={loadingClickData}
-                value={`${clickData.length}`}
-                unit="TIMES"
-              />
-              <StatisticCard
-                title="Next Payment Date"
-                loading={false}
-                value={getNextPaymentDate()}
-                unit={getTimeZoneSymbol()}
-              />
+  
+          {/* Invite Code Panel */}
+          {referralLink && (
+            <div className="bg-slate-200 rounded-lg p-5">
+              <p className="text-green-500 font-bold mb-2">Joined!</p>
+              <p className="font-semibold">Invite Code</p>
+              <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
+                {referralLink}
+              </p>
+              <button
+                type="button"
+                className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-full py-2 mt-2"
+                onClick={copyReferralLinkToClipboard}
+              >
+                Copy
+              </button>
             </div>
-
-            <p className="font-bold text-xl">Conversion Chart</p>
-            {loadingConversionLogs || loadingClickData ? (
-              <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
-                <Image
-                  src="/assets/common/loading.png"
-                  alt="loading.png"
-                  width={30}
-                  height={30}
-                  className="animate-spin"
-                /> 
-                <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+          )}
+  
+          {address && referralId && referralData && (
+            <>
+              {/* Analytics */}
+              <div className="space-y-2">
+                <h1 className="font-bold">Analytics</h1>
+                <div className="grid grid-cols-2 gap-3">
+                  <StatisticCard
+                    title="Conversions (This month)"
+                    loading={loadingReferral || loadingConversionLogs}
+                    value={`${totalConversions}`}
+                    unit="TIMES"
+                  />
+                  <StatisticCard
+                    title="Earnings (This month)"
+                    loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
+                    value={`${totalEarnings}`}
+                    unit={tokenSymbol}
+                  />
+                  <StatisticCard
+                    title="Total Clicks (All time)"
+                    loading={loadingClickData}
+                    value={`${clickData.length}`}
+                    unit="TIMES"
+                  />
+                  <StatisticCard
+                    title="Next Payment Date"
+                    loading={false}
+                    value={getNextPaymentDate()}
+                    unit={getTimeZoneSymbol()}
+                  />
+                </div>
               </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow p-2">
-                <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
+  
+              {/* Conversion Chart */}
+              <div className="space-y-2">
+                <h1 className="font-bold">Click/Conversion Chart</h1>
+                {loadingConversionLogs || loadingClickData ? (
+                  <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
+                    <Image
+                      src="/assets/common/loading.png"
+                      alt="loading.png"
+                      width={30}
+                      height={30}
+                      className="animate-spin"
+                    /> 
+                    <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow p-2">
+                    <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
+                  </div>
+                )}
               </div>
-            )}
-
-          </>
-        }
-
-        {/* Conversion Points Table */}
-        {projectData && chainName && (
+            </>
+          )}
+  
+          {/* Conversion Points Table */}
           <ConversionPointsTable 
             conversionPoints={projectData.conversionPoints}
             tokenSymbol={tokenSymbol}
-            chainName={chainName}
+            chainName={chainName ?? ""}
           />
-        )}
-
-      </div>
-
+  
+        </div>
+      )}
+  
       {/* Join Project Button */}
-      {!referralId && (
+      {projectData && !referralId && (
         <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
           <button
             className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
@@ -345,7 +339,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           </button>
         </div>
       )}
-
     </div>
   );
 }
