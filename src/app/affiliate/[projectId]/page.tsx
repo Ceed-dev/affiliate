@@ -6,10 +6,9 @@ import { useAddress } from "@thirdweb-dev/react";
 import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
 import { ProjectData, ReferralData, ConversionLog, ClickData, Tier } from "../../types";
-import { ProjectHeader } from "../../components/project";
+import { ProjectHeader, ConversionPointsTable } from "../../components/project";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
-import { ToggleButton } from "../../components/ToggleButton";
 import { 
   fetchProjectData, fetchReferralData, joinProject, 
   fetchConversionLogsForReferrals, fetchClickData,
@@ -238,167 +237,114 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   return (
     <div>
-    <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-3 pb-10">
+      <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-3 pb-20">
 
-      {/* Header */}
-      {projectData && (
-        <ProjectHeader 
-          cover={projectData.cover as string}
-          logo={projectData.logo as string}
-          projectName={projectData.projectName}
-          description={projectData.description}
-          websiteUrl={projectData.websiteUrl}
-          xUrl={projectData.xUrl}
-          discordUrl={projectData.discordUrl}
-        />
-      )}
+        {/* Header */}
+        {projectData && (
+          <ProjectHeader 
+            cover={projectData.cover as string}
+            logo={projectData.logo as string}
+            projectName={projectData.projectName}
+            description={projectData.description}
+            websiteUrl={projectData.websiteUrl}
+            xUrl={projectData.xUrl}
+            discordUrl={projectData.discordUrl}
+          />
+        )}
 
-      {/* Invite Code Panel */}
-      {referralLink && (
-        <div className="bg-slate-200 rounded-lg p-5">
-          <p className="text-green-500 font-bold mb-2">Joined!</p>
-          <p className="font-semibold">Invite Code</p>
-          <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
-            {referralLink}
-          </p>
+        {/* Invite Code Panel */}
+        {referralLink && (
+          <div className="bg-slate-200 rounded-lg p-5">
+            <p className="text-green-500 font-bold mb-2">Joined!</p>
+            <p className="font-semibold">Invite Code</p>
+            <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
+              {referralLink}
+            </p>
+            <button
+              type="button"
+              className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-2xl py-2 mt-2"
+              onClick={copyReferralLinkToClipboard}
+            >
+              Copy
+            </button>
+          </div>
+        )}
+
+        
+
+        {address && referralId && referralData &&
+          <>
+            <p className="font-bold text-xl">Analytics</p>
+            <div className="grid grid-cols-2 gap-3">
+              <StatisticCard
+                title="Conversions (This month)"
+                loading={loadingReferral || loadingConversionLogs}
+                value={`${totalConversions}`}
+                unit="TIMES"
+              />
+              <StatisticCard
+                title="Earnings (This month)"
+                loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
+                value={`${totalEarnings}`}
+                unit={tokenSymbol}
+              />
+              <StatisticCard
+                title="Total Clicks (All time)"
+                loading={loadingClickData}
+                value={`${clickData.length}`}
+                unit="TIMES"
+              />
+              <StatisticCard
+                title="Next Payment Date"
+                loading={false}
+                value={getNextPaymentDate()}
+                unit={getTimeZoneSymbol()}
+              />
+            </div>
+
+            <p className="font-bold text-xl">Conversion Chart</p>
+            {loadingConversionLogs || loadingClickData ? (
+              <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
+                <Image
+                  src="/assets/common/loading.png"
+                  alt="loading.png"
+                  width={30}
+                  height={30}
+                  className="animate-spin"
+                /> 
+                <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow p-2">
+                <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
+              </div>
+            )}
+
+          </>
+        }
+
+        {/* Conversion Points Table */}
+        {projectData && chainName && (
+          <ConversionPointsTable 
+            conversionPoints={projectData.conversionPoints}
+            tokenSymbol={tokenSymbol}
+            chainName={chainName}
+          />
+        )}
+
+      </div>
+
+      {/* Join Project Button */}
+      {!referralId && (
+        <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
           <button
-            type="button"
-            className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-2xl py-2 mt-2"
-            onClick={copyReferralLinkToClipboard}
+            className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
+            onClick={handleJoinProject}
           >
-            Copy
+            Join Project
           </button>
         </div>
       )}
-
-      
-
-      {address && referralId && referralData &&
-        <>
-          <p className="font-bold text-xl">Analytics</p>
-          <div className="grid grid-cols-2 gap-3">
-            <StatisticCard
-              title="Conversions (This month)"
-              loading={loadingReferral || loadingConversionLogs}
-              value={`${totalConversions}`}
-              unit="TIMES"
-            />
-            <StatisticCard
-              title="Earnings (This month)"
-              loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
-              value={`${totalEarnings}`}
-              unit={tokenSymbol}
-            />
-            <StatisticCard
-              title="Total Clicks (All time)"
-              loading={loadingClickData}
-              value={`${clickData.length}`}
-              unit="TIMES"
-            />
-            <StatisticCard
-              title="Next Payment Date"
-              loading={false}
-              value={getNextPaymentDate()}
-              unit={getTimeZoneSymbol()}
-            />
-          </div>
-
-          <p className="font-bold text-xl">Conversion Chart</p>
-          {loadingConversionLogs || loadingClickData ? (
-            <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
-              <Image
-                src="/assets/common/loading.png"
-                alt="loading.png"
-                width={30}
-                height={30}
-                className="animate-spin"
-              /> 
-              <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow p-2">
-              <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
-            </div>
-          )}
-
-        </>
-      }
-
-      {/* Conversion Points Table */}
-      <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
-        <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
-          {projectData && projectData.conversionPoints.every(point => !point.isActive) && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-              <strong className="font-bold">Notice:</strong>
-              <span className="block sm:inline"> All conversion points are currently inactive. New users cannot join this project at the moment.</span>
-            </div>
-          )}
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Reward Details</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Below are the reward details for each conversion point, including whether each point is currently active or inactive. You can see the reward type and value associated with each point.
-          </p>
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Reward Type</th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Activate/Deactivate</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {projectData && projectData.conversionPoints.length > 0 ? (
-                projectData!.conversionPoints.map((point, index) => (
-                  <tr key={point.id}>
-                    <td className="px-6 py-4 max-w-[200px] overflow-hidden truncate">{point.title}</td>
-                    <td className="px-6 py-4 overflow-hidden truncate">{point.paymentType}</td>
-                    <td className="px-6 py-4 overflow-hidden truncate">
-                      {point.paymentType === "FixedAmount" ? point.rewardAmount : 
-                      point.paymentType === "RevenueShare" ? `${point.percentage}%` : 
-                      point.paymentType === "Tiered" && point.tiers ? (
-                        <div className="flex items-center">
-                          <span>{`${point.tiers.length} Tiers`}</span>
-                          <button 
-                            onClick={() => point.tiers && openTierModal(point.tiers)} 
-                            className="ml-2"
-                          >
-                            <Image src="/assets/common/new-tab.png" alt="new-tab.png" width={15} height={15} />
-                          </button>
-                        </div>
-                      ) : ""}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <ToggleButton 
-                        isOn={point.isActive} 
-                        onToggle={() => {}}
-                        disabled={true} 
-                      />
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No conversion points added.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    {/* Join Project Button */}
-    {!referralId && (
-      <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
-        <button
-          className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={handleJoinProject}
-        >
-          Join Project
-        </button>
-      </div>
-    )}
 
     </div>
   );
