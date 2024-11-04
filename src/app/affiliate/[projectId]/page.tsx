@@ -10,15 +10,12 @@ import { ProjectHeader } from "../../components/project";
 import { StatisticCard } from "../../components/dashboard/StatisticCard";
 import { BarChart } from "../../components/dashboard";
 import { ToggleButton } from "../../components/ToggleButton";
-import { TieredDetailsModal } from "../../components/TieredDetailsModal";
-import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { 
-  fetchProjectData, fetchReferralData, joinProject, fetchTransactionsForReferrals, 
+  fetchProjectData, fetchReferralData, joinProject, 
   fetchConversionLogsForReferrals, fetchClickData,
 } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
 import { getNextPaymentDate, getTimeZoneSymbol } from "../../utils/dateUtils";
-import { formatChainName } from "../../utils/formatUtils";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";
 
@@ -31,11 +28,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
 
-  // const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
-  // const [loadingTransactionData, setLoadingTransactionData] = useState(true);
-
   const [referralId, setReferralId] = useState<string | null>(null);
-  const [buttonLabel, setButtonLabel] = useState("Copy");
 
   const [conversionLogs, setConversionLogs] = useState<ConversionLog[]>([]);
   const [loadingConversionLogs, setLoadingConversionLogs] = useState(true);
@@ -47,13 +40,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
 
   const [referralLink, setReferralLink] = useState("");
-
-  const [isWhitelisted, setIsWhitelisted] = useState(false);
-
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const toggleDescriptionExpand = () => setIsDescriptionExpanded(!isDescriptionExpanded);
-  const description = projectData?.description || "";
-  const shouldShowDescriptionToggle = description.length > 350;
 
   useEffect(() => {
     const updateReferralLink = () => {
@@ -226,9 +212,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const copyReferralLinkToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(referralLink);
-      setButtonLabel("Copied!");
       toast.info("Referral link copied to clipboard!");
-      setTimeout(() => setButtonLabel("Copy"), 2000);
     } catch (err) {
       console.error("Failed to copy: ", err);
       toast.error("Failed to copy referral link. Please try again.");
@@ -253,7 +237,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   // ===== END TIER MODAL MANAGEMENT =====
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10 md:pb-20">
+    <div>
+    <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-3 pb-10">
 
       {/* Header */}
       {projectData && (
@@ -286,17 +271,58 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       )}
 
-      {/* Join Project Button */}
-      {!referralId && (
-        <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
-          <button
-            className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
-            onClick={handleJoinProject}
-          >
-            Join Project
-          </button>
-        </div>
-      )}
+      
+
+      {address && referralId && referralData &&
+        <>
+          <p className="font-bold text-xl">Analytics</p>
+          <div className="grid grid-cols-2 gap-3">
+            <StatisticCard
+              title="Conversions (This month)"
+              loading={loadingReferral || loadingConversionLogs}
+              value={`${totalConversions}`}
+              unit="TIMES"
+            />
+            <StatisticCard
+              title="Earnings (This month)"
+              loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
+              value={`${totalEarnings}`}
+              unit={tokenSymbol}
+            />
+            <StatisticCard
+              title="Total Clicks (All time)"
+              loading={loadingClickData}
+              value={`${clickData.length}`}
+              unit="TIMES"
+            />
+            <StatisticCard
+              title="Next Payment Date"
+              loading={false}
+              value={getNextPaymentDate()}
+              unit={getTimeZoneSymbol()}
+            />
+          </div>
+
+          <p className="font-bold text-xl">Conversion Chart</p>
+          {loadingConversionLogs || loadingClickData ? (
+            <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
+              <Image
+                src="/assets/common/loading.png"
+                alt="loading.png"
+                width={30}
+                height={30}
+                className="animate-spin"
+              /> 
+              <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow p-2">
+              <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
+            </div>
+          )}
+
+        </>
+      }
 
       {/* Conversion Points Table */}
       <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
@@ -360,91 +386,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       </div>
 
-      {isTierModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 p-5">
-          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full">
-            {selectedTierDetails && <TieredDetailsModal tiers={selectedTierDetails} closeModal={closeTierModal} />}
-          </div>
-        </div>
-      )}
+    </div>
 
-      {address && referralId && referralData &&
-        <>
-          <div className="w-11/12 sm:w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
-            {/* <StatisticCard
-              title="Conversions"
-              loading={loadingReferral}
-              value={`${referralData?.conversions}`}
-              unit="TIMES"
-            /> */}
-            <StatisticCard
-              title="Conversions (This month)"
-              loading={loadingReferral || loadingConversionLogs}
-              value={`${totalConversions}`}
-              unit="TIMES"
-            />
-            {/* <StatisticCard
-              title="Earnings"
-              loading={loadingReferral || loadingTokenSymbol}
-              value={`${referralData?.earnings}`}
-              unit={tokenSymbol}
-            /> */}
-            <StatisticCard
-              title="Earnings (This month)"
-              loading={loadingReferral || loadingTokenSymbol || loadingConversionLogs}
-              value={`${totalEarnings}`}
-              unit={tokenSymbol}
-            />
-            {/* <StatisticCard
-              title="Last Conversion Date"
-              loading={loadingReferral}
-              value={`${referralData?.lastConversionDate ? referralData.lastConversionDate.toLocaleDateString() : "N/A"}`}
-              unit=""
-            /> */}
-            <StatisticCard
-              title="Total Clicks (All time)"
-              loading={loadingClickData}
-              value={`${clickData.length}`}
-              unit="TIMES"
-            />
-            <StatisticCard
-              title="Next Payment Date"
-              loading={false}
-              value={getNextPaymentDate()}
-              unit={getTimeZoneSymbol()}
-            />
-          </div>
-
-          {/* World Heatmap */}
-          {/* <div className="w-11/12 sm:w-2/3 mx-auto mb-10">
-            <WorldHeatmap
-              dataPoints={clickData}
-              unitLabel="clicks"
-              projectId={params.projectId}
-              useTestData={false}
-            />
-          </div> */}
-
-          {/* {loadingTransactionData
-            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
-                <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-                <p className="animate-pulse font-semibold text-gray-600">Loading transaction data...</p>
-              </div>
-            : <ConversionsList explorerUrl={Explorer Url Here} transactions={transactionData} />
-          } */}
-
-          {loadingConversionLogs || loadingClickData
-            ? <div className="flex flex-row items-center justify-center gap-5 bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow h-[100px] md:h-[200px]">
-                <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-                <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
-              </div>
-            : <div className="bg-white w-11/12 sm:w-2/3 mx-auto rounded-lg shadow p-5 md:p-10">
-                <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
-              </div>
-          }
-
-        </>
-      }
+    {/* Join Project Button */}
+    {!referralId && (
+      <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
+        <button
+          className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
+          onClick={handleJoinProject}
+        >
+          Join Project
+        </button>
+      </div>
+    )}
 
     </div>
   );
