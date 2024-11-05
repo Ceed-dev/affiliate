@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { NavBar, AffiliatesList } from "../../components/dashboard";
+import { NavBar } from "../../components/dashboard";
 import { StatisticCard, BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
+import { AffiliatePerformanceList } from "../../components/project";
 import { ProjectData, ExtendedReferralData, ConversionLog, ClickData } from "../../types";
 import { fetchProjectData, fetchReferralsByProjectId, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
@@ -146,7 +147,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   return (
     <div>
       <NavBar projectId={params.projectId} />
-      <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
+      <div className="min-h-screen bg-[#F8FAFC] space-y-10 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
 
         <h1 className="font-bold text-2xl">Dashboard</h1>
 
@@ -234,7 +235,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         />
 
         {/* List */}
-        <AffiliatesList
+        <AffiliatePerformanceList
           referrals={referralData || []}
           selectedToken={tokenSymbol || ""}
         />
