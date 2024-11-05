@@ -6,6 +6,7 @@ import { SaveButton } from "./SaveButton";
 import { DeleteProject } from "./DeleteProject";
 import { ProjectHeader } from "./ProjectHeader";
 import { ConversionPointsTable } from "./ConversionPointsTable";
+import { AffiliatePerformanceList } from "./AffiliatePerformanceList";
 
 export {
   GeneralForm,
@@ -16,4 +17,5 @@ export {
   DeleteProject,
   ProjectHeader,
   ConversionPointsTable,
+  AffiliatePerformanceList,
 }
