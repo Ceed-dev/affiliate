@@ -25,10 +25,11 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [conversionData, setConversionData] = useState<ConversionLog[]>([]);
   const [loadingConversionData, setLoadingConversionData] = useState(true);
 
+  const [clickData, setClickData] = useState<ClickData[]>([]);
+  const [loadingClickData, setLoadingClickData] = useState(true);
+
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
-
-  const [allClickData, setAllClickData] = useState<ClickData[]>([]);
 
   useEffect(() => {
     fetchProjectData(params.projectId)
@@ -90,17 +91,16 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   useEffect(() => {
     if (referralData) {
-      setAllClickData(
-        referralData
-        ? referralData.reduce((acc: ClickData[], referral) => {
+      setClickData(
+        referralData.reduce((acc: ClickData[], referral) => {
             const clicksWithReferralId = referral.clicks.map(click => ({
               ...click,
               referralId: referral.id,
             }));
             return [...acc, ...clicksWithReferralId];
           }, [])
-        : []
       );
+      setLoadingClickData(false);
 
       const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
       fetchConversionLogsForReferrals(referralDataAsBasic, setConversionData)
@@ -189,14 +189,14 @@ export default function Dashboard({ params }: { params: { projectId: string } })
           <div className="grid grid-cols-2 gap-3">
             <StatisticCard
               title="Conversions (All Time)"
-              loading={false}
-              value={"10000"}
+              loading={loadingConversionData}
+              value={conversionData.length.toString()}
               unit="TIMES"
             />
             <StatisticCard
               title="Clicks (All Time)"
-              loading={false}
-              value={"20000"}
+              loading={loadingClickData}
+              value={clickData.length.toString()}
               unit="TIMES"
             />
           </div>
@@ -204,7 +204,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
         {/* Conversion/Click Chart */}
         <div className="bg-slate-100 p-5 md:p-10 rounded-lg shadow">
-          {loadingConversionData ? (
+          {loadingConversionData || loadingClickData ? (
             <div className="flex flex-row items-center justify-center gap-5">
               <Image
                 src="/assets/common/loading.png"
@@ -219,7 +219,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             </div>
           ) : (
             <BarChart
-              dataMap={{"Conversions": conversionData, "Clicks": allClickData}}
+              dataMap={{"Conversions": conversionData, "Clicks": clickData}}
               timeRange="month"
             />
           )}
@@ -227,7 +227,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
         {/* World Heatmap */}
         <WorldHeatmap
-          dataPoints={allClickData}
+          dataPoints={clickData}
           unitLabel="clicks"
           projectId={params.projectId}
           useTestData={false}
