@@ -230,7 +230,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
 
   return (
-    <div>
+    <div className="bg-[#F8FAFC]">
       {/* Loading Screen */}
       {!projectData ? (
         <div className="w-screen h-screen flex flex-row items-center justify-center gap-5">
@@ -245,7 +245,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
         </div>
       ) : (
         // Main Content
-        <div className="min-h-screen bg-[#F8FAFC] space-y-5 px-3 pb-20">
+        <div className="min-h-screen max-w-4xl mx-auto px-3 pb-20 space-y-5">
   
           {/* Header */}
           <ProjectHeader 
@@ -257,6 +257,16 @@ export default function Affiliate({ params }: { params: { projectId: string } })
             xUrl={projectData.xUrl}
             discordUrl={projectData.discordUrl}
           />
+
+          {/* Join Project Button for Desktop */}
+          {projectData && !referralId && (
+            <button
+              className="bg-black hover:bg-gray-700 text-white rounded-full py-2 px-5 font-bold transition duration-300 ease-in-out transform hover:scale-105 hidden md:block"
+              onClick={handleJoinProject}
+            >
+              Join Project
+            </button>
+          )}
   
           {/* Invite Code Panel */}
           {referralLink && (
@@ -285,7 +295,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               {/* Analytics */}
               <div className="space-y-2">
                 <h1 className="font-bold">Analytics</h1>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   <StatisticCard
                     title="Conversions (This month)"
                     loading={loading.referral || loading.conversionLogs}
@@ -348,7 +358,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   
       {/* Join Project Button */}
       {projectData && !referralId && (
-        <div className="w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
+        <div className="md:hidden w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
           <button
             className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
             onClick={handleJoinProject}
