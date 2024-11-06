@@ -11,6 +11,7 @@ import { Chain } from "@thirdweb-dev/chains";
 
 // Utils and Constants
 import { initializeSigner, ERC20 } from "../../utils/contracts";
+import { copyToClipboard } from "../../utils/generalUtils";
 import { formatBalance } from "../../utils/formatUtils";
 import { popularTokens } from "../../constants/popularTokens";
 
@@ -723,15 +724,11 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                       {" / ID : "}
                       <span
                         className="hover:underline cursor-pointer"
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(point.id);
-                            toast.success("Copied to clipboard!");
-                          } catch (error) {
-                            console.error("Failed to copy:", error);
-                            toast.error("Failed to copy.");
-                          }
-                        }}
+                        onClick={() => copyToClipboard(
+                          point.id,
+                          "Copied to clipboard!",
+                          "Failed to copy."
+                        )}
                       >
                         {point.id}
                         <Image
