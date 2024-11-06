@@ -202,7 +202,7 @@ export default function CreateProject() {
   };
 
   return (
-    <div className="bg-white flex flex-col items-center py-20">
+    <div className="bg-white flex flex-col items-center py-20 px-4">
       <div className="w-full max-w-4xl space-y-10">
         <h1 className="font-bold text-3xl">Project Setup</h1>
         <GeneralForm
