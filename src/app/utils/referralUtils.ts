@@ -3,15 +3,16 @@ import { db } from "./firebase/firebaseConfig";
 import { fetchUserById } from "./userUtils";
 import { isValidReferralData } from "./validationUtils";
 import { ReferralData, ClickData, ConversionLog, AffiliatePerformanceData } from "../types/referralTypes";
+import { TweetData, YouTubeVideoData } from "../types/affiliateInfo";
 
 /**
- * Fetches all referrals for a specific project, including user data, click data, and conversion data.
+ * Fetches all referrals for a specific project, including user data, click data, conversion data, tweet data, and YouTube video data.
  *
  * @param {string} projectId - The ID of the project to fetch referrals for.
  * @returns {Promise<AffiliatePerformanceData[]>} - A promise resolving to an array of affiliate performance data.
  * 
  * This function retrieves referral documents associated with a specified project from Firestore.
- * For each referral, it fetches user information, click data, conversion data, and validates the referral structure.
+ * For each referral, it fetches user information, click data, conversion data, tweet data, and YouTube video data.
  */
 export async function fetchReferralPerformanceByProjectId(projectId: string): Promise<AffiliatePerformanceData[]> {
   const referrals: AffiliatePerformanceData[] = [];
@@ -34,11 +35,13 @@ export async function fetchReferralPerformanceByProjectId(projectId: string): Pr
         const userData = await fetchUserById(data.affiliateWallet);
         const username = userData ? userData.username : "Unknown";
 
-        // Fetch click data and conversion data associated with the referral
+        // Fetch click data, conversion data, tweet data, and YouTube video data associated with the referral
         const clicksData = await fetchClickDataByReferralId(docSnapshot.id);
         const conversionsData = await fetchConversionLogDataByReferralId(docSnapshot.id);
+        const tweetsData = await fetchTweetsByReferralId(docSnapshot.id);
+        const youtubeVideosData = await fetchYouTubeVideosByReferralId(docSnapshot.id);
 
-        // Construct affiliate performance data including clicks, conversions, and user info
+        // Construct affiliate performance data including clicks, conversions, tweets, videos, and user info
         const referralData: AffiliatePerformanceData = {
           ...data,
           id: docSnapshot.id,
@@ -46,6 +49,8 @@ export async function fetchReferralPerformanceByProjectId(projectId: string): Pr
           lastConversionDate: data.lastConversionDate?.toDate() || null,
           username,
           clicks: clicksData,
+          tweets: tweetsData,
+          youtubeVideos: youtubeVideosData,
           conversionLogs: conversionsData,
           tweetNewestId: data.tweetNewestId || undefined,
           tweetNewestCreatedAt: data.tweetNewestCreatedAt ? data.tweetNewestCreatedAt.toDate() : undefined,
@@ -111,5 +116,55 @@ async function fetchConversionLogDataByReferralId(referralId: string): Promise<C
       paidAt: conversionData.paidAt ? conversionData.paidAt.toDate() : undefined,
       userWalletAddress: conversionData.userWalletAddress || undefined,
     } as ConversionLog;
+  });
+}
+
+/**
+ * Fetches tweet data associated with a specific referral ID.
+ *
+ * @param {string} referralId - The ID of the referral for which to fetch tweet data.
+ * @returns {Promise<TweetData[]>} - A promise resolving to an array of tweet data for the specified referral.
+ */
+async function fetchTweetsByReferralId(referralId: string): Promise<TweetData[]> {
+  const tweetsRef = collection(db, `referrals/${referralId}/tweets`);
+  const tweetsSnapshot = await getDocs(tweetsRef);
+
+  return tweetsSnapshot.docs.map((doc) => {
+    const tweetData = doc.data();
+    return {
+      tweetId: doc.id,
+      tweetText: tweetData.tweetText,
+      tweetUrl: tweetData.tweetUrl,
+      metrics: tweetData.metrics,
+      createdAt: tweetData.createdAt.toDate(),
+      firstFetchedAt: tweetData.firstFetchedAt.toDate(),
+      lastFetchedAt: tweetData.lastFetchedAt.toDate(),
+      fetchCount: tweetData.fetchCount,
+    } as TweetData;
+  });
+}
+
+/**
+ * Fetches YouTube video data associated with a specific referral ID.
+ *
+ * @param {string} referralId - The ID of the referral for which to fetch YouTube video data.
+ * @returns {Promise<YouTubeVideoData[]>} - A promise resolving to an array of YouTube video data for the specified referral.
+ */
+async function fetchYouTubeVideosByReferralId(referralId: string): Promise<YouTubeVideoData[]> {
+  const youtubeVideosRef = collection(db, `referrals/${referralId}/youtubeVideos`);
+  const youtubeVideosSnapshot = await getDocs(youtubeVideosRef);
+
+  return youtubeVideosSnapshot.docs.map((doc) => {
+    const videoData = doc.data();
+    return {
+      videoId: doc.id,
+      title: videoData.title,
+      description: videoData.description,
+      statistics: videoData.statistics,
+      thumbnails: videoData.thumbnails,
+      publishedAt: videoData.publishedAt.toDate(),
+      fetchCount: videoData.fetchCount,
+      lastFetchedAt: videoData.lastFetchedAt.toDate(),
+    } as YouTubeVideoData;
   });
 }
