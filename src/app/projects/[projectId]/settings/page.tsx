@@ -240,7 +240,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             <p className="text-gray-500 font-semibold text-lg">Loading...</p>
           </div>
         ) : (
-          <div className="w-full max-w-4xl space-y-10">
+          <div className="w-full max-w-4xl space-y-10 px-4">
             <h1 className="font-bold text-3xl">Project Update</h1>
             <GeneralForm
               projectName={projectData.projectName}
