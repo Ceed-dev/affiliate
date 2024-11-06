@@ -17,6 +17,7 @@ import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/
 import { getApiKeyData } from "../../utils/firebase";
 import { fetchReferralPerformanceByProjectId } from "../../utils/referralUtils";
 import { copyToClipboard } from "../../utils/generalUtils";
+import { useWindowSize } from "../../hooks/useWindowSize";
 
 /**
  * Dashboard component for displaying project-specific performance analytics.
@@ -33,14 +34,18 @@ import { copyToClipboard } from "../../utils/generalUtils";
  * @returns {JSX.Element} - The rendered dashboard component.
  */
 export default function Dashboard({ params }: { params: { projectId: string } }) {
-  // Define state variables for referral, conversion, and click data along with loading states and API key
+  // State variables to store referral, conversion, and click data, along with loading states, API key, and display settings
   const [referralData, setReferralData] = useState<AffiliatePerformanceData[]>([]);
   const [conversionData, setConversionData] = useState<ConversionLog[]>([]);
-  const [loadingConversionData, setLoadingConversionData] = useState(true);
   const [clickData, setClickData] = useState<ClickData[]>([]);
+  const [loadingConversionData, setLoadingConversionData] = useState(true);
   const [loadingClickData, setLoadingClickData] = useState(true);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
+
+  // Detect screen width to adjust time range based on viewport size
+  const width = useWindowSize();
+  const timeRange = width <= 768 ? "week" : "month"; // Set to "week" on screens md (768px) or smaller
 
   // Fetch referral data, including associated click and conversion data, on component mount or project ID change
   useEffect(() => {
@@ -163,7 +168,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               </p>
             </div>
           ) : (
-            <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange="month" />
+            <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange={timeRange} />
           )}
         </div>
   
