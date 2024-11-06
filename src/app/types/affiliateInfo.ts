@@ -56,7 +56,7 @@ export type TweetMetrics = {
 
 // Represents a tweet document within the tweets subcollection
 export type TweetData = {
-  tweetId?: string;             // Unique identifier for the tweet
+  tweetId?: string;            // Unique identifier for the tweet
   tweetText: string;           // The content of the tweet
   tweetUrl: string;            // URL link to the tweet
   metrics: TweetMetrics;       // Engagement metrics (public or private)
@@ -128,4 +128,39 @@ export type YouTubeAccountInfo = {
     hiddenSubscriberCount: boolean; // Indicates if the subscriber count is hidden
     videoCount: string;             // Total number of videos uploaded by the user
   };
+};
+
+// Represents engagement statistics for a specific YouTube video
+export type YouTubeVideoStatistics = {
+  commentCount: number;         // Number of comments on the video
+  dislikeCount: number;         // Number of dislikes on the video
+  favoriteCount: number;        // Number of times the video has been favorited
+  likeCount: number;            // Number of likes on the video
+  viewCount: number;            // Number of views on the video
+};
+
+// Represents details of a thumbnail image for a YouTube video at a specific resolution
+export type YouTubeThumbnail = {
+  url: string;                  // URL of the thumbnail image
+  width: number;                // Width of the thumbnail image in pixels
+  height: number;               // Height of the thumbnail image in pixels
+};
+
+// Represents the set of available thumbnail images for a YouTube video at different resolutions
+export type YouTubeThumbnails = {
+  default: YouTubeThumbnail;    // Default resolution thumbnail
+  medium: YouTubeThumbnail;     // Medium resolution thumbnail
+  high: YouTubeThumbnail;       // High resolution thumbnail
+};
+
+// Represents a YouTube video document within the youtubeVideos subcollection in Firestore
+export type YouTubeVideoData = {
+  videoId?: string;                  // Unique identifier for the YouTube video
+  title: string;                     // Title of the video
+  description: string;               // Description of the video
+  statistics: YouTubeVideoStatistics; // Engagement statistics for the video
+  thumbnails: YouTubeThumbnails;     // Thumbnails of the video in various resolutions
+  publishedAt: Date;                 // Date and time the video was published
+  fetchCount: number;                // Number of times the engagement data has been fetched
+  lastFetchedAt: Date;               // The last time the engagement data was updated
 };

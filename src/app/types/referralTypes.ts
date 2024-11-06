@@ -1,3 +1,5 @@
+import { TweetData, YouTubeVideoData } from "./affiliateInfo";
+
 // Type for storing basic referral-related information
 export type ReferralData = {
   id?: string;                    // Optional unique identifier for the referral
@@ -37,9 +39,11 @@ export type ClickData = {
 
 // Type representing comprehensive performance data for an affiliate, including username, click data, conversion data, and social media engagement metrics.
 export type AffiliatePerformanceData = ReferralData & {
-  username: string;               // Username of the affiliate
-  clicks: ClickData[];            // Array of click data associated with the referral
-  conversionLogs: ConversionLog[];   // Array of conversion log entries tracking each successful conversion
+  username: string;                     // Username of the affiliate
+  clicks: ClickData[];                  // Array of click data associated with the referral
+  conversionLogs: ConversionLog[];      // Array of conversion log entries tracking each successful conversion
+  tweets?: TweetData[];                 // Optional array of tweet engagement data associated with the affiliate
+  youtubeVideos?: YouTubeVideoData[];   // Optional array of YouTube video engagement data associated with the affiliate
 };
 
 // Extended type with aggregated fields for earnings and conversions
