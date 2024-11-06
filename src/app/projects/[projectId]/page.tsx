@@ -3,145 +3,73 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { NavBar, AffiliatesList } from "../../components/dashboard";
-import { BarChart } from "../../components/common";
+
+// Components
+import { NavBar } from "../../components/dashboard";
+import { StatisticCard, BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
-import { ProjectData, ExtendedReferralData, ConversionLog, ClickData } from "../../types";
-import { fetchProjectData, fetchReferralsByProjectId, fetchConversionLogsForReferrals, getApiKeyData } from "../../utils/firebase";
-import { getProvider, Escrow, ERC20 } from "../../utils/contracts";
-import { formatBalance } from "../../utils/formatUtils";
-import { chainRpcUrls } from "../../constants/chains";
-import { popularTokens } from "../../constants/popularTokens";
+import { AffiliatePerformanceList } from "../../components/project";
 
+// Types
+import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/referralTypes";
+
+// Utility Functions
+import { getApiKeyData } from "../../utils/firebase";
+import { fetchReferralPerformanceByProjectId } from "../../utils/referralUtils";
+import { copyToClipboard } from "../../utils/generalUtils";
+
+/**
+ * Dashboard component for displaying project-specific performance analytics.
+ * 
+ * This component provides an overview of key metrics for a given project,
+ * such as total clicks, conversions, and affiliate earnings. It includes:
+ * - A list of affiliates and their engagement statistics.
+ * - Statistical cards summarizing metrics like conversions and clicks.
+ * - A bar chart visualizing conversion and click trends over time.
+ * - A world heatmap illustrating geographic distribution of clicks.
+ * - API key management with options to display and copy the key.
+ * 
+ * @param {Object} params - Object containing the project's unique identifier.
+ * @returns {JSX.Element} - The rendered dashboard component.
+ */
 export default function Dashboard({ params }: { params: { projectId: string } }) {
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [loadingProject, setLoadingProject] = useState(true);
-
-  const [referralData, setReferralData] = useState<ExtendedReferralData[] | null>(null);
-  const [loadingReferral, setLoadingReferral] = useState(true);
-
-  const [tokenSymbol, setTokenSymbol] = useState("");
-  const [loadingTokenSymbol, setLoadingTokenSymbol] = useState(true);
-
-  // const [depositBalance, setDepositBalance] = useState("0");
-  // const [loadingDepositBalance, setLoadingDepositBalance] = useState(true);
-
-  // const [transactionData, setTransactionData] = useState<PaymentTransaction[]>([]);
-  // const [loadingTransactionData, setLoadingTransactionData] = useState(true);
-
+  // Define state variables for referral, conversion, and click data along with loading states and API key
+  const [referralData, setReferralData] = useState<AffiliatePerformanceData[]>([]);
   const [conversionData, setConversionData] = useState<ConversionLog[]>([]);
   const [loadingConversionData, setLoadingConversionData] = useState(true);
-
+  const [clickData, setClickData] = useState<ClickData[]>([]);
+  const [loadingClickData, setLoadingClickData] = useState(true);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
 
-  const [allClickData, setAllClickData] = useState<ClickData[]>([]);
-
+  // Fetch referral data, including associated click and conversion data, on component mount or project ID change
   useEffect(() => {
-    fetchProjectData(params.projectId)
-      .then(data => {
-        setProjectData(data);
-        setLoadingProject(false);
-      })
-      .catch(error => {
-        const message = (error instanceof Error) ? error.message : "Unknown error";
-        console.error("Error loading the project: ", message);
-        toast.error(`Error loading the project: ${message}`);
-        setLoadingProject(false);
-      });
-  }, [params.projectId]);
-
-  useEffect(() => {
-    fetchReferralsByProjectId(params.projectId)
+    fetchReferralPerformanceByProjectId(params.projectId)
       .then(data => {
         setReferralData(data);
-        setLoadingReferral(false);
+        
+        // Aggregate all clicks across referrals into a single array and update state
+        const allClicks = data.flatMap(referral => referral.clicks);
+        setClickData(allClicks);
+        setLoadingClickData(false);
+
+        // Aggregate all conversion logs across referrals into a single array and update state
+        const allConversions = data.flatMap(referral => referral.conversionLogs);
+        setConversionData(allConversions);
+        setLoadingConversionData(false);
       })
       .catch(error => {
-        const message = (error instanceof Error) ? error.message : "Unknown error";
-        console.error("Error loading the referrals: ", message);
-        toast.error(`Error loading the referrals: ${message}`);
-        setLoadingReferral(false);
+        const message = error instanceof Error ? error.message : "Unknown error";
+        console.error("Error loading referrals:", message);
+        toast.error(`Error loading referrals: ${message}`);
+        
+        // Update loading states in case of error
+        setLoadingClickData(false);
+        setLoadingConversionData(false);
       });
   }, [params.projectId]);
 
-  useEffect(() => {
-    if (!projectData) return;
-
-    const fetchTokenDetails = async () => {
-      try {
-        const predefinedToken = (popularTokens[projectData.selectedChainId] || []).find(token => token.address === projectData.selectedTokenAddress);
-
-        if (predefinedToken) {
-          setTokenSymbol(predefinedToken.symbol);
-        } else {
-          const rpcUrl = chainRpcUrls[projectData.selectedChainId];
-          if (!rpcUrl) {
-            throw new Error(`RPC URL for chain ID ${projectData.selectedChainId} not found.`);
-          }
-
-          const erc20 = new ERC20(projectData.selectedTokenAddress, getProvider(rpcUrl));
-          const symbol = await erc20.getSymbol();
-          setTokenSymbol(symbol);
-        }
-
-        // const escrow = new Escrow(signer);
-        // const projectInfo = await escrow.getProjectInfo(params.projectId);
-        // setDepositBalance(projectInfo?.depositAmount ? formatBalance(projectInfo.depositAmount) : "0");
-      } catch (error: any) {
-        console.error("Error fetching token details: ", error);
-        toast.error(`Error fetching token details: ${error.message}`);
-      } finally {
-        // setLoadingDepositBalance(false);
-        setLoadingTokenSymbol(false);
-      }
-    };
-
-    fetchTokenDetails();
-  }, [projectData]);
-
-  // useEffect(() => {
-  //   if (referralData) {
-  //     const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
-  //     fetchTransactionsForReferrals(referralDataAsBasic, setTransactionData)
-  //       .then(() => {
-  //         setLoadingTransactionData(false);
-  //       })
-  //       .catch(error => {
-  //         console.error("Error fetching transactions: ", error.message);
-  //         toast.error(`Error fetching transactions: ${error.message}`);
-  //         setLoadingTransactionData(false);
-  //       });
-  //   }
-  // }, [referralData]);
-
-  useEffect(() => {
-    if (referralData) {
-      setAllClickData(
-        referralData
-        ? referralData.reduce((acc: ClickData[], referral) => {
-            const clicksWithReferralId = referral.clicks.map(click => ({
-              ...click,
-              referralId: referral.id,
-            }));
-            return [...acc, ...clicksWithReferralId];
-          }, [])
-        : []
-      );
-
-      const referralDataAsBasic = referralData.map(({ username, ...rest }) => rest); // Convert ExtendedReferralData to ReferralData
-      fetchConversionLogsForReferrals(referralDataAsBasic, setConversionData)
-        .then(() => {
-          setLoadingConversionData(false);
-        })
-        .catch(error => {
-          console.error("Error fetching conversion logs: ", error.message);
-          toast.error(`Error fetching conversion logs: ${error.message}`);
-          setLoadingConversionData(false);
-        });
-    }
-  }, [referralData]);
-
+  // Fetch and set the API key for the project
   useEffect(() => {
     const fetchApiKey = async () => {
       try {
@@ -150,90 +78,107 @@ export default function Dashboard({ params }: { params: { projectId: string } })
           setApiKey(apiKeyData.apiKey);
         }
       } catch (error: any) {
-        console.error("Error fetching API key: ", error);
+        console.error("Error fetching API key:", error);
         toast.error(`Error fetching API key: ${error.message}`);
       }
     };
 
     fetchApiKey();
-  }, [params.projectId]);  
-
-  const handleCopyApiKey = () => {
-    if (apiKey) {
-      navigator.clipboard.writeText(apiKey)
-        .then(() => {
-          toast.success("API Key copied to clipboard");
-        })
-        .catch(error => {
-          toast.error("Failed to copy API Key: " + error.message);
-        });
-    }
-  };
+  }, [params.projectId]);
 
   return (
-    <>
+    <div>
+      {/* Navigation Bar with Project ID passed as a prop */}
       <NavBar projectId={params.projectId} />
-      <div className="min-h-screen bg-[#F8FAFC] px-4 sm:px-10 md:px-20 lg:px-40 pb-10 md:pb-20 flex flex-col gap-5">
-
-        {/* Title & API Key */}
-        <div className="pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5 md:gap-0">
-          <div>
-            <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
-              Project Dashboard
-            </h3>
-            <p className="text-sm text-[#6B7280]">
-              Overview and manage your project details.
+  
+      <div className="min-h-screen bg-[#F8FAFC] space-y-10 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
+        
+        {/* Page Title */}
+        <h1 className="font-bold text-2xl">Dashboard</h1>
+  
+        {/* API Key Display */}
+        {apiKey && (
+          <div className="bg-slate-100 p-5 rounded-lg">
+            <h2 className="font-semibold">API KEY</h2>
+            <p className="text-[#6B7280] flex flex-row items-center gap-4">
+              {/* Toggle for showing/hiding API Key */}
+              <button onClick={() => setShowApiKey(!showApiKey)}>
+                <Image
+                  src={showApiKey ? "/assets/common/hide-password.png" : "/assets/common/show-password.png"}
+                  alt="Toggle Icon"
+                  height={18}
+                  width={18}
+                />
+              </button>
+              {/* Display or Mask API Key */}
+              {showApiKey ? (
+                <button
+                  onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
+                  className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
+                >
+                  {apiKey}
+                  <Image src="/assets/common/copy.png" alt="copy icon" width={14} height={14} />
+                </button>
+              ) : (
+                apiKey.split("").map(() => "*").join("")
+              )}
             </p>
           </div>
-          {apiKey && (
-            <div className="w-[350px]">
-              <h3 className="text-lg leading-6 font-medium text-[#1F2937]">
-                API Key
-              </h3>
-              <p className="text-sm text-[#6B7280] flex flex-row items-center gap-2">
-                <button onClick={() => setShowApiKey(!showApiKey)} className="text-blue-500 hover:text-blue-700">
-                  <Image src={showApiKey ? "/assets/common/hide-password.png" : "/assets/common/show-password.png"} alt="Toggle Icon" height={18} width={18} />
-                </button>
-                {showApiKey ? (
-                  <span onClick={handleCopyApiKey} className="cursor-pointer hover:underline">
-                    {apiKey}
-                  </span>
-                ) : (
-                  apiKey.split("").map(() => "*").join("")
-                )}
+        )}
+  
+        {/* Analytics Section */}
+        <div className="space-y-2">
+          <h2 className="font-bold text-xl">Analytics</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Conversion Statistics Card */}
+            <StatisticCard
+              title="Conversions (All Time)"
+              loading={loadingConversionData}
+              value={conversionData.length.toString()}
+              unit="TIMES"
+            />
+            {/* Click Statistics Card */}
+            <StatisticCard
+              title="Clicks (All Time)"
+              loading={loadingClickData}
+              value={clickData.length.toString()}
+              unit="TIMES"
+            />
+          </div>
+        </div>
+  
+        {/* Conversion and Clicks Bar Chart */}
+        <div className="bg-slate-100 p-5 md:p-10 rounded-lg shadow">
+          {loadingConversionData || loadingClickData ? (
+            <div className="flex flex-row items-center justify-center gap-5">
+              <Image
+                src="/assets/common/loading.png"
+                alt="Loading Icon"
+                width={50}
+                height={50}
+                className="animate-spin"
+              />
+              <p className="animate-pulse font-semibold text-gray-600">
+                Loading data for chart visualization...
               </p>
             </div>
+          ) : (
+            <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange="month" />
           )}
         </div>
-
-        {/* World Heatmap */}
+  
+        {/* World Heatmap Visualization */}
         <WorldHeatmap
-          dataPoints={allClickData}
+          dataPoints={clickData}
           unitLabel="clicks"
           projectId={params.projectId}
           useTestData={false}
         />
-
-        {/* Chart */}
-        <div className="bg-white p-5 md:p-10 rounded-lg shadow">
-          {/* {loadingTransactionData */}
-          {loadingConversionData
-            ? <div className="flex flex-row items-center justify-center gap-5">
-                <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-                <p className="animate-pulse font-semibold text-gray-600">
-                  {/* Loading transaction data for chart visualization... */}
-                  Loading conversion data for chart visualization...
-                </p>
-              </div>
-            // : <BarChart title="Number of Payment Transactions" transactions={transactionData} />
-            : <BarChart dataMap={{"Conversions": conversionData, "Clicks": allClickData}} timeRange="month" />
-          }
-        </div>
-
-        {/* List */}
-        <AffiliatesList referrals={referralData || []} selectedToken={tokenSymbol || ""} />
-
+  
+        {/* Affiliate Performance List */}
+        <AffiliatePerformanceList referrals={referralData} />
+        
       </div>
-    </>
-  );
+    </div>
+  );  
 }
