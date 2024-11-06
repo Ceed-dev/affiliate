@@ -14,7 +14,7 @@ import { ProjectHeader, ConversionPointsTable } from "../../components/project";
 import { StatisticCard, BarChart } from "../../components/common";
 
 // Types
-import { ProjectData, ReferralData, ConversionLog, ClickData, Tier } from "../../types";
+import { ProjectData, ReferralData, ConversionLog, ClickData } from "../../types";
 
 // Firebase and Blockchain Utilities
 import { 
@@ -26,8 +26,9 @@ import {
 } from "../../utils/firebase";
 import { getProvider, ERC20 } from "../../utils/contracts";
 
-// Date Utilities and Constants
+// Date, Copy Utilities and Constants
 import { getNextPaymentDate, getTimeZoneSymbol } from "../../utils/dateUtils";
+import { copyToClipboard } from "../../utils/generalUtils";
 import { chainRpcUrls } from "../../constants/chains";
 import { popularTokens } from "../../constants/popularTokens";
 
@@ -228,16 +229,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
 
-  const copyReferralLinkToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      toast.info("Referral link copied to clipboard!");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-      toast.error("Failed to copy referral link. Please try again.");
-    }
-  };
-
   return (
     <div>
       {/* Loading Screen */}
@@ -278,7 +269,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               <button
                 type="button"
                 className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-full py-2 mt-2"
-                onClick={copyReferralLinkToClipboard}
+                onClick={() => copyToClipboard(
+                  referralLink,
+                  "Referral link copied to clipboard!",
+                  "Failed to copy referral link. Please try again."
+                )}
               >
                 Copy
               </button>
