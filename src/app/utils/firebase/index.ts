@@ -11,7 +11,6 @@ import { fetchConversionLogsForReferrals } from "./fetchConversionLogsForReferra
 import { deleteProjectFromFirebase } from "./deleteProject";
 import { saveApiKeyToFirestore, getApiKeyData, validateApiKey } from "./apiKeyHelpers";
 import { logConversion } from "./logConversion";
-import { createNewUser } from "./createNewUser";
 import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
 import { logErrorToFirestore } from "./logErrorToFirestore";
 import { updateIsPaidFlag } from "./updateIsPaidFlag";
@@ -39,7 +38,6 @@ export {
   getApiKeyData,
   validateApiKey,
   logConversion,
-  createNewUser,
   fetchAllUnpaidConversionLogs,
   logErrorToFirestore,
   updateIsPaidFlag,

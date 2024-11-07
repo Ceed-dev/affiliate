@@ -1,6 +1,79 @@
+// Firebase Imports
 import { db } from "./firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { UserData } from "../types";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+// Types
+import { AffiliateInfo, UserData } from "../types";
+
+// Libraries
+import { toast } from "react-toastify";
+
+/**
+ * Creates a new user document in Firestore with details provided during onboarding.
+ * 
+ * This function saves user information based on the user's role, managing access permissions
+ * and optional data based on role-specific requirements.
+ * 
+ * @async
+ * @function createNewUser
+ * @param {string} walletAddress - The wallet address to serve as the user ID in Firestore.
+ * @param {AffiliateInfo} userInfo - Information provided by the user during onboarding.
+ * @returns {Promise<string>} Returns the wallet address if user creation is successful.
+ */
+export async function createNewUser(
+  walletAddress: string,
+  userInfo: AffiliateInfo,
+): Promise<string> {
+  const userDocRef = doc(db, "users", walletAddress);
+
+  // Initialize a new user object with required fields and conditional access control
+  const newUser: UserData = {
+    username: userInfo.username,
+    email: userInfo.email,
+    role: userInfo.role,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // Allow or deny access based on user role
+    allowed: userInfo.role === "ProjectOwner" ? false : true,
+  };
+
+  // Conditionally add additional fields based on user role and available data
+  if (userInfo.role === "ProjectOwner" && userInfo.projectUrl) {
+    newUser.projectUrl = userInfo.projectUrl;
+  }
+  
+  if (userInfo.role === "Affiliate") {
+    newUser.joinedProjectIds = [];
+  }
+
+  // Optionally add X and Google Auth token data if provided
+  if (userInfo.xAuthToken) {
+    newUser.xAuthToken = userInfo.xAuthToken;
+  }
+
+  if (userInfo.xAccountInfo) {
+    newUser.xAccountInfo = userInfo.xAccountInfo;
+  }
+
+  if (userInfo.googleAuthToken) {
+    newUser.googleAuthToken = userInfo.googleAuthToken;
+  }
+
+  if (userInfo.youtubeAccountInfo) {
+    newUser.youtubeAccountInfo = userInfo.youtubeAccountInfo;
+  }
+
+  try {
+    // Save the user data to Firestore
+    await setDoc(userDocRef, newUser);
+    toast.success("Your account has been created successfully!");
+    return walletAddress;
+  } catch (error) {
+    console.error("Failed to create new user and join project:", error);
+    toast.error("Failed to create new user and join project.");
+    throw new Error("Failed to create new user and join project");
+  }
+}
 
 /**
  * Fetches a user's data from the Firestore database by user ID.
