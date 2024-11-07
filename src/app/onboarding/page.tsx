@@ -19,7 +19,8 @@ import {
 import { AffiliateInfo } from "../types";
 import { UserAccountSetupModal } from "../components/UserAccountSetupModal";
 import { ChainSelector } from "../components/ChainSelector";
-import { checkUserAndPrompt, createNewUser, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
+import { checkUserAndPrompt, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
+import { createNewUser } from "../utils/userUtils";
 import { useChainContext } from "../context/chainContext";
 
 export default function Onboarding() {
