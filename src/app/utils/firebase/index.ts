@@ -14,7 +14,6 @@ import { fetchAllUnpaidConversionLogs } from "./fetchAllUnpaidConversionLogs";
 import { logErrorToFirestore } from "./logErrorToFirestore";
 import { updateIsPaidFlag } from "./updateIsPaidFlag";
 import { logClickData } from "./logClickData";
-import { fetchUnapprovedUsers } from "./fetchUnapprovedUsers";
 import { approveUser } from "./approveUser";
 import { getUserRoleAndName } from "./getUserRoleAndName";
 import { fetchClickData } from "./fetchClickData";
@@ -38,7 +37,6 @@ export {
   logErrorToFirestore,
   updateIsPaidFlag,
   logClickData,
-  fetchUnapprovedUsers,
   approveUser,
   getUserRoleAndName,
   fetchClickData,
