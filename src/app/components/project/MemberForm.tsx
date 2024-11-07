@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useAddress } from "@thirdweb-dev/react";
 import { isAddress } from "ethers/lib/utils";
 import { toast } from "react-toastify";
-import { getUserRoleAndName } from "../../utils/firebase";
+import { getUserRoleAndName } from "../../utils/userUtils";
 
 type MemberFormProps = {
   ownerAddresses: string[];

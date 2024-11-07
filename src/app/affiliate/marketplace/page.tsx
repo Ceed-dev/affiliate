@@ -29,7 +29,7 @@ export default function Marketplace() {
   }, []);
 
   return (
-    <div className="w-11/12 sm:w-2/3 mx-auto mt-5 pb-20">
+    <div className="w-11/12 sm:w-2/3 mx-auto pt-5 pb-20">
       <h1 className="text-xl font-bold">Projects</h1>
       {loading ? (
         <div className="flex flex-row items-center justify-center gap-5 mt-20">
@@ -40,13 +40,13 @@ export default function Marketplace() {
             height={50}
             className="animate-spin"
           /> 
-          <p className="text-gray-500 font-semibold text-lg">Loading...</p>
+          <p className="font-semibold text-lg animate-pulse">Loading...</p>
         </div>
       ): (
         projects.length === 0 ? (
           <div className="text-center mt-10">
-            <p className="text-sm">No projects</p>
-            <p className="text-sm text-gray-500">Check back later for new opportunities to join exciting projects.</p>
+            <p className="text-md">No projects</p>
+            <p className="text-sm text-gray-400">Check back later for new opportunities to join exciting projects.</p>
           </div>
         ) : (
           <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">

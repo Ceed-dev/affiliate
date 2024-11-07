@@ -52,7 +52,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <h1 className="truncate font-bold">{project.projectName}</h1>
       </div>
       <p
-        className="text-slate-600 text-sm text-ellipsis overflow-hidden"
+        className="text-sm text-ellipsis overflow-hidden"
         style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2 }}
       >
         {project.description}
