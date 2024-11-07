@@ -1,8 +1,8 @@
 // Firebase Imports
 import { db } from "./firebase/firebaseConfig";
 import { 
-  doc, getDoc, getDocs, setDoc, collection,
-  query, where, Timestamp 
+  doc, getDoc, getDocs, setDoc, updateDoc, collection,
+  query, where, Timestamp
 } from "firebase/firestore";
 
 // Types
@@ -193,5 +193,28 @@ export const fetchUnapprovedUsers = async (): Promise<UserData[]> => {
   } catch (error) {
     console.error("Error fetching unapproved users:", error);
     return [];
+  }
+};
+
+/**
+ * Approves a user in the Firestore database by updating the "allowed" field to true.
+ * This function is typically used for allowing access to users who have passed an approval process.
+ *
+ * @param walletAddress - The wallet address of the user to approve.
+ * @throws Error if the update fails, providing feedback to the caller.
+ */
+export const approveUser = async (walletAddress: string): Promise<void> => {
+  try {
+    // Reference to the specific user's document in the Firestore "users" collection
+    const userDocRef = doc(db, "users", walletAddress);
+
+    // Update the "allowed" field to true, marking the user as approved
+    await updateDoc(userDocRef, { allowed: true });
+
+    console.log(`User with wallet address ${walletAddress} has been successfully approved.`);
+  } catch (error: any) {
+    const errorMessage = error.message || "Unknown error occurred";
+    console.error("Error approving user:", errorMessage);
+    throw new Error("Failed to approve user");
   }
 };
