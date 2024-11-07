@@ -19,8 +19,8 @@ import {
 import { AffiliateInfo } from "../types";
 import { UserAccountSetupModal } from "../components/UserAccountSetupModal";
 import { ChainSelector } from "../components/ChainSelector";
-import { checkUserAndPrompt, fetchUserData, checkIfProjectOwner } from "../utils/firebase";
-import { createNewUser } from "../utils/userUtils";
+import { checkUserAndPrompt, fetchUserData } from "../utils/firebase";
+import { createNewUser, isUserProjectOwner } from "../utils/userUtils";
 import { useChainContext } from "../context/chainContext";
 
 export default function Onboarding() {
@@ -61,7 +61,7 @@ export default function Onboarding() {
       }
 
       // Check if user is a project owner
-      const isProjectOwner = await checkIfProjectOwner(walletAddress);
+      const isProjectOwner = await isUserProjectOwner(walletAddress);
       setDisableRoleSelection(isProjectOwner); // Disable role selection if project owner
 
       // Check if user exists and prompt for info if not
