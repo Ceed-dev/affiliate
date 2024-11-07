@@ -10,10 +10,10 @@ import { ethers } from "ethers";
 // Import utility functions and contract-related functions
 import { 
   fetchAllUnpaidConversionLogs, processRewardPaymentTransaction, logErrorToFirestore, 
-  updateIsPaidFlag, approveUser,
+  updateIsPaidFlag,
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
-import { fetchUnapprovedUsers } from "../utils/userUtils";
+import { fetchUnapprovedUsers, approveUser } from "../utils/userUtils";
 
 // Import component types
 import { UnpaidConversionLog, UserData, ActiveTab } from "../types";
