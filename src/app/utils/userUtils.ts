@@ -1,6 +1,9 @@
 // Firebase Imports
 import { db } from "./firebase/firebaseConfig";
-import { doc, getDoc, getDocs, setDoc, collection, query, where } from "firebase/firestore";
+import { 
+  doc, getDoc, getDocs, setDoc, collection,
+  query, where, Timestamp 
+} from "firebase/firestore";
 
 // Types
 import { AffiliateInfo, UserData } from "../types";
@@ -154,3 +157,41 @@ export async function fetchUserById(userId: string): Promise<UserData | null> {
     return null;
   }
 }
+
+/**
+ * Fetches a list of unapproved users from the Firestore database.
+ * This function retrieves users where the "allowed" field is set to false,
+ * indicating they are pending approval.
+ *
+ * @returns A Promise that resolves to an array of unapproved UserData objects.
+ * If there is an error during the fetch, an empty array is returned.
+ */
+export const fetchUnapprovedUsers = async (): Promise<UserData[]> => {
+  try {
+    // Reference to the users collection in Firestore
+    const usersCollectionRef = collection(db, "users");
+
+    // Query to fetch users where "allowed" is false (unapproved users)
+    const unapprovedUsersQuery = query(usersCollectionRef, where("allowed", "==", false));
+    const querySnapshot = await getDocs(unapprovedUsersQuery);
+
+    // Transform the query results into UserData objects with date conversions
+    const unapprovedUsers: UserData[] = querySnapshot.docs.map((doc) => {
+      const userData = doc.data() as UserData & {
+        createdAt: Timestamp;
+        updatedAt: Timestamp;
+      };
+      return {
+        ...userData,
+        walletAddress: doc.id,
+        createdAt: userData.createdAt.toDate(),
+        updatedAt: userData.updatedAt.toDate(),
+      } as UserData;
+    });
+
+    return unapprovedUsers;
+  } catch (error) {
+    console.error("Error fetching unapproved users:", error);
+    return [];
+  }
+};
