@@ -16,38 +16,34 @@ const nextConfig = {
   reactStrictMode: false,
 
   /**
-   * Adding CORS headers for API routes to allow requests from different origins.
-   * This configuration allows Cross-Origin Resource Sharing (CORS) for any domain,
-   * enabling external applications to interact with this application's API endpoints
-   * under the /api/ path. It includes the following headers:
-   * 
+   * Configures CORS headers for the /api/conversion route.
+   * These headers allow cross-origin requests and manage permissions 
+   * for credentials, methods, and headers.
+   *
    * - Access-Control-Allow-Credentials: 'true'
-   *   Allows credentials (e.g., cookies, authorization headers) to be included in requests.
+   *   Allows credentials (e.g., cookies, authorization headers) to be included in requests,
+   *   enabling the server to maintain user sessions or authentication states.
    *
-   * - Access-Control-Allow-Origin: '*'
-   *   Allows requests from any origin. Using '*' provides flexibility during development
-   *   and testing, but be cautious in production as this setting permits access from all origins.
-   * 
-   * - Access-Control-Allow-Methods: 'GET,OPTIONS,POST'
-   *   Specifies which HTTP methods are allowed. Here, GET, OPTIONS, and POST requests are enabled.
+   * - Access-Control-Allow-Methods: 'OPTIONS,POST'
+   *   Specifies the HTTP methods that are allowed for this endpoint. 
+   *   Here, OPTIONS is for preflight requests, and POST is for data submission.
    *
-   * - Access-Control-Allow-Headers: 'Content-Type, Authorization'
-   *   Lists the allowed headers for requests. Content-Type is needed for sending JSON data, 
-   *   and Authorization is required for secure endpoints using authorization tokens.
-   * 
-   * This configuration handles preflight requests automatically, responding with the appropriate
-   * CORS headers, and is necessary to prevent browser errors when requests originate from 
-   * different domains.
+   * - Access-Control-Allow-Headers: 'x-api-key, Content-Type'
+   *   Lists the allowed headers that clients can include in requests.
+   *   'x-api-key' is required for API authentication, and 'Content-Type' 
+   *   is necessary for specifying the format of the data being sent.
+   *
+   * Note: The specific origin control is handled within the API route itself, 
+   * so here, we do not include Access-Control-Allow-Origin.
    */
   async headers() {
     return [
       {
-        source: "/api/:path*",
+        source: "/api/conversion",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,POST" },
-          { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization" }
+          { key: "Access-Control-Allow-Methods", value: "OPTIONS,POST" },
+          { key: "Access-Control-Allow-Headers", value: "x-api-key, Content-Type" }
         ]
       }
     ];

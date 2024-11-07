@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ALLOWED_ORIGINS } from "../../constants/allowedOrigins";
 import { ethers } from "ethers";
 import { 
   fetchProjectData, 
@@ -9,11 +10,54 @@ import {
 } from "../../utils/firebase";
 
 /**
+ * Handles the OPTIONS request for CORS preflight.
+ * Checks if the request's origin is allowed, and sets the necessary CORS headers.
+ * Only requests from origins listed in ALLOWED_ORIGINS will be permitted.
+ * 
+ * CORS headers:
+ * - Access-Control-Allow-Credentials: Allows credentials to be sent with the request.
+ * - Access-Control-Allow-Origin: Specifies the allowed origin if it matches the incoming request.
+ * - Access-Control-Allow-Methods: Specifies the HTTP methods allowed (OPTIONS and POST).
+ * - Access-Control-Allow-Headers: Specifies allowed headers for the request (x-api-key).
+ */
+export async function OPTIONS(req: NextRequest) {
+  // Get the origin of the incoming request or set it to an empty string if null
+  const origin = req.headers.get("origin") || "";
+  
+  // Check if the origin is in the allowed list; otherwise, set allowedOrigin to empty
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : "";
+
+  return NextResponse.json(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+      "Access-Control-Allow-Headers": "x-api-key, Content-Type",
+    },
+  });
+}
+
+/**
  * Handles the POST request to log a conversion for a referral link.
  * Validates API keys, retrieves referral and project data, and processes reward payments.
  */
 export async function POST(request: NextRequest) {
   try {
+    // Retrieve the origin of the incoming request and check if it is allowed
+    const origin = request.headers.get("origin") || "";
+
+    // Set the allowed origin if it is in the list of approved origins, otherwise set to an empty string
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : "";
+
+    // Define CORS headers to manage cross-origin access
+    const headers = {
+      "Access-Control-Allow-Credentials": "true", // Allow credentials to be included with requests
+      "Access-Control-Allow-Origin": allowedOrigin, // Set the allowed origin dynamically based on the incoming request
+      "Access-Control-Allow-Methods": "OPTIONS,POST", // Specify which HTTP methods are permitted for the API
+      "Access-Control-Allow-Headers": "x-api-key, Content-Type" // List allowed headers for requests
+    };
+
     // Step 1: Retrieve API key from request headers
     const apiKey = request.headers.get("x-api-key");
     if (!apiKey) {
@@ -136,7 +180,7 @@ export async function POST(request: NextRequest) {
     // Step 12: Return success response
     return NextResponse.json(
       { message: "Conversion successful", referralId: referral },
-      { status: 200 }
+      { status: 200, headers }
     );
 
   } catch (error) {
