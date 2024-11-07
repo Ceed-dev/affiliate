@@ -3,7 +3,6 @@ import { fetchProjectData } from "./fetchProjectData";
 import { fetchAllProjects } from "./fetchAllProjects";
 import { fetchProjectsByOwner } from "./fetchProjectsByOwner";
 import { fetchReferralData } from "./fetchReferralData";
-import { joinProject } from "./joinProject";
 import { processRewardPaymentTransaction } from "./processRewardPaymentTransaction";
 import { fetchTransactionsForReferrals } from "./fetchTransactionsForReferrals";
 import { fetchConversionLogsForReferrals } from "./fetchConversionLogsForReferrals";
@@ -22,7 +21,6 @@ export {
   fetchAllProjects,
   fetchProjectsByOwner,
   fetchReferralData,
-  joinProject,
   processRewardPaymentTransaction,
   fetchTransactionsForReferrals,
   fetchConversionLogsForReferrals,

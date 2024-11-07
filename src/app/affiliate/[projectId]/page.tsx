@@ -20,10 +20,10 @@ import { ProjectData, ReferralData, ConversionLog, ClickData } from "../../types
 import { 
   fetchProjectData, 
   fetchReferralData, 
-  joinProject, 
   fetchConversionLogsForReferrals, 
   fetchClickData 
 } from "../../utils/firebase";
+import { joinProject } from "../../utils/userUtils";
 import { getProvider, ERC20 } from "../../utils/contracts";
 
 // Date, Copy Utilities and Constants

@@ -5,6 +5,10 @@ import {
   query, where, Timestamp
 } from "firebase/firestore";
 
+// Utility Functions
+import { getExistingReferralId } from "./firebase/getExistingReferralId";
+import { createAndReturnNewReferralId } from "./firebase/createAndReturnNewReferralId";
+
 // Types
 import { AffiliateInfo, UserData, UserRole } from "../types";
 
@@ -254,3 +258,69 @@ export const getUserRoleAndName = async (walletAddress: string): Promise<UserRol
     return null;
   }
 };
+
+/**
+ * Allows an affiliate user to join a project by adding the project ID to their joined projects
+ * and returning a referral ID for tracking. Checks user role, project status, and current
+ * membership before allowing the join.
+ *
+ * @param projectId - The ID of the project to join
+ * @param walletAddress - The wallet address of the user attempting to join
+ * @param allConversionPointsInactive - Boolean flag indicating if all conversion points are inactive
+ * @returns {Promise<string>} The referral ID if join is successful, or an empty string if it fails
+ * @throws Error if joining the project fails due to an invalid user state or other issues
+ */
+export async function joinProject(
+  projectId: string, 
+  walletAddress: string,
+  allConversionPointsInactive: boolean,
+): Promise<string> {
+  const userDocRef = doc(db, "users", walletAddress);
+
+  try {
+    const userDoc = await getDoc(userDocRef);
+
+    // Check if user document exists
+    if (!userDoc.exists()) {
+      toast.error("User document does not exist.");
+      throw new Error("User document does not exist.");
+    }
+
+    const userData = userDoc.data() as UserData;
+
+    // Ensure the user has an Affiliate role
+    if (userData.role !== "Affiliate") {
+      toast.error("Only affiliates can join projects.");
+      throw new Error("Only affiliates can join projects.");
+    }
+
+    // Initialize joinedProjectIds if undefined
+    userData.joinedProjectIds = userData.joinedProjectIds || [];
+
+    // If user is already a part of the project, return the existing referral ID
+    if (userData.joinedProjectIds.includes(projectId)) {
+      return await getExistingReferralId(walletAddress, projectId);
+    }
+
+    // Prevent new participants if all conversion points are inactive
+    if (allConversionPointsInactive) {
+      toast.error("All conversion points are currently inactive. You cannot join this project.");
+      return "";
+    }
+
+    // Add project ID to user's joined projects and update Firestore
+    userData.joinedProjectIds.push(projectId);
+    userData.updatedAt = new Date();
+    await setDoc(userDocRef, userData);
+
+    toast.success("You have successfully joined the project!");
+    // Generate and return a new referral ID for the project
+    return await createAndReturnNewReferralId(walletAddress, projectId);
+
+  } catch (error: any) {
+    const errorMessage = error.message || "Unknown error occurred";
+    console.error("Failed to join project: ", errorMessage);
+    toast.error("Failed to join project");
+    throw new Error("Failed to join project");
+  }
+}
