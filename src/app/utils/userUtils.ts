@@ -1,6 +1,6 @@
 // Firebase Imports
 import { db } from "./firebase/firebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, setDoc, collection, query, where } from "firebase/firestore";
 
 // Types
 import { AffiliateInfo, UserData } from "../types";
@@ -74,6 +74,31 @@ export async function createNewUser(
     throw new Error("Failed to create new user and join project");
   }
 }
+
+/**
+ * Checks if a given wallet address belongs to a project owner.
+ * 
+ * This function queries the `projects` collection to determine whether the 
+ * provided wallet address is listed as an owner in any project document.
+ * 
+ * @param {string} walletAddress - The wallet address to check ownership for.
+ * @returns {Promise<boolean>} - Resolves to true if the wallet address is associated with a project owner, false otherwise.
+ */
+export const isUserProjectOwner = async (walletAddress: string): Promise<boolean> => {
+  try {
+    const projectsCollectionRef = collection(db, "projects");
+    
+    // Query the 'projects' collection for documents where 'ownerAddresses' contains the wallet address
+    const q = query(projectsCollectionRef, where("ownerAddresses", "array-contains", walletAddress));
+    const querySnapshot = await getDocs(q);
+    
+    // Return true if the query result is not empty, indicating ownership
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("Error checking project ownership:", error);
+    throw new Error("Failed to check project ownership");
+  }
+};
 
 /**
  * Fetches a user's data from the Firestore database by user ID.

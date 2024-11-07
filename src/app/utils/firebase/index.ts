@@ -18,7 +18,6 @@ import { logClickData } from "./logClickData";
 import { fetchUserData } from "./fetchUserData";
 import { fetchUnapprovedUsers } from "./fetchUnapprovedUsers";
 import { approveUser } from "./approveUser";
-import { checkIfProjectOwner } from "./checkIfProjectOwner";
 import { getUserRoleAndName } from "./getUserRoleAndName";
 import { fetchClickData } from "./fetchClickData";
 
@@ -45,7 +44,6 @@ export {
   fetchUserData,
   fetchUnapprovedUsers,
   approveUser,
-  checkIfProjectOwner,
   getUserRoleAndName,
   fetchClickData,
 }
