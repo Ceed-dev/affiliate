@@ -101,6 +101,38 @@ export const isUserProjectOwner = async (walletAddress: string): Promise<boolean
 };
 
 /**
+ * Checks if a user exists in the Firestore database based on their wallet address.
+ * If the user does not exist, opens the onboarding modal.
+ *
+ * @param walletAddress - The wallet address of the user to check in the database.
+ * @param setIsModalOpen - A function to control the display of the onboarding modal.
+ * @returns A Promise that resolves to true if the user exists, false if not.
+ * @throws Error if there is an issue accessing the database.
+ */
+export async function checkUserExistenceAndShowModal(
+  walletAddress: string,
+  setIsModalOpen: (isOpen: boolean) => void
+): Promise<boolean> {
+  const userDocRef = doc(db, "users", walletAddress); // Reference to user document
+
+  try {
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      setIsModalOpen(true); // Open the onboarding modal if user doesn't exist
+      return false;
+    } else {
+      return true; // Return true if user exists
+    }
+  } catch (error: any) {
+    const errorMessage = error.message || "Unknown error occurred";
+    console.error("Error while checking user existence: ", errorMessage);
+    toast.error(`Error checking user existence: ${errorMessage}`);
+    throw new Error("Failed to verify user existence");
+  }
+}
+
+/**
  * Fetches a user's data from the Firestore database by user ID.
  * 
  * @param {string} userId - The ID of the user to fetch.
