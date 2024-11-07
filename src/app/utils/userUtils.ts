@@ -6,7 +6,7 @@ import {
 } from "firebase/firestore";
 
 // Types
-import { AffiliateInfo, UserData } from "../types";
+import { AffiliateInfo, UserData, UserRole } from "../types";
 
 // Libraries
 import { toast } from "react-toastify";
@@ -216,5 +216,41 @@ export const approveUser = async (walletAddress: string): Promise<void> => {
     const errorMessage = error.message || "Unknown error occurred";
     console.error("Error approving user:", errorMessage);
     throw new Error("Failed to approve user");
+  }
+};
+
+// Define a type for role and username fields
+export type UserRoleAndNameData = {
+  role: UserRole;       // User's role, e.g., "ProjectOwner" or "Affiliate"
+  username: string;   // User's username
+};
+
+/**
+ * Fetches the role and username of a user from Firestore based on their wallet address.
+ * @param walletAddress - The wallet address used to identify the user in Firestore.
+ * @returns {Promise<UserRoleAndNameData | null>} An object containing `role` and `username` values.
+ *          Returns null if the user document is not found or an error occurs.
+ */
+export const getUserRoleAndName = async (walletAddress: string): Promise<UserRoleAndNameData | null> => {
+  try {
+    // Reference to the user document in the "users" collection by wallet address
+    const userDocRef = doc(db, "users", walletAddress);
+    const userDoc = await getDoc(userDocRef);
+
+    // Check if the user document exists in Firestore
+    if (userDoc.exists()) {
+      // Extract user data and return role and username
+      const userData = userDoc.data();
+      return {
+        role: userData.role,
+        username: userData.username,
+      };
+    } else {
+      console.log("User document does not exist!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error checking user role:", error);
+    return null;
   }
 };
