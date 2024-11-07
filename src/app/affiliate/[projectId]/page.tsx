@@ -230,7 +230,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
 
   return (
-    <div className="bg-[#F8FAFC]">
+    <div>
       {/* Loading Screen */}
       {!projectData ? (
         <div className="w-screen h-screen flex flex-row items-center justify-center gap-5">
@@ -261,7 +261,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           {/* Join Project Button for Desktop */}
           {projectData && !referralId && (
             <button
-              className="bg-black hover:bg-gray-700 text-white rounded-full py-2 px-5 font-bold transition duration-300 ease-in-out transform hover:scale-105 hidden md:block"
+              className="bg-gray-500 hover:bg-gray-700 rounded-full py-2 px-5 font-bold transition duration-300 ease-in-out transform hover:scale-105 hidden md:block"
               onClick={handleJoinProject}
             >
               Join Project
@@ -272,13 +272,13 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           {referralLink && (
             <div className="bg-slate-200 rounded-lg p-5">
               <p className="text-green-500 font-bold mb-2">Joined!</p>
-              <p className="font-semibold">Invite Code</p>
+              <p className="font-semibold text-black">Invite Code</p>
               <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
                 {referralLink}
               </p>
               <button
                 type="button"
-                className="bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-full py-2 mt-2"
+                className="text-black bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-full py-2 mt-2"
                 onClick={() => copyToClipboard(
                   referralLink,
                   "Referral link copied to clipboard!",
@@ -360,7 +360,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       {projectData && !referralId && (
         <div className="md:hidden w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
           <button
-            className="w-full bg-black hover:bg-gray-700 text-white rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
+            className="w-full bg-black hover:bg-gray-700 rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
             onClick={handleJoinProject}
           >
             Join Project

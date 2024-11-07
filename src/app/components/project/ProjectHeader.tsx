@@ -84,7 +84,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
 
       {/* Project Title and Description */}
       <h1 className="font-bold mb-2">{projectName}</h1>
-      <p className="text-slate-600 text-sm">{description}</p>
+      <p className="text-sm">{description}</p>
     </div>
   );
 };

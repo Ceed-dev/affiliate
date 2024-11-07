@@ -53,12 +53,15 @@ export default function AffiliateLayout({
   const isMarketplacePath = pathname.endsWith("marketplace"); // Check if the path ends with "marketplace"
 
   return (
-    <>
-      <div className="flex flex-row justify-between px-3 md:px-10 py-2 shadow-md bg-slate-100">
+    <div className="min-h-screen bg-black text-white">
+      <div className="flex flex-row justify-between px-3 md:px-10 py-2 shadow-md">
         <div className={`w-full flex flex-row items-center ${isMarketplacePath ? "justify-center" : "justify-between"}`}>
           {/* Conditionally render the back button */}
           {!isMarketplacePath && (
-            <Link href="/affiliate/marketplace">
+            <Link 
+              href="/affiliate/marketplace"
+              className="bg-white rounded-full p-1 flex items-center justify-center"
+            >
               <Image
                 src="/assets/common/left-arrow.png"
                 alt="Go Back Icon"
@@ -114,6 +117,6 @@ export default function AffiliateLayout({
         </div> */}
       </div>
       {children}
-    </>
+    </div>
   );
 }
