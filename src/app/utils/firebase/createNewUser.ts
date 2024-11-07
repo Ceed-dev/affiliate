@@ -15,12 +15,8 @@ export async function createNewUser(
     role: userInfo.role,
     createdAt: new Date(),
     updatedAt: new Date(),
-    // =========================
-    // Temporarily disabled the user access control feature.
-    // This change allows all users to access the system without manual approval.
-    // allowed: false,
-    allowed: true,
-    // =========================
+    // Set access control based on user role
+    allowed: userInfo.role === "ProjectOwner" ? false : true,
   };
 
   // Add projectUrl only if the role is ProjectOwner
