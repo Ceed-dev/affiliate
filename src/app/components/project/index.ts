@@ -7,6 +7,7 @@ import { DeleteProject } from "./DeleteProject";
 import { ProjectHeader } from "./ProjectHeader";
 import { ConversionPointsTable } from "./ConversionPointsTable";
 import { AffiliatePerformanceList } from "./AffiliatePerformanceList";
+import { ProjectCard } from "./ProjectCard";
 
 export {
   GeneralForm,
@@ -18,4 +19,5 @@ export {
   ProjectHeader,
   ConversionPointsTable,
   AffiliatePerformanceList,
+  ProjectCard,
 }
