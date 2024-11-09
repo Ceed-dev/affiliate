@@ -94,20 +94,8 @@ export default function AffiliateLayout({
             <p className="text-xl font-bold">Qube</p>
           </Link>
           
-          {/* Share button visible only on mobile for non-marketplace pages */}
-          {!isMarketplacePath && (
-            <Link
-              href=""
-              className="md:hidden"
-            >
-              <Image
-                src="/assets/common/share.png"
-                alt="Share Icon"
-                width={25}
-                height={25}
-              />
-            </Link>
-          )}
+          {/* Placeholder for right alignment */}
+          <div />
         </div>
 
         {/* Marketplace link in sidebar for desktop view */}
