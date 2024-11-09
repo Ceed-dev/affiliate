@@ -438,7 +438,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 disableRoleSelection={disableRoleSelection}
               />
               <RoleSelectButton
-                label="Influencer"
+                label="KOL/guild"
                 roleValue="Affiliate"
                 selectedRole={role}
                 setRole={setRole}
