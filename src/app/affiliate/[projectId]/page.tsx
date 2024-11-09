@@ -276,26 +276,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               <p className="text-sm text-white/60 text-ellipsis overflow-hidden whitespace-nowrap">
                 {referralLink}
               </p>
-              <div className="flex gap-3 mt-3">
-                <button
-                  type="button"
-                  className="bg-white/5 font-semibold w-full rounded-full py-2"
-                  onClick={() => copyToClipboard(
-                    referralLink,
-                    "Referral link copied to clipboard!",
-                    "Failed to copy referral link. Please try again."
-                  )}
-                >
-                  Copy
-                </button>
-                <button
-                  type="button"
-                  className="bg-black font-semibold w-full rounded-full py-2"
-                  onClick={() => {}}
-                >
-                  Share
-                </button>
-              </div>
+              <button
+                type="button"
+                className="bg-white/5 font-semibold w-full rounded-full py-2 mt-3"
+                onClick={() => copyToClipboard(
+                  referralLink,
+                  "Referral link copied to clipboard!",
+                  "Failed to copy referral link. Please try again."
+                )}
+              >
+                Copy
+              </button>
             </div>
           )}
   
