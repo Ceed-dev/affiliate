@@ -74,7 +74,6 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
           width={20} 
           height={20} 
         />
-        <span className="ml-2">{selectedChain.name}</span>
       </button>
 
       {/* Dropdown for selecting available chains */}

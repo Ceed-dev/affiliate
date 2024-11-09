@@ -1,7 +1,7 @@
-import { StatisticCard } from "./StatisticCard";
+import { AnalyticsCard } from "./AnalyticsCard";
 import { BarChart } from "./BarChart";
 
 export {
-  StatisticCard,
+  AnalyticsCard,
   BarChart,
 }

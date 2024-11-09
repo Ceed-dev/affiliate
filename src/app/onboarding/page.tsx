@@ -130,42 +130,48 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen gap-[100px]">
+    <div className="bg-[#EDEDED] flex flex-col items-center min-h-screen gap-[100px]">
       {/* Header section with logo and chain selector */}
-      <div className="w-11/12 sm:w-2/3 flex flex-row items-center justify-between mt-5">
+      <div className="w-11/12 sm:w-2/3 flex flex-row items-center justify-center md:justify-between mt-5">
         <Link href="/#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
           <Image
             src="/qube.png"
             alt="Qube Logo"
-            width={50}
-            height={50}
+            width={30}
+            height={30}
           />
-          <p className="text-lg font-semibold">Qube</p>
+          <p className="text-xl font-bold">Qube</p>
         </Link>
-        <ChainSelector />
+        <span className="hidden md:block">
+          <ChainSelector />
+        </span>
       </div>
 
       {/* Onboarding section */}
-      <div className="bg-white border-2 border-sky-500 rounded-lg w-11/12 sm:w-2/3 xl:w-1/3 flex flex-col items-center gap-10 py-20">
-        <Image
-          src="/qube.png"
-          alt="Qube Logo"
-          width={50}
-          height={50}
-        />
-        <h1 className="text-3xl font-bold">Welcome to Qube</h1>
-        <p>Sign in to continue</p>
+      <div className="bg-white rounded-3xl w-11/12 sm:w-2/3 xl:w-1/3 flex flex-col items-center py-20">
+        <div className="flex flex-row items-center gap-3 mb-20">
+          <Image
+            src="/qube.png"
+            alt="Qube Logo"
+            width={30}
+            height={30}
+          />
+          <p className="font-bold text-3xl">Qube</p>
+        </div>
+        <h1 className="text-3xl font-bold mb-5">Welcome to Qube</h1>
+        <p className="mb-20">Sign in to continue</p>
         
         {/* Wallet connection button */}
         <ConnectWallet
-          className="bg-sky-600 text-white text-sm py-3 px-20 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+          className="text-sm rounded-xl transition duration-300 ease-in-out transform hover:scale-105"
           theme={lightTheme({
             colors: {
-              accentButtonBg: "#247bff",
-              primaryButtonBg: "#009dff",
+              accentButtonBg: "#000000",
+              primaryButtonBg: "#000000",
               primaryButtonText: "#ffffff",
             },
           })}
+          style={{ width: "270px" }}
           switchToActiveChain={true}
           btnTitle={"Sign in"}
           modalTitle={"Log in or Sign up"}

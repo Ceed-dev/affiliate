@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 // Components
 import { NavBar } from "../../components/dashboard";
-import { StatisticCard, BarChart } from "../../components/common";
+import { AnalyticsCard, BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { AffiliatePerformanceList } from "../../components/project";
 
@@ -135,18 +135,20 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         <div className="space-y-2">
           <h2 className="font-bold text-xl">Analytics</h2>
           <div className="grid grid-cols-2 gap-3">
-            {/* Conversion Statistics Card */}
-            <StatisticCard
-              title="Conversions (All Time)"
+            {/* Conversion Analytics Card */}
+            <AnalyticsCard
+              title="Conversions"
+              description="(All Time)"
               loading={loadingConversionData}
-              value={conversionData.length.toString()}
+              value={conversionData.length}
               unit="TIMES"
             />
-            {/* Click Statistics Card */}
-            <StatisticCard
-              title="Clicks (All Time)"
+            {/* Click Analytics Card */}
+            <AnalyticsCard
+              title="Clicks"
+              description="(All Time)"
               loading={loadingClickData}
-              value={clickData.length.toString()}
+              value={clickData.length}
               unit="TIMES"
             />
           </div>
