@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 
 // Components
 import { ProjectHeader, ConversionPointsTable } from "../../components/project";
-import { StatisticCard, BarChart } from "../../components/common";
+import { AnalyticsCard, BarChart } from "../../components/common";
 
 // Types
 import { ProjectData, ReferralData, ConversionLog, ClickData } from "../../types";
@@ -233,19 +233,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     <div>
       {/* Loading Screen */}
       {!projectData ? (
-        <div className="w-screen h-screen flex flex-row items-center justify-center gap-5">
+        <div className="mt-20 flex justify-center items-center gap-5">
           <Image
             src="/assets/common/loading.png"
             alt="loading"
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="animate-spin"
           />
-          <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+          <p className="animate-pulse font-semibold">Loading data...</p>
         </div>
       ) : (
         // Main Content
-        <div className="min-h-screen max-w-4xl mx-auto px-3 pb-20 space-y-5">
+        <div className="min-h-screen w-full md:max-w-2xl lg:max-w-4xl mx-auto px-3 pb-20 space-y-5">
   
           {/* Header */}
           <ProjectHeader 
@@ -261,7 +261,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           {/* Join Project Button for Desktop */}
           {projectData && !referralId && (
             <button
-              className="bg-gray-500 hover:bg-gray-700 rounded-full py-2 px-5 font-bold transition duration-300 ease-in-out transform hover:scale-105 hidden md:block"
+              className="hidden md:block ml-3 bg-white text-black rounded-full py-2 px-4 font-bold transition duration-300 ease-in-out transform hover:scale-105"
               onClick={handleJoinProject}
             >
               Join Project
@@ -270,51 +270,61 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   
           {/* Invite Code Panel */}
           {referralLink && (
-            <div className="bg-slate-200 rounded-lg p-5">
-              <p className="text-green-500 font-bold mb-2">Joined!</p>
-              <p className="font-semibold text-black">Invite Code</p>
-              <p className="text-sm text-slate-600 text-ellipsis overflow-hidden whitespace-nowrap">
+            <div className="bg-[#222222] rounded-xl p-5 mx-3">
+              <p className="text-[#25D366] font-bold mb-2">Joined!</p>
+              <p className="font-semibold">Invite Code</p>
+              <p className="text-sm text-white/60 text-ellipsis overflow-hidden whitespace-nowrap">
                 {referralLink}
               </p>
-              <button
-                type="button"
-                className="text-black bg-slate-300 hover:bg-slate-400 font-semibold w-full rounded-full py-2 mt-2"
-                onClick={() => copyToClipboard(
-                  referralLink,
-                  "Referral link copied to clipboard!",
-                  "Failed to copy referral link. Please try again."
-                )}
-              >
-                Copy
-              </button>
+              <div className="flex gap-3 mt-3">
+                <button
+                  type="button"
+                  className="bg-white/5 font-semibold w-full rounded-full py-2"
+                  onClick={() => copyToClipboard(
+                    referralLink,
+                    "Referral link copied to clipboard!",
+                    "Failed to copy referral link. Please try again."
+                  )}
+                >
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  className="bg-black font-semibold w-full rounded-full py-2"
+                  onClick={() => {}}
+                >
+                  Share
+                </button>
+              </div>
             </div>
           )}
   
           {address && referralId && referralData && (
             <>
               {/* Analytics */}
-              <div className="space-y-2">
-                <h1 className="font-bold">Analytics</h1>
+              <div className="space-y-2 mx-3">
+                <h1 className="font-bold text-xl">Analytics</h1>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <StatisticCard
-                    title="Conversions (This month)"
+                  <AnalyticsCard
+                    title="Conversions"
+                    description="(This month)"
                     loading={loading.referral || loading.conversionLogs}
-                    value={`${totalConversions}`}
-                    unit="TIMES"
+                    value={totalConversions}
                   />
-                  <StatisticCard
-                    title="Earnings (This month)"
+                  <AnalyticsCard
+                    title="Earnings"
+                    description="(This month)"
                     loading={loading.referral || loading.tokenSymbol || loading.conversionLogs}
-                    value={`${totalEarnings}`}
+                    value={totalEarnings}
                     unit={tokenSymbol}
                   />
-                  <StatisticCard
-                    title="Total Clicks (All time)"
+                  <AnalyticsCard
+                    title="Total Clicks"
+                    description="(All time)"
                     loading={loading.clickData}
-                    value={`${clickData.length}`}
-                    unit="TIMES"
+                    value={clickData.length}
                   />
-                  <StatisticCard
+                  <AnalyticsCard
                     title="Next Payment Date"
                     loading={false}
                     value={getNextPaymentDate()}
@@ -324,10 +334,10 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               </div>
   
               {/* Conversion Chart */}
-              <div className="space-y-2">
-                <h1 className="font-bold">Click/Conversion Chart</h1>
+              <div className="space-y-2 mx-3">
+                <h1 className="font-bold text-xl">Click/Conversion Chart</h1>
                 {loading.conversionLogs || loading.clickData ? (
-                  <div className="flex flex-row items-center justify-center gap-5 bg-white rounded-lg shadow h-[100px]">
+                  <div className="flex flex-row items-center justify-center gap-5 bg-[#222222] rounded-lg h-[150px]">
                     <Image
                       src="/assets/common/loading.png"
                       alt="loading.png"
@@ -338,7 +348,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
                   </div>
                 ) : (
-                  <div className="bg-white rounded-lg shadow p-2">
+                  <div className="bg-[#222222] rounded-lg p-2">
                     <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
                   </div>
                 )}
@@ -358,9 +368,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   
       {/* Join Project Button */}
       {projectData && !referralId && (
-        <div className="md:hidden w-full bg-slate-100 py-3 px-5 fixed bottom-0 border-t border-gray-300">
+        <div className="md:hidden bg-black w-full py-3 px-5 fixed bottom-0 border-t border-white/10">
           <button
-            className="w-full bg-black hover:bg-gray-700 rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
+            className="w-full bg-white text-black rounded-full py-2 font-bold transition duration-300 ease-in-out transform hover:scale-105"
             onClick={handleJoinProject}
           >
             Join Project
