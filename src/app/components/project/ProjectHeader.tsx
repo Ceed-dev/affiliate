@@ -30,15 +30,15 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
 }) => {
   // Social media links array with details for rendering icons
   const socialLinks = [
-    { url: websiteUrl, icon: "/assets/common/www.png", alt: "Website", size: 40 },
-    { url: xUrl, icon: "/brand-assets/x/black.png", alt: "X", size: 30 },
+    { url: websiteUrl, icon: "/assets/common/www-white.png", alt: "Website", size: 40 },
+    { url: xUrl, icon: "/brand-assets/x/white.png", alt: "X", size: 30 },
     { url: discordUrl, icon: "/brand-assets/discord.png", alt: "Discord", size: 40 },
   ];
 
   return (
     <div>
       {/* Cover Image Section */}
-      <div className="h-[200px] relative mb-16">
+      <div className="h-[200px] md:h-[300px] lg:h-[380px] relative md:mt-5 mb-16">
         <Image
           src={cover}
           alt="Cover Image"
@@ -48,7 +48,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         />
 
         {/* Logo and Social Links Overlay */}
-        <div className="absolute bottom-[-50px] w-full flex flex-row items-end justify-between px-5">
+        <div className="absolute bottom-[-50px] w-full flex flex-row items-end justify-between px-3">
           {/* Logo Image */}
           <Image
             className="w-28 h-28 rounded-full"
@@ -67,7 +67,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
                   key={index}
                   href={link.url}
                   target="_blank"
-                  className="w-10 h-10 p-2 bg-slate-200 rounded-full flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105"
+                  className="w-10 h-10 p-3 bg-[#222222] rounded-full flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105"
                 >
                   <Image
                     src={link.icon}
@@ -83,8 +83,10 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
       </div>
 
       {/* Project Title and Description */}
-      <h1 className="font-bold mb-2">{projectName}</h1>
-      <p className="text-sm">{description}</p>
+      <div className="px-3">
+        <h1 className="font-bold text-xl mb-2">{projectName}</h1>
+        <p className="text-sm text-white/60">{description}</p>
+      </div>
     </div>
   );
 };
