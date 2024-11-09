@@ -29,9 +29,9 @@ export const displayFormattedDateWithTimeZone = (date: Date | undefined): string
  * Calculates and returns the date of the next payment, which is the 1st of the next month.
  * The date is adjusted to Japan Standard Time (JST) and then displayed in the user's time zone.
  * 
- * @returns The formatted date string for the next payment.
+ * @returns The date for the next payment.
  */
-export const getNextPaymentDate = (): string => {
+export const getNextPaymentDate = (): Date => {
   const now = new Date(); // Get the current date and time
   const year = now.getUTCFullYear(); // Current year
   const nextMonth = now.getUTCMonth() + 1; // Set to next month
@@ -42,8 +42,8 @@ export const getNextPaymentDate = (): string => {
   // Japan Standard Time (JST) offset is +9 hours from UTC
   const jstNextPaymentDate = new Date(utcNextPaymentDate.getTime() + (9 * 60 * 60 * 1000));
 
-  // Display the date in the user's local time zone
-  return jstNextPaymentDate.toLocaleDateString();
+  // Return the date
+  return jstNextPaymentDate;
 };
 
 /**

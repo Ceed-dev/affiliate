@@ -35,18 +35,25 @@ const RoleSelectButton: React.FC<RoleSelectButtonProps> = ({
   return (
     <button
       onClick={() => setRole(roleValue)}
-      className={`w-full h-full py-2 flex items-center justify-center gap-3 rounded-xl text-sm font-medium text-gray-900 cursor-pointer focus:outline-none ${
-        isSelected ? "bg-gray-200 hover:bg-gray-300 border-2 border-black" : "bg-white hover:bg-gray-50 border"
-      } ${disableRoleSelection ? "cursor-not-allowed opacity-50" : ""}`}
+      className={`w-full h-full py-2 px-3 flex items-center gap-3 rounded-xl text-sm font-medium cursor-pointer focus:outline-none bg-[#F5F5F5] ${
+        isSelected && "border-2 border-black"
+      } ${disableRoleSelection && "cursor-not-allowed opacity-50"}`}
       disabled={disableRoleSelection}
     >
       {/* Selection Indicator */}
       <div
         className={`flex-none w-5 h-5 rounded-full flex items-center justify-center ${
-          isSelected ? "bg-black" : "border border-gray-400"
-        } ${disableRoleSelection ? "opacity-50" : ""}`}
+          isSelected ? "bg-black" : "border-2 border-black"
+        } ${disableRoleSelection && "opacity-50"}`}
       >
-        {isSelected && <Image src="/assets/common/checkmark.png" width={10} height={10} alt="checkmark" />}
+        {isSelected && (
+          <Image
+            src="/assets/common/checkmark-white.png"
+            width={15}
+            height={15}
+            alt="checkmark"
+          />
+        )}
       </div>
       <p>{label}</p>
     </button>
@@ -372,8 +379,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   if (!isOpen) return null;  // Do not render the modal if it's not open
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl shadow-md p-6 w-full max-w-md mx-5">
+    <div className="fixed inset-0 bg-[rgba(0,0,0,0.24)] flex items-center justify-center z-50">
+      <div className="bg-white rounded-3xl shadow-md p-6 w-full max-w-sm mx-5">
 
         {/* Title And Close Button */}
         <div className="flex flex-row justify-between mb-7">
@@ -381,9 +388,9 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
           <button onClick={onClose} className="focus:outline-none">
             <Image
               src="/assets/common/close-black.png"
-              alt="Menu Toggle Icon"
-              width={15}
-              height={15}
+              alt="Close Icon"
+              width={20}
+              height={20}
             />
           </button>
         </div>
@@ -392,31 +399,31 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
 
           {/* Username Input Field */}
           <div className="space-y-2">
-            <label className="text-sm text-slate-700 font-semibold">Username <span className="text-red-500">*</span></label>
+            <label className="text-sm font-semibold">Username <span className="text-red-500">*</span></label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+              className="w-full p-2 bg-transparent border border-[#D9D9D9] rounded-lg text-sm outline-none"
               placeholder="qube1234"
             />
           </div>
 
           {/* Email Input Field */}
           <div className="space-y-2">
-            <label className="text-sm text-slate-700 font-semibold">Email <span className="text-red-500">*</span></label>
+            <label className="text-sm font-semibold">Email <span className="text-red-500">*</span></label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+              className="w-full p-2 bg-transparent border border-[#D9D9D9] rounded-lg text-sm outline-none"
               placeholder="official@ceed.cloud"
             />
           </div>
 
           {/* Role Selection Buttons */}
           <div className="space-y-2">
-            <label className="text-sm text-slate-700 font-semibold">Role <span className="text-red-500">*</span></label>
+            <label className="text-sm font-semibold">Role <span className="text-red-500">*</span></label>
             {disableRoleSelection && (
               <p className="text-xs text-red-500 font-semibold">
                 You are automatically assigned the role of &quot;Publisher&quot; because you are a team member of a project.
@@ -443,12 +450,12 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
           {/* Project URL Input Field for ProjectOwner */}
           {role === "ProjectOwner" && (
             <div className="space-y-2">
-              <label className="text-sm text-slate-700 font-semibold">Project URL <span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold">Project URL <span className="text-red-500">*</span></label>
               <input
                 type="url"
                 value={projectUrl}
                 onChange={(e) => setProjectUrl(e.target.value)}
-                className="w-full p-2 border border-[#D1D5DB] rounded-lg text-sm outline-none"
+                className="w-full p-2 bg-transparent border border-[#D9D9D9] rounded-lg text-sm outline-none"
                 placeholder="https://yourproject.com"
               />
             </div>
@@ -457,15 +464,14 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
           {/* X, YouTube Connect Button */}
           {role === "Affiliate" && (
             <div className="space-y-2">
-              <label className="text-sm text-slate-700 font-semibold">Mainly Used SNS <span className="text-red-500">*</span></label>
-              <p className="text-xs text-slate-600">Please connect at least one account, either X or YouTube.</p>
+              <label className="text-sm font-semibold">Mainly Used SNS <span className="text-red-500">*</span></label>
 
               <div className="flex flex-row gap-3">
 
                 {/* X */}
                 <div className="flex-1">
                   {isXApiLoading ? (
-                    <div className="flex justify-center items-center gap-2 text-sm text-gray-600">
+                    <div className="flex justify-center items-center gap-2 text-sm">
                       <Image
                         src="/assets/common/loading.png"
                         alt="loading"
@@ -473,7 +479,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                         height={30}
                         className="animate-spin"
                       />
-                      Loading...
+                      <span className="animate-pulse">Loading...</span>
                     </div>
                   ) : xUserData ? (
                     <div className="flex items-center gap-2">
@@ -488,7 +494,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                         href={`https://x.com/${xUserData.username}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-500 text-sm hover:underline"
+                        className="text-black text-sm hover:underline"
                       >
                         @{xUserData.username}
                       </a>
@@ -506,13 +512,13 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           setIsXApiLoading(false); // Reset loading state in case of error
                         }
                       }}
-                      className="w-full py-2 rounded-lg text-sm outline-none flex items-center justify-center gap-3 bg-gray-200 hover:bg-gray-300"
+                      className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-[#F5F5F5]"
                     >
                       <Image
                         src="/brand-assets/x/black.png"
                         alt="X Logo"
-                        width={20}
-                        height={20}
+                        width={15}
+                        height={15}
                       />
                       X
                     </button>
@@ -522,7 +528,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 {/* YouTube */}
                 <div className="flex-1">
                   {isGoogleApiLoading ? (
-                    <div className="flex justify-center items-center gap-2 text-sm text-gray-600">
+                    <div className="flex justify-center items-center gap-2 text-sm">
                       <Image
                         src="/assets/common/loading.png"
                         alt="loading"
@@ -530,7 +536,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                         height={30}
                         className="animate-spin"
                       />
-                      Loading...
+                      <span className="animate-pulse">Loading...</span>
                     </div>
                   ) : youtubeUserData ? (
                     youtubeUserData === "no_account" ? (
@@ -542,7 +548,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           height={30}
                           className="rounded-full"
                         />
-                        <span className="text-gray-500 text-sm">
+                        <span className="text-black text-sm">
                           Connected
                         </span>
                       </div>
@@ -559,7 +565,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           href={`https://www.youtube.com/${youtubeUserData.snippet?.customUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-500 text-sm hover:underline"
+                          className="text-black text-sm hover:underline"
                         >
                           {youtubeUserData.snippet?.customUrl || "YouTube User"}
                         </a>
@@ -582,7 +588,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           setIsGoogleApiLoading(false); // Reset loading state in case of error
                         }
                       }}
-                      className="w-full py-2 rounded-lg text-sm outline-none flex items-center justify-center gap-3 bg-gray-200 hover:bg-gray-300"
+                      className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-[#F5F5F5]"
                     >
                       <Image
                         src="/brand-assets/youtube.png"
@@ -603,8 +609,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className={`w-full mt-10 px-4 py-2 rounded-3xl text-white ${
-            isSaveEnabled ? "bg-black hover:bg-slate-700 hover:shadow-lg" : "bg-gray-300 cursor-not-allowed"
+          className={`w-full mt-10 px-4 py-2 rounded-3xl text-white font-bold ${
+            isSaveEnabled ? "bg-black hover:bg-slate-700 hover:shadow-lg" : "bg-black/50 cursor-not-allowed"
           }`}
           disabled={!isSaveEnabled}
         >

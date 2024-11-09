@@ -80,12 +80,8 @@ const RootLayout = ({
         coinbaseWallet(),
         walletConnect(),
       ]}
-      // authConfig={{
-      //   authUrl: "/api/auth",
-      //   domain: "http://localhost:3000",
-      // }}
     >
-      <html lang="en" className="bg-slate-200">
+      <html lang="en">
         <Script
           src="https://cdn.cookie3.co/scripts/analytics/0.11.4/cookie3.analytics.min.js"
           integrity="sha384-lzDmDdr/zEhMdlE+N04MgISCyL3RIWNCb9LjsrQeEFi8Gy5CKXIRI+u58ZV+ybYz"

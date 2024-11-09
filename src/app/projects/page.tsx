@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { ExtendedProjectData } from "../types";
 import { fetchProjectsByOwner } from "../utils/firebase";
 import { fetchTokenSymbols } from "../utils/contracts";
-import { ProjectCard } from "../components/ProjectCard";
+import { ProjectCard } from "../components/project";
 
 export default function Projects() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
