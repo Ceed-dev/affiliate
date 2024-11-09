@@ -67,11 +67,16 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
     // Map data points to match each date label
     const dataPoints = labels.map(label => transactionCounts[label] || 0);
 
+    // Set color based on the dataset title
+    const color = title === "Clicks" ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 1)";
+    const borderColor = title === "Clicks" ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 1)";
+
     // Create a dataset with a random color for each entry
     datasets.push({
       label: title,
       data: dataPoints,
-      ...getRandomColor(),
+      backgroundColor: color,
+      borderColor: borderColor,
       borderWidth: 1,
     });
   });
@@ -91,7 +96,27 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
           stepSize: 1,
           precision: 0,
         },
+        grid: {
+          display: false,
+        },
       },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+    barPercentage: 1.0,       // Remove space between bars within a category
+    plugins: {
+      legend: { 
+        display: true,
+        position: "top" as const, // Keep the legend at the top of the chart
+        align: "end" as const,   // Align labels to the right within the legend box
+        labels: {
+          padding: 20,          // Adjust padding if needed
+        },
+      },
+      tooltip: { enabled: true },
     },
   };
 
