@@ -60,7 +60,7 @@ const SelectButton: React.FC<SelectButtonProps> = ({
       } ${disabled ? "opacity-50" : ""}`} // Styling for disabled indicator
     >
       {isSelected && (
-        <Image src="/assets/common/checkmark.png" width={15} height={15} alt="checkmark" />
+        <Image src="/assets/common/checkmark-black.png" width={15} height={15} alt="checkmark" />
       )}
     </div>
 

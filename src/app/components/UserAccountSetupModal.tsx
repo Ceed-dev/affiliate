@@ -35,20 +35,20 @@ const RoleSelectButton: React.FC<RoleSelectButtonProps> = ({
   return (
     <button
       onClick={() => setRole(roleValue)}
-      className={`w-full h-full py-2 px-3 flex items-center gap-3 rounded-xl text-sm font-medium cursor-pointer focus:outline-none bg-white bg-opacity-5 ${
-        isSelected && "border-2"
+      className={`w-full h-full py-2 px-3 flex items-center gap-3 rounded-xl text-sm font-medium cursor-pointer focus:outline-none bg-[#F5F5F5] ${
+        isSelected && "border-2 border-black"
       } ${disableRoleSelection && "cursor-not-allowed opacity-50"}`}
       disabled={disableRoleSelection}
     >
       {/* Selection Indicator */}
       <div
         className={`flex-none w-5 h-5 rounded-full flex items-center justify-center ${
-          isSelected ? "bg-white" : "border-2"
+          isSelected ? "bg-black" : "border-2 border-black"
         } ${disableRoleSelection && "opacity-50"}`}
       >
         {isSelected && (
           <Image
-            src="/assets/common/checkmark.png"
+            src="/assets/common/checkmark-white.png"
             width={15}
             height={15}
             alt="checkmark"
@@ -380,14 +380,14 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[rgba(0,0,0,0.24)] flex items-center justify-center z-50">
-      <div className="bg-[#222222] text-white rounded-3xl shadow-md p-6 w-full max-w-sm mx-5">
+      <div className="bg-white rounded-3xl shadow-md p-6 w-full max-w-sm mx-5">
 
         {/* Title And Close Button */}
         <div className="flex flex-row justify-between mb-7">
           <h1 className="text-xl font-semibold">Profile Setup</h1>
           <button onClick={onClose} className="focus:outline-none">
             <Image
-              src="/assets/common/close-white.png"
+              src="/assets/common/close-black.png"
               alt="Close Icon"
               width={20}
               height={20}
@@ -404,7 +404,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 bg-transparent border border-white/10 rounded-lg text-sm outline-none"
+              className="w-full p-2 bg-transparent border border-[#D9D9D9] rounded-lg text-sm outline-none"
               placeholder="qube1234"
             />
           </div>
@@ -416,7 +416,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 bg-transparent border border-white/10 rounded-lg text-sm outline-none"
+              className="w-full p-2 bg-transparent border border-[#D9D9D9] rounded-lg text-sm outline-none"
               placeholder="official@ceed.cloud"
             />
           </div>
@@ -455,7 +455,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                 type="url"
                 value={projectUrl}
                 onChange={(e) => setProjectUrl(e.target.value)}
-                className="w-full p-2 bg-transparent border border-white/10 rounded-lg text-sm outline-none"
+                className="w-full p-2 bg-transparent border border-[#D9D9D9] rounded-lg text-sm outline-none"
                 placeholder="https://yourproject.com"
               />
             </div>
@@ -494,7 +494,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                         href={`https://x.com/${xUserData.username}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-500 text-sm hover:underline"
+                        className="text-black text-sm hover:underline"
                       >
                         @{xUserData.username}
                       </a>
@@ -512,10 +512,10 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           setIsXApiLoading(false); // Reset loading state in case of error
                         }
                       }}
-                      className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-white bg-opacity-5"
+                      className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-[#F5F5F5]"
                     >
                       <Image
-                        src="/brand-assets/x/white.png"
+                        src="/brand-assets/x/black.png"
                         alt="X Logo"
                         width={15}
                         height={15}
@@ -548,7 +548,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           height={30}
                           className="rounded-full"
                         />
-                        <span className="text-gray-500 text-sm">
+                        <span className="text-black text-sm">
                           Connected
                         </span>
                       </div>
@@ -565,7 +565,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           href={`https://www.youtube.com/${youtubeUserData.snippet?.customUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-500 text-sm hover:underline"
+                          className="text-black text-sm hover:underline"
                         >
                           {youtubeUserData.snippet?.customUrl || "YouTube User"}
                         </a>
@@ -588,7 +588,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                           setIsGoogleApiLoading(false); // Reset loading state in case of error
                         }
                       }}
-                      className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-white bg-opacity-5"
+                      className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-[#F5F5F5]"
                     >
                       <Image
                         src="/brand-assets/youtube.png"
@@ -609,8 +609,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className={`w-full mt-10 px-4 py-2 rounded-3xl text-black font-bold ${
-            isSaveEnabled ? "bg-white hover:bg-slate-200 hover:shadow-lg" : "bg-white/50 cursor-not-allowed"
+          className={`w-full mt-10 px-4 py-2 rounded-3xl text-white font-bold ${
+            isSaveEnabled ? "bg-black hover:bg-slate-700 hover:shadow-lg" : "bg-black/50 cursor-not-allowed"
           }`}
           disabled={!isSaveEnabled}
         >
