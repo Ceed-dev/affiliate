@@ -3,14 +3,29 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { 
-  navLinks, trustedPartners, statsInAbout, calendlyLink, 
-  featureBlocks, achievements, clientLogos, 
+  navLinks, trustedPartners, calendlyLink, 
+  achievements, clientLogos, 
   faqs, socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
 
 export default function Home() {
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL as string;
+
+  // Get search parameters from the URL
+  const searchParams = useSearchParams();
+  // State to track if the role in query parameter is "affiliate"
+  const [isAffiliate, setIsAffiliate] = useState(false);
+
+  useEffect(() => {
+    // Retrieve the "role" parameter from the searchParams
+    const role = searchParams.get("role");
+    // Set isAffiliate to true if "role" is "affiliate"
+    setIsAffiliate(role === "affiliate");
+  }, [searchParams]); // Run effect whenever searchParams changes
+
   const [faqActiveIndex, setFaqActiveIndex] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
@@ -71,30 +86,9 @@ export default function Home() {
   // ============= END CLIENT LOGO MANAGEMENT =============
 
   const LaunchAppButton: React.FC = () => (
-    <Link href="/onboarding" className="font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
+    <Link href="/onboarding" className="font-bold md:text-xl bg-lime-300 hover:bg-lime-100 py-2 px-8 rounded-md text-black">
       Launch App
     </Link>
-  );
-
-  const StatsAndLink: React.FC = () => (
-    <div className="flex flex-col gap-2 mt-10">
-      {/* Two Stats Card */}
-      <div className="flex flex-row gap-4 text-sm md:text-md">
-        {statsInAbout.map((stat, index) => (
-          <div key={index} className="flex flex-row gap-2">
-            <Image src={stat.icon} alt={stat.label} width={40} height={40} />
-            <div>
-              <p className="font-bold">{stat.count}</p>
-              <p>{stat.label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* "Book Demo" Button */}
-      <Link href={calendlyLink} target="_blank" className="text-xl font-bold shadow-md bg-lime-300 hover:bg-lime-100 py-2 px-4 mt-5 rounded-md text-black mr-auto">
-        Book Demo
-      </Link>
-    </div>
   );
 
   return (
@@ -109,21 +103,28 @@ export default function Home() {
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image src="/qube.png" alt="qube.png" width={50} height={50} />
-            <p className="text-lg font-semibold">Qube</p>
+            <Image src="/qube.png" alt="qube.png" width={35} height={35} />
+            <p className="text-3xl font-semibold">Qube</p>
           </Link>
           {/* Menu Items */}
-          <div className="hidden md:flex flex-row items-center gap-4 xl:gap-10">
+          <div className="hidden lg:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
+            {/* Conditionally render an additional link based on isAffiliate */}
+            <Link 
+              href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
+              className="hover:text-gray-500"
+            >
+              {isAffiliate ? "Publisher" : "KOL/Guild"}
+            </Link>
           </div>
           {/* Launch Button */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <LaunchAppButton />
           </div>
           {/* Menu Toggle Icon */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none">
               <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
@@ -131,7 +132,7 @@ export default function Home() {
         </div>
         {/* Toggle Menu */}
         {menuOpen && (
-          <div className="md:hidden pt-4 bg-black">
+          <div className="lg:hidden pt-4 bg-black">
             <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link 
@@ -143,6 +144,14 @@ export default function Home() {
                   {link.label}
                 </Link>
               ))}
+              {/* Conditionally render an additional link based on isAffiliate in mobile view */}
+              <Link 
+                href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
+                className="py-2 hover:text-gray-500"
+                onClick={() => setMenuOpen(false)}
+              >
+                {isAffiliate ? "Publisher" : "KOL/Guild"}
+              </Link>
             </nav>
           </div>
         )}
@@ -151,12 +160,12 @@ export default function Home() {
       <main className="flex flex-col">
 
         {/* Home */}
-        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
+        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col items-center justify-between">
           {/* Intro Text */}
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
               <span className="relative inline-block">
-                Drive Acquisition
+                {isAffiliate ? "Ready to Amplify" : "Drive Acquisition,"}
                 {/* Underline Image */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
                   <img
@@ -166,23 +175,36 @@ export default function Home() {
                   />
                 </div>
               </span>
-              , Amplify Revenue
+              {isAffiliate ? " Your Influence ?" : " Amplify Revenue"}
             </h1>
-            <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
+            <h2 className="text-lg md:text-3xl mb-5">
+              {isAffiliate
+                ? "Elevate your influence and connect with impactful audiences"
+                : "Ready to Grow with a Network that Rewards Results?"
+              }
+            </h2>
             <p className="text-md md:text-xl">
-              Our network connects you with gaming influencers and guilds across Asia,
-              <br />
-              enabling large-scale audience reach and conversion.
+              {isAffiliate
+                ? "Collaborate with Qube to access a powerful network for gaming brands."
+                : "Our network connects you with gaming influencers and guilds across Asia,"
+              }
+              <br className="hidden md:block" />
+              <span className="ml-1 md:ml-0">
+                {isAffiliate
+                  ? "Amplify your reach and strengthen your presence in the Web3 world."
+                  : "enabling large-scale audience reach and conversion."
+                }
+              </span>
             </p>
           </div>
           {/* Launch Button */}
-          <div className="md:mb-40">
+          <div className="my-12 lg:my-0">
             <LaunchAppButton />
           </div>
           {/* Trusted Partners */}
-          <div className="pb-10 md:pb-20 border-b border-gray-700 w-full lg:w-11/12">
-            <p className="text-xl md:text-3xl font-semibold text-center mb-4">Trusted By</p>
-            <div className="flex flex-wrap justify-center gap-6">
+          <div className="pb-10 md:pb-48 border-b border-gray-700 w-full lg:w-11/12">
+            <p className="text-xl md:text-3xl text-center mb-4">Trusted By</p>
+            <div className="flex flex-wrap justify-center gap-4 lg:gap-10">
               {trustedPartners.map((partner, index) => (
                 <div key={index} className="flex items-center space-x-2 md:space-x-4">
                   <img
@@ -197,49 +219,100 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About */}
-        <section id="about" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col lg:flex-row">
-          {/* Intro Text */}
-          <div className="mr-10 md:mr-20 xl:mr-52 pb-5 lg:pb-0">
-            <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">A product that is more than a tool</h1>
-            <p className="text-md md:text-xl">Our expertises will help you launch an unique campaign made only for your game and achieve regional, segmented user acquisition and drive your growth.</p>
-            {/* Two Stats And Button */}
-            <div className="hidden lg:flex">
-              <StatsAndLink />
-            </div>
+        {/* About 1 */}
+        <section id="about" className="pt-40 pb-10 lg:py-28 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-10 lg:flex-row lg:items-center">
+          {/* Text */}
+          <div className="flex-1 text-center lg:text-start">
+            <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
+              {isAffiliate ? "Connect with " : "Build Partnerships"}
+              <br className="hidden lg:block" />
+              {!isAffiliate && (
+                <>
+                  <span className="mx-2 lg:mx-0">that</span>
+                  <br className="hidden lg:block" />
+                </>
+              )}
+              {isAffiliate ? "the top web3 games" : "Amplify your reach"}
+            </h1>
+            <p className="text-md md:text-xl">
+              {isAffiliate
+                ? "get an opportunity to work with best game in this industry now"
+                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth"
+              }
+            </p>
           </div>
-          {/* UA Image */}
-          <div className="flex justify-center items-start w-[300px] sm:w-[500px] md:w-[600px] lg:w-[1000px] mx-auto">
-            <Image
-              src="/assets/homepage/ua-number-screen.png"
-              alt="UA Number Screen"
-              width={500} 
-              height={500} 
-              className="w-full h-auto object-cover"
-            />
-          </div>
-          {/* Two Stats And Button */}
-          <div className="lg:hidden">
-            <StatsAndLink />
-          </div>
+          {/* Image */}
+          <Image
+            src={`/assets/homepage/image-${isAffiliate ? "4" : "1"}.png`}
+            alt={`Image ${isAffiliate ? "4" : "1"}`}
+            width={2000} 
+            height={2000} 
+            className="flex-1 w-full h-auto object-cover"
+          />
         </section>
 
-        {/* Why Choose Us? */}
-        <section id="why" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Why Choose Us?</h1>
-          {/* Feature Blocks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {featureBlocks.map((block, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-5 items-center p-6"
-              >
-                <Image src={block.icon} alt={block.title} width={50} height={50} />
-                <h3 className="text-xl font-semibold mt-4">{block.title}</h3>
-                <p className="mt-2">{block.description}</p>
-              </div>
-            ))}
+        {/* About 2 */}
+        <section className="py-10 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-7 lg:gap-0 lg:flex-row-reverse lg:items-center">
+          {/* Text */}
+          <div className="flex-1 text-center lg:text-start">
+            <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
+              {isAffiliate
+                ? "Turn your influence "
+                : "Pay Only for "
+              }
+              <br className="hidden lg:block" />
+              {isAffiliate
+                ? "into revenue"
+                : "Measurable Results"
+              }
+            </h1>
+            <p className="text-md md:text-xl">
+              {isAffiliate
+                ? "Have you built a thriving community without knowing how to generate income? We're here to support you!"
+                : "Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes."
+              }
+            </p>
           </div>
+          {/* Image */}
+          <Image
+            src={`/assets/homepage/image-${isAffiliate ? "5" : "2"}.png`}
+            alt={`Image ${isAffiliate ? "5" : "2"}`}
+            width={2000} 
+            height={2000} 
+            className="flex-1 w-full h-auto object-cover"
+          />
+        </section>
+
+        {/* About 3 */}
+        <section className="py-10 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-7 lg:gap-0 lg:flex-row lg:items-center">
+          {/* Text */}
+          <div className="flex-1 text-center lg:text-start">
+            <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
+              {isAffiliate
+                ? "Track Your Impact "
+                : "Access Campaign "
+              }
+              <br className="hidden lg:block" />
+              {isAffiliate
+                ? "with Qube Analytics"
+                : "Analytics & Reporting"
+              }
+            </h1>
+            <p className="text-md md:text-xl">
+              {isAffiliate
+                ? "Track engagement, reach, and conversions to measure success and optimize future strategies. Make data-driven decisions to maximize your community's impact."
+                : "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth."
+              }
+            </p>
+          </div>
+          {/* Image */}
+          <Image
+            src={`/assets/homepage/image-${isAffiliate ? "6" : "3"}.png`}
+            alt={`Image ${isAffiliate ? "6" : "3"}`}
+            width={2000} 
+            height={2000} 
+            className="flex-1 w-full h-auto object-cover"
+          />
         </section>
 
         {/* Achievements */}
@@ -334,8 +407,8 @@ export default function Home() {
           {/* Logo & Social Links */}
           <div className="lg:w-1/2 flex flex-col gap-5">
             <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-              <Image src="/qube.png" alt="qube.png" width={50} height={50} />
-              <p className="text-2xl font-bold">Qube</p>
+              <Image src="/qube.png" alt="qube.png" width={35} height={35} />
+              <p className="text-3xl font-bold">Qube</p>
             </Link>
             <div className="flex flex-row gap-5">
               {socialMediaLinks.map((link, index) => (
@@ -362,7 +435,7 @@ export default function Home() {
         </div>
         {/* Border & Copyright */}
         <div className="border-b border-gray-700" />
-        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2022, All Rights Reserved by Qube.</p>
+        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2024, All Rights Reserved by Ceed Inc.</p>
       </footer>
 
     </div>
