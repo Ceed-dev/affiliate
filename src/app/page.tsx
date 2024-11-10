@@ -71,7 +71,7 @@ export default function Home() {
   // ============= END CLIENT LOGO MANAGEMENT =============
 
   const LaunchAppButton: React.FC = () => (
-    <Link href="/onboarding" className="font-bold bg-lime-300 hover:bg-lime-100 py-2 px-4 rounded-md text-black">
+    <Link href="/onboarding" className="font-bold md:text-xl bg-lime-300 hover:bg-lime-100 py-2 px-8 rounded-md text-black">
       Launch App
     </Link>
   );
@@ -151,7 +151,7 @@ export default function Home() {
       <main className="flex flex-col">
 
         {/* Home */}
-        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col gap-10 items-center justify-between">
+        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col items-center justify-between">
           {/* Intro Text */}
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
@@ -168,21 +168,21 @@ export default function Home() {
               </span>
               , Amplify Revenue
             </h1>
-            <h2 className="text-lg md:text-3xl font-semibold mb-2">The Premier Web3 Affiliate Network for Gaming in Asia</h2>
+            <h2 className="text-lg md:text-3xl mb-5">Ready to Grow with a Network that Rewards Results?</h2>
             <p className="text-md md:text-xl">
               Our network connects you with gaming influencers and guilds across Asia,
-              <br />
-              enabling large-scale audience reach and conversion.
+              <br className="hidden md:block" />
+              <span className="ml-1 md:ml-0">enabling large-scale audience reach and conversion.</span>
             </p>
           </div>
           {/* Launch Button */}
-          <div className="md:mb-40">
+          <div className="my-12 lg:my-0">
             <LaunchAppButton />
           </div>
           {/* Trusted Partners */}
-          <div className="pb-10 md:pb-20 border-b border-gray-700 w-full lg:w-11/12">
-            <p className="text-xl md:text-3xl font-semibold text-center mb-4">Trusted By</p>
-            <div className="flex flex-wrap justify-center gap-6">
+          <div className="pb-10 md:pb-48 border-b border-gray-700 w-full lg:w-11/12">
+            <p className="text-xl md:text-3xl text-center mb-4">Trusted By</p>
+            <div className="flex flex-wrap justify-center gap-4 lg:gap-10">
               {trustedPartners.map((partner, index) => (
                 <div key={index} className="flex items-center space-x-2 md:space-x-4">
                   <img
