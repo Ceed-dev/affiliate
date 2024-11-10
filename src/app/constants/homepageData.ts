@@ -2,7 +2,6 @@
 export const navLinks = [
   { id: "#", label: "Home" },
   { id: "#about", label: "About" },
-  { id: "#why", label: "Why Us" },
   { id: "#achievements", label: "Achievements" },
   { id: "#clients", label: "Our Clients" },
   { id: "#faq", label: "FAQ" },
