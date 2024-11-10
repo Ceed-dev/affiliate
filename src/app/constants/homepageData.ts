@@ -17,48 +17,8 @@ export const trustedPartners = [
   { logoUrl: "/chains/arbitrum.png", name: "Arbitrum" },
 ];
 
-// Statistics displayed in the "About" section
-export const statsInAbout = [
-  { icon: "/assets/homepage/about-1.png", count: "200,000+", label: "Max User Achieved" },
-  { icon: "/assets/homepage/about-2.png", count: "7+", label: "Regions" },
-];
-
 // Calendly link used for scheduling meetings
 export const calendlyLink = "https://calendly.com/badhan998877/badhan-meeting";
-
-// Feature blocks to display key product features on the homepage
-export const featureBlocks = [
-  {
-    icon: "/assets/homepage/customizable.png",
-    title: "Customizable",
-    description: "Conversion point, target segmentation, platform, region all the things you need to consider while acquiring users are adjustable."
-  },
-  {
-    icon: "/assets/homepage/data-tracking.png",
-    title: "Data Tracking",
-    description: "On-chain, off-chain, social analytics....etc. We track all the data in real time related to the campaign and evaluate the performance."
-  },
-  {
-    icon: "/assets/homepage/advanced-analytics.png",
-    title: "Advanced Analytics",
-    description: "Our customizable analytics helps you to track the result in realtime and analyze your campaign to improve each and every moment."
-  },
-  {
-    icon: "/assets/homepage/the-biggest-ad-network.png",
-    title: "The Biggest Ad Network",
-    description: "Our 400+ registered affiliates, 70+ guilds connection with 2M+ gamers reach will support you to bring the perfect fit users to your game."
-  },
-  {
-    icon: "/assets/homepage/incredible-roi-rate.png",
-    title: "Incredible ROI rate",
-    description: "Thanks to our realtime data tracking and analytics, you will get the flexibility in the campaign to change to get the result you want."
-  },
-  {
-    icon: "/assets/homepage/full-support.png",
-    title: "Full Support",
-    description: "It's more than a product. We support you finding the affiliates using our network and support you from planning to execution."
-  },
-];
 
 // Achievements to display in the "Achievements" section
 export const achievements = [
