@@ -107,7 +107,7 @@ export default function Home() {
             <p className="text-3xl font-semibold">Qube</p>
           </Link>
           {/* Menu Items */}
-          <div className="hidden md:flex flex-row items-center gap-4 xl:gap-10">
+          <div className="hidden lg:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
@@ -120,11 +120,11 @@ export default function Home() {
             </Link>
           </div>
           {/* Launch Button */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <LaunchAppButton />
           </div>
           {/* Menu Toggle Icon */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none">
               <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
@@ -132,7 +132,7 @@ export default function Home() {
         </div>
         {/* Toggle Menu */}
         {menuOpen && (
-          <div className="md:hidden pt-4 bg-black">
+          <div className="lg:hidden pt-4 bg-black">
             <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link 
@@ -179,13 +179,13 @@ export default function Home() {
             </h1>
             <h2 className="text-lg md:text-3xl mb-5">
               {isAffiliate
-                ? "Elevate your influence and connect with impactful audiences."
+                ? "Elevate your influence and connect with impactful audiences"
                 : "Ready to Grow with a Network that Rewards Results?"
               }
             </h2>
             <p className="text-md md:text-xl">
               {isAffiliate
-                ? "Collaborate with 0xQube to access a powerful network of gaming brands."
+                ? "Collaborate with Qube to access a powerful network for gaming brands."
                 : "Our network connects you with gaming influencers and guilds across Asia,"
               }
               <br className="hidden md:block" />
@@ -224,7 +224,7 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate ? "Connect with" : "Build partnerships"}
+              {isAffiliate ? "Connect with " : "Build Partnerships"}
               <br className="hidden lg:block" />
               {!isAffiliate && (
                 <>
@@ -232,12 +232,12 @@ export default function Home() {
                   <br className="hidden lg:block" />
                 </>
               )}
-              {isAffiliate ? "the top web3 gaming" : "amplify your reach"}
+              {isAffiliate ? "the top web3 games" : "Amplify your reach"}
             </h1>
             <p className="text-md md:text-xl">
               {isAffiliate
                 ? "get an opportunity to work with best game in this industry now"
-                : "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth"
+                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth"
               }
             </p>
           </div>
@@ -245,8 +245,8 @@ export default function Home() {
           <Image
             src={`/assets/homepage/image-${isAffiliate ? "4" : "1"}.png`}
             alt={`Image ${isAffiliate ? "4" : "1"}`}
-            width={1500} 
-            height={1500} 
+            width={2000} 
+            height={2000} 
             className="flex-1 w-full h-auto object-cover"
           />
         </section>
@@ -257,8 +257,8 @@ export default function Home() {
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
               {isAffiliate
-                ? "Turn your influence"
-                : "Pay Only for"
+                ? "Turn your influence "
+                : "Pay Only for "
               }
               <br className="hidden lg:block" />
               {isAffiliate
@@ -277,8 +277,8 @@ export default function Home() {
           <Image
             src={`/assets/homepage/image-${isAffiliate ? "5" : "2"}.png`}
             alt={`Image ${isAffiliate ? "5" : "2"}`}
-            width={1500} 
-            height={1500} 
+            width={2000} 
+            height={2000} 
             className="flex-1 w-full h-auto object-cover"
           />
         </section>
@@ -289,13 +289,13 @@ export default function Home() {
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
               {isAffiliate
-                ? "Track Your Impact"
-                : "Access campaign"
+                ? "Track Your Impact "
+                : "Access Campaign "
               }
               <br className="hidden lg:block" />
               {isAffiliate
                 ? "with Qube Analytics"
-                : "analytics & reporting"
+                : "Analytics & Reporting"
               }
             </h1>
             <p className="text-md md:text-xl">
@@ -309,8 +309,8 @@ export default function Home() {
           <Image
             src={`/assets/homepage/image-${isAffiliate ? "6" : "3"}.png`}
             alt={`Image ${isAffiliate ? "6" : "3"}`}
-            width={1500} 
-            height={1500} 
+            width={2000} 
+            height={2000} 
             className="flex-1 w-full h-auto object-cover"
           />
         </section>
