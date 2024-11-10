@@ -3,6 +3,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { 
   navLinks, trustedPartners, calendlyLink, 
@@ -11,6 +12,20 @@ import {
 } from "./constants/homepageData";
 
 export default function Home() {
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL as string;
+
+  // Get search parameters from the URL
+  const searchParams = useSearchParams();
+  // State to track if the role in query parameter is "affiliate"
+  const [isAffiliate, setIsAffiliate] = useState(false);
+
+  useEffect(() => {
+    // Retrieve the "role" parameter from the searchParams
+    const role = searchParams.get("role");
+    // Set isAffiliate to true if "role" is "affiliate"
+    setIsAffiliate(role === "affiliate");
+  }, [searchParams]); // Run effect whenever searchParams changes
+
   const [faqActiveIndex, setFaqActiveIndex] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
@@ -88,14 +103,21 @@ export default function Home() {
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image src="/qube.png" alt="qube.png" width={50} height={50} />
-            <p className="text-lg font-semibold">Qube</p>
+            <Image src="/qube.png" alt="qube.png" width={35} height={35} />
+            <p className="text-3xl font-semibold">Qube</p>
           </Link>
           {/* Menu Items */}
           <div className="hidden md:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
               <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
             ))}
+            {/* Conditionally render an additional link based on isAffiliate */}
+            <Link 
+              href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
+              className="hover:text-gray-500"
+            >
+              {isAffiliate ? "Publisher" : "KOL/Guild"}
+            </Link>
           </div>
           {/* Launch Button */}
           <div className="hidden md:block">
@@ -122,6 +144,14 @@ export default function Home() {
                   {link.label}
                 </Link>
               ))}
+              {/* Conditionally render an additional link based on isAffiliate in mobile view */}
+              <Link 
+                href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
+                className="py-2 hover:text-gray-500"
+                onClick={() => setMenuOpen(false)}
+              >
+                {isAffiliate ? "Publisher" : "KOL/Guild"}
+              </Link>
             </nav>
           </div>
         )}
@@ -135,7 +165,7 @@ export default function Home() {
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
               <span className="relative inline-block">
-                Drive Acquisition
+                {isAffiliate ? "Ready to Amplify" : "Drive Acquisition,"}
                 {/* Underline Image */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
                   <img
@@ -145,13 +175,26 @@ export default function Home() {
                   />
                 </div>
               </span>
-              , Amplify Revenue
+              {isAffiliate ? " Your Influence ?" : " Amplify Revenue"}
             </h1>
-            <h2 className="text-lg md:text-3xl mb-5">Ready to Grow with a Network that Rewards Results?</h2>
+            <h2 className="text-lg md:text-3xl mb-5">
+              {isAffiliate
+                ? "Elevate your influence and connect with impactful audiences."
+                : "Ready to Grow with a Network that Rewards Results?"
+              }
+            </h2>
             <p className="text-md md:text-xl">
-              Our network connects you with gaming influencers and guilds across Asia,
+              {isAffiliate
+                ? "Collaborate with 0xQube to access a powerful network of gaming brands."
+                : "Our network connects you with gaming influencers and guilds across Asia,"
+              }
               <br className="hidden md:block" />
-              <span className="ml-1 md:ml-0">enabling large-scale audience reach and conversion.</span>
+              <span className="ml-1 md:ml-0">
+                {isAffiliate
+                  ? "Amplify your reach and strengthen your presence in the Web3 world."
+                  : "enabling large-scale audience reach and conversion."
+                }
+              </span>
             </p>
           </div>
           {/* Launch Button */}
@@ -177,22 +220,31 @@ export default function Home() {
         </section>
 
         {/* About 1 */}
-        <section id="" className="pt-40 pb-10 lg:py-28 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-10 lg:flex-row lg:items-center">
+        <section id="about" className="pt-40 pb-10 lg:py-28 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-10 lg:flex-row lg:items-center">
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              Build partnerships
+              {isAffiliate ? "Connect with" : "Build partnerships"}
               <br className="hidden lg:block" />
-              <span className="mx-2 lg:mx-0">that</span>
-              <br className="hidden lg:block" />
-              amplify your reach
+              {!isAffiliate && (
+                <>
+                  <span className="mx-2 lg:mx-0">that</span>
+                  <br className="hidden lg:block" />
+                </>
+              )}
+              {isAffiliate ? "the top web3 gaming" : "amplify your reach"}
             </h1>
-            <p className="text-md md:text-xl">Identify best KOL/Guild/Community with audiences aligned to enhance your game growth</p>
+            <p className="text-md md:text-xl">
+              {isAffiliate
+                ? "get an opportunity to work with best game in this industry now"
+                : "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth"
+              }
+            </p>
           </div>
           {/* Image */}
           <Image
-            src="/assets/homepage/image-1.png"
-            alt="Image 1"
+            src={`/assets/homepage/image-${isAffiliate ? "4" : "1"}.png`}
+            alt={`Image ${isAffiliate ? "4" : "1"}`}
             width={1500} 
             height={1500} 
             className="flex-1 w-full h-auto object-cover"
@@ -200,20 +252,31 @@ export default function Home() {
         </section>
 
         {/* About 2 */}
-        <section id="" className="py-10 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-7 lg:gap-0 lg:flex-row-reverse lg:items-center">
+        <section className="py-10 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-7 lg:gap-0 lg:flex-row-reverse lg:items-center">
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              Pay Only for
+              {isAffiliate
+                ? "Turn your influence"
+                : "Pay Only for"
+              }
               <br className="hidden lg:block" />
-              Measurable Results
+              {isAffiliate
+                ? "into revenue"
+                : "Measurable Results"
+              }
             </h1>
-            <p className="text-md md:text-xl">Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes</p>
+            <p className="text-md md:text-xl">
+              {isAffiliate
+                ? "Have you built a thriving community without knowing how to generate income? We're here to support you!"
+                : "Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes."
+              }
+            </p>
           </div>
           {/* Image */}
           <Image
-            src="/assets/homepage/image-2.png"
-            alt="Image 2"
+            src={`/assets/homepage/image-${isAffiliate ? "5" : "2"}.png`}
+            alt={`Image ${isAffiliate ? "5" : "2"}`}
             width={1500} 
             height={1500} 
             className="flex-1 w-full h-auto object-cover"
@@ -221,20 +284,31 @@ export default function Home() {
         </section>
 
         {/* About 3 */}
-        <section id="" className="py-10 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-7 lg:gap-0 lg:flex-row lg:items-center">
+        <section className="py-10 px-10 lg:px-0 lg:w-11/12 lg:mx-auto flex flex-col gap-7 lg:gap-0 lg:flex-row lg:items-center">
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              Access campaign
+              {isAffiliate
+                ? "Track Your Impact"
+                : "Access campaign"
+              }
               <br className="hidden lg:block" />
-              analytics & reporting
+              {isAffiliate
+                ? "with Qube Analytics"
+                : "analytics & reporting"
+              }
             </h1>
-            <p className="text-md md:text-xl">Identify best KOL/Guild/Community with audiences aligned to enhance your game growth</p>
+            <p className="text-md md:text-xl">
+              {isAffiliate
+                ? "Track engagement, reach, and conversions to measure success and optimize future strategies. Make data-driven decisions to maximize your community's impact."
+                : "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth."
+              }
+            </p>
           </div>
           {/* Image */}
           <Image
-            src="/assets/homepage/image-3.png"
-            alt="Image 3"
+            src={`/assets/homepage/image-${isAffiliate ? "6" : "3"}.png`}
+            alt={`Image ${isAffiliate ? "6" : "3"}`}
             width={1500} 
             height={1500} 
             className="flex-1 w-full h-auto object-cover"
@@ -333,8 +407,8 @@ export default function Home() {
           {/* Logo & Social Links */}
           <div className="lg:w-1/2 flex flex-col gap-5">
             <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-              <Image src="/qube.png" alt="qube.png" width={50} height={50} />
-              <p className="text-2xl font-bold">Qube</p>
+              <Image src="/qube.png" alt="qube.png" width={35} height={35} />
+              <p className="text-3xl font-bold">Qube</p>
             </Link>
             <div className="flex flex-row gap-5">
               {socialMediaLinks.map((link, index) => (
@@ -361,7 +435,7 @@ export default function Home() {
         </div>
         {/* Border & Copyright */}
         <div className="border-b border-gray-700" />
-        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2022, All Rights Reserved by Qube.</p>
+        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2024, All Rights Reserved by Ceed Inc.</p>
       </footer>
 
     </div>
