@@ -189,7 +189,7 @@ export default function Home() {
       <main className="flex flex-col">
 
         {/* Home */}
-        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col items-center justify-between">
+        <section id="#" className="mb-14 md:mb-24 pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col items-center justify-between">
           {/* Intro Text */}
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
@@ -227,7 +227,7 @@ export default function Home() {
             </p>
           </div>
           {/* Launch Button */}
-          <div className="my-12 lg:my-0">
+          <div className="my-16">
             <LaunchAppButton />
           </div>
           {/* Trusted Partners */}
