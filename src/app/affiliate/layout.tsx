@@ -119,7 +119,7 @@ export default function AffiliateLayout({
           className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-auto"
         >
           <Image
-            src="/assets/common/user-white.png"
+            src="/assets/common/account-white.png"
             alt="User"
             width={25}
             height={25}
