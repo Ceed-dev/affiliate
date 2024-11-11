@@ -92,7 +92,7 @@ export default function AffiliateLayout({
               width={30}
               height={30}
             />
-            <p className="text-xl font-bold">Qube</p>
+            <p className="text-xl font-bold font-corporate">Qube</p>
           </Link>
           
           {/* Placeholder for right alignment */}

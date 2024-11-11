@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ address }) => {
             height={50}
           />
           {/* Qube text */}
-          <p className="text-lg font-semibold">Qube</p>
+          <p className="text-lg font-semibold font-corporate">Qube</p>
         </Link>
 
         <div className="relative">
