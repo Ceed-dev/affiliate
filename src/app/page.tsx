@@ -265,8 +265,8 @@ export default function Home() {
             </h1>
             <p className="text-md md:text-xl">
               {isAffiliate
-                ? "get an opportunity to work with best game in this industry now"
-                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth"
+                ? "Get an opportunity to work with the best games in this industry now."
+                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth."
               }
             </p>
           </div>
