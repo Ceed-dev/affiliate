@@ -245,8 +245,9 @@ export default function Home() {
           <Image
             src={`/assets/homepage/image-${isAffiliate ? "4" : "1"}.png`}
             alt={`Image ${isAffiliate ? "4" : "1"}`}
-            width={2000} 
-            height={2000} 
+            width={600}
+            height={600}
+            quality={100}
             className="flex-1 w-full h-auto object-cover"
           />
         </section>
@@ -277,8 +278,9 @@ export default function Home() {
           <Image
             src={`/assets/homepage/image-${isAffiliate ? "5" : "2"}.png`}
             alt={`Image ${isAffiliate ? "5" : "2"}`}
-            width={2000} 
-            height={2000} 
+            width={600}
+            height={600}
+            quality={100}
             className="flex-1 w-full h-auto object-cover"
           />
         </section>
@@ -309,8 +311,9 @@ export default function Home() {
           <Image
             src={`/assets/homepage/image-${isAffiliate ? "6" : "3"}.png`}
             alt={`Image ${isAffiliate ? "6" : "3"}`}
-            width={2000} 
-            height={2000} 
+            width={600}
+            height={600}
+            quality={100}
             className="flex-1 w-full h-auto object-cover"
           />
         </section>
