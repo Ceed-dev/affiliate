@@ -102,7 +102,7 @@ export default function Home() {
       </Head>
 
       {/* Navbar */}
-      <header className="fixed w-full pt-5 pb-2 z-10">
+      <header className="fixed w-full pt-5 pb-2 z-10 bg-black">
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link
@@ -161,7 +161,7 @@ export default function Home() {
 
         {/* Toggle Menu */}
         {menuOpen && (
-          <div className="lg:hidden pt-4 bg-black">
+          <div className="lg:hidden pt-4">
             <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link 
@@ -189,7 +189,7 @@ export default function Home() {
       <main className="flex flex-col">
 
         {/* Home */}
-        <section id="#" className="pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col items-center justify-between">
+        <section id="#" className="mb-14 md:mb-24 pt-28 md:pt-52 px-10 lg:px-0 h-[600px] md:h-screen flex flex-col items-center justify-between">
           {/* Intro Text */}
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
@@ -214,7 +214,7 @@ export default function Home() {
             </h2>
             <p className="text-md md:text-xl">
               {isAffiliate
-                ? <>Collaborate with <span className="font-corporate">Qube</span> to access a powerful network for gaming brands.</>
+                ? "Collaborate with Qube to access a powerful network for gaming brands."
                 : "Our network connects you with gaming influencers and guilds across Asia,"
               }
               <br className="hidden md:block" />
@@ -227,7 +227,7 @@ export default function Home() {
             </p>
           </div>
           {/* Launch Button */}
-          <div className="my-12 lg:my-0">
+          <div className="my-16">
             <LaunchAppButton />
           </div>
           {/* Trusted Partners */}
@@ -265,8 +265,8 @@ export default function Home() {
             </h1>
             <p className="text-md md:text-xl">
               {isAffiliate
-                ? "get an opportunity to work with best game in this industry now"
-                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth"
+                ? "Get an opportunity to work with the best games in this industry now."
+                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth."
               }
             </p>
           </div>
@@ -325,7 +325,7 @@ export default function Home() {
               }
               <br className="hidden lg:block" />
               {isAffiliate
-                ? <>with <span className="font-corporate">Qube</span> Analytics</>
+                ? "with Qube Analytics"
                 : "Analytics & Reporting"
               }
             </h1>
@@ -351,9 +351,9 @@ export default function Home() {
         <section id="achievements" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Achievements</h1>
           {/* Achievement Cards */}
-          <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
+          <div className="flex flex-col lg:flex-row gap-12 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
             {achievements.map((achievement, index) => (
-              <div key={index} className="bg-white rounded-lg py-5 lg:px-5 xl:px-10">
+              <div key={index} className="bg-white rounded-lg py-5 lg:px-5 xl:px-10 flex-1">
                 <p className="mb-5">{achievement.count}</p>
                 <p>{achievement.label}</p>
               </div>
