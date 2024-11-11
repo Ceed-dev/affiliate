@@ -102,7 +102,7 @@ export default function Home() {
       </Head>
 
       {/* Navbar */}
-      <header className="fixed w-full pt-5 pb-2 z-10">
+      <header className="fixed w-full pt-5 pb-2 z-10 bg-black">
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
           <Link
@@ -161,7 +161,7 @@ export default function Home() {
 
         {/* Toggle Menu */}
         {menuOpen && (
-          <div className="lg:hidden pt-4 bg-black">
+          <div className="lg:hidden pt-4">
             <nav className="flex flex-col p-5 border-t border-gray-200">
               {navLinks.map((link, index) => (
                 <Link 
