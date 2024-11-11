@@ -86,7 +86,10 @@ export default function Home() {
   // ============= END CLIENT LOGO MANAGEMENT =============
 
   const LaunchAppButton: React.FC = () => (
-    <Link href="/onboarding" className="font-bold md:text-xl bg-lime-300 hover:bg-lime-100 py-2 px-8 rounded-md text-black">
+    <Link
+      href="/onboarding"
+      className="font-bold md:text-xl bg-lime-300 hover:bg-lime-100 py-2 px-8 rounded-md text-black"
+    >
       Launch App
     </Link>
   );
@@ -102,14 +105,29 @@ export default function Home() {
       <header className="fixed w-full pt-5 pb-2 z-10">
         <div className="w-full lg:w-11/12 px-5 lg:px-0 flex flex-row justify-between items-center mx-auto">
           {/* Qube Icon Image */}
-          <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-            <Image src="/qube.png" alt="qube.png" width={35} height={35} />
+          <Link
+            href="#"
+            className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
+          >
+            <Image
+              src="/qube.png"
+              alt="qube.png"
+              width={35}
+              height={35}
+            />
             <p className="text-3xl font-semibold">Qube</p>
           </Link>
+
           {/* Menu Items */}
           <div className="hidden lg:flex flex-row items-center gap-4 xl:gap-10">
             {navLinks.map((link, index) => (
-              <Link key={index} href={link.id} className="hover:text-gray-500">{link.label}</Link>
+              <Link
+                key={index}
+                href={link.id}
+                className="hover:text-gray-500"
+              >
+                {link.label}
+              </Link>
             ))}
             {/* Conditionally render an additional link based on isAffiliate */}
             <Link 
@@ -119,17 +137,28 @@ export default function Home() {
               {isAffiliate ? "Publisher" : "KOL/Guild"}
             </Link>
           </div>
+
           {/* Launch Button */}
           <div className="hidden lg:block">
             <LaunchAppButton />
           </div>
+
           {/* Menu Toggle Icon */}
           <div className="lg:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none">
-              <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger-white.png"} alt="Menu Toggle Icon" width={30} height={30} />
+              <Image
+                src={menuOpen 
+                  ? "/assets/common/close-white.png" 
+                  : "/assets/common/hamburger-white.png"
+                }
+                alt="Menu Toggle Icon"
+                width={30}
+                height={30}
+              />
             </button>
           </div>
         </div>
+
         {/* Toggle Menu */}
         {menuOpen && (
           <div className="lg:hidden pt-4 bg-black">
@@ -381,7 +410,15 @@ export default function Home() {
                 >
                   {faq.question}
                   <div className="w-5 md:w-7 h-5 md:h-7 md:p-1 bg-white rounded-full">
-                    <Image src={faqActiveIndex === index ? "/assets/common/arrow-up-black.png" : "/assets/common/arrow-down-black.png"} alt="up/down arrow" width={20} height={20} />
+                    <Image
+                      src={faqActiveIndex === index 
+                        ? "/assets/common/arrow-up-black.png" 
+                        : "/assets/common/arrow-down-black.png"
+                      }
+                      alt="up/down arrow"
+                      width={20}
+                      height={20}
+                    />
                   </div>
                 </div>
                 {faqActiveIndex === index && (
@@ -409,14 +446,32 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 mb-16">
           {/* Logo & Social Links */}
           <div className="lg:w-1/2 flex flex-col gap-5">
-            <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-              <Image src="/qube.png" alt="qube.png" width={35} height={35} />
+            <Link
+              href="#"
+              className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
+            >
+              <Image
+                src="/qube.png"
+                alt="qube.png"
+                width={35}
+                height={35}
+              />
               <p className="text-3xl font-bold">Qube</p>
             </Link>
             <div className="flex flex-row gap-5">
               {socialMediaLinks.map((link, index) => (
-                <Link key={index} href={link.url} target="_blank" className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-2 hover:shadow-xl">
-                  <Image src={link.src} alt={link.alt} width={20} height={20} />
+                <Link
+                  key={index}
+                  href={link.url}
+                  target="_blank"
+                  className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-2 hover:shadow-xl"
+                >
+                  <Image
+                    src={link.src}
+                    alt={link.alt}
+                    width={20}
+                    height={20}
+                  />
                 </Link>
               ))}
             </div>
@@ -428,7 +483,12 @@ export default function Home() {
               <div key={category} className="flex flex-col gap-5">
                 <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
                 {links.map(link => (
-                  <Link key={link.label} href={link.url} target="_blank" className="hover:text-slate-400">
+                  <Link
+                    key={link.label}
+                    href={link.url}
+                    target="_blank"
+                    className="hover:text-slate-400"
+                  >
                     {link.label}
                   </Link>
                 ))}
@@ -438,7 +498,9 @@ export default function Home() {
         </div>
         {/* Border & Copyright */}
         <div className="border-b border-gray-700" />
-        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">© Copyright 2024, All Rights Reserved by Ceed Inc.</p>
+        <p className="text-center text-gray-500 py-10 text-sm md:text-md lg:text-lg">
+          © Copyright 2024, All Rights Reserved by Ceed Inc.
+        </p>
       </footer>
 
     </div>
