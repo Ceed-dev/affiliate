@@ -214,7 +214,7 @@ export default function Home() {
             </h2>
             <p className="text-md md:text-xl">
               {isAffiliate
-                ? <>Collaborate with <span className="font-corporate">Qube</span> to access a powerful network for gaming brands.</>
+                ? "Collaborate with Qube to access a powerful network for gaming brands."
                 : "Our network connects you with gaming influencers and guilds across Asia,"
               }
               <br className="hidden md:block" />
@@ -325,7 +325,7 @@ export default function Home() {
               }
               <br className="hidden lg:block" />
               {isAffiliate
-                ? <>with <span className="font-corporate">Qube</span> Analytics</>
+                ? "with Qube Analytics"
                 : "Analytics & Reporting"
               }
             </h1>

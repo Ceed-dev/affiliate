@@ -4,28 +4,28 @@ export default function TermsAndConditions() {
       <div className="max-w-3xl mx-auto py-12 px-6">
         <h1 className="text-3xl font-bold mb-6">Terms & Conditions</h1>
 
-        <h2 className="text-2xl font-semibold mb-4">Welcome to <span className="font-corporate">Qube</span>!</h2>
+        <h2 className="text-2xl font-semibold mb-4">Welcome to Qube!</h2>
         <p className="mb-4">
           These terms and conditions outline the rules and regulations for the use of Ceed Inc.&apos;s Website, located at <a href="https://www.0xqube.xyz" className="text-blue-500 underline">https://www.0xqube.xyz</a>.
         </p>
         <p className="mb-4">
-          By accessing this website we assume you accept these terms and conditions. Do not continue to use <span className="font-corporate">Qube</span> if you do not agree to take all of the terms and conditions stated on this page.
+          By accessing this website we assume you accept these terms and conditions. Do not continue to use Qube if you do not agree to take all of the terms and conditions stated on this page.
         </p>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Cookies</h2>
         <p className="mb-4">
-          We employ the use of cookies. By accessing <span className="font-corporate">Qube</span>, you agree to use cookies in agreement with Ceed Inc.&apos;s Privacy Policy.
+          We employ the use of cookies. By accessing Qube, you agree to use cookies in agreement with Ceed Inc.&apos;s Privacy Policy.
         </p>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">License</h2>
         <p className="mb-4">
-          Unless otherwise stated, Ceed Inc. and/or its licensors own the intellectual property rights for all material on <span className="font-corporate">Qube</span>. All intellectual property rights are reserved. You may access this from <span className="font-corporate">Qube</span> for your own personal use subject to restrictions set in these terms and conditions.
+          Unless otherwise stated, Ceed Inc. and/or its licensors own the intellectual property rights for all material on Qube. All intellectual property rights are reserved. You may access this from Qube for your own personal use subject to restrictions set in these terms and conditions.
         </p>
         <ul className="list-disc pl-5 mb-4 space-y-2">
-          <li>Republish material from <span className="font-corporate">Qube</span></li>
-          <li>Sell, rent, or sub-license material from <span className="font-corporate">Qube</span></li>
-          <li>Reproduce, duplicate, or copy material from <span className="font-corporate">Qube</span></li>
-          <li>Redistribute content from <span className="font-corporate">Qube</span></li>
+          <li>Republish material from Qube</li>
+          <li>Sell, rent, or sub-license material from Qube</li>
+          <li>Reproduce, duplicate, or copy material from Qube</li>
+          <li>Redistribute content from Qube</li>
         </ul>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Comments and User Content</h2>
