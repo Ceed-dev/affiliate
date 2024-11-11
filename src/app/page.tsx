@@ -126,7 +126,7 @@ export default function Home() {
           {/* Menu Toggle Icon */}
           <div className="lg:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none">
-              <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger.png"} alt="Menu Toggle Icon" width={30} height={30} />
+              <Image src={menuOpen ? "/assets/common/close-white.png" : "/assets/common/hamburger-white.png"} alt="Menu Toggle Icon" width={30} height={30} />
             </button>
           </div>
         </div>
@@ -381,7 +381,7 @@ export default function Home() {
                 >
                   {faq.question}
                   <div className="w-5 md:w-7 h-5 md:h-7 md:p-1 bg-white rounded-full">
-                    <Image src={faqActiveIndex === index ? "/assets/common/up-arrow.png" : "/assets/common/down-arrow.png"} alt="up/down arrow" width={20} height={20} />
+                    <Image src={faqActiveIndex === index ? "/assets/common/arrow-up-black.png" : "/assets/common/arrow-down-black.png"} alt="up/down arrow" width={20} height={20} />
                   </div>
                 </div>
                 {faqActiveIndex === index && (

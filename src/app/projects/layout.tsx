@@ -59,7 +59,7 @@ export default function ProjectsLayout({
         {!isProjectsPath && (
           <Link href="/projects" className="block md:hidden">
             <Image
-              src="/assets/common/arrow-left-white.png"
+              src="/assets/common/triangle-left-white.png"
               alt="Go Back Icon"
               width={20}
               height={20}

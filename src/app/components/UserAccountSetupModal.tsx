@@ -515,7 +515,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                       className="w-full py-2 px-3 rounded-lg text-sm outline-none flex items-center gap-3 bg-[#F5F5F5]"
                     >
                       <Image
-                        src="/brand-assets/x/black.png"
+                        src="/brand-assets/x-black.png"
                         alt="X Logo"
                         width={15}
                         height={15}
