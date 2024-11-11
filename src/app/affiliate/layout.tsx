@@ -8,7 +8,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAddress, useDisconnect } from "@thirdweb-dev/react";
 import { formatAddress } from "../utils/formatUtils";
-import { ChainSelector } from "../components/ChainSelector";
 
 export default function AffiliateLayout({
   children,
@@ -145,7 +144,7 @@ export default function AffiliateLayout({
       </div>
 
       {/* Main content area that adjusts based on sidebar width on desktop */}
-      <div className="flex-1 md:ml-64">
+      <div className="flex-1 md:ml-64 bg-black">
         {children}
       </div>
     </div>
