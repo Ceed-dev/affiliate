@@ -115,7 +115,7 @@ export default function Home() {
               width={35}
               height={35}
             />
-            <p className="text-3xl font-semibold">Qube</p>
+            <p className="text-3xl font-semibold font-corporate">Qube</p>
           </Link>
 
           {/* Menu Items */}
@@ -214,7 +214,7 @@ export default function Home() {
             </h2>
             <p className="text-md md:text-xl">
               {isAffiliate
-                ? "Collaborate with Qube to access a powerful network for gaming brands."
+                ? <>Collaborate with <span className="font-corporate">Qube</span> to access a powerful network for gaming brands.</>
                 : "Our network connects you with gaming influencers and guilds across Asia,"
               }
               <br className="hidden md:block" />
@@ -325,7 +325,7 @@ export default function Home() {
               }
               <br className="hidden lg:block" />
               {isAffiliate
-                ? "with Qube Analytics"
+                ? <>with <span className="font-corporate">Qube</span> Analytics</>
                 : "Analytics & Reporting"
               }
             </h1>
@@ -456,7 +456,7 @@ export default function Home() {
                 width={35}
                 height={35}
               />
-              <p className="text-3xl font-bold">Qube</p>
+              <p className="text-3xl font-bold font-corporate">Qube</p>
             </Link>
             <div className="flex flex-row gap-5">
               {socialMediaLinks.map((link, index) => (

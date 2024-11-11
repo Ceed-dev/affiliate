@@ -75,7 +75,7 @@ export default function ProjectsLayout({
             width={50}
             height={50}
           />
-          <p className="text-lg font-semibold">Qube</p>
+          <p className="text-lg font-semibold font-corporate">Qube</p>
         </Link>
 
         {/* Desktop Navigation Links and Buttons */}
