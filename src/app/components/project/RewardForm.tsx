@@ -712,7 +712,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                         >
                           {`${point.tiers?.length} Tiers`}
                           <Image
-                            src="/assets/common/new-tab.png"
+                            src="/assets/common/new-tab-black.png"
                             alt="new-tab icon"
                             width={14}
                             height={14}
@@ -732,7 +732,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                       >
                         {point.id}
                         <Image
-                          src="/assets/common/copy.png"
+                          src="/assets/common/copy-black.png"
                           alt="copy icon"
                           width={14}
                           height={14}

@@ -31,7 +31,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
   // Social media links array with details for rendering icons
   const socialLinks = [
     { url: websiteUrl, icon: "/assets/common/www-white.png", alt: "Website", size: 40 },
-    { url: xUrl, icon: "/brand-assets/x/white.png", alt: "X", size: 30 },
+    { url: xUrl, icon: "/brand-assets/x-white.png", alt: "X", size: 30 },
     { url: discordUrl, icon: "/brand-assets/discord.png", alt: "Discord", size: 40 },
   ];
 
