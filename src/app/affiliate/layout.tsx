@@ -104,7 +104,7 @@ export default function AffiliateLayout({
           className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-5"
         >
           <Image
-            src="/assets/common/project-white.png"
+            src="/assets/common/compass-white.png"
             alt="Projects"
             width={25}
             height={25}
