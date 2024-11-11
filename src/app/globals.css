@@ -53,3 +53,10 @@ progress::-webkit-progress-value {
 progress::-moz-progress-bar {
   background-color: #ff9ce1; /* Firefox-specific progress color */
 }
+
+@font-face {
+  font-family: "Corporation Games Straight";
+  src: url("/fonts/CorporationGamesStraight.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}

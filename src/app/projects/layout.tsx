@@ -59,7 +59,7 @@ export default function ProjectsLayout({
         {!isProjectsPath && (
           <Link href="/projects" className="block md:hidden">
             <Image
-              src="/assets/common/left-arrow.png"
+              src="/assets/common/triangle-left-white.png"
               alt="Go Back Icon"
               width={20}
               height={20}
@@ -75,7 +75,7 @@ export default function ProjectsLayout({
             width={50}
             height={50}
           />
-          <p className="text-lg font-semibold">Qube</p>
+          <p className="text-lg font-semibold font-corporate">Qube</p>
         </Link>
 
         {/* Desktop Navigation Links and Buttons */}

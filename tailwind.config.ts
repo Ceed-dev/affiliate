@@ -24,6 +24,9 @@ const config: Config = {
       animation: {
         checkmarkAppear: "checkmarkAppear 0.5s ease-in-out",
       },
+      fontFamily: {
+        corporate: ["Corporation Games Straight", "sans-serif"],
+      },
     },
   },
   plugins: [],
