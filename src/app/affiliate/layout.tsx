@@ -65,7 +65,7 @@ export default function AffiliateLayout({
           }`}
         >
           {/* Back button visible only on mobile for non-marketplace pages */}
-          {!isMarketplacePath && (
+          {!isMarketplacePath ? (
             <Link
               href="/affiliate/marketplace"
               className="md:hidden"
@@ -77,6 +77,8 @@ export default function AffiliateLayout({
                 height={25}
               />
             </Link>
+          ): (
+            <div className="w-[25px] h-[25px] md:hidden" />
           )}
           
           {/* Qube logo and brand name */}
@@ -94,7 +96,7 @@ export default function AffiliateLayout({
           </Link>
           
           {/* Placeholder for right alignment */}
-          <div />
+          <div className="w-[25px] h-[25px] md:hidden" />
         </div>
 
         {/* Marketplace link in sidebar for desktop view */}
