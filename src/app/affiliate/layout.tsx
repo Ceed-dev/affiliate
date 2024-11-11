@@ -72,7 +72,7 @@ export default function AffiliateLayout({
               className="md:hidden"
             >
               <Image
-                src="/assets/common/left-arrow.png"
+                src="/assets/common/arrow-left-white.png"
                 alt="Go Back Icon"
                 width={25}
                 height={25}
