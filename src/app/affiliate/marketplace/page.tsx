@@ -48,7 +48,7 @@ export default function Marketplace() {
   }, []);
 
   return (
-    <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto md:mt-20">
+    <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto mb-10 md:my-20">
       {/* Page Title, hidden on small screens */}
       <h1 className="hidden md:block text-2xl font-bold mb-5">Projects</h1>
 

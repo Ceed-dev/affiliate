@@ -8,7 +8,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAddress, useDisconnect } from "@thirdweb-dev/react";
 import { formatAddress } from "../utils/formatUtils";
-import { ChainSelector } from "../components/ChainSelector";
 
 export default function AffiliateLayout({
   children,
@@ -66,18 +65,20 @@ export default function AffiliateLayout({
           }`}
         >
           {/* Back button visible only on mobile for non-marketplace pages */}
-          {!isMarketplacePath && (
+          {!isMarketplacePath ? (
             <Link
               href="/affiliate/marketplace"
               className="md:hidden"
             >
               <Image
-                src="/assets/common/left-arrow.png"
+                src="/assets/common/triangle-left-white.png"
                 alt="Go Back Icon"
                 width={25}
                 height={25}
               />
             </Link>
+          ): (
+            <div className="w-[25px] h-[25px] md:hidden" />
           )}
           
           {/* Qube logo and brand name */}
@@ -91,11 +92,11 @@ export default function AffiliateLayout({
               width={30}
               height={30}
             />
-            <p className="text-xl font-bold">Qube</p>
+            <p className="text-xl font-bold font-corporate">Qube</p>
           </Link>
           
           {/* Placeholder for right alignment */}
-          <div />
+          <div className="w-[25px] h-[25px] md:hidden" />
         </div>
 
         {/* Marketplace link in sidebar for desktop view */}
@@ -104,7 +105,7 @@ export default function AffiliateLayout({
           className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-5"
         >
           <Image
-            src="/assets/common/project-white.png"
+            src="/assets/common/compass-white.png"
             alt="Projects"
             width={25}
             height={25}
@@ -119,7 +120,7 @@ export default function AffiliateLayout({
           className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-auto"
         >
           <Image
-            src="/assets/common/user-white.png"
+            src="/assets/common/account-white.png"
             alt="User"
             width={25}
             height={25}
@@ -145,7 +146,7 @@ export default function AffiliateLayout({
       </div>
 
       {/* Main content area that adjusts based on sidebar width on desktop */}
-      <div className="flex-1 md:ml-64">
+      <div className="flex-1 md:ml-64 bg-black">
         {children}
       </div>
     </div>

@@ -60,7 +60,7 @@ export const faqs = [
 
 // Social media links for the footer or other sections
 export const socialMediaLinks = [
-  { src: "/brand-assets/x/black.png", alt: "X", url: "https://x.com/0xQube" },
+  { src: "/brand-assets/x-black.png", alt: "X", url: "https://x.com/0xQube" },
 ];
 
 // Footer links categorized under "Company" and "Help"

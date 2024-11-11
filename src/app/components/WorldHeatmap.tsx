@@ -221,7 +221,7 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
               className="ml-2"
             >
               <img
-                src="/assets/common/new-tab.png"
+                src="/assets/common/new-tab-black.png"
                 alt="Notify Admin"
                 className="w-5 h-5"
                 title="Notify admin via email"
