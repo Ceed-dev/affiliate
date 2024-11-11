@@ -156,9 +156,9 @@ export default function Onboarding() {
             width={30}
             height={30}
           />
-          <p className="font-bold text-3xl font-corporate">Qube</p>
+          <p className="font-bold text-3xl">Qube</p>
         </div>
-        <h1 className="text-3xl font-bold mb-5">Welcome to <span className="font-corporate">Qube</span></h1>
+        <h1 className="text-3xl font-bold mb-5">Welcome to Qube</h1>
         <p className="mb-20">Sign in to continue</p>
         
         {/* Wallet connection button */}

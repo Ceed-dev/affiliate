@@ -41,10 +41,6 @@ export const clientLogos = [
 // Frequently Asked Questions (FAQ) section content
 export const faqs = [
   {
-    question: "How does your affiliate vetting process work?",
-    answer: "We rigorously vet affiliates to ensure quality and reputation. Each applicant is evaluated on audience demographics, content quality, past performance, and adherence to our guidelines. Only top-tier affiliates with proven track records are approved.",
-  },
-  {
     question: "Can I run customized affiliate campaigns?",
     answer: "Absolutely. You can customize the affiliate campaigns based on your goals, target audience, and reward structures. Launch an unique affiliate campaign only for your project and maximize the output.",
   },
