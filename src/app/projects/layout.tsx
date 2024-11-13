@@ -7,7 +7,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAddress, useDisconnect } from "@thirdweb-dev/react";
 import { formatAddress } from "../utils/formatUtils";
-import { ChainSelector } from "../components/ChainSelector";
 
 export default function ProjectsLayout({
   children,
@@ -22,14 +21,12 @@ export default function ProjectsLayout({
   const disconnectButtonRef = useRef<HTMLButtonElement | null>(null);
   const disconnectRef = useRef<HTMLButtonElement | null>(null);
 
-  const toggleDisconnectButton = () => {
-    setShowDisconnect((prev) => !prev);
-  };
+  const toggleDisconnectButton = () => setShowDisconnect((prev) => !prev);
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
       (disconnectButtonRef.current && disconnectButtonRef.current.contains(event.target as Node)) ||
-      (disconnectRef.current && disconnectRef.current.contains(event.target as Node)) 
+      (disconnectRef.current && disconnectRef.current.contains(event.target as Node))
     ) {
       return;
     }
@@ -38,9 +35,7 @@ export default function ProjectsLayout({
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -50,60 +45,102 @@ export default function ProjectsLayout({
     }
   }, [address, router]);
 
-  const isProjectsPath = pathname.endsWith("projects"); // Check if the path ends with "projects"
+  const isProjectsPath = pathname.endsWith("projects");
 
   return (
-    <>
-      <div className="flex flex-row justify-between items-center px-3 md:px-10 py-2 border-b-2 border-sky-500 shadow-md bg-slate-100">
-        {/* Back Button for Mobile */}
-        {!isProjectsPath && (
-          <Link href="/projects" className="block md:hidden">
-            <Image
-              src="/assets/common/triangle-left-white.png"
-              alt="Go Back Icon"
-              width={20}
-              height={20}
-            />
-          </Link>
-        )}
+    <div className="min-h-screen md:flex">
+      {/* Sidebar / Navbar */}
+      <div className="md:bg-[#F5F5F5] flex flex-row md:flex-col md:fixed md:h-full w-full md:w-64 px-3 md:px-7 py-3 md:py-7">
+        <div 
+          className={`w-full flex flex-row items-center ${
+            isProjectsPath ? "justify-center md:justify-start" : "justify-between"
+          }`}
+        >
+          {/* Back button for non-project paths */}
+          {!isProjectsPath ? (
+            <Link
+              href="/projects"
+              className="md:hidden"
+            >
+              <Image
+                src="/assets/common/chevron-left-black.png"
+                alt="Go Back Icon"
+                width={25}
+                height={25}
+              />
+            </Link>
+          ) : (
+            <div className="w-[25px] h-[25px] md:hidden" />
+          )}
 
-        {/* Qube Logo Centered for Mobile */}
-        <Link href="/#" className="flex flex-row items-center gap-3 mx-auto md:mx-0 transition duration-300 ease-in-out transform hover:-translate-y-1">
+          {/* Qube logo and brand name */}
+          <Link
+            href="/#"
+            className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
+          >
+            <Image
+              src="/qube.png"
+              alt="qube.png"
+              width={30}
+              height={30}
+            />
+            <p className="text-xl font-bold font-corporate">Qube</p>
+          </Link>
+
+          {/* Placeholder for right alignment */}
+          <div className="w-[25px] h-[25px] md:hidden" />
+        </div>
+
+        {/* Navigation Links for Desktop View */}
+        <Link
+          href="/projects"
+          className="hidden md:flex items-center gap-3 rounded-xl p-3 bg-white md:mt-5"
+        >
           <Image
-            src="/qube.png"
-            alt="qube.png"
-            width={50}
-            height={50}
+            src="/assets/common/explore-black.png"
+            alt="Projects"
+            width={25}
+            height={25}
           />
-          <p className="text-lg font-semibold font-corporate">Qube</p>
+          <span className="font-semibold">Projects</span>
         </Link>
 
-        {/* Desktop Navigation Links and Buttons */}
-        <div className="hidden md:flex flex-row items-center gap-5 relative">
-          <Link className="text-sm text-gray-500 hover:text-black" href="/projects">Projects</Link>
-          <ChainSelector useSwitch={true} />
-          <button
-            className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-            onClick={toggleDisconnectButton}
-            ref={disconnectButtonRef}
-          >
+        {/* Account button with disconnect option in sidebar for desktop view */}
+        <button
+          onClick={toggleDisconnectButton}
+          ref={disconnectButtonRef}
+          className="hidden md:flex items-center gap-3 bg-white rounded-xl p-3 md:mt-auto"
+        >
+          <Image
+            src="/assets/common/account-circle-black.png"
+            alt="User"
+            width={25}
+            height={25}
+          />
+          <span className="font-semibold text-[#757575]">
             {address ? formatAddress(address) : "Not connected"}
+          </span>
+        </button>
+
+        {/* Disconnect button that appears on demand */}
+        {showDisconnect && address && (
+          <button
+            onClick={() => {
+              disconnect();
+              setShowDisconnect(false);
+            }}
+            ref={disconnectRef}
+            className="absolute bottom-20 text-red-500 text-sm py-2 px-4 z-10 border-2 border-red-900 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Disconnect
           </button>
-          {showDisconnect && address && (
-            <button
-              onClick={() => {
-                disconnect();
-                setShowDisconnect(false);
-              }}
-              className="absolute top-12 right-0 bg-red-500 text-white text-sm py-2 px-4 border-2 border-white shadow-lg rounded-md transition duration-300 ease-in-out transform hover:scale-105"
-              ref={disconnectRef}
-            >
-              Disconnect
-            </button>
-          )}
-        </div>
+        )}
       </div>
-      {children}
-    </>
+
+      {/* Main Content Area */}
+      <div className="flex-1 md:ml-64">
+        {children}
+      </div>
+    </div>
   );
 }

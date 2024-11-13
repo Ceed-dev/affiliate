@@ -71,7 +71,7 @@ export default function AffiliateLayout({
               className="md:hidden"
             >
               <Image
-                src="/assets/common/triangle-left-white.png"
+                src="/assets/common/chevron-left-white.png"
                 alt="Go Back Icon"
                 width={25}
                 height={25}
@@ -105,7 +105,7 @@ export default function AffiliateLayout({
           className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-5"
         >
           <Image
-            src="/assets/common/compass-white.png"
+            src="/assets/common/explore-white.png"
             alt="Projects"
             width={25}
             height={25}
@@ -120,7 +120,7 @@ export default function AffiliateLayout({
           className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-auto"
         >
           <Image
-            src="/assets/common/account-white.png"
+            src="/assets/common/account-circle-white.png"
             alt="User"
             width={25}
             height={25}
