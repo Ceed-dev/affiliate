@@ -91,6 +91,7 @@ export default function Projects() {
               key={project.id} 
               project={project} 
               linkUrl={`${baseUrl}/projects/${project.id}`}
+              isDarkBackground={false}
             />
           ))}
         </div>
