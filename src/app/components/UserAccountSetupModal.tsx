@@ -48,10 +48,10 @@ const RoleSelectButton: React.FC<RoleSelectButtonProps> = ({
       >
         {isSelected && (
           <Image
-            src="/assets/common/checkmark-white.png"
+            src="/assets/common/check-white.png"
             width={15}
             height={15}
-            alt="checkmark"
+            alt="check"
           />
         )}
       </div>

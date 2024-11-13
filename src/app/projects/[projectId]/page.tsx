@@ -109,7 +109,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               {/* Toggle for showing/hiding API Key */}
               <button onClick={() => setShowApiKey(!showApiKey)}>
                 <Image
-                  src={showApiKey ? "/assets/common/invisible-black.png" : "/assets/common/visible-black.png"}
+                  src={showApiKey ? "/assets/common/visibility-off-black.png" : "/assets/common/visibility-black.png"}
                   alt="Toggle Icon"
                   height={18}
                   width={18}
@@ -122,7 +122,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                   className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
                 >
                   {apiKey}
-                  <Image src="/assets/common/copy-black.png" alt="copy icon" width={14} height={14} />
+                  <Image src="/assets/common/content-copy-black.png" alt="copy icon" width={14} height={14} />
                 </button>
               ) : (
                 apiKey.split("").map(() => "*").join("")

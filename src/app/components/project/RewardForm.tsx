@@ -60,7 +60,7 @@ const SelectButton: React.FC<SelectButtonProps> = ({
       } ${disabled ? "opacity-50" : ""}`} // Styling for disabled indicator
     >
       {isSelected && (
-        <Image src="/assets/common/checkmark-black.png" width={15} height={15} alt="checkmark" />
+        <Image src="/assets/common/check-black.png" width={15} height={15} alt="check" />
       )}
     </div>
 
@@ -712,8 +712,8 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                         >
                           {`${point.tiers?.length} Tiers`}
                           <Image
-                            src="/assets/common/new-tab-black.png"
-                            alt="new-tab icon"
+                            src="/assets/common/open-in-new-black.png"
+                            alt="open-in-new-black icon"
                             width={14}
                             height={14}
                             className="inline-block mx-1"
@@ -732,7 +732,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                       >
                         {point.id}
                         <Image
-                          src="/assets/common/copy-black.png"
+                          src="/assets/common/content-copy-black.png"
                           alt="copy icon"
                           width={14}
                           height={14}
