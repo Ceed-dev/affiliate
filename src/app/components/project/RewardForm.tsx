@@ -343,35 +343,37 @@ export const RewardForm: React.FC<RewardFormProps> = ({
 
           {/* Chain Selector and Token Selection */}
           <div className="flex flex-col md:flex-row justify-start items-center gap-2">
-            <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
+            <div className="w-full md:w-auto flex flex-row gap-2">
+              <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
 
-            {/* Token Selector */}
-            <select
-              value={selectedToken}
-              onChange={(e) => {
-                const selectedSymbol = e.target.value;
-                setSelectedToken(selectedSymbol);
+              {/* Token Selector */}
+              <select
+                value={selectedToken}
+                onChange={(e) => {
+                  const selectedSymbol = e.target.value;
+                  setSelectedToken(selectedSymbol);
 
-                if (selectedSymbol === "other") {
-                  handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
-                } else {
-                  const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
-                  if (token) {
-                    handleChange("selectedTokenAddress")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                  if (selectedSymbol === "other") {
+                    handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                  } else {
+                    const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
+                    if (token) {
+                      handleChange("selectedTokenAddress")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                    }
                   }
-                }
-              }}
-              className={`p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
-              disabled={isEditing}
-            >
-              <option value="" disabled>Select a token</option>
-              {(popularTokens[selectedChain.chainId] || []).map((token) => (
-                <option key={token.address} value={token.symbol}>
-                  {token.symbol}
-                </option>
-              ))}
-              <option value="other">Other Token</option>
-            </select>
+                }}
+                className={`flex-1 md:flex-none p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+                disabled={isEditing}
+              >
+                <option value="" disabled>Select a token</option>
+                {(popularTokens[selectedChain.chainId] || []).map((token) => (
+                  <option key={token.address} value={token.symbol}>
+                    {token.symbol}
+                  </option>
+                ))}
+                <option value="other">Other Token</option>
+              </select>
+            </div>
 
             {/* Custom Token Address Input */}
             <input
@@ -391,7 +393,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                 }
               }}
               placeholder="Enter token contract address"
-              className={`grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedToken !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+              className={`w-full md:w-auto grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedToken !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
             />
           </div>
 
