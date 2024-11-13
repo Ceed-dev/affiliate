@@ -10,63 +10,91 @@ import { fetchProjectsByOwner } from "../utils/firebase";
 import { fetchTokenSymbols } from "../utils/contracts";
 import { ProjectCard } from "../components/project";
 
+/**
+ * Projects Component
+ * ---------------------------
+ * This component displays a list of projects created by the client (project owner).
+ * It fetches the projects owned by the connected wallet address and displays them in a grid.
+ * If no projects exist, a message prompts the user to create a new project.
+ *
+ * Layout:
+ * - Shows a loading spinner while data is being fetched.
+ * - Displays a list of project cards if projects are available.
+ * - Displays a message if no projects are currently available.
+ *
+ * @returns {JSX.Element} - The rendered projects page component.
+ */
 export default function Projects() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const address = useAddress();
-  const [projects, setProjects] = useState<ExtendedProjectData[] | []>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // State variables
+  const [projects, setProjects] = useState<ExtendedProjectData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch the projects owned by the current user
   useEffect(() => {
     if (address) {
-      fetchProjectsByOwner(address)
-        .then(async (projects) => {
-          const projectsWithSymbols = await fetchTokenSymbols(projects);
+      const loadProjects = async () => {
+        try {
+          const projectsData = await fetchProjectsByOwner(address);
+          const projectsWithSymbols = await fetchTokenSymbols(projectsData);
           setProjects(projectsWithSymbols);
-        })
-        .catch(error => {
-          const errorMessage = error.message || "An unknown error occurred";
-          setError(errorMessage);
+        } catch (error) {
+          const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred";
           toast.error(`Error: ${errorMessage}`);
-        })
-        .finally(() => setLoading(false));
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadProjects();
     }
   }, [address]);
 
   return (
-    <div className="w-11/12 sm:w-2/3 mx-auto mt-10">
-      <div className="flex flex-row justify-between items-center mb-10">
-        <h1 className="text-2xl font-semibold">Your Projects</h1>
+    <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto mb-10 md:my-20">
+      {/* Page Title and New Project Button */}
+      <div className="flex flex-row justify-between items-center mb-5">
+        <h1 className="text-2xl font-bold">Your Projects</h1>
         <Link 
           href="/projects/create-project" 
-          className="bg-sky-500 text-white py-2 px-3 text-sm rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+          className="bg-[#25D366] text-white py-2 px-3 text-sm rounded-md transition duration-300 ease-in-out transform hover:scale-105"
         >
           + New Project
         </Link>
       </div>
-      {loading && 
+
+      {/* Loading Spinner */}
+      {loading ? (
         <div className="flex flex-row items-center justify-center gap-5 mt-20">
-          <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-          <p className="text-gray-500 font-semibold text-lg">Loading...</p>
+          <Image
+            src="/assets/common/loading.png"
+            alt="loading icon"
+            width={50}
+            height={50}
+            className="animate-spin"
+          /> 
+          <p className="font-semibold text-lg animate-pulse">Loading...</p>
         </div>
-      }
-      {!loading && projects.length === 0
-        ?
-          <div className="text-center mt-10">
-            <p className="text-sm">No projects</p>
-            <p className="text-sm text-gray-500">Get started by creating a new project.</p>
-          </div>
-        : 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {projects.map((project: ExtendedProjectData) => (
-              <ProjectCard 
-                key={project.id} 
-                project={project} 
-                linkUrl={`${baseUrl}/projects/${project.id}`}
-              />
-            ))}
-          </div>
-      }
+      ) : projects.length === 0 ? (
+        // Message when no projects are available
+        <div className="text-center mt-10">
+          <p className="text-md">No projects</p>
+          <p className="text-sm text-gray-400">Get started by creating a new project.</p>
+        </div>
+      ) : (
+        // Project Cards Grid
+        <div className="grid grid-cols-2 gap-4">
+          {projects.map((project) => (
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              linkUrl={`${baseUrl}/projects/${project.id}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
