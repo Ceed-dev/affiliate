@@ -20,7 +20,7 @@ import { PaymentType, ConversionPoint, Tier } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
 // Components
-import { ChainSelector } from "../ChainSelector";
+import { ChainSelector } from "../common";
 import { ToggleButton } from "../ToggleButton";
 import { TieredDetailsModal } from "../TieredDetailsModal";
 
