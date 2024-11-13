@@ -149,7 +149,7 @@ export default function Home() {
               <Image
                 src={menuOpen 
                   ? "/assets/common/close-white.png" 
-                  : "/assets/common/hamburger-white.png"
+                  : "/assets/common/menu-white.png"
                 }
                 alt="Menu Toggle Icon"
                 width={30}
@@ -412,8 +412,8 @@ export default function Home() {
                   <div className="w-5 md:w-7 h-5 md:h-7 md:p-1 bg-white rounded-full">
                     <Image
                       src={faqActiveIndex === index 
-                        ? "/assets/common/arrow-up-black.png" 
-                        : "/assets/common/arrow-down-black.png"
+                        ? "/assets/common/arrow-upward-black.png" 
+                        : "/assets/common/arrow-downward-black.png"
                       }
                       alt="up/down arrow"
                       width={20}
