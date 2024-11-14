@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { formatNumberWithUnits } from "../../utils/generalUtils";
 
 // Define the props for the AnalyticsCard component
 type AnalyticsCardProps = {
@@ -49,7 +50,7 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
   // Determines the value to display based on the type of `value`
   const displayValue =
     typeof value === "number"
-      ? value.toLocaleString("en-US")    // Format number with commas
+      ? formatNumberWithUnits(value)     // Format number with units for large values
       : formatDate(value);               // Format Date as monthDay and year
 
   return (
