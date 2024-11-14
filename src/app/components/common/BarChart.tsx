@@ -84,6 +84,7 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange, isDarkBa
       backgroundColor: color,
       borderColor: borderColor,
       borderWidth: 1,
+      borderRadius: 20,
     });
   });
 
