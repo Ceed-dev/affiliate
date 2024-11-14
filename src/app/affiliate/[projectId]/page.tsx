@@ -344,7 +344,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   </div>
                 ) : (
                   <div className="bg-[#222222] rounded-lg p-2">
-                    <BarChart dataMap={{"Conversions": conversionLogs, "Clicks": clickData}} timeRange="week" />
+                    <BarChart
+                      dataMap={{"Conversions": conversionLogs, "Clicks": clickData}}
+                      timeRange="week"
+                      isDarkBackground={true}
+                    />
                   </div>
                 )}
               </div>
