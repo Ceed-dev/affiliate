@@ -6,6 +6,7 @@ import { ExtendedProjectData } from "../../types";
 type ProjectCardProps = {
   project: ExtendedProjectData;
   linkUrl: string;
+  isDarkBackground: boolean;
 };
 
 /**
@@ -20,12 +21,13 @@ type ProjectCardProps = {
  * - `linkUrl`: The URL to navigate to the project's detailed page.
  * 
  * @component
- * @param {ProjectCardProps} props - Contains `project` and `linkUrl`.
+ * @param {ProjectCardProps} props - Contains `project`, `linkUrl` and `isDarkBackground`.
  * @returns {JSX.Element} Rendered ProjectCard component.
  */
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl, isDarkBackground }) => {
   // Extract the primary conversion point to display reward and type
   const conversionPoint = project.conversionPoints[0];
+  const textColorClass = isDarkBackground ? "text-white/60" : "text-black/60";
 
   return (
     <Link
@@ -55,7 +57,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) =>
 
       {/* Project description with a 2-line clamp */}
       <p 
-        className="text-sm text-ellipsis overflow-hidden text-white/60 line-clamp-2" 
+        className={`text-sm text-ellipsis overflow-hidden ${textColorClass} line-clamp-2`}
         style={{ minHeight: "2.5rem" }}
       >
         {project.description}
@@ -67,7 +69,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl }) =>
           <span className="font-bold mr-2">
             {conversionPoint.rewardAmount || conversionPoint.percentage}
           </span>
-          <span className="text-white/60 text-sm">
+          <span className={`${textColorClass} text-sm`}>
             {conversionPoint.paymentType === "FixedAmount" ? project.selectedToken : "%"}
           </span>
         </div>

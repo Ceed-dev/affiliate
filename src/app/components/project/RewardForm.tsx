@@ -20,7 +20,7 @@ import { PaymentType, ConversionPoint, Tier } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
 // Components
-import { ChainSelector } from "../ChainSelector";
+import { ChainSelector } from "../common";
 import { ToggleButton } from "../ToggleButton";
 import { TieredDetailsModal } from "../TieredDetailsModal";
 
@@ -60,7 +60,12 @@ const SelectButton: React.FC<SelectButtonProps> = ({
       } ${disabled ? "opacity-50" : ""}`} // Styling for disabled indicator
     >
       {isSelected && (
-        <Image src="/assets/common/checkmark-black.png" width={15} height={15} alt="checkmark" />
+        <Image
+          src="/assets/common/check-white.png"
+          width={25}
+          height={25}
+          alt="check"
+        />
       )}
     </div>
 
@@ -72,13 +77,11 @@ const SelectButton: React.FC<SelectButtonProps> = ({
           <span className="ml-2 text-xs text-gray-500">(Not Editable)</span> // Show "Not Editable" when disabled
         )}
       </span>
-      <p className="text-gray-500 mt-2">
-        {description}
-        {/* Conditional display of warning text if the button is selected */}
-        {isSelected && warningText && (
-          <span className="text-red-500 font-bold underline"> {warningText}</span>
-        )}
-      </p>
+      <p className="text-gray-500 mt-2">{description}</p>
+      {/* Conditional display of warning text if the button is selected */}
+      {isSelected && warningText && (
+        <p className="text-red-500 font-bold underline">{warningText}</p>
+      )}
     </div>
   </button>
 );
@@ -146,6 +149,10 @@ export const RewardForm: React.FC<RewardFormProps> = ({
     rewardAmount: 0, // Default reward amount for FixedAmount type
   });
 
+  // State to track the number of characters in the conversion point title
+  const maxTitleLength = 50;
+  const [titleCharCount, setTitleCharCount] = useState(newConversionPoint.title?.length || 0);
+
   // Helper function to reset token states
   const initializeTokenStates = () => {
     setTokenSymbol("");
@@ -164,6 +171,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
       tiers: paymentType === "Tiered" ? [] : undefined,
     };
     setNewConversionPoint(newPoint);
+    setTitleCharCount(0);
   };
 
   // Reset to FixedAmount if referral enabled and Tiered selected
@@ -328,42 +336,44 @@ export const RewardForm: React.FC<RewardFormProps> = ({
         <div className="space-y-2">
           <h2 className="text-lg font-semibold">
             Chain & Token <span className="text-red-500">* </span>
-            <span className="text-gray-500 text-sm">
-              ({isEditing ? "Not editable" : "Chain & Token address cannot be edited after initial setup."})
-            </span>
           </h2>
+          <p className="text-gray-500 text-sm">
+            {isEditing ? "Not editable" : "Chain & Token address cannot be edited after initial setup."}
+          </p>
 
           {/* Chain Selector and Token Selection */}
-          <div className="flex items-center gap-2">
-            <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
+          <div className="flex flex-col md:flex-row justify-start items-center gap-2">
+            <div className="w-full md:w-auto flex flex-row gap-2">
+              <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
 
-            {/* Token Selector */}
-            <select
-              value={selectedToken}
-              onChange={(e) => {
-                const selectedSymbol = e.target.value;
-                setSelectedToken(selectedSymbol);
+              {/* Token Selector */}
+              <select
+                value={selectedToken}
+                onChange={(e) => {
+                  const selectedSymbol = e.target.value;
+                  setSelectedToken(selectedSymbol);
 
-                if (selectedSymbol === "other") {
-                  handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
-                } else {
-                  const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
-                  if (token) {
-                    handleChange("selectedTokenAddress")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                  if (selectedSymbol === "other") {
+                    handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                  } else {
+                    const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
+                    if (token) {
+                      handleChange("selectedTokenAddress")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                    }
                   }
-                }
-              }}
-              className={`p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
-              disabled={isEditing}
-            >
-              <option value="" disabled>Select a token</option>
-              {(popularTokens[selectedChain.chainId] || []).map((token) => (
-                <option key={token.address} value={token.symbol}>
-                  {token.symbol}
-                </option>
-              ))}
-              <option value="other">Other Token</option>
-            </select>
+                }}
+                className={`flex-1 md:flex-none p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+                disabled={isEditing}
+              >
+                <option value="" disabled>Select a token</option>
+                {(popularTokens[selectedChain.chainId] || []).map((token) => (
+                  <option key={token.address} value={token.symbol}>
+                    {token.symbol}
+                  </option>
+                ))}
+                <option value="other">Other Token</option>
+              </select>
+            </div>
 
             {/* Custom Token Address Input */}
             <input
@@ -383,7 +393,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                 }
               }}
               placeholder="Enter token contract address"
-              className={`grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedToken !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+              className={`w-full md:w-auto grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedToken !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
             />
           </div>
 
@@ -457,18 +467,26 @@ export const RewardForm: React.FC<RewardFormProps> = ({
 
               {/* Conversion Point Title */}
               <div className="space-y-2">
-                <h3>Conversion Point Title <span className="text-red-500">*</span></h3>
+                <div className="flex justify-between items-center">
+                  <h3>Conversion Point Title <span className="text-red-500">*</span></h3>
+                  <p className={`text-sm ${titleCharCount >= maxTitleLength ? "text-red-500" : "text-gray-500"}`}>
+                    {titleCharCount}/{maxTitleLength}
+                    {titleCharCount >= maxTitleLength && <span className="ml-2">Character limit reached</span>}
+                  </p>
+                </div>
                 <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-                  <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">Title:</span>
+                  <span className="w-[70px] md:w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">Title:</span>
                   <input
                     type="text"
                     value={newConversionPoint.title || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setNewConversionPoint(prevPoint => ({
                         ...prevPoint,
                         title: e.target.value
-                      }))
-                    }
+                      }));
+                      setTitleCharCount(e.target.value.length)
+                    }}
+                    maxLength={maxTitleLength}
                     placeholder="Enter conversion point title (e.g., Purchase an NFT)"
                     className="w-full outline-none p-2 rounded-r-lg"
                   />
@@ -483,7 +501,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     You can enter an integer or a value up to one decimal place. The value must be between 1 and 10000.
                   </p>
                   <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-                    <span className="w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">Token Units:</span>
+                    <span className="w-[200px] md:w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">Token Units:</span>
                     <input
                       type="number"
                       value={newConversionPoint.rewardAmount?.toString() || ""}
@@ -678,6 +696,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     paymentType: "FixedAmount",
                     rewardAmount: 0,
                   });
+                  setTitleCharCount(0);
                   setTierEntries([]);
                 }}
                 className="w-full py-3 border border-black rounded transition-transform duration-300 hover:scale-105 bg-slate-100 hover:bg-slate-200"
@@ -699,7 +718,10 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                 <div key={index} className="flex justify-between items-center p-4">
                   {/* Conversion Point Details */}
                   <div>
-                    <p className="font-semibold text-gray-900">{point.title}</p>
+                    <p className="font-semibold text-gray-900 truncate
+                                  w-[230px] sm:w-[550px] md:w-[430px] lg:w-[680px] xl:w-[700px]">
+                      {point.title}
+                    </p>
                     <p className="text-sm text-gray-500">
                       {/* Display reward type and amount */}
                       {point.paymentType} :{" "}
@@ -712,8 +734,8 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                         >
                           {`${point.tiers?.length} Tiers`}
                           <Image
-                            src="/assets/common/new-tab-black.png"
-                            alt="new-tab icon"
+                            src="/assets/common/open-in-new-black.png"
+                            alt="open-in-new-black icon"
                             width={14}
                             height={14}
                             className="inline-block mx-1"
@@ -732,7 +754,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                       >
                         {point.id}
                         <Image
-                          src="/assets/common/copy-black.png"
+                          src="/assets/common/content-copy-black.png"
                           alt="copy icon"
                           width={14}
                           height={14}
@@ -776,11 +798,11 @@ export const RewardForm: React.FC<RewardFormProps> = ({
         <div className="space-y-2">
           <h2 className="text-lg font-semibold">
             Redirect URL <span className="text-red-500">* </span>
-            <span className="text-gray-500 text-sm">
-              {/* Display editability status based on `isEditing` */}
-              ({isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."})
-            </span>
           </h2>
+          <p className="text-gray-500 text-sm">
+            {/* Display editability status based on `isEditing` */}
+            {isEditing ? "Not editable" : "Redirect URL cannot be edited after initial setup."}
+          </p>
 
           {/* Input container with conditional styling for edit state */}
           <div
