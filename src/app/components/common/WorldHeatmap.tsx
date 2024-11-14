@@ -3,10 +3,10 @@ import { useAddress } from "@thirdweb-dev/react";
 import L from "leaflet";
 import { GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
-import { combinedCountryData } from "../constants/geojson-data";
-import { ClickData } from "../types";
-import { getColorByPercentage, calculatePercentage } from "../utils/colorUtils";
-import { getCountryCodeFromName } from "../utils/countryUtils";
+import { combinedCountryData } from "../../constants/geojson-data";
+import { ClickData } from "../../types";
+import { getColorByPercentage, calculatePercentage } from "../../utils/colorUtils";
+import { getCountryCodeFromName } from "../../utils/countryUtils";
 
 // Extract the list of valid country names from the geoJSON data
 const validCountryNames = new Set(

@@ -5,8 +5,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 
 // Components
-import { AnalyticsCard, BarChart } from "../../components/common";
-import { WorldHeatmap } from "../../components/WorldHeatmap";
+import { AnalyticsCard, BarChart, WorldHeatmap } from "../../components/common";
 import { AffiliatePerformanceList } from "../../components/project";
 
 // Types
