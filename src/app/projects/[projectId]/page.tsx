@@ -91,23 +91,23 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   }, [params.projectId]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] space-y-10 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
+    <div className="min-h-screen space-y-5 md:space-y-10 px-4 md:px-10 lg:px-20 pb-10 md:py-20">
       
       {/* Page Title */}
-      <h1 className="font-bold text-2xl">Dashboard</h1>
+      <h1 className="font-bold text-2xl md:text-3xl">Dashboard</h1>
 
       {/* API Key Display */}
       {apiKey && (
-        <div className="bg-slate-100 p-5 rounded-lg">
+        <div className="bg-[#F5F5F5] p-5 rounded-lg">
           <h2 className="font-semibold">API KEY</h2>
-          <p className="text-[#6B7280] flex flex-row items-center gap-4">
+          <p className="text-[#757575] flex flex-row items-center gap-4">
             {/* Toggle for showing/hiding API Key */}
             <button onClick={() => setShowApiKey(!showApiKey)}>
               <Image
-                src={showApiKey ? "/assets/common/visibility-off-black.png" : "/assets/common/visibility-black.png"}
-                alt="Toggle Icon"
-                height={18}
-                width={18}
+                src={`/assets/common/visibility-${showApiKey ? "off-" : ""}black.png`}
+                alt="Visibility Icon"
+                height={20}
+                width={20}
               />
             </button>
             {/* Display or Mask API Key */}
@@ -116,8 +116,13 @@ export default function Dashboard({ params }: { params: { projectId: string } })
                 onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
                 className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
               >
-                {apiKey}
-                <Image src="/assets/common/content-copy-black.png" alt="copy icon" width={14} height={14} />
+                <span className="break-all mr-2">{apiKey}</span>
+                <Image
+                  src="/assets/common/content-copy-black.png"
+                  alt="copy icon"
+                  width={20}
+                  height={20}
+                />
               </button>
             ) : (
               apiKey.split("").map(() => "*").join("")
@@ -150,7 +155,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       </div>
 
       {/* Conversion and Clicks Bar Chart */}
-      <div className="bg-slate-100 p-5 md:p-10 rounded-lg shadow">
+      <div className="bg-[#F5F5F5] p-2 md:p-10 rounded-lg">
         {loadingConversionData || loadingClickData ? (
           <div className="flex flex-row items-center justify-center gap-5">
             <Image
@@ -160,7 +165,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               height={50}
               className="animate-spin"
             />
-            <p className="animate-pulse font-semibold text-gray-600">
+            <p className="animate-pulse font-semibold text-[#757575]">
               Loading data for chart visualization...
             </p>
           </div>

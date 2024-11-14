@@ -301,6 +301,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     description="(This month)"
                     loading={loading.referral || loading.conversionLogs}
                     value={totalConversions}
+                    isDarkBackground={true}
                   />
                   <AnalyticsCard
                     title="Earnings"
@@ -308,18 +309,21 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     loading={loading.referral || loading.tokenSymbol || loading.conversionLogs}
                     value={totalEarnings}
                     unit={tokenSymbol}
+                    isDarkBackground={true}
                   />
                   <AnalyticsCard
                     title="Total Clicks"
                     description="(All time)"
                     loading={loading.clickData}
                     value={clickData.length}
+                    isDarkBackground={true}
                   />
                   <AnalyticsCard
                     title="Next Payment Date"
                     loading={false}
                     value={getNextPaymentDate()}
                     unit={getTimeZoneSymbol()}
+                    isDarkBackground={true}
                   />
                 </div>
               </div>

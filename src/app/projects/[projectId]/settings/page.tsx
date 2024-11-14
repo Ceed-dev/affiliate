@@ -230,11 +230,17 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center py-20">
+    <div className="min-h-screen flex flex-col items-center py-20">
       {loadingProject ? (
         <div className="flex flex-row items-center justify-center gap-5 mt-20">
-          <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-          <p className="text-gray-500 font-semibold text-lg">Loading...</p>
+          <Image
+            src="/assets/common/loading.png"
+            alt="loading.png"
+            width={50}
+            height={50}
+            className="animate-spin"
+          /> 
+          <p className="text-[#757575] font-semibold text-lg">Loading...</p>
         </div>
       ) : (
         <div className="w-full max-w-4xl space-y-10 px-4">
@@ -276,7 +282,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             {isUpdating ? (
               <div className="flex flex-row items-center justify-center gap-5">
                 <Image 
-                  src={"/assets/common/loading.png"} 
+                  src="/assets/common/loading.png"
                   height={30} 
                   width={30} 
                   alt="loading.png" 
