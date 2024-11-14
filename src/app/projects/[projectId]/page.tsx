@@ -5,7 +5,6 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 
 // Components
-import { NavBar } from "../../components/dashboard";
 import { AnalyticsCard, BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { AffiliatePerformanceList } from "../../components/project";
@@ -92,100 +91,95 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   }, [params.projectId]);
 
   return (
-    <div>
-      {/* Navigation Bar with Project ID passed as a prop */}
-      <NavBar projectId={params.projectId} />
-  
-      <div className="min-h-screen bg-[#F8FAFC] space-y-10 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
-        
-        {/* Page Title */}
-        <h1 className="font-bold text-2xl">Dashboard</h1>
-  
-        {/* API Key Display */}
-        {apiKey && (
-          <div className="bg-slate-100 p-5 rounded-lg">
-            <h2 className="font-semibold">API KEY</h2>
-            <p className="text-[#6B7280] flex flex-row items-center gap-4">
-              {/* Toggle for showing/hiding API Key */}
-              <button onClick={() => setShowApiKey(!showApiKey)}>
-                <Image
-                  src={showApiKey ? "/assets/common/visibility-off-black.png" : "/assets/common/visibility-black.png"}
-                  alt="Toggle Icon"
-                  height={18}
-                  width={18}
-                />
+    <div className="min-h-screen bg-[#F8FAFC] space-y-10 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
+      
+      {/* Page Title */}
+      <h1 className="font-bold text-2xl">Dashboard</h1>
+
+      {/* API Key Display */}
+      {apiKey && (
+        <div className="bg-slate-100 p-5 rounded-lg">
+          <h2 className="font-semibold">API KEY</h2>
+          <p className="text-[#6B7280] flex flex-row items-center gap-4">
+            {/* Toggle for showing/hiding API Key */}
+            <button onClick={() => setShowApiKey(!showApiKey)}>
+              <Image
+                src={showApiKey ? "/assets/common/visibility-off-black.png" : "/assets/common/visibility-black.png"}
+                alt="Toggle Icon"
+                height={18}
+                width={18}
+              />
+            </button>
+            {/* Display or Mask API Key */}
+            {showApiKey ? (
+              <button
+                onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
+                className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
+              >
+                {apiKey}
+                <Image src="/assets/common/content-copy-black.png" alt="copy icon" width={14} height={14} />
               </button>
-              {/* Display or Mask API Key */}
-              {showApiKey ? (
-                <button
-                  onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
-                  className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
-                >
-                  {apiKey}
-                  <Image src="/assets/common/content-copy-black.png" alt="copy icon" width={14} height={14} />
-                </button>
-              ) : (
-                apiKey.split("").map(() => "*").join("")
-              )}
+            ) : (
+              apiKey.split("").map(() => "*").join("")
+            )}
+          </p>
+        </div>
+      )}
+
+      {/* Analytics Section */}
+      <div className="space-y-2">
+        <h2 className="font-bold text-xl">Analytics</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {/* Conversion Analytics Card */}
+          <AnalyticsCard
+            title="Conversions"
+            description="(All Time)"
+            loading={loadingConversionData}
+            value={conversionData.length}
+            unit="TIMES"
+          />
+          {/* Click Analytics Card */}
+          <AnalyticsCard
+            title="Clicks"
+            description="(All Time)"
+            loading={loadingClickData}
+            value={clickData.length}
+            unit="TIMES"
+          />
+        </div>
+      </div>
+
+      {/* Conversion and Clicks Bar Chart */}
+      <div className="bg-slate-100 p-5 md:p-10 rounded-lg shadow">
+        {loadingConversionData || loadingClickData ? (
+          <div className="flex flex-row items-center justify-center gap-5">
+            <Image
+              src="/assets/common/loading.png"
+              alt="Loading Icon"
+              width={50}
+              height={50}
+              className="animate-spin"
+            />
+            <p className="animate-pulse font-semibold text-gray-600">
+              Loading data for chart visualization...
             </p>
           </div>
+        ) : (
+          <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange={timeRange} />
         )}
-  
-        {/* Analytics Section */}
-        <div className="space-y-2">
-          <h2 className="font-bold text-xl">Analytics</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {/* Conversion Analytics Card */}
-            <AnalyticsCard
-              title="Conversions"
-              description="(All Time)"
-              loading={loadingConversionData}
-              value={conversionData.length}
-              unit="TIMES"
-            />
-            {/* Click Analytics Card */}
-            <AnalyticsCard
-              title="Clicks"
-              description="(All Time)"
-              loading={loadingClickData}
-              value={clickData.length}
-              unit="TIMES"
-            />
-          </div>
-        </div>
-  
-        {/* Conversion and Clicks Bar Chart */}
-        <div className="bg-slate-100 p-5 md:p-10 rounded-lg shadow">
-          {loadingConversionData || loadingClickData ? (
-            <div className="flex flex-row items-center justify-center gap-5">
-              <Image
-                src="/assets/common/loading.png"
-                alt="Loading Icon"
-                width={50}
-                height={50}
-                className="animate-spin"
-              />
-              <p className="animate-pulse font-semibold text-gray-600">
-                Loading data for chart visualization...
-              </p>
-            </div>
-          ) : (
-            <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange={timeRange} />
-          )}
-        </div>
-  
-        {/* World Heatmap Visualization */}
-        <WorldHeatmap
-          dataPoints={clickData}
-          unitLabel="clicks"
-          projectId={params.projectId}
-          useTestData={false}
-        />
-  
-        {/* Affiliate Performance List */}
-        <AffiliatePerformanceList referrals={referralData} />
-        
       </div>
+
+      {/* World Heatmap Visualization */}
+      <WorldHeatmap
+        dataPoints={clickData}
+        unitLabel="clicks"
+        projectId={params.projectId}
+        useTestData={false}
+      />
+
+      {/* Affiliate Performance List */}
+      <AffiliatePerformanceList referrals={referralData} />
+      
     </div>
   );  
 }
