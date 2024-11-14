@@ -24,6 +24,7 @@ const getRandomColor = () => {
 type BarChartProps = {
   dataMap: Record<string, (PaymentTransaction | ConversionLog | ClickData)[]>;
   timeRange: "week" | "month";
+  isDarkBackground?: boolean; // Determines if the chart is on a dark background
 };
 
 /**
@@ -32,8 +33,9 @@ type BarChartProps = {
  * Displays bar chart data over a specified date range (week or month).
  * @param {dataMap} - Object containing data grouped by categories (e.g., conversions, clicks)
  * @param {timeRange} - The time range to display: "week" (last 7 days) or "month" (last 30 days)
+ * @param {isDarkBackground} - Determines if the chart should adjust colors for dark or light backgrounds
  */
-export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
+export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange, isDarkBackground = false }) => {
   // Calculate the date range based on timeRange prop
   const today = new Date();
   const rangeStartDate = new Date(
@@ -68,8 +70,12 @@ export const BarChart: React.FC<BarChartProps> = ({ dataMap, timeRange }) => {
     const dataPoints = labels.map(label => transactionCounts[label] || 0);
 
     // Set color based on the dataset title
-    const color = title === "Clicks" ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 1)";
-    const borderColor = title === "Clicks" ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 1)";
+    const color = title === "Clicks"
+      ? (isDarkBackground ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)")
+      : (isDarkBackground ? "rgba(255, 255, 255, 1)" : "rgba(0, 0, 0, 1)");
+    const borderColor = title === "Clicks"
+      ? (isDarkBackground ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)")
+      : (isDarkBackground ? "rgba(255, 255, 255, 1)" : "rgba(0, 0, 0, 1)");
 
     // Create a dataset with a random color for each entry
     datasets.push({
