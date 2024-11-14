@@ -115,92 +115,94 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
   const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    // Initialize the map if not already initialized
-    if (mapRef.current === null) {
-      const map = L.map("map", {
-        zoomControl: true,            // Enable zoom controls
-        scrollWheelZoom: true,        // Enable zooming via scroll wheel
-        doubleClickZoom: true,        // Enable zooming via double-click
-        dragging: true,               // Enable map dragging
-      }).setView(center, zoomLevel);  // Set the initial map center and zoom level to the specified zoomLevel
+    if (typeof window !== "undefined") {
+      // Initialize the map if not already initialized
+      if (mapRef.current === null) {
+        const map = L.map("map", {
+          zoomControl: true,            // Enable zoom controls
+          scrollWheelZoom: true,        // Enable zooming via scroll wheel
+          doubleClickZoom: true,        // Enable zooming via double-click
+          dragging: true,               // Enable map dragging
+        }).setView(center, zoomLevel);  // Set the initial map center and zoom level to the specified zoomLevel
 
-      // Add a tile layer (map background)
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        minZoom: minZoom,             // Set minimum zoom level to the specified minZoom
-        maxZoom: 8,                   // Set maximum zoom level to restrict excessive zoom-in
-      }).addTo(map);
+        // Add a tile layer (map background)
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          minZoom: minZoom,             // Set minimum zoom level to the specified minZoom
+          maxZoom: 8,                   // Set maximum zoom level to restrict excessive zoom-in
+        }).addTo(map);
 
-      mapRef.current = map;           // Save the map instance reference
-    }
-
-    // Count clicks per country for the valid data points
-    const countryCounts: Record<string, number> = {};
-    validDataPoints.forEach((point) => {
-      const country = point.country;
-      if (country) {
-        countryCounts[country] = (countryCounts[country] || 0) + 1;
+        mapRef.current = map;           // Save the map instance reference
       }
-    });
 
-    const totalDataPoints = validDataPoints.length; // Total number of valid data points
+      // Count clicks per country for the valid data points
+      const countryCounts: Record<string, number> = {};
+      validDataPoints.forEach((point) => {
+        const country = point.country;
+        if (country) {
+          countryCounts[country] = (countryCounts[country] || 0) + 1;
+        }
+      });
 
-    // Remove existing GeoJSON layers before adding a new one
-    mapRef.current.eachLayer((layer) => {
-      if (layer instanceof L.GeoJSON) {
-        mapRef.current?.removeLayer(layer);
-      }
-    });
+      const totalDataPoints = validDataPoints.length; // Total number of valid data points
 
-    // Add GeoJSON layer to visualize data based on click distribution
-    const geoJsonLayer = L.geoJSON(combinedCountryData as GeoJsonObject, {
-      style: (feature) => {
-        if (feature?.properties?.name) {
+      // Remove existing GeoJSON layers before adding a new one
+      mapRef.current.eachLayer((layer) => {
+        if (layer instanceof L.GeoJSON) {
+          mapRef.current?.removeLayer(layer);
+        }
+      });
+
+      // Add GeoJSON layer to visualize data based on click distribution
+      const geoJsonLayer = L.geoJSON(combinedCountryData as GeoJsonObject, {
+        style: (feature) => {
+          if (feature?.properties?.name) {
+            const countryName = feature.properties.name;
+            const count = countryCounts[countryName] || 0;
+            const percentage = calculatePercentage(count, totalDataPoints);
+
+            return {
+              fillColor: getColorByPercentage(percentage), // Dynamic color based on click percentage
+              weight: 2,
+              opacity: 1,
+              color: "white",
+              dashArray: "3",
+              fillOpacity: 0.7,
+            };
+          }
+          return {};  // Return empty style for invalid features
+        },
+        onEachFeature: (feature, layer) => {
           const countryName = feature.properties.name;
           const count = countryCounts[countryName] || 0;
           const percentage = calculatePercentage(count, totalDataPoints);
+        
+          // Get ISO Alpha-2 country code
+          const countryCode = getCountryCodeFromName(countryName);
+        
+          // If the country code is "unknown", no flag is displayed
+          const flagIcon = countryCode !== "unknown" 
+            ? `<img src="https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png" alt="${countryName} Flag" style="width: 18px; height: 12px; margin-right: 5px;" />`
+            : "";
+        
+          // Create the popup content with the flag and country name
+          const popupContent = `${flagIcon}${countryName}: ${count} ${unitLabel} (${percentage.toFixed(2)}%)`;
+        
+          // Show the popup when the mouse moves over the country
+          layer.on("mousemove", function (e) {
+            layer.bindPopup(popupContent, {
+              closeButton: false,  // Hide close button in popups
+            }).openPopup(e.latlng);
+          });
 
-          return {
-            fillColor: getColorByPercentage(percentage), // Dynamic color based on click percentage
-            weight: 2,
-            opacity: 1,
-            color: "white",
-            dashArray: "3",
-            fillOpacity: 0.7,
-          };
-        }
-        return {};  // Return empty style for invalid features
-      },
-      onEachFeature: (feature, layer) => {
-        const countryName = feature.properties.name;
-        const count = countryCounts[countryName] || 0;
-        const percentage = calculatePercentage(count, totalDataPoints);
-      
-        // Get ISO Alpha-2 country code
-        const countryCode = getCountryCodeFromName(countryName);
-      
-        // If the country code is "unknown", no flag is displayed
-        const flagIcon = countryCode !== "unknown" 
-          ? `<img src="https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png" alt="${countryName} Flag" style="width: 18px; height: 12px; margin-right: 5px;" />`
-          : "";
-      
-        // Create the popup content with the flag and country name
-        const popupContent = `${flagIcon}${countryName}: ${count} ${unitLabel} (${percentage.toFixed(2)}%)`;
-      
-        // Show the popup when the mouse moves over the country
-        layer.on("mousemove", function (e) {
-          layer.bindPopup(popupContent, {
-            closeButton: false,  // Hide close button in popups
-          }).openPopup(e.latlng);
-        });
+          // Close the popup when the mouse leaves the country
+          layer.on("mouseout", function () {
+            layer.closePopup();  // Close the popup when the mouse leaves the country
+          });
+        },
+      });
 
-        // Close the popup when the mouse leaves the country
-        layer.on("mouseout", function () {
-          layer.closePopup();  // Close the popup when the mouse leaves the country
-        });
-      },
-    });
-
-    geoJsonLayer.addTo(mapRef.current);  // Add the GeoJSON layer to the map
+      geoJsonLayer.addTo(mapRef.current);  // Add the GeoJSON layer to the map
+    }
 
   }, [validDataPoints, unitLabel, center]);
 
