@@ -5,7 +5,6 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 
 // Components
-import { NavBar } from "../../components/dashboard";
 import { AnalyticsCard, BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { AffiliatePerformanceList } from "../../components/project";
@@ -43,9 +42,12 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
 
-  // Detect screen width to adjust time range based on viewport size
+  // Detect screen width to adjust "the bar chart" and "the heatmap" based on viewport size
   const width = useWindowSize();
-  const timeRange = width <= 768 ? "week" : "month"; // Set to "week" on screens md (768px) or smaller
+  const timeRange = width <= 768 ? "week" : "month";    // Set to "week" on screens md (768px) or smaller
+  const mapHeight = width <= 768 ? "300px" : "500px";   // Adjust height based on screen size
+  const mapZoomLevel = width <= 768 ? 1 : 2;            // Set initial zoom level: 1 for mobile screens, 2 for larger screens
+  const mapMinZoom = width <= 768 ? 1 : 2;              // Set minimum zoom level: 1 for mobile screens, 2 for larger screens
 
   // Fetch referral data, including associated click and conversion data, on component mount or project ID change
   useEffect(() => {
@@ -92,100 +94,102 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   }, [params.projectId]);
 
   return (
-    <div>
-      {/* Navigation Bar with Project ID passed as a prop */}
-      <NavBar projectId={params.projectId} />
-  
-      <div className="min-h-screen bg-[#F8FAFC] space-y-10 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
-        
-        {/* Page Title */}
-        <h1 className="font-bold text-2xl">Dashboard</h1>
-  
-        {/* API Key Display */}
-        {apiKey && (
-          <div className="bg-slate-100 p-5 rounded-lg">
-            <h2 className="font-semibold">API KEY</h2>
-            <p className="text-[#6B7280] flex flex-row items-center gap-4">
-              {/* Toggle for showing/hiding API Key */}
-              <button onClick={() => setShowApiKey(!showApiKey)}>
+    <div className="min-h-screen space-y-5 md:space-y-10 px-4 md:px-10 lg:px-20 pb-10 md:py-20">
+      
+      {/* Page Title */}
+      <h1 className="font-bold text-2xl md:text-3xl">Dashboard</h1>
+
+      {/* API Key Display */}
+      {apiKey && (
+        <div className="bg-[#F5F5F5] p-5 rounded-lg">
+          <h2 className="font-semibold">API KEY</h2>
+          <p className="text-[#757575] flex flex-row items-center gap-4">
+            {/* Toggle for showing/hiding API Key */}
+            <button onClick={() => setShowApiKey(!showApiKey)}>
+              <Image
+                src={`/assets/common/visibility-${showApiKey ? "off-" : ""}black.png`}
+                alt="Visibility Icon"
+                height={20}
+                width={20}
+              />
+            </button>
+            {/* Display or Mask API Key */}
+            {showApiKey ? (
+              <button
+                onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
+                className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
+              >
+                <span className="break-all mr-2">{apiKey}</span>
                 <Image
-                  src={showApiKey ? "/assets/common/invisible-black.png" : "/assets/common/visible-black.png"}
-                  alt="Toggle Icon"
-                  height={18}
-                  width={18}
+                  src="/assets/common/content-copy-black.png"
+                  alt="copy icon"
+                  width={20}
+                  height={20}
                 />
               </button>
-              {/* Display or Mask API Key */}
-              {showApiKey ? (
-                <button
-                  onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
-                  className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
-                >
-                  {apiKey}
-                  <Image src="/assets/common/copy-black.png" alt="copy icon" width={14} height={14} />
-                </button>
-              ) : (
-                apiKey.split("").map(() => "*").join("")
-              )}
+            ) : (
+              apiKey.split("").map(() => "*").join("")
+            )}
+          </p>
+        </div>
+      )}
+
+      {/* Analytics Section */}
+      <div className="space-y-2">
+        <h2 className="font-bold text-xl">Analytics</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {/* Conversion Analytics Card */}
+          <AnalyticsCard
+            title="Conversions"
+            description="(All Time)"
+            loading={loadingConversionData}
+            value={conversionData.length}
+            unit="TIMES"
+          />
+          {/* Click Analytics Card */}
+          <AnalyticsCard
+            title="Clicks"
+            description="(All Time)"
+            loading={loadingClickData}
+            value={clickData.length}
+            unit="TIMES"
+          />
+        </div>
+      </div>
+
+      {/* Conversion and Clicks Bar Chart */}
+      <div className="bg-[#F5F5F5] p-2 md:p-10 rounded-lg">
+        {loadingConversionData || loadingClickData ? (
+          <div className="flex flex-row items-center justify-center gap-5">
+            <Image
+              src="/assets/common/loading.png"
+              alt="Loading Icon"
+              width={50}
+              height={50}
+              className="animate-spin"
+            />
+            <p className="animate-pulse font-semibold text-[#757575]">
+              Loading data for chart visualization...
             </p>
           </div>
+        ) : (
+          <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange={timeRange} />
         )}
-  
-        {/* Analytics Section */}
-        <div className="space-y-2">
-          <h2 className="font-bold text-xl">Analytics</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {/* Conversion Analytics Card */}
-            <AnalyticsCard
-              title="Conversions"
-              description="(All Time)"
-              loading={loadingConversionData}
-              value={conversionData.length}
-              unit="TIMES"
-            />
-            {/* Click Analytics Card */}
-            <AnalyticsCard
-              title="Clicks"
-              description="(All Time)"
-              loading={loadingClickData}
-              value={clickData.length}
-              unit="TIMES"
-            />
-          </div>
-        </div>
-  
-        {/* Conversion and Clicks Bar Chart */}
-        <div className="bg-slate-100 p-5 md:p-10 rounded-lg shadow">
-          {loadingConversionData || loadingClickData ? (
-            <div className="flex flex-row items-center justify-center gap-5">
-              <Image
-                src="/assets/common/loading.png"
-                alt="Loading Icon"
-                width={50}
-                height={50}
-                className="animate-spin"
-              />
-              <p className="animate-pulse font-semibold text-gray-600">
-                Loading data for chart visualization...
-              </p>
-            </div>
-          ) : (
-            <BarChart dataMap={{ "Conversions": conversionData, "Clicks": clickData }} timeRange={timeRange} />
-          )}
-        </div>
-  
-        {/* World Heatmap Visualization */}
-        <WorldHeatmap
-          dataPoints={clickData}
-          unitLabel="clicks"
-          projectId={params.projectId}
-          useTestData={false}
-        />
-  
-        {/* Affiliate Performance List */}
-        <AffiliatePerformanceList referrals={referralData} />
-        
       </div>
+
+      {/* World Heatmap Visualization */}
+      <WorldHeatmap
+        dataPoints={clickData}
+        unitLabel="clicks"
+        projectId={params.projectId}
+        height={mapHeight}
+        zoomLevel={mapZoomLevel}
+        minZoom={mapMinZoom}
+      />
+
+      {/* Affiliate Performance List */}
+      <AffiliatePerformanceList referrals={referralData} />
+      
     </div>
   );  
 }

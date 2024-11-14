@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Chain } from "@thirdweb-dev/chains";
 import { useSwitchChain } from "@thirdweb-dev/react";
 import Image from "next/image";
-import { useChainContext } from "../context/chainContext";
-import { getChains } from "../utils/contracts";
-import { formatChainName } from "../utils/formatUtils";
+import { useChainContext } from "../../context/chainContext";
+import { getChains } from "../../utils/contracts";
+import { formatChainName } from "../../utils/formatUtils";
 import { toast } from "react-toastify";
 
 // Props interface for the ChainSelector component
@@ -23,6 +23,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
   const { selectedChain: contextSelectedChain, setSelectedChain: setContextSelectedChain } = useChainContext();
 
   const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown visibility state
+  const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference to the dropdown menu element for click-outside detection
   const chains = getChains();                              // List of available chains
   const switchChain = useSwitchChain();                    // Hook for switching blockchain networks
 
@@ -54,8 +55,28 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
     }
   };
 
+  // useEffect hook to handle click-outside behavior for the dropdown menu
+  // - Adds an event listener to close the dropdown when clicking outside of it
+  // - Cleans up the event listener when the component unmounts to avoid memory leaks
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // Checks if the click was outside the dropdown menu, and if so, closes the dropdown
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+
+    // Adds mousedown event listener to detect clicks outside the dropdown
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Button to open the dropdown or show selected chain info */}
       <button
         type="button"
@@ -78,7 +99,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
 
       {/* Dropdown for selecting available chains */}
       {dropdownOpen && (
-        <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+        <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             {chains.map((chain) => (
               <button

@@ -150,7 +150,7 @@ export const BrandResourceForm: React.FC<BrandResourceFormProps> = ({
             Cover Image <span className="text-red-500">*</span>
           </label>
           <p className="text-sm text-gray-500">Upload a cover image for your project.</p>
-          <div className="border-dashed border-2 border-gray-300 rounded-md p-1 flex justify-center items-center h-[400px]">
+          <div className="border-dashed border-2 border-gray-300 rounded-md p-1 flex justify-center items-center h-[200px] md:h-[400px]">
             {coverPreview ? (
               <div className="relative w-full h-full">
                 <Image src={coverPreview} alt="Cover Preview" layout="fill" objectFit="cover" className="rounded-lg" />

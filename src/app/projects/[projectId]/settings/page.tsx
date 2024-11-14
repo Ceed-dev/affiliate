@@ -11,7 +11,6 @@ import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
 import { ProjectData, ImageType, PreviewData } from "../../../types";
 
 // Components
-import { NavBar } from "../../../components/dashboard";
 import { 
   GeneralForm, 
   BrandResourceForm, 
@@ -231,81 +230,84 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   };
 
   return (
-    <>
-      <NavBar projectId={params.projectId} />
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center py-20">
-        {loadingProject ? (
-          <div className="flex flex-row items-center justify-center gap-5 mt-20">
-            <Image src="/assets/common/loading.png" alt="loading.png" width={50} height={50} className="animate-spin" /> 
-            <p className="text-gray-500 font-semibold text-lg">Loading...</p>
-          </div>
-        ) : (
-          <div className="w-full max-w-4xl space-y-10 px-4">
-            <h1 className="font-bold text-3xl">Project Update</h1>
-            <GeneralForm
-              projectName={projectData.projectName}
-              description={projectData.description}
-              handleChange={handleChange}
-            />
-            <BrandResourceForm
-              websiteUrl={projectData.websiteUrl}
-              xUrl={projectData.xUrl}
-              discordUrl={projectData.discordUrl}
-              logoPreview={previewData.logoPreview}
-              coverPreview={previewData.coverPreview}
-              handleChange={handleChange}
-              handleImageChange={handleImageChange}
-              removeImage={removeImage}
-              setSocialLinkFormError={setSocialLinkFormError}
-            />
-            <MemberForm
-              ownerAddresses={projectData.ownerAddresses}
-              handleOwnerChange={handleOwnerChange}
-            />
-            <RewardForm
-              isReferralEnabled={projectData.isReferralEnabled}
-              selectedTokenAddress={projectData.selectedTokenAddress}
-              conversionPoints={projectData.conversionPoints}
-              redirectUrl={projectData.redirectUrl}
-              handleChange={handleChange}
-              selectedChain={selectedChain}
-              handleConversionPointToggle={handleConversionPointToggle}
-              isEditing={true}
-            />
-            <SaveButton 
-              onClick={handleUpdateProject}
-              disabled={!hasChanges()}
-            >
-              {isUpdating ? (
-                <div className="flex flex-row items-center justify-center gap-5">
-                  <Image 
-                    src={"/assets/common/loading.png"} 
-                    height={30} 
-                    width={30} 
-                    alt="loading.png" 
-                    className="animate-spin" 
-                  />
-                  <span className="animate-pulse">Updating...</span>
-                </div>
-              ) : (
-                "Update"
-              )}
-            </SaveButton>
-
-            {/* Project Delete Field */}
-            {isAdmin && (
-              <DeleteProject
-                projectId={params.projectId}
-                projectName={projectData.projectName}
-                deleteInput={deleteInput}
-                setDeleteInput={setDeleteInput}
-                isDeleting={isDeleting}
-                setIsDeleting={setIsDeleting}
-              />
+    <div className="min-h-screen flex flex-col items-center pb-10 md:py-20">
+      {loadingProject ? (
+        <div className="flex flex-row items-center justify-center gap-5 mt-20">
+          <Image
+            src="/assets/common/loading.png"
+            alt="loading.png"
+            width={50}
+            height={50}
+            className="animate-spin"
+          /> 
+          <p className="text-[#757575] font-semibold text-lg">Loading...</p>
+        </div>
+      ) : (
+        <div className="w-full max-w-4xl space-y-5 md:space-y-10 px-4">
+          <h1 className="font-bold text-2xl md:text-3xl">Project Update</h1>
+          <GeneralForm
+            projectName={projectData.projectName}
+            description={projectData.description}
+            handleChange={handleChange}
+          />
+          <BrandResourceForm
+            websiteUrl={projectData.websiteUrl}
+            xUrl={projectData.xUrl}
+            discordUrl={projectData.discordUrl}
+            logoPreview={previewData.logoPreview}
+            coverPreview={previewData.coverPreview}
+            handleChange={handleChange}
+            handleImageChange={handleImageChange}
+            removeImage={removeImage}
+            setSocialLinkFormError={setSocialLinkFormError}
+          />
+          <MemberForm
+            ownerAddresses={projectData.ownerAddresses}
+            handleOwnerChange={handleOwnerChange}
+          />
+          <RewardForm
+            isReferralEnabled={projectData.isReferralEnabled}
+            selectedTokenAddress={projectData.selectedTokenAddress}
+            conversionPoints={projectData.conversionPoints}
+            redirectUrl={projectData.redirectUrl}
+            handleChange={handleChange}
+            selectedChain={selectedChain}
+            handleConversionPointToggle={handleConversionPointToggle}
+            isEditing={true}
+          />
+          <SaveButton 
+            onClick={handleUpdateProject}
+            disabled={!hasChanges()}
+          >
+            {isUpdating ? (
+              <div className="flex flex-row items-center justify-center gap-5">
+                <Image 
+                  src="/assets/common/loading.png"
+                  height={30} 
+                  width={30} 
+                  alt="loading.png" 
+                  className="animate-spin" 
+                />
+                <span className="animate-pulse">Updating...</span>
+              </div>
+            ) : (
+              "Update"
             )}
-          </div>
-        )}
-      </div>
-    </>
+          </SaveButton>
+
+          {/* Project Delete Field */}
+          {isAdmin && (
+            <DeleteProject
+              projectId={params.projectId}
+              projectName={projectData.projectName}
+              deleteInput={deleteInput}
+              setDeleteInput={setDeleteInput}
+              isDeleting={isDeleting}
+              setIsDeleting={setIsDeleting}
+            />
+          )}
+        </div>
+      )}
+    </div>
   );
 }

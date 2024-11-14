@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { formatNumberWithUnits } from "../../utils/generalUtils";
 
 // Define the props for the AnalyticsCard component
 type AnalyticsCardProps = {
@@ -8,6 +9,7 @@ type AnalyticsCardProps = {
   loading: boolean;             // Loading state; true if data is still being fetched
   value: number | Date;         // The main metric value to display (either a number or Date)
   unit?: string;                // Optional unit of measurement for the value (e.g., "TIMES" or "%")
+  isDarkBackground?: boolean;   // Determines if the background is dark; used to adjust text color accordingly
 };
 
 /**
@@ -20,12 +22,14 @@ type AnalyticsCardProps = {
  * - Suitable for displaying key metrics (clicks, conversions, earnings, dates) in analytics dashboards.
  * - Set `loading` to true during data fetching, then update `value` and `unit` after data retrieval.
  * - `description` provides additional context about the metric.
+ * - `isDarkBackground` changes the text color based on the background color.
  * 
  * @param {string} title - The title of the metric
  * @param {string} [description] - Optional description for the metric
  * @param {boolean} loading - Whether the data is being loaded
  * @param {number | Date} value - The main metric value to display
  * @param {string} [unit] - Optional unit of the metric value
+ * @param {boolean} [isDarkBackground] - Whether the background is dark or not
  * @returns {JSX.Element} Rendered AnalyticsCard component
  */
 export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
@@ -34,6 +38,7 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
   loading,
   value,
   unit,
+  isDarkBackground = false,
 }) => {
   // Formats date as "MM.DD." for month and day, and "Year" for the year
   const formatDate = (date: Date) => {
@@ -45,11 +50,14 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
   // Determines the value to display based on the type of `value`
   const displayValue =
     typeof value === "number"
-      ? value.toLocaleString("en-US")    // Format number with commas
+      ? formatNumberWithUnits(value)     // Format number with units for large values
       : formatDate(value);               // Format Date as monthDay and year
 
   return (
-    <div className="bg-[#222222] text-white/60 text-sm rounded-lg p-4 h-full flex flex-col">
+    <div className={`text-sm rounded-lg p-4 h-full flex flex-col ${
+      isDarkBackground ? "bg-[#222222] text-white/60" : "bg-[#F5F5F5] text-black/60"
+      }`}
+    >
       {/* Header section with title and optional description */}
       <div className="mb-12">
         <h3 className="font-semibold uppercase">{title}</h3>
@@ -72,19 +80,27 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
         <div className="mt-auto">
           {/* Display unit above value if value is a Date */}
           {value instanceof Date && unit && (
-            <p className="text-gray-500 text-sm">{unit}</p>
+            <p className="text-sm">{unit}</p>
           )}
           <div className="flex items-baseline">
             {typeof displayValue === "string" ? (
               <>
                 {/* Display numeric value with unit beside it */}
-                <span className="text-3xl font-semibold text-white">{displayValue}</span>
+                <span className={`text-3xl font-semibold ${
+                  isDarkBackground ? "text-white" : "text-black"
+                }`}>
+                  {displayValue}
+                </span>
                 {unit && <span className="text-sm ml-1">{unit}</span>}
               </>
             ) : (
               <>
                 {/* Display date with month and day in bold, year in smaller font */}
-                <span className="text-white font-bold text-3xl">{displayValue.monthDay}</span>
+                <span className={`font-bold text-3xl ${
+                  isDarkBackground ? "text-white" : "text-black"
+                }`}>
+                  {displayValue.monthDay}
+                </span>
                 <span className="ml-1">{displayValue.year}</span>
               </>
             )}

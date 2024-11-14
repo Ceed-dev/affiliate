@@ -18,7 +18,7 @@ import {
 } from "@thirdweb-dev/react";
 import { AffiliateInfo } from "../types";
 import { UserAccountSetupModal } from "../components/UserAccountSetupModal";
-import { ChainSelector } from "../components/ChainSelector";
+import { ChainSelector } from "../components/common";
 import { createNewUser, isUserProjectOwner, checkUserExistenceAndShowModal, fetchUserById } from "../utils/userUtils";
 import { useChainContext } from "../context/chainContext";
 

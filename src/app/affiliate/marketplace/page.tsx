@@ -78,6 +78,7 @@ export default function Marketplace() {
               key={project.id} 
               project={project} 
               linkUrl={`${baseUrl}/affiliate/${project.id}`} 
+              isDarkBackground={true}
             />
           ))}
         </div>
