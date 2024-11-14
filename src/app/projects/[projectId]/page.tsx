@@ -42,9 +42,12 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
 
-  // Detect screen width to adjust time range based on viewport size
+  // Detect screen width to adjust "the bar chart" and "the heatmap" based on viewport size
   const width = useWindowSize();
-  const timeRange = width <= 768 ? "week" : "month"; // Set to "week" on screens md (768px) or smaller
+  const timeRange = width <= 768 ? "week" : "month";    // Set to "week" on screens md (768px) or smaller
+  const mapHeight = width <= 768 ? "300px" : "500px";   // Adjust height based on screen size
+  const mapZoomLevel = width <= 768 ? 1 : 2;            // Set initial zoom level: 1 for mobile screens, 2 for larger screens
+  const mapMinZoom = width <= 768 ? 1 : 2;              // Set minimum zoom level: 1 for mobile screens, 2 for larger screens
 
   // Fetch referral data, including associated click and conversion data, on component mount or project ID change
   useEffect(() => {
@@ -179,7 +182,9 @@ export default function Dashboard({ params }: { params: { projectId: string } })
         dataPoints={clickData}
         unitLabel="clicks"
         projectId={params.projectId}
-        useTestData={false}
+        height={mapHeight}
+        zoomLevel={mapZoomLevel}
+        minZoom={mapMinZoom}
       />
 
       {/* Affiliate Performance List */}

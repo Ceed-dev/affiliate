@@ -230,7 +230,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-20">
+    <div className="min-h-screen flex flex-col items-center pb-10 md:py-20">
       {loadingProject ? (
         <div className="flex flex-row items-center justify-center gap-5 mt-20">
           <Image
@@ -243,8 +243,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
           <p className="text-[#757575] font-semibold text-lg">Loading...</p>
         </div>
       ) : (
-        <div className="w-full max-w-4xl space-y-10 px-4">
-          <h1 className="font-bold text-3xl">Project Update</h1>
+        <div className="w-full max-w-4xl space-y-5 md:space-y-10 px-4">
+          <h1 className="font-bold text-2xl md:text-3xl">Project Update</h1>
           <GeneralForm
             projectName={projectData.projectName}
             description={projectData.description}
