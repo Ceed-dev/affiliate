@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ address }) => {
 
   return (
     // Header layout and styling
-    <header className="w-full px-5 lg:px-0 py-2 border-b-2 border-sky-500 shadow-md">
+    <header className="w-full px-5 lg:px-0 py-2 border-b-2 border-[#25D366] shadow-md">
       <div className="flex flex-row justify-between w-full lg:w-2/3 mx-auto">
         
         {/* Link to homepage with logo */}
@@ -51,17 +51,17 @@ export const Header: React.FC<HeaderProps> = ({ address }) => {
           <Image
             src="/qube.png"
             alt="qube.png" // Alt text for accessibility
-            width={50}
-            height={50}
+            width={30}
+            height={30}
           />
           {/* Qube text */}
-          <p className="text-lg font-semibold font-corporate">Qube</p>
+          <p className="text-xl font-bold font-corporate">Qube</p>
         </Link>
 
         <div className="relative">
           {/* Button: Shows formatted address if connected, otherwise "Not connected" */}
           <button
-            className="bg-gray-100 text-gray-600 text-sm py-2 px-2 md:px-7 border-2 border-white shadow-xl rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+            className="bg-white/10 text-black/60 border text-sm font-semibold py-2 px-2 md:px-7 shadow-lg rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
             // Adds hover effect to scale up the button slightly
             onClick={toggleDisconnectButton}
             ref={buttonRef}

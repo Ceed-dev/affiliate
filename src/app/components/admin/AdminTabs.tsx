@@ -9,7 +9,7 @@ interface TabButtonProps {
 // TabButton component: Represents an individual tab button with an active state
 const TabButton: React.FC<TabButtonProps> = ({ isActive, label, onClick }) => {
   return (
-    <li className={`mr-1 ${isActive ? "text-sky-500" : ""}`}>
+    <li className={`mr-1 ${isActive ? "text-[#25D366]" : ""}`}>
       <button 
         onClick={onClick} // Calls the passed onClick function when the button is clicked
         className={`inline-block py-2 px-4 font-semibold whitespace-nowrap ${isActive ? "bg-slate-300 rounded-t-md" : ""}`}
@@ -33,7 +33,8 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, setActiveTab })
     { label: "Unpaid Conversion Logs & Token Summary", value: "unpaidConversionLogs" as ActiveTab },
     { label: "User Approval", value: "userApproval" as ActiveTab },
     { label: "Manual Tweet Engagement Update", value: "manualTweetEngagementUpdate" as ActiveTab },
-    { label: "Manual YouTube Video Engagement Update", value: "manualYouTubeVideoEngagementUpdate" as ActiveTab }
+    { label: "Manual YouTube Video Engagement Update", value: "manualYouTubeVideoEngagementUpdate" as ActiveTab },
+    { label: "App Settings", value: "appSettings" as ActiveTab },
   ];
 
   return (

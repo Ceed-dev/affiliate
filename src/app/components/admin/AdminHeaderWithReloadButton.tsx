@@ -33,7 +33,7 @@ const ButtonWithLoading: React.FC<CommonProps> = ({
 
   return (
     <button
-      className={`${isLoading ? "bg-slate-400" : "bg-sky-500 hover:bg-sky-700"} text-white w-[130px] h-[40px] rounded transition`}
+      className={`${isLoading ? "bg-slate-400" : "bg-[#25D366] hover:bg-[#25D366]/80"} text-white w-[130px] h-[40px] rounded transition`}
       onClick={handleButtonClick}
       disabled={isLoading} // Disable the button if data is loading
     >
@@ -68,7 +68,7 @@ export const AdminHeaderWithReloadButton: React.FC<CommonProps> = ({
       <h1 className="text-lg sm:text-2xl lg:text-4xl font-semibold">Admin Dashboard</h1>
       
       {/* Only show the reload button if the active tab is not "manualTweetEngagementUpdate" or "manualYouTubeVideoEngagementUpdate" */}
-      {activeTab !== "manualTweetEngagementUpdate" && activeTab !== "manualYouTubeVideoEngagementUpdate" && (
+      {activeTab !== "manualTweetEngagementUpdate" && activeTab !== "manualYouTubeVideoEngagementUpdate" && activeTab !== "appSettings" && (
         <ButtonWithLoading
           activeTab={activeTab}
           unpaidLogsLoading={unpaidLogsLoading}
