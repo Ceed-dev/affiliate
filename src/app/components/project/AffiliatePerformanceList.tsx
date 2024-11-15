@@ -147,22 +147,31 @@ export const AffiliatePerformanceList: React.FC<AffiliatePerformanceListProps> =
                       {[
                         {
                           content: (
-                            <>
-                              {referral.username}{" "}
-                              <span
-                                onClick={() =>
-                                  copyToClipboard(
-                                    referral.affiliateWallet,
-                                    "Wallet address copied to clipboard",
-                                    "Failed to copy address"
-                                  )
-                                }
-                                className="text-blue-500 hover:text-blue-700 cursor-pointer"
-                                title="Click to copy address"
-                              >
-                                ({formatAddress(referral.affiliateWallet)})
-                              </span>
-                            </>
+                            <div className="flex items-center gap-3">
+                              <Image
+                                src={referral.profileImageUrl || "/assets/common/account-circle-black.png"}
+                                alt={`${referral.username}'s avatar`}
+                                width={100}
+                                height={100}
+                                className="w-8 h-8 rounded-full"
+                              />
+                              <div>
+                                {referral.username}{" "}
+                                <span
+                                  onClick={() =>
+                                    copyToClipboard(
+                                      referral.affiliateWallet,
+                                      "Wallet address copied to clipboard",
+                                      "Failed to copy address"
+                                    )
+                                  }
+                                  className="text-[#25D366] hover:text-[#25D366]/70 cursor-pointer"
+                                  title="Click to copy address"
+                                >
+                                  ({formatAddress(referral.affiliateWallet)})
+                                </span>
+                              </div>
+                            </div>
                           ),
                         },
                         { content: formatNumberWithUnits(referral.aggregatedEarnings) },
@@ -179,7 +188,7 @@ export const AffiliatePerformanceList: React.FC<AffiliatePerformanceListProps> =
                                 {expandedRows[referral.id!] ? "Hide" : "Detail"}
                               </button>
                             ) : (
-                              <span className="text-black/60 ml-11">No Data</span>
+                              <span className="text-black/60 ml-11 cursor-not-allowed">No Data</span>
                             )
                           ),
                         },
