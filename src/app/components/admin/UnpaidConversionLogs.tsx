@@ -4,6 +4,7 @@ import { toast } from "react-toastify"; // Importing toast for notifications
 import { ethers } from "ethers";
 import { popularTokens } from "../../constants/popularTokens"; // Importing list of popular tokens
 import { formatChainName } from "../../utils/formatUtils"; // Utility function to format chain names
+import { formatNumberWithUnits } from "../../utils/generalUtils"; // Formats a large number into a more readable string with units
 import { UnpaidConversionLog } from "../../types"; // Type for unpaid conversion logs
 
 const ZERO_ADDRESS = ethers.constants.AddressZero; // Constant for the zero address (used for native tokens)
@@ -28,7 +29,7 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
     <>
       {/* Header for the unpaid conversion logs section */}
       <div className="w-11/12">
-        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Unpaid Conversion Logs ({unpaidConversionLogs.length})</h2>
+        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Unpaid Conversion Logs ({formatNumberWithUnits(unpaidConversionLogs.length)})</h2>
         <p className="text-sm text-gray-600">List of unpaid conversion logs awaiting payment.</p>
       </div>
 
@@ -149,9 +150,9 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   {/* Amount */}
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                     {log.userWalletAddress ? (
-                      `${log.amount} (${log.amount / 2} for each)`
+                      `${formatNumberWithUnits(log.amount)} (${formatNumberWithUnits(log.amount / 2)} for each)`
                     ) : (
-                      log.amount
+                      formatNumberWithUnits(log.amount)
                     )}
                   </td>
                   {/* Referral ID */}
@@ -161,7 +162,7 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   {/* Actions: Pay button */}
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <button 
-                      className={`bg-sky-500 hover:bg-sky-700 hover:shadow-lg text-white px-3 py-1 rounded ${processingLogId === log.logId ? "cursor-not-allowed opacity-50" : ""}`}
+                      className={`bg-[#25D366] hover:bg-[#25D366]/80 hover:shadow-lg text-white px-3 py-1 rounded ${processingLogId === log.logId ? "cursor-not-allowed opacity-50" : ""}`}
                       onClick={() => handlePay(log)}
                       disabled={processingLogId === log.logId} // Disable button if the log is being processed
                     >

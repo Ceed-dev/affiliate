@@ -5,6 +5,7 @@ import { Chain } from "@thirdweb-dev/chains"; // Importing Chain type from third
 import { toast } from "react-toastify"; // Importing toast for notifications
 import { popularTokens } from "../../constants/popularTokens"; // Predefined popular tokens list
 import { formatChainName } from "../../utils/formatUtils"; // Utility to format chain names for image sources
+import { formatNumberWithUnits } from "../../utils/generalUtils"; // Formats a large number into a more readable string with units
 
 const ZERO_ADDRESS = ethers.constants.AddressZero; // Zero address constant for native tokens
 
@@ -23,7 +24,7 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
     <>
       {/* Header displaying the token summary count */}
       <div className="w-11/12">
-        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Token Summary ({Object.keys(tokenSummary).length})</h2>
+        <h2 className="text-md sm:text-xl lg:text-2xl font-semibold">Token Summary ({formatNumberWithUnits(Object.keys(tokenSummary).length)})</h2>
         <p className="text-sm text-gray-600">Summary of tokens required for payments.</p>
       </div>
 
@@ -34,7 +35,7 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chain</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Address</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Total Amount</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -102,7 +103,7 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
                   </td>
 
                   {/* Total amount of the token */}
-                  <td className="px-6 py-4 text-sm text-gray-900">{tokenSummary[tokenKey].amount}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{formatNumberWithUnits(tokenSummary[tokenKey].amount)}</td>
                 </tr>
               ))
             )}
