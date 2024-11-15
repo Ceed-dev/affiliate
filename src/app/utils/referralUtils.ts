@@ -35,6 +35,23 @@ export async function fetchReferralPerformanceByProjectId(projectId: string): Pr
         const userData = await fetchUserById(data.affiliateWallet);
         const username = userData ? userData.username : "Unknown";
 
+        // Determine the profile Image URL based on available data
+        let profileImageUrl: string | undefined = undefined;
+
+        if (userData?.xAccountInfo?.profile_image_url) {
+          // Use X profile image URL if available
+          profileImageUrl = userData.xAccountInfo.profile_image_url;
+        } else if (userData?.youtubeAccountInfo?.snippet?.thumbnails?.high?.url) {
+          // Use YouTube profile image URL (high resolution) if available
+          profileImageUrl = userData.youtubeAccountInfo.snippet.thumbnails.high.url;
+        } else if (userData?.youtubeAccountInfo?.snippet?.thumbnails?.medium?.url) {
+          // Use YouTube profile image URL (medium resolution) as fallback
+          profileImageUrl = userData.youtubeAccountInfo.snippet.thumbnails.medium.url;
+        } else if (userData?.youtubeAccountInfo?.snippet?.thumbnails?.default?.url) {
+          // Use YouTube profile image URL (default resolution) as final fallback
+          profileImageUrl = userData.youtubeAccountInfo.snippet.thumbnails.default.url;
+        }
+
         // Fetch click data, conversion data, tweet data, and YouTube video data associated with the referral
         const clicksData = await fetchClickDataByReferralId(docSnapshot.id);
         const conversionsData = await fetchConversionLogDataByReferralId(docSnapshot.id);
@@ -54,6 +71,7 @@ export async function fetchReferralPerformanceByProjectId(projectId: string): Pr
           conversionLogs: conversionsData,
           tweetNewestId: data.tweetNewestId || undefined,
           tweetNewestCreatedAt: data.tweetNewestCreatedAt ? data.tweetNewestCreatedAt.toDate() : undefined,
+          ...(profileImageUrl ? { profileImageUrl } : {}),  // Conditionally add profileImageUrl if it exists
         };
         referrals.push(referralData);
       }

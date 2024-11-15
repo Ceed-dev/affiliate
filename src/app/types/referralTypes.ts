@@ -40,6 +40,7 @@ export type ClickData = {
 // Type representing comprehensive performance data for an affiliate, including username, click data, conversion data, and social media engagement metrics.
 export type AffiliatePerformanceData = ReferralData & {
   username: string;                     // Username of the affiliate
+  profileImageUrl?: string;             // Optional URL for the affiliate's profile image
   clicks: ClickData[];                  // Array of click data associated with the referral
   conversionLogs: ConversionLog[];      // Array of conversion log entries tracking each successful conversion
   tweets?: TweetData[];                 // Optional array of tweet engagement data associated with the affiliate
