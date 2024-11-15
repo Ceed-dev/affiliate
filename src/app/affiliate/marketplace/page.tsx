@@ -8,7 +8,7 @@ import { ExtendedProjectData } from "../../types";
 import { fetchAllProjects } from "../../utils/firebase";
 import { fetchTokenSymbols } from "../../utils/contracts";
 import { ProjectCard } from "../../components/project";
-import { getFeaturedProject } from "../../utils/appSettingsUtils";
+import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
 
 /**
  * Marketplace Component
@@ -30,22 +30,30 @@ export default function Marketplace() {
   const [projects, setProjects] = useState<ExtendedProjectData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
+  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
 
   // Fetch project data on component mount
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        // Fetch all projects and featured project data
-        const [projectsData, featuredProjectData] = await Promise.all([
+        // Fetch all projects, featured project data, and marketplace banner data
+        const [projectsData, featuredProjectData, bannerData] = await Promise.all([
           fetchAllProjects(),
           getFeaturedProject(),
+          getMarketplaceBanner(),
         ]);
 
-        // Check if there is a featured project
+        // Set the featured project ID if available
         if (featuredProjectData) {
           setFeaturedProjectId(featuredProjectData.projectId);
         }
 
+        // Set the banner message if available
+        if (bannerData) {
+          setBannerMessage(bannerData.message);
+        }
+
+        // Fetch token symbols for projects
         const projectsWithSymbols = await fetchTokenSymbols(projectsData);
         setProjects(projectsWithSymbols);
       } catch (error) {
@@ -61,6 +69,21 @@ export default function Marketplace() {
 
   return (
     <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto pb-10 md:py-20">
+      {/* Banner Message */}
+      {bannerMessage && (
+        <div className="bg-[#5865F2] font-semibold py-3 px-5 mb-6 rounded-lg flex items-center gap-2">
+          {/* Explosion emoji */}
+          <span
+            className="text-2xl bg-white/5 px-2 py-1 rounded-lg"
+            role="img"
+            aria-label="explosion"
+          >
+            💥
+          </span>
+          <span className="text-md md:text-lg lg:text-xl">{bannerMessage}</span>
+        </div>
+      )}
+
       {/* Page Title, hidden on small screens */}
       <h1 className="hidden md:block text-2xl font-bold mb-5">Projects</h1>
 
