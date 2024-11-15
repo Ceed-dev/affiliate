@@ -160,7 +160,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       {/* Conversion and Clicks Bar Chart */}
       <div className="bg-[#F5F5F5] p-2 md:p-10 rounded-lg">
         {loadingConversionData || loadingClickData ? (
-          <div className="flex flex-row items-center justify-center gap-5">
+          <div className="flex flex-row items-center justify-center gap-5 py-5">
             <Image
               src="/assets/common/loading.png"
               alt="Loading Icon"
