@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { TweetMetrics, YouTubeVideoStatistics } from "../../types/affiliateInfo";
 import { AffiliatePerformanceData, AggregatedAffiliatePerformanceData } from "../../types/referralTypes";
 import { formatAddress } from "../../utils/formatUtils";
-import { copyToClipboard } from "../../utils/generalUtils";
+import { copyToClipboard, formatNumberWithUnits } from "../../utils/generalUtils";
 
 // Define the props for AffiliatePerformanceList
 type AffiliatePerformanceListProps = {
@@ -36,6 +37,34 @@ export const AffiliatePerformanceList: React.FC<AffiliatePerformanceListProps> =
   // The keys in this object represent referral IDs, and the values are booleans 
   // indicating whether the row is expanded (true) or collapsed (false) for each referral.
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
+
+  // CSS classes for table headers, defining background, text style, and alignment for uniform header styling.
+  const tableHeaderClass = "px-6 py-3 bg-[#F5F5F5] text-left text-xs leading-4 font-medium text-black/60 uppercase tracking-wider whitespace-nowrap";
+
+  // CSS classes for regular table cells, ensuring consistent padding, text size, and line height.
+  const cellClass = "px-6 py-4 whitespace-nowrap text-sm leading-5";
+
+  // Function to dynamically generate CSS classes for the toggle button based on its expanded/collapsed state.
+  // When expanded, the button has text-only styling; otherwise, it has a background and rounded edges.
+  const buttonClass = (isExpanded: boolean) =>
+    `py-2 px-4 ml-9 font-semibold ${isExpanded ? "px-5 text-black/60 hover:text-black/80" : "bg-black/5 hover:bg-black/20 rounded-full"}`;
+
+  // Array of tweet metrics with each metric's key and display label.
+  // This array is used to dynamically render tweet engagement data with labels in the UI.
+  const tweetMetricKeys: [keyof TweetMetrics, string][] = [
+    ["impressionCount", "Impressions"],
+    ["likeCount", "Likes"],
+    ["retweetCount", "Retweets"],
+    ["bookmarkCount", "Bookmarks"],
+  ];
+
+  // Array of YouTube video metrics with each metric's key and display label.
+  // This array facilitates dynamic rendering of YouTube engagement data with appropriate labels.
+  const youtubeMetricKeys: [keyof YouTubeVideoStatistics, string][] = [
+    ["commentCount", "Comments"],
+    ["likeCount", "Likes"],
+    ["viewCount", "Views"],
+  ];
 
   useEffect(() => {
     // Process each referral to calculate total earnings and conversion counts
@@ -72,204 +101,179 @@ export const AffiliatePerformanceList: React.FC<AffiliatePerformanceListProps> =
 
   return (
     <div className="space-y-2">
+
       {/* Header for the Engagement Table */}
       <h1 className="font-bold text-xl">Engagement</h1>
-      <div className="shadow rounded-lg">
-        {/* Display loading indicator while aggregating data */}
-        {aggregating ? (
-          <div className="py-10 flex flex-row items-center justify-center gap-5">
-            <Image
-              src="/assets/common/loading.png"
-              alt="Loading indicator"
-              width={50}
-              height={50}
-              className="animate-spin"
-            /> 
-            <p className="animate-pulse font-semibold text-gray-600">
-              Aggregating data...
-            </p>
-          </div>
-        ) : (
-          /* Table displaying the aggregated affiliate performance data */
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              {/* Table header with columns for affiliate performance metrics */}
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                    Influencer
+
+      {/* Affiliate Performance List Table */}
+      {aggregating ? (
+        // Display loading indicator while aggregating data 
+        <div className="bg-[#F5F5F5] py-10 rounded-lg flex flex-row items-center justify-center gap-5">
+          <Image
+            src="/assets/common/loading.png"
+            alt="Loading indicator"
+            width={50}
+            height={50}
+            className="animate-spin"
+          /> 
+          <p className="animate-pulse font-semibold text-black/60">
+            Aggregating data...
+          </p>
+        </div>
+      ) : (
+        // Table displaying the aggregated affiliate performance data
+        <div className="overflow-x-auto rounded-lg border border-black/10">
+          <table className="min-w-full">
+            {/* Table header with columns for affiliate performance metrics */}
+            <thead>
+              <tr>
+                {["Influencer", "Earnings", "Conversions", "Clicks", "Creation Date", "Social Engagement"].map((header, index, array) => (
+                  <th
+                    key={header}
+                    className={`${tableHeaderClass} ${index === 0 && "rounded-tl-lg"} ${index === array.length - 1 && "rounded-tr-lg"}`}
+                  >
+                    {header}
                   </th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                    Earnings
-                  </th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                    Conversions
-                  </th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                    Clicks
-                  </th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                    Creation Date
-                  </th>
-                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                    Social Engagement
-                  </th>
-                </tr>
-              </thead>
-  
-              {/* Table body with rows for each affiliate’s performance data */}
-              <tbody className="bg-white divide-y divide-gray-200">
-                {referralData.length ? (
-                  referralData.map((referral, index) => (
-                    <React.Fragment key={index}>
-                      <tr className="text-gray-500 hover:bg-gray-50 hover:text-gray-900">
-                        {/* Affiliate username with copy-to-clipboard functionality for wallet address */}
-                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                          <p>
-                            {referral.username}{" "}
-                            <span
-                              onClick={() =>
-                                copyToClipboard(
-                                  referral.affiliateWallet,
-                                  "Wallet address copied to clipboard",
-                                  "Failed to copy address"
-                                )
-                              }
-                              className="text-blue-500 hover:text-blue-700 cursor-pointer"
-                              title="Click to copy address"
+                ))}
+              </tr>
+            </thead>
+
+            {/* Table body with rows for each affiliate’s performance data */}
+            <tbody className="divide-y divide-black/10">
+              {referralData.length ? (
+                referralData.map((referral, index) => (
+                  <React.Fragment key={index}>
+                    <tr className="hover:bg-gray-50">
+                      {[
+                        {
+                          content: (
+                            <div className="flex items-center gap-3">
+                              <Image
+                                src={referral.profileImageUrl || "/assets/common/account-circle-black.png"}
+                                alt={`${referral.username}'s avatar`}
+                                width={100}
+                                height={100}
+                                className="w-8 h-8 rounded-full"
+                              />
+                              <div>
+                                {referral.username}{" "}
+                                <span
+                                  onClick={() =>
+                                    copyToClipboard(
+                                      referral.affiliateWallet,
+                                      "Wallet address copied to clipboard",
+                                      "Failed to copy address"
+                                    )
+                                  }
+                                  className="text-[#25D366] hover:text-[#25D366]/70 cursor-pointer"
+                                  title="Click to copy address"
+                                >
+                                  ({formatAddress(referral.affiliateWallet)})
+                                </span>
+                              </div>
+                            </div>
+                          ),
+                        },
+                        { content: formatNumberWithUnits(referral.aggregatedEarnings) },
+                        { content: formatNumberWithUnits(referral.aggregatedConversionLogs) },
+                        { content: formatNumberWithUnits(referral.clicks.length) },
+                        { content: referral.createdAt.toLocaleDateString() },
+                        {
+                          content: (
+                            (referral.tweets?.length || referral.youtubeVideos?.length) ? (
+                              <button
+                                onClick={() => toggleRowExpansion(referral.id!)}
+                                className={buttonClass(expandedRows[referral.id!])}
+                              >
+                                {expandedRows[referral.id!] ? "Hide" : "Detail"}
+                              </button>
+                            ) : (
+                              <span className="text-black/60 ml-11 cursor-not-allowed">No Data</span>
+                            )
+                          ),
+                        },
+                      ].map((item, index) => (
+                        <td key={index} className={cellClass}>
+                          {item.content}
+                        </td>
+                      ))}
+                    </tr>
+
+                    {/* Tweet Engagement Data */}
+                    {expandedRows[referral.id!] && referral.tweets && referral.tweets.length > 0 && (
+                      referral.tweets.map((tweet) => (
+                        <tr key={tweet.tweetId} className="bg-[#F5F5F5]">
+                          {/* Left empty cell to align with the "Influencer" column */}
+                          <td className="px-6 py-2" />
+
+                          {/* Map through tweet metrics to render each metric cell */}
+                          {tweetMetricKeys.map(([metric, label], idx) => (
+                            <td key={idx} className="px-6 py-2">
+                              <p className="text-sm text-[#757575]">{label}</p>
+                              <p>{formatNumberWithUnits(tweet.metrics[metric])}</p>
+                            </td>
+                          ))}
+
+                          {/* Link to view the actual tweet on X */}
+                          <td className="px-6 py-2">
+                            <Link
+                              href={tweet.tweetUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="py-2 px-4 ml-4 font-semibold rounded-full bg-black/5 hover:bg-black/20"
                             >
-                              ({formatAddress(referral.affiliateWallet)})
-                            </span>
-                          </p>
-                        </td>
-                        {/* Display aggregated earnings */}
-                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                          {referral.aggregatedEarnings}
-                        </td>
-                        {/* Display total number of conversions */}
-                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                          {referral.aggregatedConversionLogs}
-                        </td>
-                        {/* Display total number of clicks */}
-                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                          {referral.clicks.length}
-                        </td>
-                        {/* Display referral creation date */}
-                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                          {referral.createdAt.toLocaleDateString()}
-                        </td>
-                        {/* Display Social Engagement Data Toggle Button */}
-                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                          <button onClick={() => toggleRowExpansion(referral.id!)} className="text-blue-500 hover:text-blue-700">
-                            {expandedRows[referral.id!] ? "Hide" : "Detail"}
-                          </button>
-                        </td>
-                      </tr>
-
-                      {/* TODO: Fix UI */}
-                      {expandedRows[referral.id!] && (
-                        <tr className="bg-gray-50">
-                          {/* Empty cell to align with the main table structure */}
-                          <td />
-
-                          {/* Tweet Engagement Data */}
-                          {referral.tweets && referral.tweets.length > 0 && (
-                            <td colSpan={5} className="py-2">
-                              {referral.tweets.map((tweet) => (
-                                <tr key={tweet.tweetId} className="flex justify-between">
-                                  {/* Display Tweet Impressions */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Impressions</p>
-                                    <p>{tweet.metrics.impressionCount}</p>
-                                  </td>
-                                  {/* Display Tweet Likes */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Likes</p>
-                                    <p>{tweet.metrics.likeCount}</p>
-                                  </td>
-                                  {/* Display Tweet Retweets */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Retweets</p>
-                                    <p>{tweet.metrics.retweetCount}</p>
-                                  </td>
-                                  {/* Display Tweet Bookmarks */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Bookmarks</p>
-                                    <p>{tweet.metrics.bookmarkCount}</p>
-                                  </td>
-                                  {/* Link to view the actual tweet on Twitter */}
-                                  <Link
-                                    href={tweet.tweetUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-slate-200 hover:bg-slate-300 rounded-full px-4 my-1 font-semibold flex items-center justify-center mr-20"
-                                  >
-                                    View Post
-                                  </Link>
-                                </tr>
-                              ))}
-                            </td>
-                          )}
+                              View Post
+                            </Link>
+                          </td>
                         </tr>
-                      )}
+                      ))
+                    )}
 
-                      {expandedRows[referral.id!] && (
-                        <tr className="bg-gray-50">
-                          {/* Empty cells to align with the main table structure */}
-                          <td />
-                          <td />
+                    {/* YouTube Video Engagement Data */}
+                    {expandedRows[referral.id!] && referral.youtubeVideos && referral.youtubeVideos.length > 0 && (
+                      referral.youtubeVideos.map((video) => (
+                        <tr key={video.videoId} className="bg-[#F5F5F5]">
+                          {/* Left empty cells to align with the "Influencer" and "Earnings" columns */}
+                          <td className="px-6 py-2" />
+                          <td className="px-6 py-2" />
 
-                          {/* YouTube Video Engagement Data */}
-                          {referral.youtubeVideos && referral.youtubeVideos.length > 0 && (
-                            <td colSpan={4} className="py-2">
-                              {referral.youtubeVideos.map((video) => (
-                                <tr key={video.videoId} className="flex justify-between">
-                                  {/* Display YouTube Video Comments */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Comments</p>
-                                    <p>{video.statistics.commentCount}</p>
-                                  </td>
-                                  {/* Display YouTube Video Likes */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Likes</p>
-                                    <p>{video.statistics.likeCount}</p>
-                                  </td>
-                                  {/* Display YouTube Video Views */}
-                                  <td className="flex flex-col items-center">
-                                    <p className="text-sm font-medium">Views</p>
-                                    <p>{video.statistics.viewCount}</p>
-                                  </td>
-                                  {/* Link to view the actual video on YouTube */}
-                                  <Link
-                                    href={`https://www.youtube.com/watch?v=${video.videoId}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-slate-200 hover:bg-slate-300 rounded-full px-4 my-1 font-semibold flex items-center justify-center mr-20"
-                                  >
-                                    View Video
-                                  </Link>
-                                </tr>
-                              ))}
+                          {/* Map through YouTube metrics to render each metric cell */}
+                          {youtubeMetricKeys.map(([metric, label], idx) => (
+                            <td key={idx} className="px-6 py-2">
+                              <p className="text-sm text-[#757575]">{label}</p>
+                              <p>{formatNumberWithUnits(video.statistics[metric])}</p>
                             </td>
-                          )}
-                        </tr>
-                      )}
+                          ))}
 
-                    </React.Fragment>
-                  ))
-                ) : (
-                  /* Message to display when no referral data is available */
-                  <tr className="text-gray-500">
-                    <td colSpan={6} className="text-center py-4">
-                      No Referral Data
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                          {/* Link to watch the actual video on YouTube */}
+                          <td className="px-6 py-2">
+                            <Link
+                              href={`https://www.youtube.com/watch?v=${video.videoId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="py-2 px-4 ml-2 font-semibold rounded-full bg-black/5 hover:bg-black/20"
+                            >
+                              Watch Video
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+
+                  </React.Fragment>
+                ))
+              ) : (
+                /* Message to display when no affiliate performance data is available */
+                <tr>
+                  <td colSpan={6} className="text-black/60 text-center py-4">
+                    No Referral Data
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );  
 };

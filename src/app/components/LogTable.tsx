@@ -25,7 +25,7 @@ export const LogTable: React.FC<LogTableProps> = ({ logs }) => {
         <table className="table-auto w-full border-collapse border border-gray-300 text-md">
           <thead>
             <tr>
-              <th className="border border-gray-300 px-2 py-1 text-left whitespace-no-wrap">Timestamp</th>
+              <th className="border border-gray-300 px-2 py-1 text-left whitespace-nowrap">Timestamp</th>
               <th className="border border-gray-300 px-2 py-1 text-left">Type</th>
               <th className="border border-gray-300 px-2 py-1 text-left">Log Message</th>
             </tr>
