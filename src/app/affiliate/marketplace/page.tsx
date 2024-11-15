@@ -8,6 +8,7 @@ import { ExtendedProjectData } from "../../types";
 import { fetchAllProjects } from "../../utils/firebase";
 import { fetchTokenSymbols } from "../../utils/contracts";
 import { ProjectCard } from "../../components/project";
+import { getFeaturedProject } from "../../utils/appSettingsUtils";
 
 /**
  * Marketplace Component
@@ -28,12 +29,23 @@ export default function Marketplace() {
   // State variables
   const [projects, setProjects] = useState<ExtendedProjectData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
 
   // Fetch project data on component mount
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const projectsData = await fetchAllProjects();
+        // Fetch all projects and featured project data
+        const [projectsData, featuredProjectData] = await Promise.all([
+          fetchAllProjects(),
+          getFeaturedProject(),
+        ]);
+
+        // Check if there is a featured project
+        if (featuredProjectData) {
+          setFeaturedProjectId(featuredProjectData.projectId);
+        }
+
         const projectsWithSymbols = await fetchTokenSymbols(projectsData);
         setProjects(projectsWithSymbols);
       } catch (error) {
@@ -73,14 +85,42 @@ export default function Marketplace() {
       ) : (
         // Project Cards Grid
         <div className="grid grid-cols-2 gap-4">
-          {projects.map((project) => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              linkUrl={`${baseUrl}/affiliate/${project.id}`} 
-              isDarkBackground={true}
-            />
-          ))}
+          {featuredProjectId && projects.find((project) => project.id === featuredProjectId) ? (
+            <>
+              {/* Display featured project as a large card */}
+              <div className="col-span-2 mb-10">
+                <ProjectCard
+                  project={projects.find((project) => project.id === featuredProjectId)!}
+                  linkUrl={`${baseUrl}/affiliate/${featuredProjectId}`}
+                  isDarkBackground={true}
+                  isFeatured={true}
+                />
+              </div>
+              
+              {/* Display other projects in regular 2-column grid */}
+              {projects
+                .filter((project) => project.id !== featuredProjectId)
+                .map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    linkUrl={`${baseUrl}/affiliate/${project.id}`}
+                    isDarkBackground={true}
+                  />
+                ))
+              }
+            </>
+          ) : (
+            // Display all projects in regular 2-column grid if there's no featured project
+            projects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                linkUrl={`${baseUrl}/affiliate/${project.id}`}
+                isDarkBackground={true}
+              />
+            ))
+          )}
         </div>
       )}
     </div>
