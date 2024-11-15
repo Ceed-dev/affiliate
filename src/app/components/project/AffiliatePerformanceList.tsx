@@ -171,12 +171,16 @@ export const AffiliatePerformanceList: React.FC<AffiliatePerformanceListProps> =
                         { content: referral.createdAt.toLocaleDateString() },
                         {
                           content: (
-                            <button
-                              onClick={() => toggleRowExpansion(referral.id!)}
-                              className={buttonClass(expandedRows[referral.id!])}
-                            >
-                              {expandedRows[referral.id!] ? "Hide" : "Detail"}
-                            </button>
+                            (referral.tweets?.length || referral.youtubeVideos?.length) ? (
+                              <button
+                                onClick={() => toggleRowExpansion(referral.id!)}
+                                className={buttonClass(expandedRows[referral.id!])}
+                              >
+                                {expandedRows[referral.id!] ? "Hide" : "Detail"}
+                              </button>
+                            ) : (
+                              <span className="text-black/60 ml-11">No Data</span>
+                            )
                           ),
                         },
                       ].map((item, index) => (
