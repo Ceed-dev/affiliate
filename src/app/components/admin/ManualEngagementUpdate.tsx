@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { fetchAndUpdateEngagementData } from "../../utils/firebase/engagementHelpers";
 import { createLogEntry } from "../../utils/logUtils";
 import { LogType, LogEntry } from "../../types/log";
-import { LogTable } from "../LogTable";
+import { LogTable } from "../common/LogTable";
 
 // Props for ManualEngagementUpdate component
 interface ManualEngagementUpdateProps {
@@ -62,14 +62,14 @@ export const ManualEngagementUpdate = ({
         <p className="text-lg text-red-500 font-bold underline mt-2">{quotaNote}</p>
 
         {/* Links to API references */}
-        <div className="mt-5 flex flex-row gap-2">
+        <div className="mt-5 flex flex-row gap-2 overflow-x-scroll">
           {apiReferences.map((ref, index) => (
             <Link
               key={index}
               href={ref.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-orange-300 py-2 px-4 rounded-lg shadow-md text-center hover:bg-orange-500 transition"
+              className="bg-orange-300 py-2 px-4 rounded-lg shadow-md text-center hover:bg-orange-500 whitespace-nowrap transition"
             >
               {ref.title} {/* Title of each API reference */}
             </Link>
@@ -81,7 +81,7 @@ export const ManualEngagementUpdate = ({
       <div className="w-11/12 my-5">
         {/* Button to fetch engagement data */}
         <button
-          className={`bg-sky-300 hover:bg-sky-400 rounded-md py-2 px-5 shadow-md font-semibold ${
+          className={`bg-[#25D366] hover:bg-[#25D366]/80 rounded-md py-2 px-5 shadow-md font-semibold ${
             isProcessing ? "opacity-50 cursor-not-allowed" : ""
           }`}
           onClick={async () => await fetchAndUpdateEngagementData(platform, setIsProcessing, addLog, setTotalTasks, setCompletedTasks)}

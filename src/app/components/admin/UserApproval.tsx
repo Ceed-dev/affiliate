@@ -31,8 +31,8 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
               {/* Table headers */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wallet Address</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Wallet Address</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Created At</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -77,7 +77,7 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
                   {/* Approve button */}
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <button 
-                      className="bg-green-500 hover:bg-green-700 hover:shadow-lg text-white px-3 py-1 rounded"
+                      className="bg-[#25D366] hover:bg-[#25D366]/80 hover:shadow-lg text-white px-3 py-1 rounded"
                       onClick={() => handleApprove(user.walletAddress!)} // Call the handleApprove function with the user's wallet address
                     >
                       Approve

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { ExtendedProjectData } from "../../types";
 
 type ProjectCardProps = {
-  project: ExtendedProjectData;
-  linkUrl: string;
-  isDarkBackground: boolean;
+  project: ExtendedProjectData; // The project data containing details such as name, description, and images
+  linkUrl: string;              // The URL to navigate to the detailed project page when the card is clicked
+  isDarkBackground: boolean;    // A flag indicating whether the card should have a dark background
+  isFeatured?: boolean;         // Optional flag to indicate if the project is featured (default is false)
 };
 
 /**
@@ -19,12 +20,19 @@ type ProjectCardProps = {
  * Props:
  * - `project`: The project data to display.
  * - `linkUrl`: The URL to navigate to the project's detailed page.
+ * - `isDarkBackground`: Indicates whether the background is dark.
+ * - `isFeatured`: Optional flag to indicate if the project is featured (default is false).
  * 
  * @component
- * @param {ProjectCardProps} props - Contains `project`, `linkUrl` and `isDarkBackground`.
+ * @param {ProjectCardProps} props - Contains `project`, `linkUrl`, `isDarkBackground`, and `isFeatured`.
  * @returns {JSX.Element} Rendered ProjectCard component.
  */
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl, isDarkBackground }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
+  linkUrl,
+  isDarkBackground,
+  isFeatured = false, // Default to false if not provided
+}) => {
   // Extract the primary conversion point to display reward and type
   const conversionPoint = project.conversionPoints[0];
   const textColorClass = isDarkBackground ? "text-white/60" : "text-black/60";
@@ -36,7 +44,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, linkUrl, isDa
     >
       {/* Project cover image */}
       <Image
-        className="w-full h-[100px] md:h-[150px] lg:h-[220px] rounded-lg border border-white/10"
+        className={`w-full rounded-lg border border-white/10 ${
+          isFeatured ? "h-[200px] md:h-[300px] lg:h-[440px]" : "h-[100px] md:h-[150px] lg:h-[220px]"
+        }`}
         src={project.cover as string}
         width={500}
         height={500}
