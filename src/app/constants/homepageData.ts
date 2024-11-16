@@ -65,7 +65,7 @@ export const footerLinks = {
     { url: "#", label: "Home" },
     // Keeping about link commented out for future use
     // { url: "https://qube2-succery.vercel.app/corporate", label: "About" },
-    { url: "mailto:official@ceed.cloud", label: "Contact" },
+    { url: "https://docs.google.com/forms/d/1csWLltBq0j3ddaiDv5W3iAndu2v5YZ1QfTQpULWIUP8/prefill", label: "Contact" },
     { url: "#", label: "Career (Coming Soon)" },
   ],
   "Help": [
