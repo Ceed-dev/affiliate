@@ -1,5 +1,6 @@
 import React from "react";
-import { LogEntry } from "../types/log";
+import { LogEntry } from "../../types/log";
+import { formatNumberWithUnits } from "../../utils/generalUtils"; // Formats a large number into a more readable string with units
 
 // Define the props for the LogTable component
 type LogTableProps = {
@@ -17,7 +18,7 @@ export const LogTable: React.FC<LogTableProps> = ({ logs }) => {
     <div className="my-5">
       {/* Display the total number of logs */}
       <h3 className="font-semibold text-lg mb-2">
-        Processing Logs: ({logs.length} {logs.length === 1 ? "log" : "logs"})
+        Processing Logs: ({formatNumberWithUnits(logs.length)} {logs.length === 1 ? "log" : "logs"})
       </h3>
 
       <div className="bg-gray-100 p-3 rounded-md mt-3 overflow-auto max-h-[700px]">
