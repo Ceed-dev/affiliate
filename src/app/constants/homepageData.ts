@@ -57,6 +57,8 @@ export const faqs = [
 // Social media links for the footer or other sections
 export const socialMediaLinks = [
   { src: "/brand-assets/x-white.png", alt: "X", url: "https://x.com/0xQube" },
+  { src: "/brand-assets/discord-white.png", alt: "Discord", url: "https://discord.gg/xXbRG2WQdD" },
+  { src: "/brand-assets/telegram-white.png", alt: "Telegram", url: "https://t.me/qubexyz" },
 ];
 
 // Footer links categorized under "Company" and "Help"
