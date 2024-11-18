@@ -464,13 +464,13 @@ export default function Home() {
                   key={index}
                   href={link.url}
                   target="_blank"
-                  className="bg-white hover:bg-slate-200 rounded-full inline-flex justify-center items-center h-7 w-7 p-2 hover:shadow-xl"
+                  className="bg-[#222222] hover:bg-[#222222]/80 rounded-full inline-flex justify-center items-center h-8 w-8 p-1 hover:shadow-xl"
                 >
                   <Image
                     src={link.src}
                     alt={link.alt}
-                    width={20}
-                    height={20}
+                    width={link.size}
+                    height={link.size}
                   />
                 </Link>
               ))}
