@@ -14,14 +14,16 @@ import {
 } from "../utils/firebase";
 import { initializeSigner, ERC20 } from "../utils/contracts";
 import { fetchUnapprovedUsers, approveUser } from "../utils/userUtils";
+import { getFeaturedProject, getMarketplaceBanner } from "../utils/appSettingsUtils";
 
 // Import component types
 import { UnpaidConversionLog, UserData, ActiveTab } from "../types";
+import { FeaturedProjectData, MarketplaceBannerData } from "../types/appSettingsTypes";
 
 // Import UI components
 import { 
   Header, AdminHeaderWithReloadButton, AdminTabs, TokenSummary, UnpaidConversionLogs,
-  UserApproval, ManualEngagementUpdate,
+  UserApproval, ManualEngagementUpdate, AppSettings,
 } from "../components/admin";
 
 // Import constants
@@ -62,6 +64,13 @@ export default function Admin() {
 
   // State for unapproved users
   const [unapprovedUsers, setUnapprovedUsers] = useState<UserData[]>([]);
+
+  // App settings states
+  const [featuredProjectData, setFeaturedProjectData] = useState<FeaturedProjectData | null>(null);
+  const [loadingFeatured, setLoadingFeatured] = useState<boolean>(true);
+
+  const [bannerData, setBannerData] = useState<MarketplaceBannerData | null>(null);
+  const [loadingBanner, setLoadingBanner] = useState<boolean>(true);
 
   // ========================= BEGIN HOOKS & EFFECTS =========================
 
@@ -108,6 +117,29 @@ export default function Admin() {
       loadUnapprovedUsers();
     }
   }, [signer, isSignerInitialized]);
+
+  // Fetch the current app settings on component mount
+  useEffect(() => {
+    const loadAppSettings = async () => {
+      try {
+        // Fetch featured project
+        const featuredData = await getFeaturedProject();
+        setFeaturedProjectData(featuredData);
+
+        // Fetch marketplace banner
+        const bannerData = await getMarketplaceBanner();
+        setBannerData(bannerData);
+      } catch (error) {
+        console.error("Error fetching app settings:", error);
+        toast.error("Failed to load app settings.");
+      } finally {
+        setLoadingFeatured(false);
+        setLoadingBanner(false);
+      }
+    };
+
+    loadAppSettings();
+  }, []);
 
   // ========================= END HOOKS & EFFECTS =========================
 
@@ -347,6 +379,17 @@ export default function Admin() {
           quotaNote="Note: YouTube Data API has a quota limit. Be mindful of the usage limits."
           apiReferences={YOUTUBE_API_REFERENCES}
           platform="YouTube"
+        />
+      )}
+
+      {activeTab === "appSettings" && (
+        <AppSettings
+          featuredProjectData={featuredProjectData}
+          setFeaturedProjectData={setFeaturedProjectData}
+          loadingFeatured={loadingFeatured}
+          bannerData={bannerData}
+          setBannerData={setBannerData}
+          loadingBanner={loadingBanner}
         />
       )}
     </div>

@@ -1,12 +1,30 @@
 import { Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "react-toastify";
-import { doc, collection, setDoc } from "firebase/firestore";
+import { doc, collection, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
 import { validateProjectData } from "./validationUtils";
 import { ProjectData, ImageType, PreviewData, ConversionPoint } from "../types";
+
+/**
+ * Checks if a project with the given ID exists in the Firestore 'projects' collection.
+ *
+ * @param projectId - The ID of the project to check.
+ * @returns {Promise<boolean>} - Returns true if the project exists, otherwise false.
+ */
+export const checkProjectExists = async (projectId: string): Promise<boolean> => {
+  try {
+    const projectDocRef = doc(db, "projects", projectId);
+    const projectSnapshot = await getDoc(projectDocRef);
+
+    return projectSnapshot.exists();
+  } catch (error) {
+    console.error("Error checking project existence:", error);
+    throw new Error("Failed to check if the project exists.");
+  }
+};
 
 /**
  * Saves a new project to Firestore, uploading images and generating a new project ID.
