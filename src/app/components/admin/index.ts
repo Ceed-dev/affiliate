@@ -5,6 +5,7 @@ import { TokenSummary } from "./TokenSummary";
 import { UnpaidConversionLogs } from "./UnpaidConversionLogs";
 import { UserApproval } from "./UserApproval";
 import { ManualEngagementUpdate } from "./ManualEngagementUpdate";
+import { AppSettings } from "./AppSettings";
 
 export {
   Header,
@@ -14,4 +15,5 @@ export {
   UnpaidConversionLogs,
   UserApproval,
   ManualEngagementUpdate,
+  AppSettings,
 }
