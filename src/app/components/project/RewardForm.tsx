@@ -174,6 +174,26 @@ export const RewardForm: React.FC<RewardFormProps> = ({
     setTitleCharCount(0);
   };
 
+  // Effect to reset token selector when the selected chain changes
+  useEffect(() => {
+    // Reset token states when the selected chain changes.
+    // The additional state resets for `isFetchingTokenDetails`, `isTokenAddressValid`,
+    // and `isErc20Token` are deliberately kept outside the `initializeTokenStates` function.
+    // This separation avoids potential bugs caused by overwriting these states
+    // during other calls to `initializeTokenStates`, ensuring that these resets
+    // are only triggered when the chain changes.
+    initializeTokenStates();
+    setIsFetchingTokenDetails(false);
+    setIsTokenAddressValid(true);
+    setIsErc20Token(true);
+
+    // Reset the token selector to "other" and clear the token address value
+    // when the chain changes. This ensures that the selected token is always 
+    // relevant to the newly selected chain and avoids mismatched token address issues.
+    setSelectedToken("other");
+    handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+  }, [selectedChain]);
+
   // Reset to FixedAmount if referral enabled and Tiered selected
   useEffect(() => {
     if (isReferralEnabled && newConversionPoint.paymentType === "Tiered") {
@@ -221,7 +241,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
     } else {
       initializeTokenStates();
     }
-  }, [selectedTokenAddress, selectedChain, selectedToken]);
+  }, [selectedTokenAddress, selectedToken]);
 
   // Effect to update token error state in parent component
   useEffect(() => {
