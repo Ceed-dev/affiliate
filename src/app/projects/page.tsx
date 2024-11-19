@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
 import { ExtendedProjectData } from "../types";
-import { fetchProjectsByOwner } from "../utils/firebase";
+import { fetchProjects } from "../utils/projectUtils";
 import { fetchTokenSymbols } from "../utils/contracts";
 import { ProjectCard } from "../components/project";
 
@@ -37,7 +37,7 @@ export default function Projects() {
     if (address) {
       const loadProjects = async () => {
         try {
-          const projectsData = await fetchProjectsByOwner(address);
+          const projectsData = await fetchProjects({ ownerAddress: address });
           const projectsWithSymbols = await fetchTokenSymbols(projectsData);
           setProjects(projectsWithSymbols);
         } catch (error) {

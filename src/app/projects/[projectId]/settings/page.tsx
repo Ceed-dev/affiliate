@@ -29,7 +29,7 @@ import {
   createRemoveImage,
   updateProject,
 } from "../../../utils/projectUtils";
-import { fetchProjectData } from "../../../utils/firebase";
+import { fetchProjects } from "../../../utils/projectUtils";
 
 /**
  * Project Settings Page
@@ -126,7 +126,15 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     const fetchData = async () => {
       try {
         // Retrieve project data from the database by project ID
-        const data = await fetchProjectData(params.projectId);
+        const projectDataArray = await fetchProjects({ projectId: params.projectId });
+
+        // Ensure project data is found
+        if (!projectDataArray || projectDataArray.length === 0) {
+          console.error("Project data not found for the provided project ID.");
+          return; // Handle the error (e.g., display an error message or navigate away)
+        }
+
+        const data = projectDataArray[0]; // FetchProjects returns an array, so we take the first item
   
         // Set both `initialProjectData` and `projectData` states to the retrieved project data.
         // This allows `initialProjectData` to serve as a reference for detecting changes.

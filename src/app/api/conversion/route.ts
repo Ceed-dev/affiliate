@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { ALLOWED_ORIGINS } from "../../constants/allowedOrigins";
 import { ethers } from "ethers";
 import { 
-  fetchProjectData, 
   fetchReferralData,
   validateApiKey,
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../utils/firebase";
+import { fetchProjects } from "../../utils/projectUtils";
 
 /**
  * Handles the OPTIONS request for CORS preflight.
@@ -108,13 +108,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 6: Fetch project data from Firestore
-    const projectData = await fetchProjectData(referralData.projectId);
-    if (!projectData) {
+    const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
+
+    if (!projectDataArray || projectDataArray.length === 0) {
       return NextResponse.json(
         { error: "Project data not found" },
-        { status: 404 }
+        { status: 404 }  // Not Found - Project data doesn't exist
       );
     }
+
+    const projectData = projectDataArray[0]; // Retrieve the first project data
 
     // Step 7: Find the specific conversion point using conversionId
     const conversionPoint = projectData.conversionPoints.find(point => point.id === conversionId);

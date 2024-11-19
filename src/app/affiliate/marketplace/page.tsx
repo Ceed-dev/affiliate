@@ -5,7 +5,7 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ExtendedProjectData } from "../../types";
-import { fetchAllProjects } from "../../utils/firebase";
+import { fetchProjects } from "../../utils/projectUtils";
 import { fetchTokenSymbols } from "../../utils/contracts";
 import { ProjectCard } from "../../components/project";
 import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
@@ -38,7 +38,7 @@ export default function Marketplace() {
       try {
         // Fetch all projects, featured project data, and marketplace banner data
         const [projectsData, featuredProjectData, bannerData] = await Promise.all([
-          fetchAllProjects(),
+          fetchProjects(),
           getFeaturedProject(),
           getMarketplaceBanner(),
         ]);
