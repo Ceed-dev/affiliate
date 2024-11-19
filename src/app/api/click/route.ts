@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { 
-  logClickData, fetchReferralData, fetchProjectData,
+  logClickData, fetchReferralData,
   validateApiKey, logErrorToFirestore,
 } from "../../utils/firebase";
+import { fetchProjects } from "../../utils/projectUtils";
 import { fetchLocationData } from "../../utils/countryUtils";
 import { ClickData } from "../../types";
 
@@ -109,13 +110,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 7: Fetch project data using the projectId from referralData
-    const projectData = await fetchProjectData(referralData.projectId);
-    if (!projectData) {
+    const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
+
+    if (!projectDataArray || projectDataArray.length === 0) {
       return NextResponse.json(
         { error: "Project data not found" },
         { status: 404 }  // Not Found - Project data doesn't exist
       );
     }
+
+    const projectData = projectDataArray[0]; // Retrieve the first project data
 
     // Step 8: Redirect the user to the project's redirect URL with the referral ID as a query parameter
     const url = new URL(projectData.redirectUrl);

@@ -18,11 +18,11 @@ import { ProjectData, ReferralData, ConversionLog, ClickData } from "../../types
 
 // Firebase and Blockchain Utilities
 import { 
-  fetchProjectData, 
   fetchReferralData, 
   fetchConversionLogsForReferrals, 
   fetchClickData 
 } from "../../utils/firebase";
+import { fetchProjects } from "../../utils/projectUtils";
 import { joinProject } from "../../utils/userUtils";
 import { getProvider, ERC20 } from "../../utils/contracts";
 
@@ -82,9 +82,16 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
-        const data = await fetchProjectData(params.projectId);
-        setProjectData(data);
-        setReferralLink(generateReferralLink(data, referralId));
+        const data = await fetchProjects({ projectId: params.projectId });
+
+        if (!data || data.length === 0) {
+          console.error("No project data found for the given projectId.");
+          return;
+        }
+
+        const project = data[0];
+        setProjectData(project);
+        setReferralLink(generateReferralLink(project, referralId));
       } catch (error) {
         handleError("project", error);
       } finally {
