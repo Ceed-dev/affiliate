@@ -142,6 +142,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
   const [isErc20Token, setIsErc20Token] = useState(true);
 
   // Conversion point state
+  const [rewardAmountInput, setRewardAmountInput] = useState<string>("0"); // Temporary input state
   const [newConversionPoint, setNewConversionPoint] = useState<Partial<ConversionPoint>>({
     id: "", // ID to be generated later
     title: "", // Title of conversion point
@@ -172,6 +173,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
     };
     setNewConversionPoint(newPoint);
     setTitleCharCount(0);
+    setRewardAmountInput("0");
   };
 
   // Effect to reset token selector when the selected chain changes
@@ -518,25 +520,22 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                 <div className="space-y-2">
                   <h3>Reward Amount <span className="text-red-500">*</span></h3>
                   <p className="text-gray-500 text-sm">
-                    You can enter an integer or a value up to one decimal place. The value must be between 1 and 10000.
+                    You can enter an integer or a value up to two decimal places. The value must be between 0.01 and 10000.
                   </p>
                   <div className="rounded-lg border border-[#D1D5DB] flex items-center">
                     <span className="w-[200px] md:w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">Token Units:</span>
                     <input
-                      type="number"
-                      value={newConversionPoint.rewardAmount?.toString() || ""}
-                      onChange={(e) =>
-                        // Limit input to one decimal place by rounding to the nearest tenth.
-                        // For example, if the user enters 2.33, this will round and set it to 2.3.
-                        setNewConversionPoint(prevPoint => ({
-                          ...prevPoint,
-                          rewardAmount: Math.round(parseFloat(e.target.value) * 10) / 10
-                        }))
-                      }
+                      type="text" // Use text to handle intermediate states like "1." or ".0"
+                      value={rewardAmountInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                      
+                        // Allow only valid numeric input (including intermediate states like "1." or ".0")
+                        if (/^\d*\.?\d{0,2}$/.test(value)) {
+                          setRewardAmountInput(value); // Temporarily store the input as a string
+                        }
+                      }}
                       className="w-full outline-none pr-2"
-                      min="1"
-                      max="10000"
-                      step="0.1"
                       placeholder="Enter token units"
                     />
                   </div>
@@ -676,10 +675,14 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     return;
                   }
 
-                  if (newConversionPoint.paymentType === "FixedAmount" && 
-                      (!newConversionPoint.rewardAmount || newConversionPoint.rewardAmount < 1 || newConversionPoint.rewardAmount > 10000)) {
-                    toast.error("Please provide a valid reward amount between 1 and 10000 for FixedAmount.");
-                    return;
+                  // Parse and validate reward amount for FixedAmount
+                  let rewardAmount: number | null = null;
+                  if (newConversionPoint.paymentType === "FixedAmount") {
+                    rewardAmount = parseFloat(rewardAmountInput || ""); // Convert rewardAmountInput to number
+                    if (isNaN(rewardAmount) || rewardAmount < 0.01 || rewardAmount > 10000) {
+                      toast.error("Please provide a valid reward amount between 0.01 and 10000 for FixedAmount.");
+                      return;
+                    }
                   }
 
                   if (newConversionPoint.paymentType === "RevenueShare" && 
@@ -698,7 +701,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     title: newConversionPoint.title.trim(),
                     paymentType: newConversionPoint.paymentType as PaymentType,
                     ...(newConversionPoint.paymentType === "FixedAmount" && {
-                      rewardAmount: newConversionPoint.rewardAmount!,
+                      rewardAmount: rewardAmount!,
                     }),
                     ...(newConversionPoint.paymentType === "RevenueShare" && {
                       percentage: newConversionPoint.percentage!,
@@ -716,6 +719,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     paymentType: "FixedAmount",
                     rewardAmount: 0,
                   });
+                  setRewardAmountInput("0");
                   setTitleCharCount(0);
                   setTierEntries([]);
                 }}
