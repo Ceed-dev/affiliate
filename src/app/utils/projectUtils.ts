@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "react-toastify";
-import { doc, collection, getDoc, setDoc } from "firebase/firestore";
+import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
-import { validateProjectData } from "./validationUtils";
+import { isValidProjectData, validateProjectData } from "./validationUtils";
 import { ProjectData, ImageType, PreviewData, ConversionPoint } from "../types";
 
 /**
@@ -301,6 +301,102 @@ export const saveProject = async (
 
   return true;
 };
+
+/**
+ * Fetches and formats project data from Firestore.
+ * This function can fetch a single project, all projects, or projects filtered by owner address.
+ * It also supports executing a callback for each fetched project.
+ *
+ * Usage Examples:
+ *
+ * // 1. Fetch a single project by ID
+ * const project = await fetchProjects({ projectId: "exampleProjectId" });
+ * console.log(project);
+ *
+ * // 2. Fetch all projects
+ * const allProjects = await fetchProjects();
+ * console.log(allProjects);
+ *
+ * // 3. Fetch projects by owner address
+ * const ownerProjects = await fetchProjects({ ownerAddress: "0xOwnerAddress" });
+ * console.log(ownerProjects);
+ *
+ * // 4. Execute a callback for each fetched project
+ * const allProjects = await fetchProjects({
+ *   onEachProject: (project) => {
+ *     console.log(`Processing project: ${project.title}`);
+ *   },
+ * });
+ *
+ * @param options - Options to customize the query
+ * @returns {Promise<ProjectData[]>} - Array of formatted project data objects
+ */
+export async function fetchProjects(options: {
+  projectId?: string; // Fetch a single project by ID
+  ownerAddress?: string; // Filter projects by owner address
+  onEachProject?: (project: ProjectData) => void; // Callback for each project
+} = {}): Promise<ProjectData[]> {
+  const { projectId, ownerAddress, onEachProject } = options;
+
+  try {
+    let querySnapshot;
+    let docSnap;
+
+    if (projectId) {
+      // Fetch a single project by ID
+      const docRef = doc(db, "projects", projectId);
+      docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists() || !isValidProjectData(docSnap.data())) {
+        throw new Error("No such project or data validation failed");
+      }
+    } else {
+      // Construct the Firestore query
+      const projectCollection = collection(db, "projects");
+      const q = ownerAddress
+        ? query(projectCollection, where("ownerAddresses", "array-contains", ownerAddress))
+        : projectCollection;
+
+      querySnapshot = await getDocs(q);
+    }
+
+    const projects: ProjectData[] = [];
+
+    const processDoc = (docData: any, docId: string) => {
+      const convertTimestamp = (timestamp?: Timestamp | null) => timestamp?.toDate() || null;
+
+      const projectData: ProjectData = {
+        ...docData,
+        id: docId,
+        createdAt: convertTimestamp(docData.createdAt),
+        updatedAt: convertTimestamp(docData.updatedAt),
+        lastPaymentDate: convertTimestamp(docData.lastPaymentDate),
+      };
+
+      onEachProject?.(projectData);
+      return projectData;
+    };
+
+    if (docSnap) {
+      // Handle single document case
+      const data = docSnap.data();
+      projects.push(processDoc(data, docSnap.id));
+    } else if (querySnapshot) {
+      // Handle multiple documents case
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (isValidProjectData(data)) {
+          projects.push(processDoc(data, doc.id));
+        }
+      });
+    }
+
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw new Error("Failed to fetch projects");
+  }
+}
 
 /**
  * Updates the project data in Firestore and updates local states with new data.
