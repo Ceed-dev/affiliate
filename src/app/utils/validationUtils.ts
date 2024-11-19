@@ -62,27 +62,6 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
 }
 
 /**
- * Validates if the given Firestore document data conforms to the ReferralData type.
- * 
- * @param data - Firestore document data
- * @returns {boolean} - Returns true if the data is a valid ReferralData object, otherwise false.
- */
-export function isValidReferralData(data: DocumentData): data is ReferralData {
-  return (
-    typeof data.affiliateWallet === "string" && // Validate affiliate's wallet address
-    typeof data.projectId === "string" &&       // Validate project ID
-    data.createdAt.toDate() instanceof Date &&  // Validate creation date
-    typeof data.conversions === "number" &&     // Validate conversions count
-    typeof data.earnings === "number" &&        // Validate earnings amount
-    (data.lastConversionDate === null || data.lastConversionDate.toDate() instanceof Date) && // Validate last conversion date
-    // Validate tweetNewestId if present, it must be a string
-    (typeof data.tweetNewestId === "undefined" || typeof data.tweetNewestId === "string") &&
-    // Validate tweetNewestCreatedAt if present, it must be a valid Date
-    (typeof data.tweetNewestCreatedAt === "undefined" || data.tweetNewestCreatedAt.toDate() instanceof Date)
-  );
-}
-
-/**
  * Validates the project data before saving or updating.
  * - Checks required fields, validates URLs, social link errors, token errors, etc.
  * - Displays error messages using `toast` if validation fails.
@@ -171,3 +150,24 @@ export const validateProjectData = (
   // If all validations pass
   return true;
 };
+
+/**
+ * Validates if the given Firestore document data conforms to the ReferralData type.
+ * 
+ * @param data - Firestore document data
+ * @returns {boolean} - Returns true if the data is a valid ReferralData object, otherwise false.
+ */
+export function isValidReferralData(data: DocumentData): data is ReferralData {
+  return (
+    typeof data.affiliateWallet === "string" && // Validate affiliate's wallet address
+    typeof data.projectId === "string" &&       // Validate project ID
+    data.createdAt.toDate() instanceof Date &&  // Validate creation date
+    typeof data.conversions === "number" &&     // Validate conversions count
+    typeof data.earnings === "number" &&        // Validate earnings amount
+    (data.lastConversionDate === null || data.lastConversionDate.toDate() instanceof Date) && // Validate last conversion date
+    // Validate tweetNewestId if present, it must be a string
+    (typeof data.tweetNewestId === "undefined" || typeof data.tweetNewestId === "string") &&
+    // Validate tweetNewestCreatedAt if present, it must be a valid Date
+    (typeof data.tweetNewestCreatedAt === "undefined" || data.tweetNewestCreatedAt.toDate() instanceof Date)
+  );
+}
