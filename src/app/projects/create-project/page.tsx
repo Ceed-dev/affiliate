@@ -246,7 +246,7 @@ export default function CreateProject() {
           {isSaving ? (
             <div className="flex flex-row items-center justify-center gap-5">
               <Image 
-                src={"/assets/common/loading.png"} 
+                src="/assets/common/loading.png" 
                 height={30} 
                 width={30} 
                 alt="loading.png" 
