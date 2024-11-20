@@ -42,7 +42,13 @@ export const UserApproval: React.FC<UserApprovalProps> = ({
               <tr>
                 <td colSpan={5} className="px-6 py-4 text-lg text-gray-500">
                   <div className="flex flex-row items-center justify-center gap-5">
-                    <Image src={"/assets/common/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                    <Image
+                      src="/assets/common/loading.png"
+                      height={50}
+                      width={50}
+                      alt="loading.png"
+                      className="animate-spin"
+                    />
                     Loading..., this may take a while.
                   </div>
                 </td>

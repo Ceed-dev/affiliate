@@ -38,7 +38,12 @@ export const ConversionsList: React.FC<ConversionsListProps> = ({ explorerUrl, t
                 onClick={() => openExplorer(transaction.transactionHashAffiliate)}
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm leading-5 flex flex-row gap-3">
-                  <Image src="/assets/common/open-in-new-black.png" alt="open-in-new-black.png" width={20} height={20} /> 
+                  <Image
+                    src="/assets/common/open-in-new-black.png"
+                    alt="open-in-new-black.png"
+                    width={20}
+                    height={20}
+                  /> 
                   <span className="table-cell xl:hidden">{formatAddress(transaction.transactionHashAffiliate)}</span>
                   <span className="hidden xl:table-cell">{transaction.transactionHashAffiliate}</span>
                 </td>

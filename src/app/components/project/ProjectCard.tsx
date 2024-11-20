@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExtendedProjectData } from "../../types";
+import { ProjectData } from "../../types";
 
 type ProjectCardProps = {
-  project: ExtendedProjectData; // The project data containing details such as name, description, and images
+  project: ProjectData; // The project data containing details such as name, description, and images
   linkUrl: string;              // The URL to navigate to the detailed project page when the card is clicked
   isDarkBackground: boolean;    // A flag indicating whether the card should have a dark background
   isFeatured?: boolean;         // Optional flag to indicate if the project is featured (default is false)
@@ -80,7 +80,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {conversionPoint.rewardAmount || conversionPoint.percentage}
           </span>
           <span className={`${textColorClass} text-sm`}>
-            {conversionPoint.paymentType === "FixedAmount" ? project.selectedToken : "%"}
+            {conversionPoint.paymentType === "FixedAmount" ? project.selectedToken.symbol : "%"}
           </span>
         </div>
       )}

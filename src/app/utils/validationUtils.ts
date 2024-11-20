@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { DocumentData } from "firebase/firestore";
 
 // Project-specific types
-import { ProjectData, ReferralData, ConversionPoint, Tier } from "../types";
+import { ProjectData, ReferralData, ConversionPoint, Tier, SelectedToken } from "../types";
 
 /**
  * Validate the structure of project data to ensure it conforms to ProjectData type.
@@ -38,12 +38,22 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     return Array.isArray(points) && points.every(isValidConversionPoint);
   };
 
+  // Validate the selectedToken object structure
+  const isValidSelectedToken = (token: any): token is SelectedToken => {
+    return (
+      typeof token === "object" &&
+      token !== null &&
+      typeof token.chainId === "number" &&
+      typeof token.address === "string" &&
+      typeof token.symbol === "string"
+    );
+  };
+
   // Validate the full structure of a project with its conversion points
   return (
     typeof data.projectName === "string" &&
     typeof data.description === "string" &&
-    typeof data.selectedChainId === "number" &&
-    typeof data.selectedTokenAddress === "string" &&
+    isValidSelectedToken(data.selectedToken) &&
     typeof data.logo === "string" &&
     typeof data.cover === "string" &&
     typeof data.websiteUrl === "string" &&
@@ -122,6 +132,12 @@ export const validateProjectData = (
 
   // Additional checks for new projects
   if (isNewProject) {
+    // Check if selectedToken has both address and symbol
+    if (!projectData.selectedToken.address || !projectData.selectedToken.symbol) {
+      toast.error("Both token address and symbol are required.");
+      return false;
+    }
+
     // Check for token selection errors
     if (tokenError) {
       toast.error("Please correct the token selection errors before proceeding.");

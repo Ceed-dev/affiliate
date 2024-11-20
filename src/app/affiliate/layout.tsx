@@ -68,7 +68,7 @@ export default function AffiliateLayout({
           {!isMarketplacePath ? (
             <Link
               href="/affiliate/marketplace"
-              className="md:hidden"
+              className="md:hidden transition duration-300 ease-in-out transform hover:-translate-y-1"
             >
               <Image
                 src="/assets/common/chevron-left-white.png"
@@ -102,7 +102,7 @@ export default function AffiliateLayout({
         {/* Marketplace link in sidebar for desktop view */}
         <Link
           href="/affiliate/marketplace"
-          className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-5"
+          className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-5"
         >
           <Image
             src="/assets/common/explore-white.png"
@@ -117,7 +117,7 @@ export default function AffiliateLayout({
         <button
           onClick={toggleDisconnectButton}
           ref={disconnectButtonRef}
-          className="hidden md:flex items-center gap-3 bg-white/5 rounded-xl p-3 md:mt-auto"
+          className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-auto"
         >
           <Image
             src="/assets/common/account-circle-white.png"

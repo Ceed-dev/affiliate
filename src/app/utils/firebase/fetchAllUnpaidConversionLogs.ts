@@ -19,9 +19,9 @@ export const fetchAllUnpaidConversionLogs = async (): Promise<UnpaidConversionLo
       const projectDocRef = doc(db, `projects/${projectId}`);
       const projectDocSnap = await getDoc(projectDocRef);
       const projectData = projectDocSnap.data();
-      const selectedChainId = projectData?.selectedChainId as number;
+      const selectedChainId = projectData?.selectedToken?.chainId as number;
       const selectedChain = await getChainByChainIdAsync(selectedChainId) as Chain;
-      const selectedTokenAddress = projectData?.selectedTokenAddress as string;
+      const selectedTokenAddress = projectData?.selectedToken?.address as string;
 
       const conversionLogsRef = collection(db, `referrals/${referralId}/conversionLogs`);
       const q = query(conversionLogsRef, where("isPaid", "==", false));

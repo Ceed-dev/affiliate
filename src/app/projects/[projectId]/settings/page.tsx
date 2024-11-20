@@ -74,8 +74,11 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   const defaultProjectData: ProjectData = {
     projectName: "",
     description: "",
-    selectedChainId: 1, // Default chain ID
-    selectedTokenAddress: "",
+    selectedToken: {
+      chainId: 1, // Default chain ID
+      address: "",
+      symbol: "",
+    },
     logo: null,
     cover: null,
     websiteUrl: "",
@@ -148,7 +151,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         });
   
         // Fetch the blockchain chain data for the selected chain ID and set `selectedChain`
-        const chain = await getChainByChainIdAsync(data.selectedChainId);
+        const chain = await getChainByChainIdAsync(data.selectedToken.chainId);
         setSelectedChain(chain);
       } catch (error) {
         // Capture and display errors that occur during data fetch
@@ -275,7 +278,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
           />
           <RewardForm
             isReferralEnabled={projectData.isReferralEnabled}
-            selectedTokenAddress={projectData.selectedTokenAddress}
+            selectedToken={projectData.selectedToken}
             conversionPoints={projectData.conversionPoints}
             redirectUrl={projectData.redirectUrl}
             handleChange={handleChange}

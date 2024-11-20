@@ -16,7 +16,7 @@ import { formatBalance } from "../../utils/formatUtils";
 import { popularTokens } from "../../constants/popularTokens";
 
 // Types and Contexts
-import { PaymentType, ConversionPoint, Tier } from "../../types";
+import { PaymentType, ConversionPoint, Tier, SelectedToken } from "../../types";
 import { useChainContext } from "../../context/chainContext";
 
 // Components
@@ -90,7 +90,7 @@ const SelectButton: React.FC<SelectButtonProps> = ({
 type RewardFormProps = {
   // Required properties
   isReferralEnabled: boolean; // Controls the state of referral feature
-  selectedTokenAddress: string; // Address of the selected token
+  selectedToken: SelectedToken; // Selected token data object
   conversionPoints: ConversionPoint[]; // Array of conversion points
   redirectUrl: string; // Redirect URL for the project
   handleChange: (field: string, isNumeric?: boolean, isFloat?: boolean) => 
@@ -110,7 +110,7 @@ type RewardFormProps = {
 export const RewardForm: React.FC<RewardFormProps> = ({
   // Required props
   isReferralEnabled,
-  selectedTokenAddress,
+  selectedToken,
   conversionPoints,
   redirectUrl,
   handleChange,
@@ -129,9 +129,9 @@ export const RewardForm: React.FC<RewardFormProps> = ({
   const selectedChain = selectedChainProp ?? contextSelectedChain;
 
   // Token and chain states
-  const [selectedToken, setSelectedToken] = useState(
-    selectedTokenAddress
-      ? popularTokens[selectedChain.chainId]?.find(token => token.address === selectedTokenAddress)?.symbol || "other"
+  const [selectedTokenLabel, setSelectedTokenLabel] = useState(
+    selectedToken.address
+      ? popularTokens[selectedChain.chainId]?.find(token => token.address === selectedToken.address)?.symbol || "other"
       : "other"
   );
   const [tokenSymbol, setTokenSymbol] = useState("");
@@ -178,22 +178,25 @@ export const RewardForm: React.FC<RewardFormProps> = ({
 
   // Effect to reset token selector when the selected chain changes
   useEffect(() => {
-    // Reset token states when the selected chain changes.
-    // The additional state resets for `isFetchingTokenDetails`, `isTokenAddressValid`,
-    // and `isErc20Token` are deliberately kept outside the `initializeTokenStates` function.
-    // This separation avoids potential bugs caused by overwriting these states
-    // during other calls to `initializeTokenStates`, ensuring that these resets
-    // are only triggered when the chain changes.
-    initializeTokenStates();
-    setIsFetchingTokenDetails(false);
-    setIsTokenAddressValid(true);
-    setIsErc20Token(true);
+    if (!isEditing) {
+      // Reset token states when the selected chain changes.
+      // The additional state resets for `isFetchingTokenDetails`, `isTokenAddressValid`,
+      // and `isErc20Token` are deliberately kept outside the `initializeTokenStates` function.
+      // This separation avoids potential bugs caused by overwriting these states
+      // during other calls to `initializeTokenStates`, ensuring that these resets
+      // are only triggered when the chain changes.
+      initializeTokenStates();
+      setIsFetchingTokenDetails(false);
+      setIsTokenAddressValid(true);
+      setIsErc20Token(true);
 
-    // Reset the token selector to "other" and clear the token address value
-    // when the chain changes. This ensures that the selected token is always 
-    // relevant to the newly selected chain and avoids mismatched token address issues.
-    setSelectedToken("other");
-    handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+      // Reset the token selector to "other" and clear the token address value
+      // when the chain changes. This ensures that the selected token is always 
+      // relevant to the newly selected chain and avoids mismatched token address issues.
+      setSelectedTokenLabel("other");
+      handleChange("selectedToken.address")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+      handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+    }
   }, [selectedChain]);
 
   // Reset to FixedAmount if referral enabled and Tiered selected
@@ -224,6 +227,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
       const balance = await erc20.getBalance(await signer.getAddress());
 
       setTokenSymbol(symbol);
+      handleChange("selectedToken.symbol")({ target: { value: symbol } } as React.ChangeEvent<HTMLInputElement>);
       setTokenBalance(balance);
       setIsErc20Token(true);
     } catch (error: any) {
@@ -238,20 +242,20 @@ export const RewardForm: React.FC<RewardFormProps> = ({
 
   // Fetch token details only if not editing
   useEffect(() => {
-    if (!isEditing && selectedTokenAddress && selectedToken === "other") {
-      fetchTokenDetails(selectedTokenAddress);
+    if (!isEditing && selectedToken.address && selectedTokenLabel === "other") {
+      fetchTokenDetails(selectedToken.address);
     } else {
       initializeTokenStates();
     }
-  }, [selectedTokenAddress, selectedToken]);
+  }, [selectedToken.address, selectedToken]);
 
   // Effect to update token error state in parent component
   useEffect(() => {
     if (setTokenError) {
-      const hasTokenError = !selectedTokenAddress.trim() || !isTokenAddressValid || !isErc20Token || isFetchingTokenDetails;
+      const hasTokenError = !selectedToken.address.trim() || !isTokenAddressValid || !isErc20Token || isFetchingTokenDetails;
       setTokenError(hasTokenError);
     }
-  }, [selectedTokenAddress, isTokenAddressValid, isErc20Token, isFetchingTokenDetails, setTokenError]);
+  }, [selectedToken.address, isTokenAddressValid, isErc20Token, isFetchingTokenDetails, setTokenError]);
 
   // ===== TIER MANAGEMENT =====
 
@@ -370,52 +374,63 @@ export const RewardForm: React.FC<RewardFormProps> = ({
 
               {/* Token Selector */}
               <select
-                value={selectedToken}
+                value={selectedTokenLabel}
                 onChange={(e) => {
                   const selectedSymbol = e.target.value;
-                  setSelectedToken(selectedSymbol);
+                  setSelectedTokenLabel(selectedSymbol);
 
                   if (selectedSymbol === "other") {
-                    handleChange("selectedTokenAddress")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                    handleChange("selectedToken.address")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                    handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
                   } else {
+                    setIsTokenAddressValid(true);
+                    setIsErc20Token(true);
                     const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
                     if (token) {
-                      handleChange("selectedTokenAddress")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                      handleChange("selectedToken.address")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                      handleChange("selectedToken.symbol")({ target: { value: token.symbol } } as React.ChangeEvent<HTMLInputElement>);
                     }
                   }
                 }}
                 className={`flex-1 md:flex-none p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
                 disabled={isEditing}
               >
-                <option value="" disabled>Select a token</option>
-                {(popularTokens[selectedChain.chainId] || []).map((token) => (
-                  <option key={token.address} value={token.symbol}>
-                    {token.symbol}
-                  </option>
-                ))}
-                <option value="other">Other Token</option>
+                {isEditing ? (
+                  <option>{selectedToken.symbol}</option>
+                ) : (
+                  <>
+                    <option value="" disabled>Select a token</option>
+                    {(popularTokens[selectedChain.chainId] || []).map((token) => (
+                      <option key={token.address} value={token.symbol}>
+                        {token.symbol}
+                      </option>
+                    ))}
+                    <option value="other">Other Token</option>
+                  </>
+                )}
               </select>
             </div>
 
             {/* Custom Token Address Input */}
             <input
-              readOnly={isEditing || selectedToken !== "other"}
+              readOnly={isEditing || selectedTokenLabel !== "other"}
               type="text"
-              value={selectedTokenAddress === ZERO_ADDRESS ? "Native Token" : selectedTokenAddress}
+              value={selectedToken.address === ZERO_ADDRESS ? "Native Token" : selectedToken.address}
               onChange={(e) => {
                 const address = e.target.value.trim();
-                handleChange("selectedTokenAddress")(e);
+                handleChange("selectedToken.address")(e);
 
                 if (address === "") {
                   setIsTokenAddressValid(true);
                   setIsErc20Token(true);
                   initializeTokenStates();
+                  handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
                 } else if (address !== ZERO_ADDRESS) {
                   fetchTokenDetails(address);
                 }
               }}
               placeholder="Enter token contract address"
-              className={`w-full md:w-auto grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedToken !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+              className={`w-full md:w-auto grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedTokenLabel !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
             />
           </div>
 
@@ -424,7 +439,13 @@ export const RewardForm: React.FC<RewardFormProps> = ({
           {!isErc20Token && <p className="text-red-500 text-sm pl-2">Address is not an ERC20 token contract.</p>}
           {isFetchingTokenDetails && (
             <div className="flex flex-row gap-3">
-              <Image src="/assets/common/loading.png" alt="loading" width={20} height={20} className="animate-spin" />
+              <Image
+                src="/assets/common/loading.png"
+                alt="loading"
+                width={20}
+                height={20}
+                className="animate-spin"
+              />
               <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
             </div>
           )}
@@ -441,9 +462,9 @@ export const RewardForm: React.FC<RewardFormProps> = ({
           )}
 
           {/* Explorer Link */}
-          {isEditing && selectedChain?.explorers?.length && selectedTokenAddress !== ZERO_ADDRESS && (
+          {isEditing && selectedChain?.explorers?.length && selectedToken.address !== ZERO_ADDRESS && (
             <Link
-              href={`${selectedChain.explorers[0].url}/address/${selectedTokenAddress}`}
+              href={`${selectedChain.explorers[0].url}/address/${selectedToken.address}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mr-auto text-blue-400 hover:text-blue-700 hover:font-semibold hover:underline"
@@ -609,7 +630,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     >
                       {isCheckingNewTierEntry ? (
                         <Image
-                          src={"/assets/common/loading.png"}
+                          src="/assets/common/loading.png"
                           height={30}
                           width={30}
                           alt="loading.png"
