@@ -153,13 +153,24 @@ export const BrandResourceForm: React.FC<BrandResourceFormProps> = ({
           <div className="border-dashed border-2 border-gray-300 rounded-md p-1 flex justify-center items-center h-[200px] md:h-[400px]">
             {coverPreview ? (
               <div className="relative w-full h-full">
-                <Image src={coverPreview} alt="Cover Preview" layout="fill" objectFit="cover" className="rounded-lg" />
+                <Image
+                  src={coverPreview}
+                  alt="Cover Preview"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
                 <button
                   type="button"
                   onClick={removeImage("cover")}
                   className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-lg transition-opacity"
                 >
-                  <Image src="/assets/common/trash.png" alt="Remove Cover" height={50} width={50} />
+                  <Image
+                    src="/assets/common/trash.png"
+                    alt="Remove Cover"
+                    height={50}
+                    width={50}
+                  />
                 </button>
               </div>
             ) : (
@@ -202,7 +213,12 @@ export const BrandResourceForm: React.FC<BrandResourceFormProps> = ({
                   onClick={removeImage("logo")}
                   className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 rounded-full transition-opacity"
                 >
-                  <Image src="/assets/common/trash.png" alt="Remove Logo" height={30} width={30} />
+                  <Image
+                    src="/assets/common/trash.png"
+                    alt="Remove Logo"
+                    height={30}
+                    width={30}
+                  />
                 </button>
               </div>
             ) : (

@@ -22,14 +22,23 @@ export type ConversionPoint = {
 };
 
 /**
+ * Represents the selected token for a project, including its chain, address, and symbol.
+ * This structure is used to store and access token-related information efficiently.
+ */
+export type SelectedToken = {
+  chainId: number; // Chain ID where the token resides
+  address: string; // Token contract address on the chain
+  symbol: string;  // Human-readable token symbol (e.g., USDC, DAI)
+};
+
+/**
  * Main data structure for a project with details about setup, branding, and conversion points.
  */
 export type ProjectData = {
   id?: string; // Project identifier, generated upon creation
   projectName: string; // Name of the project
   description: string; // Description of the project
-  selectedChainId: number; // Chain ID where the project is deployed
-  selectedTokenAddress: string; // Token address used for affiliate payments
+  selectedToken: SelectedToken; // Information about the token used for affiliate payments (chainId, address, symbol)
   logo: File | string | null; // Project logo file or URL
   cover: File | string | null; // Project cover image file or URL
   websiteUrl: string; // Website URL associated with the project
