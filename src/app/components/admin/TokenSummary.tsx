@@ -45,7 +45,13 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
                 <td colSpan={3} className="px-6 py-4 text-lg text-gray-500">
                   <div className="flex flex-row items-center justify-center gap-5">
                     {/* Loading spinner */}
-                    <Image src={"/assets/common/loading.png"} height={50} width={50} alt="loading.png" className="animate-spin" />
+                    <Image
+                      src="/assets/common/loading.png"
+                      height={50}
+                      width={50}
+                      alt="loading.png"
+                      className="animate-spin"
+                    />
                     Loading..., this may take a while.
                   </div>
                 </td>

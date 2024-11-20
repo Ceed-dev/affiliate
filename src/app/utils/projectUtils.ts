@@ -132,6 +132,10 @@ export const createHandleChange = (
       if (isNaN(value)) value = 0;  // Default to 0 if parsing fails
 
       // Specific validation rules for certain fields
+      // NOTE: The `rewardAmount` validation logic below is no longer applied.
+      // As of Release v3.2.9, the handling and validation of `rewardAmount` has been moved to a separate logic 
+      // using a dedicated temporary state variable for string-based input handling. This code remains for reference
+      // but will not affect the current behavior.
       if (keys.includes("rewardAmount") && (value < 1 || value > 10000)) {
         toast.error("Value must be between 1 and 10000.");
         return;
@@ -268,7 +272,11 @@ export const saveProject = async (
 
   const updatedProjectData: ProjectData = {
     ...projectData,
-    selectedChainId,
+    selectedToken: {
+      chainId: selectedChainId,
+      address: projectData.selectedToken.address,
+      symbol: projectData.selectedToken.symbol,
+    },
     isReferralEnabled,
     conversionPoints: conversionPoints.map((point, index) => ({
       ...point,

@@ -1,5 +1,4 @@
-import { ProjectData, ConversionPoint, PaymentType, Tier } from "./projectData";
-import { ExtendedProjectData } from "./extendedProjectData";
+import { ProjectData, ConversionPoint, PaymentType, Tier, SelectedToken } from "./projectData";
 import { ImageType, PreviewData } from "./imageType";
 import { ReferralData } from "./referralData";
 import { AffiliateInfo, UserRole } from "./affiliateInfo";
@@ -14,10 +13,10 @@ import { ActiveTab } from "./admin";
 
 export type {
   ProjectData,
-  ExtendedProjectData,
   ConversionPoint,
   PaymentType,
   Tier,
+  SelectedToken,
   ImageType,
   PreviewData,
   ReferralData,

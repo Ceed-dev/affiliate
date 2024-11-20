@@ -81,7 +81,13 @@ export const DeleteProject: React.FC<DeleteProjectProps> = ({
         {isDeleting ? (
           <span className="flex flex-row items-center justify-center gap-2">
             Deleting...
-            <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading" className="animate-spin" />
+            <Image
+              src="/assets/common/loading.png"
+              height={30}
+              width={30}
+              alt="loading"
+              className="animate-spin"
+            />
           </span>
         ) : (
           "Delete Project"

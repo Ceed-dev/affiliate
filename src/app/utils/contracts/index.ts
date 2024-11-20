@@ -2,7 +2,7 @@ import { getProvider, initializeSigner } from "./initializeSigner";
 import { Escrow } from "./escrow";
 import { ERC20 } from "./erc20";
 import { approveToken, depositToken } from "./depositOperations";
-import { getChains, isEOA, fetchTokenSymbols } from "./chainUtils";
+import { getChains, isEOA } from "./chainUtils";
 
 export {
   getProvider,
@@ -13,5 +13,4 @@ export {
   depositToken,
   getChains,
   isEOA,
-  fetchTokenSymbols,
 }

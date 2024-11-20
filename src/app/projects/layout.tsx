@@ -80,7 +80,7 @@ export default function ProjectsLayout({
           {!isProjectsPath ? (
             <Link
               href="/projects"
-              className="md:hidden"
+              className="md:hidden transition duration-300 ease-in-out transform hover:-translate-y-1"
             >
               <Image
                 src="/assets/common/chevron-left-black.png"
@@ -111,7 +111,7 @@ export default function ProjectsLayout({
           {displayProjectTabs ? (
             <Link
               href={`/projects/${projectId}${isSettingsPage ? "" : "/settings"}`}
-              className="md:hidden"
+              className="md:hidden transition duration-300 ease-in-out transform hover:-translate-y-1"
             >
               <Image
                 src={`/assets/common/${isSettingsPage ? "dashboard" : "settings"}-black.png`}
