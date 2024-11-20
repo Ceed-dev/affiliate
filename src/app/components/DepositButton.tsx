@@ -81,7 +81,13 @@ export const DepositButton: React.FC<DepositButtonProps> = ({ projectId, tokenAd
       {isProcessing 
         ? 
           <div className="flex flex-row items-center justify-center gap-5">
-            <Image src={"/assets/common/loading.png"} height={30} width={30} alt="loading.png" className="animate-spin" />
+            <Image
+              src="/assets/common/loading.png"
+              height={30}
+              width={30}
+              alt="loading.png"
+              className="animate-spin"
+            />
             {depositStatus}
           </div>
         : "Deposit to Escrow"

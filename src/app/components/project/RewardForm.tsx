@@ -439,7 +439,13 @@ export const RewardForm: React.FC<RewardFormProps> = ({
           {!isErc20Token && <p className="text-red-500 text-sm pl-2">Address is not an ERC20 token contract.</p>}
           {isFetchingTokenDetails && (
             <div className="flex flex-row gap-3">
-              <Image src="/assets/common/loading.png" alt="loading" width={20} height={20} className="animate-spin" />
+              <Image
+                src="/assets/common/loading.png"
+                alt="loading"
+                width={20}
+                height={20}
+                className="animate-spin"
+              />
               <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
             </div>
           )}
@@ -624,7 +630,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     >
                       {isCheckingNewTierEntry ? (
                         <Image
-                          src={"/assets/common/loading.png"}
+                          src="/assets/common/loading.png"
                           height={30}
                           width={30}
                           alt="loading.png"

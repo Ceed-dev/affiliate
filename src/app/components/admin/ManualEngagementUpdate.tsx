@@ -90,7 +90,13 @@ export const ManualEngagementUpdate = ({
           {isProcessing ? (
             <div className="flex flex-row items-center gap-2">
               {/* Loading spinner during processing */}
-              <Image src="/assets/common/loading.png" alt="loading" width={30} height={30} className="animate-spin" />
+              <Image
+                src="/assets/common/loading.png"
+                alt="loading"
+                width={30}
+                height={30}
+                className="animate-spin"
+              />
               <span className="animate-pulse">Processing...</span>
             </div>
           ) : (
