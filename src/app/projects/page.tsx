@@ -5,9 +5,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAddress } from "@thirdweb-dev/react";
 import { toast } from "react-toastify";
-import { ExtendedProjectData } from "../types";
+import { ProjectData } from "../types";
 import { fetchProjects } from "../utils/projectUtils";
-import { fetchTokenSymbols } from "../utils/contracts";
 import { ProjectCard } from "../components/project";
 
 /**
@@ -29,7 +28,7 @@ export default function Projects() {
   const address = useAddress();
 
   // State variables
-  const [projects, setProjects] = useState<ExtendedProjectData[]>([]);
+  const [projects, setProjects] = useState<ProjectData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch the projects owned by the current user
@@ -38,8 +37,7 @@ export default function Projects() {
       const loadProjects = async () => {
         try {
           const projectsData = await fetchProjects({ ownerAddress: address });
-          const projectsWithSymbols = await fetchTokenSymbols(projectsData);
-          setProjects(projectsWithSymbols);
+          setProjects(projectsData);
         } catch (error) {
           const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred";
           toast.error(`Error: ${errorMessage}`);

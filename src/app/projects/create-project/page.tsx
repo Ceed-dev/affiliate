@@ -64,8 +64,11 @@ export default function CreateProject() {
   const [projectData, setProjectData] = useState<ProjectData>({
     projectName: "",
     description: "",
-    selectedChainId: selectedChain.chainId, // Stores the chain ID of the selected blockchain
-    selectedTokenAddress: "", // Token address associated with the project
+    selectedToken: {
+      chainId: selectedChain.chainId, // Chain ID of the selected blockchain
+      address: "", // Token address associated with the project
+      symbol: "", // Token symbol (default empty)
+    },
 
     // Media assets for project representation
     logo: null,
@@ -227,7 +230,7 @@ export default function CreateProject() {
         />
         <RewardForm
           isReferralEnabled={isReferralEnabled}
-          selectedTokenAddress={projectData.selectedTokenAddress}
+          selectedToken={projectData.selectedToken}
           conversionPoints={conversionPoints}
           redirectUrl={projectData.redirectUrl}
           handleChange={handleChange}

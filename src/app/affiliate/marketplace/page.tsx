@@ -4,9 +4,8 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { ExtendedProjectData } from "../../types";
+import { ProjectData } from "../../types";
 import { fetchProjects } from "../../utils/projectUtils";
-import { fetchTokenSymbols } from "../../utils/contracts";
 import { ProjectCard } from "../../components/project";
 import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
 
@@ -27,7 +26,7 @@ export default function Marketplace() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   
   // State variables
-  const [projects, setProjects] = useState<ExtendedProjectData[]>([]);
+  const [projects, setProjects] = useState<ProjectData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
@@ -53,9 +52,7 @@ export default function Marketplace() {
           setBannerMessage(bannerData.message);
         }
 
-        // Fetch token symbols for projects
-        const projectsWithSymbols = await fetchTokenSymbols(projectsData);
-        setProjects(projectsWithSymbols);
+        setProjects(projectsData);
       } catch (error) {
         const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred";
         toast.error(`Error: ${errorMessage}`);

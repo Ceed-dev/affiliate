@@ -24,13 +24,10 @@ import {
 } from "../../utils/firebase";
 import { fetchProjects } from "../../utils/projectUtils";
 import { joinProject } from "../../utils/userUtils";
-import { getProvider, ERC20 } from "../../utils/contracts";
 
 // Date, Copy Utilities and Constants
 import { getNextPaymentDate, getTimeZoneSymbol } from "../../utils/dateUtils";
 import { copyToClipboard } from "../../utils/generalUtils";
-import { chainRpcUrls } from "../../constants/chains";
-import { popularTokens } from "../../constants/popularTokens";
 
 /**
  * Affiliate Page
@@ -62,14 +59,12 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const [conversionLogs, setConversionLogs] = useState<ConversionLog[]>([]);
   const [clickData, setClickData] = useState<ClickData[]>([]);
   
-  const [tokenSymbol, setTokenSymbol] = useState("");
   const [chainName, setChainName] = useState<string | undefined>();
 
   // Loading states
   const [loading, setLoading] = useState({
     project: true,
     referral: true,
-    tokenSymbol: true,
     conversionLogs: true,
     clickData: true,
   });
@@ -101,22 +96,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     fetchProjectDetails();
   }, [params.projectId, referralId]);
 
-  // Fetch token symbol if project data is available
-  useEffect(() => {
-    if (!projectData) return;
-    const fetchTokenSymbol = async () => {
-      try {
-        const symbol = await getTokenSymbol(projectData.selectedChainId, projectData.selectedTokenAddress);
-        setTokenSymbol(symbol);
-      } catch (error) {
-        handleError("tokenSymbol", error);
-      } finally {
-        setLoading(prev => ({ ...prev, tokenSymbol: false }));
-      }
-    };
-    fetchTokenSymbol();
-  }, [projectData]);
-
   // Fetch referral data if referral ID is available
   useEffect(() => {
     if (!referralId) return;
@@ -135,17 +114,17 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   // Fetch chain name if chain ID is available in project data
   useEffect(() => {
-    if (!projectData?.selectedChainId) return;
+    if (!projectData?.selectedToken) return;
     const fetchChainNameAsync = async () => {
       try {
-        const chain = await getChainByChainIdAsync(projectData.selectedChainId);
+        const chain = await getChainByChainIdAsync(projectData.selectedToken.chainId);
         setChainName(chain.name);
       } catch (error) {
         console.error("Failed to get chain name:", error);
       }
     };
     fetchChainNameAsync();
-  }, [projectData?.selectedChainId]);
+  }, [projectData?.selectedToken]);
 
   // Fetch conversion logs and click data if referral data is available
   useEffect(() => {
@@ -204,17 +183,6 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       // Use the new referral link format with the target URL (`t`) for all other projects
       return `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(data.redirectUrl)}`;
     }
-  };
-
-  const getTokenSymbol = async (chainId: number, tokenAddress: string) => {
-    const predefinedToken = (popularTokens[chainId] || []).find(token => token.address === tokenAddress);
-    if (predefinedToken) return predefinedToken.symbol;
-
-    const rpcUrl = chainRpcUrls[chainId];
-    if (!rpcUrl) throw new Error(`RPC URL for chain ID ${chainId} not found.`);
-    
-    const erc20 = new ERC20(tokenAddress, getProvider(rpcUrl));
-    return await erc20.getSymbol();
   };
 
   const handleError = (context: string, error: any) => {
@@ -313,9 +281,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   <AnalyticsCard
                     title="Earnings"
                     description="(This month)"
-                    loading={loading.referral || loading.tokenSymbol || loading.conversionLogs}
+                    loading={loading.referral || loading.conversionLogs}
                     value={totalEarnings}
-                    unit={tokenSymbol}
+                    unit={projectData.selectedToken.symbol}
                     isDarkBackground={true}
                   />
                   <AnalyticsCard
@@ -365,7 +333,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           {/* Conversion Points Table */}
           <ConversionPointsTable 
             conversionPoints={projectData.conversionPoints}
-            tokenSymbol={tokenSymbol}
+            tokenSymbol={projectData.selectedToken.symbol}
             chainName={chainName ?? ""}
           />
   
