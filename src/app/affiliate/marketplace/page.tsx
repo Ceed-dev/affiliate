@@ -68,7 +68,7 @@ export default function Marketplace() {
     <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto pb-10 md:py-20">
       {/* Banner Message */}
       {bannerMessage && (
-        <div className="bg-[#5865F2] font-semibold py-3 px-5 mb-6 rounded-lg flex items-center gap-2">
+        <div className="bg-[#5865F2] hover:bg-[#5865F2]/90 font-semibold py-3 px-5 mb-6 rounded-lg flex items-center gap-2">
           {/* Explosion emoji */}
           <span
             className="text-2xl bg-white/5 px-2 py-1 rounded-lg"

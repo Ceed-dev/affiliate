@@ -253,7 +253,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               </p>
               <button
                 type="button"
-                className="bg-white/5 font-semibold w-full rounded-full py-2 mt-3"
+                className="bg-white/5 hover:bg-white/10 font-semibold w-full rounded-full py-2 mt-3 transition duration-300 ease-in-out transform hover:scale-105"
                 onClick={() => copyToClipboard(
                   referralLink,
                   "Referral link copied to clipboard!",
