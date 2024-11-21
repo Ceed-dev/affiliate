@@ -6,10 +6,58 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../../utils/firebase";
-import { conversionRequestSchema, applySecurityHeaders, checkRateLimit } from "../../../utils/validationUtils";
+import {
+  conversionRequestSchema,
+  applySecurityHeaders,
+  checkRateLimit,
+} from "../../../utils/validationUtils";
 
+/**
+ * Conversion API - Processing Flow
+ * 
+ * This API handles conversion logging for referral links. Below is the high-level flow of the API:
+ * 
+ * 1. **API Key Validation**
+ *    - Extract `x-api-key` from the request headers.
+ *    - Ensure the API key is provided and valid for the associated project.
+ * 
+ * 2. **Request Body Validation**
+ *    - Parse and validate the request body using a predefined schema.
+ *    - Required fields: `referralId`, `conversionId`.
+ *    - Optional fields: `revenue` (for RevenueShare), `userWalletAddress` (if referral is enabled).
+ * 
+ * 3. **Referral Validation**
+ *    - Fetch referral data from Firestore using the provided `referralId`.
+ *    - Ensure the referral exists and is associated with a valid project.
+ * 
+ * 4. **Rate Limiting**
+ *    - Check the request rate for the provided API key to prevent abuse.
+ * 
+ * 5. **Project and Conversion Point Validation**
+ *    - Fetch project data associated with the referral.
+ *    - Ensure the project exists and the specified conversion point (`conversionId`) is valid and active.
+ * 
+ * 6. **Reward Calculation**
+ *    - Determine the reward amount based on the conversion point's payment type:
+ *      - `FixedAmount`: Use the predefined reward amount.
+ *      - `RevenueShare`: Calculate based on revenue and percentage.
+ *      - `Tiered`: Determine the reward from tiers based on conversion count.
+ * 
+ * 7. **Referral Feature Validation**
+ *    - If referral is enabled, validate the `userWalletAddress` field.
+ * 
+ * 8. **Log Conversion**
+ *    - Save the conversion details to Firestore.
+ * 
+ * 9. **Response**
+ *    - Return a success response with a message and the `referralId`.
+ * 
+ * Error Handling:
+ * - Returns appropriate error responses for missing or invalid parameters, rate limits, or internal server issues.
+ */
 export async function POST(request: NextRequest) {
   try {
+    // Step 1: Retrieve the API key from request headers.
     const apiKey = request.headers.get("x-api-key");
     if (!apiKey) {
       const response = NextResponse.json(
@@ -22,14 +70,13 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
-      applySecurityHeaders(response);
+      applySecurityHeaders(response); // Add security headers to the response
       return response;
     }
 
+    // Step 2: Parse the request body and validate against the schema.
     const body = await request.json();
-
     const validationResult = conversionRequestSchema.safeParse(body);
-
     if (!validationResult.success) {
       const response = NextResponse.json(
         {
@@ -45,8 +92,10 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // Extract validated parameters from the request body.
     const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
 
+    // Step 3: Fetch referral data from Firestore using the referral ID.
     const referralData = await fetchReferralData(referralId);
     if (!referralData) {
       const response = NextResponse.json(
@@ -65,6 +114,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // Step 4: Validate the API key against the project associated with the referral.
     const isValidApiKey = await validateApiKey(referralData.projectId, apiKey);
     if (!isValidApiKey) {
       const response = NextResponse.json(
@@ -83,6 +133,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // Step 5: Check the request rate limit for the API key.
     if (!checkRateLimit(apiKey)) {
       const response = NextResponse.json(
         {
@@ -100,6 +151,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // Step 6: Retrieve project data associated with the referral.
     const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
     if (!projectDataArray || projectDataArray.length === 0) {
       const response = NextResponse.json(
@@ -119,6 +171,7 @@ export async function POST(request: NextRequest) {
     }
     const projectData = projectDataArray[0];
 
+    // Step 7: Find the conversion point using the conversion ID.
     const conversionPoint = projectData.conversionPoints.find(
       (point) => point.id === conversionId
     );
@@ -139,6 +192,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // Step 8: Check if the conversion point is active.
     if (!conversionPoint.isActive) {
       const response = NextResponse.json(
         {
@@ -153,6 +207,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // Step 9: Calculate the reward amount based on the conversion point type.
     let rewardAmount = 0;
     if (conversionPoint.paymentType === "FixedAmount") {
       rewardAmount = conversionPoint.rewardAmount || 0;
@@ -205,8 +260,8 @@ export async function POST(request: NextRequest) {
       rewardAmount = appropriateTier.rewardAmount;
     }
 
+    // Step 10: Validate and set the user wallet address if referral is enabled.
     let validatedUserWalletAddress;
-
     if (projectData.isReferralEnabled) {
       // Referral is enabled: userWalletAddress must be provided and valid
       if (!userWalletAddress) {
@@ -226,7 +281,6 @@ export async function POST(request: NextRequest) {
         applySecurityHeaders(response);
         return response;
       }
-
       // Set validated address (already guaranteed to be valid by schema)
       validatedUserWalletAddress = userWalletAddress;
     } else {
@@ -234,6 +288,7 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress = undefined; // Or keep it undefined if preferable
     }
 
+    // Step 11: Log the conversion in the database.
     await logConversion(
       `${referralData.id}`,
       conversionId,
@@ -241,6 +296,7 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress
     );
 
+    // Step 12: Return a success response.
     const response = NextResponse.json(
       {
         message: "Conversion successfully recorded.",
@@ -251,6 +307,7 @@ export async function POST(request: NextRequest) {
     applySecurityHeaders(response);
     return response;
   } catch (error) {
+    // Log unexpected errors and return a server error response.
     console.error("Error processing conversion:", error);
     const response = NextResponse.json(
       {
