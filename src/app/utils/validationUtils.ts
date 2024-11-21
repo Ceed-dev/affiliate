@@ -325,7 +325,7 @@ export function checkRateLimit(apiKey: string): boolean {
   const currentCount = rateLimiter.get(apiKey) || 0;
 
   // If the request count exceeds the limit (300 requests/hour), reject the request
-  if (currentCount >= 20) {
+  if (currentCount >= 300) {
     return false; // Rate limit exceeded
   }
 
