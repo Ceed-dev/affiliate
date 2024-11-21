@@ -6,7 +6,7 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../../utils/firebase";
-import { conversionRequestSchema, applySecurityHeaders } from "../../../utils/validationUtils";
+import { conversionRequestSchema, applySecurityHeaders, checkRateLimit } from "../../../utils/validationUtils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,6 +78,23 @@ export async function POST(request: NextRequest) {
           }
         },
         { status: 403 }
+      );
+      applySecurityHeaders(response);
+      return response;
+    }
+
+    if (!checkRateLimit(apiKey)) {
+      const response = NextResponse.json(
+        {
+          error: {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: "Too many requests. Please try again later.",
+            details: {
+              projectId: referralData.projectId
+            }
+          },
+        },
+        { status: 429 }
       );
       applySecurityHeaders(response);
       return response;
