@@ -1,6 +1,8 @@
 // External libraries
 import { toast } from "react-toastify";
 import { DocumentData } from "firebase/firestore";
+import { ethers } from "ethers";
+import { z } from "zod";
 
 // Project-specific types
 import { ProjectData, ReferralData, ConversionPoint, Tier, SelectedToken } from "../types";
@@ -187,3 +189,50 @@ export function isValidReferralData(data: DocumentData): data is ReferralData {
     (typeof data.tweetNewestCreatedAt === "undefined" || data.tweetNewestCreatedAt.toDate() instanceof Date)
   );
 }
+
+/**
+ * Zod schema for validating the structure of a conversion request.
+ * 
+ * This schema is used to validate the request body sent to the conversion API. 
+ * It ensures the presence and validity of required fields and optional fields, 
+ * such as referralId, conversionId, revenue, and userWalletAddress.
+ * 
+ * @example
+ * const validationResult = conversionRequestSchema.safeParse(requestBody);
+ * if (!validationResult.success) {
+ *   // Handle validation error
+ * }
+ */
+export const conversionRequestSchema = z.object({
+  /**
+   * Referral ID - a required string field that identifies the referral.
+   */
+  referralId: z.string().min(1, "Referral ID is required."),
+
+  /**
+   * Conversion ID - a required string field that identifies the conversion point.
+   */
+  conversionId: z.string().min(1, "Conversion ID is required."),
+
+  /**
+   * Revenue - an optional numeric field representing the revenue amount. 
+   * If provided, it must be a positive number.
+   */
+  revenue: z
+    .number({ invalid_type_error: "Revenue must be a number." })
+    .optional()
+    .refine((val) => val === undefined || val > 0, {
+      message: "Revenue must be greater than zero.",
+    }),
+
+  /**
+   * User Wallet Address - an optional string field representing the user's wallet address.
+   * If provided, it must be a valid Ethereum address.
+   */
+  userWalletAddress: z
+    .string()
+    .optional()
+    .refine((val) => !val || ethers.utils.isAddress(val), {
+      message: "Invalid wallet address.",
+    }),
+});

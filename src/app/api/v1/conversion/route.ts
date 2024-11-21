@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ethers } from "ethers";
 import { fetchProjects } from "../../../utils/projectUtils";
 import { 
   fetchReferralData,
@@ -7,6 +6,7 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../../utils/firebase";
+import { conversionRequestSchema } from "../../../utils/validationUtils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,44 +26,22 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const {
-      referralId,
-      conversionId,
-      revenue,
-      userWalletAddress,
-    } = body;
+    const validationResult = conversionRequestSchema.safeParse(body);
 
-    if (!referralId) {
+    if (!validationResult.success) {
       return NextResponse.json(
         {
           error: {
-            code: "MISSING_PARAMETERS",
-            message: "Referral ID is missing.",
-            details: {
-              field: "referralId",
-              issue: "Referral ID is required."
-            }
-          }
+            code: "INVALID_REQUEST",
+            message: "The request body is invalid.",
+            details: validationResult.error.flatten(),
+          },
         },
         { status: 400 }
       );
     }
 
-    if (!conversionId) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "MISSING_PARAMETERS",
-            message: "Conversion ID is missing.",
-            details: {
-              field: "conversionId",
-              issue: "Conversion ID is required."
-            }
-          }
-        },
-        { status: 400 }
-      );
-    }
+    const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
 
     const referralData = await fetchReferralData(referralId);
     if (!referralData) {
@@ -148,15 +126,15 @@ export async function POST(request: NextRequest) {
     if (conversionPoint.paymentType === "FixedAmount") {
       rewardAmount = conversionPoint.rewardAmount || 0;
     } else if (conversionPoint.paymentType === "RevenueShare") {
-      if (!revenue || isNaN(parseFloat(revenue)) || parseFloat(revenue) <= 0) {
+      if (!revenue) {
         return NextResponse.json(
           {
             error: {
               code: "INVALID_REVENUE",
-              message: "Invalid or missing revenue parameter.",
+              message: "Revenue parameter is required for RevenueShare payment type.",
               details: {
                 field: "revenue",
-                issue: "Revenue must be a positive number."
+                issue: "Revenue must be provided and should be a positive number."
               }
             }
           },
@@ -164,7 +142,7 @@ export async function POST(request: NextRequest) {
         );
       }
       const percentage = conversionPoint.percentage || 0;
-      rewardAmount = Math.round((parseFloat(revenue) * (percentage / 100)) * 10) / 10;
+      rewardAmount = Math.round((revenue * (percentage / 100)) * 10) / 10;
     } else if (conversionPoint.paymentType === "Tiered") {
       const conversionLogs = await fetchConversionLogsForReferrals(
         [referralData],
@@ -193,23 +171,30 @@ export async function POST(request: NextRequest) {
     }
 
     let validatedUserWalletAddress;
+
     if (projectData.isReferralEnabled) {
-      if (!userWalletAddress || !ethers.utils.isAddress(userWalletAddress)) {
+      // Referral is enabled: userWalletAddress must be provided and valid
+      if (!userWalletAddress) {
         return NextResponse.json(
           {
             error: {
               code: "INVALID_USER_WALLET",
-              message: "Invalid or missing user wallet address.",
+              message: "User wallet address is required when referral is enabled.",
               details: {
                 field: "userWalletAddress",
-                issue: "A valid wallet address is required."
-              }
+                issue: "A valid wallet address must be provided.",
+              },
             },
           },
           { status: 400 }
         );
       }
+
+      // Set validated address (already guaranteed to be valid by schema)
       validatedUserWalletAddress = userWalletAddress;
+    } else {
+      // Referral is not enabled: no userWalletAddress required
+      validatedUserWalletAddress = undefined; // Or keep it undefined if preferable
     }
 
     await logConversion(
