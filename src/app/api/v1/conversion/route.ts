@@ -6,13 +6,13 @@ import {
   logConversion,
   fetchConversionLogsForReferrals,
 } from "../../../utils/firebase";
-import { conversionRequestSchema } from "../../../utils/validationUtils";
+import { conversionRequestSchema, applySecurityHeaders } from "../../../utils/validationUtils";
 
 export async function POST(request: NextRequest) {
   try {
     const apiKey = request.headers.get("x-api-key");
     if (!apiKey) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: {
             code: "MISSING_API_KEY",
@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
 
     const body = await request.json();
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
     const validationResult = conversionRequestSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: {
             code: "INVALID_REQUEST",
@@ -39,13 +41,15 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
 
     const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
 
     const referralData = await fetchReferralData(referralId);
     if (!referralData) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: {
             code: "REFERRAL_NOT_FOUND",
@@ -57,11 +61,13 @@ export async function POST(request: NextRequest) {
         },
         { status: 404 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
 
     const isValidApiKey = await validateApiKey(referralData.projectId, apiKey);
     if (!isValidApiKey) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: {
             code: "INVALID_API_KEY",
@@ -73,11 +79,13 @@ export async function POST(request: NextRequest) {
         },
         { status: 403 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
 
     const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
     if (!projectDataArray || projectDataArray.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: {
             code: "PROJECT_NOT_FOUND",
@@ -89,6 +97,8 @@ export async function POST(request: NextRequest) {
         },
         { status: 404 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
     const projectData = projectDataArray[0];
 
@@ -96,7 +106,7 @@ export async function POST(request: NextRequest) {
       (point) => point.id === conversionId
     );
     if (!conversionPoint) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: {
             code: "CONVERSION_POINT_NOT_FOUND",
@@ -108,10 +118,12 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
 
     if (!conversionPoint.isActive) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           message: "The specified conversion point is inactive.",
           details: {
@@ -120,6 +132,8 @@ export async function POST(request: NextRequest) {
         },
         { status: 200 }
       );
+      applySecurityHeaders(response);
+      return response;
     }
 
     let rewardAmount = 0;
@@ -127,7 +141,7 @@ export async function POST(request: NextRequest) {
       rewardAmount = conversionPoint.rewardAmount || 0;
     } else if (conversionPoint.paymentType === "RevenueShare") {
       if (!revenue) {
-        return NextResponse.json(
+        const response = NextResponse.json(
           {
             error: {
               code: "INVALID_REVENUE",
@@ -140,6 +154,8 @@ export async function POST(request: NextRequest) {
           },
           { status: 400 }
         );
+        applySecurityHeaders(response);
+        return response;
       }
       const percentage = conversionPoint.percentage || 0;
       rewardAmount = Math.round((revenue * (percentage / 100)) * 10) / 10;
@@ -154,7 +170,7 @@ export async function POST(request: NextRequest) {
         ?.reverse()
         .find((tier) => conversionCount >= tier.conversionsRequired);
       if (!appropriateTier) {
-        return NextResponse.json(
+        const response = NextResponse.json(
           {
             error: {
               code: "NO_APPROPRIATE_TIER",
@@ -166,6 +182,8 @@ export async function POST(request: NextRequest) {
           },
           { status: 400 }
         );
+        applySecurityHeaders(response);
+        return response;
       }
       rewardAmount = appropriateTier.rewardAmount;
     }
@@ -175,7 +193,7 @@ export async function POST(request: NextRequest) {
     if (projectData.isReferralEnabled) {
       // Referral is enabled: userWalletAddress must be provided and valid
       if (!userWalletAddress) {
-        return NextResponse.json(
+        const response = NextResponse.json(
           {
             error: {
               code: "INVALID_USER_WALLET",
@@ -188,6 +206,8 @@ export async function POST(request: NextRequest) {
           },
           { status: 400 }
         );
+        applySecurityHeaders(response);
+        return response;
       }
 
       // Set validated address (already guaranteed to be valid by schema)
@@ -204,16 +224,18 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress
     );
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         message: "Conversion successfully recorded.",
         referralId
       },
       { status: 200 }
     );
+    applySecurityHeaders(response);
+    return response;
   } catch (error) {
     console.error("Error processing conversion:", error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         error: {
           code: "INTERNAL_SERVER_ERROR",
@@ -223,5 +245,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+    applySecurityHeaders(response);
+    return response;
   }
 }

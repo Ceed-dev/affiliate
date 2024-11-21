@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { DocumentData } from "firebase/firestore";
 import { ethers } from "ethers";
 import { z } from "zod";
+import { NextResponse } from "next/server";
 
 // Project-specific types
 import { ProjectData, ReferralData, ConversionPoint, Tier, SelectedToken } from "../types";
@@ -236,3 +237,55 @@ export const conversionRequestSchema = z.object({
       message: "Invalid wallet address.",
     }),
 });
+
+/**
+ * Adds security headers to the response to enhance application security.
+ *
+ * These headers help mitigate various attacks, such as XSS, clickjacking, and information leakage,
+ * by setting strict policies for the browser.
+ *
+ * @param response - The Next.js response object to which security headers will be applied.
+ */
+export const applySecurityHeaders = (response: NextResponse) => {
+  /**
+   * Prevents DNS prefetching to reduce the risk of information leakage to external servers.
+   * Value: "off" - Disables DNS prefetching.
+   */
+  response.headers.set("X-DNS-Prefetch-Control", "off");
+
+  /**
+   * Enforces HTTPS communication and prevents the browser from using HTTP.
+   * Value: "max-age=15552000; includeSubDomains" - Forces HTTPS for 180 days and applies the rule to all subdomains.
+   */
+  response.headers.set("Strict-Transport-Security", "max-age=15552000; includeSubDomains");
+
+  /**
+   * Disables MIME type sniffing to prevent the browser from interpreting files differently from their declared content type.
+   * Value: "nosniff" - Instructs the browser to strictly follow the declared Content-Type header.
+   */
+  response.headers.set("X-Content-Type-Options", "nosniff");
+
+  /**
+   * Prevents clickjacking attacks by restricting the use of the page in an iframe.
+   * Value: "SAMEORIGIN" - Allows the page to be embedded in iframes only on the same origin.
+   */
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+
+  /**
+   * Disables the browser's built-in XSS protection.
+   * Value: "0" - Turns off XSS protection to avoid potential conflicts or vulnerabilities from its implementation.
+   */
+  response.headers.set("X-XSS-Protection", "0");
+
+  /**
+   * Controls how much referrer information is included with requests made from the page.
+   * Value: "no-referrer" - No referrer information will be sent with requests.
+   */
+  response.headers.set("Referrer-Policy", "no-referrer");
+
+  /**
+   * Restricts the sources from which the browser can load resources such as scripts, styles, and media.
+   * Value: "default-src 'self'; script-src 'self'" - Allows resources only from the same origin.
+   */
+  response.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self';");
+};
