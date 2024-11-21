@@ -13,7 +13,13 @@ export async function POST(request: NextRequest) {
     const apiKey = request.headers.get("x-api-key");
     if (!apiKey) {
       return NextResponse.json(
-        { error: "API key is missing" },
+        {
+          error: {
+            code: "MISSING_API_KEY",
+            message: "API key is missing.",
+            details: {}
+          }
+        },
         { status: 400 }
       );
     }
@@ -29,14 +35,32 @@ export async function POST(request: NextRequest) {
 
     if (!referralId) {
       return NextResponse.json(
-        { error: "Referral ID is missing" },
+        {
+          error: {
+            code: "MISSING_PARAMETERS",
+            message: "Referral ID is missing.",
+            details: {
+              field: "referralId",
+              issue: "Referral ID is required."
+            }
+          }
+        },
         { status: 400 }
       );
     }
 
     if (!conversionId) {
       return NextResponse.json(
-        { error: "Conversion ID is missing" },
+        {
+          error: {
+            code: "MISSING_PARAMETERS",
+            message: "Conversion ID is missing.",
+            details: {
+              field: "conversionId",
+              issue: "Conversion ID is required."
+            }
+          }
+        },
         { status: 400 }
       );
     }
@@ -44,7 +68,15 @@ export async function POST(request: NextRequest) {
     const referralData = await fetchReferralData(referralId);
     if (!referralData) {
       return NextResponse.json(
-        { error: "Referral data not found" },
+        {
+          error: {
+            code: "REFERRAL_NOT_FOUND",
+            message: "The specified referral ID does not exist.",
+            details: {
+              referralId
+            }
+          }
+        },
         { status: 404 }
       );
     }
@@ -52,7 +84,15 @@ export async function POST(request: NextRequest) {
     const isValidApiKey = await validateApiKey(referralData.projectId, apiKey);
     if (!isValidApiKey) {
       return NextResponse.json(
-        { error: "Invalid API key or access denied" },
+        {
+          error: {
+            code: "INVALID_API_KEY",
+            message: "The provided API key is invalid or access is denied.",
+            details: {
+              projectId: referralData.projectId
+            }
+          }
+        },
         { status: 403 }
       );
     }
@@ -60,7 +100,15 @@ export async function POST(request: NextRequest) {
     const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
     if (!projectDataArray || projectDataArray.length === 0) {
       return NextResponse.json(
-        { error: "Project data not found" },
+        {
+          error: {
+            code: "PROJECT_NOT_FOUND",
+            message: "The specified project does not exist.",
+            details: {
+              projectId: referralData.projectId
+            }
+          }
+        },
         { status: 404 }
       );
     }
@@ -71,14 +119,27 @@ export async function POST(request: NextRequest) {
     );
     if (!conversionPoint) {
       return NextResponse.json(
-        { error: "Conversion point not found" },
+        {
+          error: {
+            code: "CONVERSION_POINT_NOT_FOUND",
+            message: "The specified conversion point does not exist.",
+            details: {
+              conversionId
+            }
+          }
+        },
         { status: 400 }
       );
     }
 
     if (!conversionPoint.isActive) {
       return NextResponse.json(
-        { message: "Conversion point is inactive" },
+        {
+          message: "The specified conversion point is inactive.",
+          details: {
+            conversionId
+          }
+        },
         { status: 200 }
       );
     }
@@ -89,7 +150,16 @@ export async function POST(request: NextRequest) {
     } else if (conversionPoint.paymentType === "RevenueShare") {
       if (!revenue || isNaN(parseFloat(revenue)) || parseFloat(revenue) <= 0) {
         return NextResponse.json(
-          { error: "Invalid or missing revenue parameter" },
+          {
+            error: {
+              code: "INVALID_REVENUE",
+              message: "Invalid or missing revenue parameter.",
+              details: {
+                field: "revenue",
+                issue: "Revenue must be a positive number."
+              }
+            }
+          },
           { status: 400 }
         );
       }
@@ -107,7 +177,15 @@ export async function POST(request: NextRequest) {
         .find((tier) => conversionCount >= tier.conversionsRequired);
       if (!appropriateTier) {
         return NextResponse.json(
-          { error: "No appropriate tier found" },
+          {
+            error: {
+              code: "NO_APPROPRIATE_TIER",
+              message: "No appropriate tier found for the current conversion count.",
+              details: {
+                conversionCount
+              }
+            },
+          },
           { status: 400 }
         );
       }
@@ -118,7 +196,16 @@ export async function POST(request: NextRequest) {
     if (projectData.isReferralEnabled) {
       if (!userWalletAddress || !ethers.utils.isAddress(userWalletAddress)) {
         return NextResponse.json(
-          { error: "Invalid or missing user wallet address" },
+          {
+            error: {
+              code: "INVALID_USER_WALLET",
+              message: "Invalid or missing user wallet address.",
+              details: {
+                field: "userWalletAddress",
+                issue: "A valid wallet address is required."
+              }
+            },
+          },
           { status: 400 }
         );
       }
@@ -133,13 +220,22 @@ export async function POST(request: NextRequest) {
     );
 
     return NextResponse.json(
-      { message: "Conversion successful", referralId },
+      {
+        message: "Conversion successfully recorded.",
+        referralId
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error processing conversion:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      {
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred. Please try again later.",
+          details: {}
+        }
+      },
       { status: 500 }
     );
   }
