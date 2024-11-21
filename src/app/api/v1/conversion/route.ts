@@ -96,17 +96,19 @@ export async function POST(request: NextRequest) {
     const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
 
     // Step 3: Fetch referral data from Firestore using the referral ID.
-    const referralData = await fetchReferralData(referralId);
-    if (!referralData) {
+    let referralData;
+    try {
+      referralData = await fetchReferralData(referralId);
+    } catch (error) {
       const response = NextResponse.json(
         {
           error: {
             code: "REFERRAL_NOT_FOUND",
-            message: "The specified referral ID does not exist.",
+            message: "The specified referral ID does not exist or data is invalid.",
             details: {
-              referralId
-            }
-          }
+              referralId,
+            },
+          },
         },
         { status: 404 }
       );
