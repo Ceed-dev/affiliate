@@ -96,17 +96,19 @@ export async function POST(request: NextRequest) {
     const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
 
     // Step 3: Fetch referral data from Firestore using the referral ID.
-    const referralData = await fetchReferralData(referralId);
-    if (!referralData) {
+    let referralData;
+    try {
+      referralData = await fetchReferralData(referralId);
+    } catch (error) {
       const response = NextResponse.json(
         {
           error: {
             code: "REFERRAL_NOT_FOUND",
-            message: "The specified referral ID does not exist.",
+            message: "The specified referral ID does not exist or data is invalid.",
             details: {
-              referralId
-            }
-          }
+              referralId,
+            },
+          },
         },
         { status: 404 }
       );
@@ -152,7 +154,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 6: Retrieve project data associated with the referral.
-    const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
+    let projectDataArray;
+    try {
+      projectDataArray = await fetchProjects({ projectId: referralData.projectId });
+    } catch (error: any) {
+      const response = NextResponse.json(
+        {
+          error: {
+            code: "PROJECT_FETCH_ERROR",
+            message: "Failed to fetch project data.",
+            details: {
+              projectId: referralData.projectId,
+              error: error.message,
+            },
+          },
+        },
+        { status: 500 }
+      );
+      applySecurityHeaders(response);
+      return response;
+    }
+
     if (!projectDataArray || projectDataArray.length === 0) {
       const response = NextResponse.json(
         {
@@ -160,15 +182,16 @@ export async function POST(request: NextRequest) {
             code: "PROJECT_NOT_FOUND",
             message: "The specified project does not exist.",
             details: {
-              projectId: referralData.projectId
-            }
-          }
+              projectId: referralData.projectId,
+            },
+          },
         },
         { status: 404 }
       );
       applySecurityHeaders(response);
       return response;
     }
+
     const projectData = projectDataArray[0];
 
     // Step 7: Find the conversion point using the conversion ID.
