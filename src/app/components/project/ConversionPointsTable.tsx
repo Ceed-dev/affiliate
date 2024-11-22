@@ -26,14 +26,7 @@ export const ConversionPointsTable: React.FC<ConversionPointsTableProps> = ({ co
       ) : (
         // Informational message for active conversion points
         <p className="text-sm text-white/60">
-          {/* TODO
-            Temporary Fix:
-            The reward unit displayed on the affiliate's screen is temporarily set to "xp" for all projects, regardless of the actual payment type.
-            This change does not affect the underlying data structure or the way rewards are configured during project creation.
-            The displayed value here is purely for UI purposes and does not modify backend or project-related data.
-            */}
-          {/* {`Earn ${tokenSymbol} for each successful referral on ${chainName}. Join the project to start referring other people.`} */}
-          Earn &quot;xp&quot; for each successful referral. Join the project to start referring other people.
+          {`Earn ${tokenSymbol} for each successful referral on ${chainName}. Join the project to start referring other people.`}
         </p>
       )}
 
@@ -47,18 +40,11 @@ export const ConversionPointsTable: React.FC<ConversionPointsTableProps> = ({ co
 
             {/* Conversion Point Value */}
             <p className="text-white/60 text-sm">
-              {/* TODO
-                Temporary Fix:
-                The reward unit displayed on the affiliate's screen is temporarily set to "xp" for all projects, regardless of the actual payment type.
-                This change does not affect the underlying data structure or the way rewards are configured during project creation.
-                The displayed value here is purely for UI purposes and does not modify backend or project-related data.
-                */}
-              {/* {point.paymentType === "FixedAmount" ? (
+              {point.paymentType === "FixedAmount" ? (
                 `${point.rewardAmount} ${tokenSymbol}`
               ) : ( 
                 `${point.percentage}%`
-              )} */}
-              {`${point.paymentType === "FixedAmount" ? point.rewardAmount : point.percentage}xp`}
+              )}
             </p>
           </div>
         ))}
