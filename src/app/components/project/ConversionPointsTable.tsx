@@ -33,7 +33,7 @@ export const ConversionPointsTable: React.FC<ConversionPointsTableProps> = ({ co
             The displayed value here is purely for UI purposes and does not modify backend or project-related data.
             */}
           {/* {`Earn ${tokenSymbol} for each successful referral on ${chainName}. Join the project to start referring other people.`} */}
-          Earn "xp" for each successful referral. Join the project to start referring other people.
+          Earn &quot;xp&quot; for each successful referral. Join the project to start referring other people.
         </p>
       )}
 
