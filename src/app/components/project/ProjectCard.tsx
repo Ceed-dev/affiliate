@@ -82,7 +82,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {conversionPoint.rewardAmount || conversionPoint.percentage}
           </span>
           <span className={`${textColorClass} text-sm`}>
-            {conversionPoint.paymentType === "FixedAmount" ? project.selectedToken.symbol : "%"}
+            {/* TODO
+              Temporary Fix:
+              The reward unit displayed on the affiliate's screen is temporarily set to "xp" for all projects, regardless of the actual payment type.
+              This change does not affect the underlying data structure or the way rewards are configured during project creation.
+              The displayed value here is purely for UI purposes and does not modify backend or project-related data.
+              */}
+            {isDarkBackground
+              ? "xp"
+              : conversionPoint.paymentType === "FixedAmount"
+              ? project.selectedToken.symbol
+              : "%"}
           </span>
         </div>
       )}
