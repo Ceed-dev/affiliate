@@ -278,12 +278,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     value={totalConversions}
                     isDarkBackground={true}
                   />
+                  {/* TODO
+                    Temporary Fix:
+                    The reward unit displayed on the affiliate's screen is temporarily set to "xp" for all projects, regardless of the actual payment type.
+                    This change does not affect the underlying data structure or the way rewards are configured during project creation.
+                    The displayed value here is purely for UI purposes and does not modify backend or project-related data.
+                    */}
                   <AnalyticsCard
                     title="Earnings"
                     description="(This month)"
                     loading={loading.referral || loading.conversionLogs}
                     value={totalEarnings}
-                    unit={projectData.selectedToken.symbol}
+                    // unit={projectData.selectedToken.symbol}
+                    unit="xp"
                     isDarkBackground={true}
                   />
                   <AnalyticsCard

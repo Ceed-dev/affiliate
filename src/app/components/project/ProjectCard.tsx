@@ -43,15 +43,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       className="space-y-2 transition duration-300 ease-in-out transform hover:scale-105"
     >
       {/* Project cover image */}
-      <Image
-        className={`w-full rounded-lg border border-white/10 ${
-          isFeatured ? "h-[200px] md:h-[300px] lg:h-[440px]" : "h-[100px] md:h-[150px] lg:h-[220px]"
-        }`}
-        src={project.cover as string}
-        width={500}
-        height={500}
-        alt={`${project.projectName}'s cover`}
-      />
+      <div className={`relative border border-white/10 rounded-lg ${
+        isFeatured ? "h-[200px] md:h-[300px] lg:h-[440px]" : "h-[100px] md:h-[150px] lg:h-[220px]"
+      }`}>
+        <Image
+          className="rounded-lg"
+          src={project.cover as string}
+          alt={`${project.projectName}'s cover`}
+          layout="fill"
+          objectFit="cover"
+        />
+      </div>
 
       {/* Project logo and name */}
       <div className="flex items-center gap-2">
@@ -80,7 +82,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {conversionPoint.rewardAmount || conversionPoint.percentage}
           </span>
           <span className={`${textColorClass} text-sm`}>
-            {conversionPoint.paymentType === "FixedAmount" ? project.selectedToken.symbol : "%"}
+            {/* TODO
+              Temporary Fix:
+              The reward unit displayed on the affiliate's screen is temporarily set to "xp" for all projects, regardless of the actual payment type.
+              This change does not affect the underlying data structure or the way rewards are configured during project creation.
+              The displayed value here is purely for UI purposes and does not modify backend or project-related data.
+              */}
+            {isDarkBackground
+              ? "xp"
+              : conversionPoint.paymentType === "FixedAmount"
+              ? project.selectedToken.symbol
+              : "%"}
           </span>
         </div>
       )}
