@@ -1,6 +1,7 @@
 import { google, youtube_v3 } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import { GoogleAuthToken } from "../../types/affiliateInfo";
+import { updateGoogleTokensInFirestore } from "../../utils/googleApiUtils";
 
 // Initialize OAuth2 client as null. It will be instantiated only once.
 let oauth2Client: OAuth2Client | null = null;
@@ -8,9 +9,10 @@ let oauth2Client: OAuth2Client | null = null;
 /**
  * Get the OAuth2Client instance.
  * If the client doesn't exist yet, it will be created with the necessary parameters.
+ * @param userId - The Firestore document ID of the user whose tokens are being managed.
  * @returns {Promise<OAuth2Client>} The OAuth2Client instance.
  */
-export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
+export const getGoogleOAuth2Client = async (userId: string): Promise<OAuth2Client> => {
   if (!oauth2Client) {
     oauth2Client = new google.auth.OAuth2({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -19,12 +21,28 @@ export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
     });
 
     // Set up the tokens event to handle refresh token
-    oauth2Client.on("tokens", (tokens) => {
-      if (tokens.refresh_token) {
-        // TODO: Store refresh token to your database for later use
-        console.log("New refresh token received:", tokens.refresh_token);
+    oauth2Client.on("tokens", async (tokens) => {
+      try {
+        if (tokens.access_token) {
+          console.log("New access token received:", tokens.access_token);
+
+          // Call the helper function to update Firestore
+          await updateGoogleTokensInFirestore(
+            userId,
+            tokens.access_token,
+            tokens.expiry_date!,
+            tokens.refresh_token ?? undefined // Optional refresh token
+          );
+        }
+
+        if (tokens.refresh_token) {
+          console.log("New refresh token received:", tokens.refresh_token);
+        }
+
+        console.log("Tokens updated in Firestore:", JSON.stringify(tokens, null, 2));
+      } catch (error) {
+        console.error("Failed to update tokens in Firestore:", error);
       }
-      console.log("New access token received:", tokens.access_token);
     });
   }
 
@@ -54,11 +72,15 @@ export const getGoogleOAuth2Client = async (): Promise<OAuth2Client> => {
 /**
  * Get the YouTube Data API client instance.
  * If using OAuth2User, it checks for token expiration and refreshes if necessary.
+ * @param {string} userId - The Firestore document ID of the user whose tokens are being managed.
  * @param {GoogleAuthToken | null} token - The OAuth2User token to be used for authentication.
  * @returns {Promise<youtube_v3.Youtube>} The YouTube API client instance.
  */
-export const getYouTubeApiClient = async (token: GoogleAuthToken | null = null): Promise<youtube_v3.Youtube> => {
-  const oauth2Client = await getGoogleOAuth2Client();
+export const getYouTubeApiClient = async (
+  userId: string,
+  token: GoogleAuthToken | null = null
+): Promise<youtube_v3.Youtube> => {
+  const oauth2Client = await getGoogleOAuth2Client(userId);
 
   // If a token is provided, set it in the OAuth2 client.
   // This allows the client to use the provided access token and refresh it automatically if it expires.
