@@ -26,6 +26,18 @@ export const getXAuthClient = async (): Promise<auth.OAuth2User> => {
     });
   }
 
+  /**
+   * Note: In the current implementation, the OAuth2.0 access token is used 
+   * only for retrieving basic user information immediately after authentication.
+   * Engagement data retrieval does not use user-specific access tokens but relies on 
+   * a shared Bearer token. Therefore, there is no need to refresh and update 
+   * the access token in Firestore unless additional features require it in the future.
+   * 
+   * [APIs being called using the Bearer token]
+   * - /api/x/tweetLookup
+   * - /api/x/tweetRecentSearch
+   */
+
   // Check if the token exists before checking for expiration
   if (authClient.token && authClient.isAccessTokenExpired()) {
     console.log("Access token expired. Refreshing...");

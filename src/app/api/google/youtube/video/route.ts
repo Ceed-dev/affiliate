@@ -16,15 +16,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
-    // Step 2: Parse the request body to get the token data, channelId, and filter keyword
-    const { tokenData, channelId, filterKeyword } = await request.json();
+    // Step 2: Parse the request body to get the userId, token data, channelId, and filter keyword
+    const { userId, tokenData, channelId, filterKeyword } = await request.json();
 
-    if (!tokenData || !channelId || !filterKeyword) {
-      return NextResponse.json({ error: "Token data, channel ID, and filter keyword are required" }, { status: 400 });
+    if (!userId || !tokenData || !channelId || !filterKeyword) {
+      return NextResponse.json(
+        { error: "User ID, token data, channel ID, and filter keyword are required" },
+        { status: 400 }
+      );
     }
 
-    // Step 3: Get the YouTube API client with the provided token
-    const youtubeClient = await getYouTubeApiClient(tokenData as GoogleAuthToken);
+    // Step 3: Get the YouTube API client with the provided userId and token
+    const youtubeClient = await getYouTubeApiClient(userId, tokenData as GoogleAuthToken);
 
     let nextPageToken: string | null = null;
     let filteredVideos = [];

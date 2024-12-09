@@ -34,9 +34,10 @@ export const YOUTUBE_API_REFERENCES = [
 export const GOOGLE_API_ENDPOINTS = {
   /**
    * Endpoint for generating the Google OAuth authorization URL.
-   * @returns {string} Full URL to initiate the Google OAuth flow.
+   * @param userId - The Firestore document ID of the user.
+   * @returns {string} Full URL to initiate the Google OAuth flow with userId as a query parameter.
    */
-  AUTH_URL: (): string => `/api/google/auth/getAuthUrl`,
+  AUTH_URL: (userId: string): string => `/api/google/auth/getAuthUrl?userId=${encodeURIComponent(userId)}`,
 
   /**
    * Endpoint for exchanging the Google OAuth authorization code for tokens.

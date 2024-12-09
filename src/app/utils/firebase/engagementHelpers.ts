@@ -507,7 +507,7 @@ export const fetchAndUpdateEngagementData = async (
           
           // Step 4: Fetch YouTube video engagement data using referralId as the keyword
           const filterKeyword = referral.referralId;
-          const videoEngagementData = await getFilteredYouTubeVideos(googleAuthToken, youtubeAccountInfo.id, filterKeyword, addLog);
+          const videoEngagementData = await getFilteredYouTubeVideos(walletAddress, googleAuthToken, youtubeAccountInfo.id, filterKeyword, addLog);
 
           if (videoEngagementData && videoEngagementData.length > 0) {
             addLog(`Fetched ${videoEngagementData.length} videos for channel: ${youtubeAccountInfo.id}`, "log", 2);
