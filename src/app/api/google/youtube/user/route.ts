@@ -12,14 +12,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
-    // Step 2: Parse the request body to get the token data
-    const tokenData = await request.json();
-    if (!tokenData?.access_token) {
-      return NextResponse.json({ error: "Access token is required" }, { status: 400 });
+    // Step 2: Parse the request body to get the token data and userId
+    const { access_token, refresh_token, scope, token_type, expiry_date, userId } = await request.json();
+    if (!access_token || !userId) {
+      return NextResponse.json(
+        { error: "Access token and User ID are required" },
+        { status: 400 }
+      );
     }
 
-    // Step 3: Get the YouTube API client with the provided tokens
-    const youtubeClient = await getYouTubeApiClient(tokenData);
+    const tokenData = {
+      access_token,
+      refresh_token,
+      scope,
+      token_type,
+      expiry_date,
+    };
+
+    // Step 3: Get the YouTube API client with the provided tokens and userId
+    const youtubeClient = await getYouTubeApiClient(userId, tokenData);
 
     // Step 4: Retrieve YouTube account information (e.g., channel details)
     // The "part" parameter specifies which properties of the channel resource to retrieve.

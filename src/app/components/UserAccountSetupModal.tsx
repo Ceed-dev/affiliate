@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAddress } from "@thirdweb-dev/react";
 import { AffiliateInfo, UserRole } from "../types";
 import { GoogleAuthToken, YouTubeAccountInfo } from "../types/affiliateInfo";
 import { generateXAuthUrl } from "../utils/xApiUtils";
@@ -74,6 +75,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   disableRoleSelection = false,
 }) => {
   const searchParams = useSearchParams();  // Used to fetch query parameters from the URL
+  const walletAddress = useAddress(); // Fetch the currently connected wallet address
 
   // State variables for form fields and data management
   const [username, setUsername] = useState<string>("");      // Stores the user's input for username
@@ -223,7 +225,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
         setIsGoogleApiLoading(true);
         try {
           // Use the utility function to exchange the authorization code for tokens
-          const tokenData = await getGoogleTokens(code);
+          const tokenData = await getGoogleTokens(code, walletAddress!);
 
           // If access token is received, store it in state and localStorage
           if (tokenData?.tokens?.access_token) {
@@ -284,7 +286,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       setIsGoogleApiLoading(true);  // Set loading state during API call
       try {
         // Fetch YouTube user data using the utility function
-        const userData = await getYouTubeAccountInfo(tokenData);
+        const userData = await getYouTubeAccountInfo(walletAddress!, tokenData);
 
         // If user data is received, store it in state and localStorage
         if (userData && userData.length > 0) {
@@ -576,7 +578,12 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                       onClick={async () => {
                         setIsGoogleApiLoading(true); // Set loading state to true immediately after the button is clicked
                         try {
-                          const authUrl = await generateGoogleAuthUrl();
+                          if (!walletAddress) {
+                            console.error("Wallet address is not available. Cannot generate Google auth URL.");
+                            return; // Exit early if walletAddress is undefined
+                          }
+
+                          const authUrl = await generateGoogleAuthUrl(walletAddress);
                           if (authUrl) {
                             window.location.href = authUrl;
                           } else {
