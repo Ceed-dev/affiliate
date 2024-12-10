@@ -74,7 +74,7 @@ const RootLayout = ({
   return (
     <ThirdwebProvider
       activeChain={selectedChain}
-      clientId="57b58ed3058432b8220286445c2b302d"
+      clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID!}
       supportedWallets={[
         metamaskWallet({ recommended: true }),
         coinbaseWallet(),
