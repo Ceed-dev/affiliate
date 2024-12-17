@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { useDisconnect } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import { formatAddress } from "../../utils/formatUtils"; // Import utility function to format address
 
 interface HeaderProps {
@@ -10,7 +10,7 @@ interface HeaderProps {
 
 // Header component: Displays formatted address if connected, otherwise shows "Not connected"
 export const Header: React.FC<HeaderProps> = ({ address }) => {
-  const disconnect = useDisconnect();
+  const wallet = useActiveWallet();
   const [showDisconnect, setShowDisconnect] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const disconnectRef = useRef<HTMLButtonElement | null>(null);
@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({ address }) => {
             <button
               className="absolute top-12 right-0 bg-red-500 text-white text-sm py-2 px-4 border-2 border-white shadow-lg rounded-md transition duration-300 ease-in-out transform hover:scale-105"
               onClick={() => {
-                disconnect();
+                wallet?.disconnect();
                 setShowDisconnect(false);
               }}
               ref={disconnectRef}
