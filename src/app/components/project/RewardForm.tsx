@@ -14,6 +14,7 @@ import { initializeSigner, ERC20 } from "../../utils/contracts";
 import { copyToClipboard } from "../../utils/generalUtils";
 import { formatBalance } from "../../utils/formatUtils";
 import { popularTokens } from "../../constants/popularTokens";
+import { chainRpcUrls } from "../../constants/chains";
 
 // Types and Contexts
 import { PaymentType, ConversionPoint, Tier, SelectedToken } from "../../types";
@@ -220,7 +221,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
     setIsFetchingTokenDetails(true);
 
     try {
-      const signer = initializeSigner();
+      const signer = initializeSigner(chainRpcUrls[selectedChain.id], process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY);
       if (!signer) throw new Error("Failed to initialize signer.");
       const erc20 = new ERC20(address, signer);
       const symbol = await erc20.getSymbol();
