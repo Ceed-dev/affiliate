@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 // Ethers and Third-Party Libraries
 import { ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";
-import { Chain } from "@thirdweb-dev/chains";
+import { Chain } from "thirdweb/chains";
 
 // Utils and Constants
 import { initializeSigner, ERC20 } from "../../utils/contracts";
@@ -131,7 +131,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
   // Token and chain states
   const [selectedTokenLabel, setSelectedTokenLabel] = useState(
     selectedToken.address
-      ? popularTokens[selectedChain.chainId]?.find(token => token.address === selectedToken.address)?.symbol || "other"
+      ? popularTokens[selectedChain.id]?.find(token => token.address === selectedToken.address)?.symbol || "other"
       : "other"
   );
   const [tokenSymbol, setTokenSymbol] = useState("");
@@ -385,7 +385,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                   } else {
                     setIsTokenAddressValid(true);
                     setIsErc20Token(true);
-                    const token = popularTokens[selectedChain.chainId]?.find(token => token.symbol === selectedSymbol);
+                    const token = popularTokens[selectedChain.id]?.find(token => token.symbol === selectedSymbol);
                     if (token) {
                       handleChange("selectedToken.address")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
                       handleChange("selectedToken.symbol")({ target: { value: token.symbol } } as React.ChangeEvent<HTMLInputElement>);
@@ -400,7 +400,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                 ) : (
                   <>
                     <option value="" disabled>Select a token</option>
-                    {(popularTokens[selectedChain.chainId] || []).map((token) => (
+                    {(popularTokens[selectedChain.id] || []).map((token) => (
                       <option key={token.address} value={token.symbol}>
                         {token.symbol}
                       </option>
@@ -462,9 +462,9 @@ export const RewardForm: React.FC<RewardFormProps> = ({
           )}
 
           {/* Explorer Link */}
-          {isEditing && selectedChain?.explorers?.length && selectedToken.address !== ZERO_ADDRESS && (
+          {isEditing && selectedChain?.blockExplorers?.length && selectedToken.address !== ZERO_ADDRESS && (
             <Link
-              href={`${selectedChain.explorers[0].url}/address/${selectedToken.address}`}
+              href={`${selectedChain.blockExplorers[0].url}/address/${selectedToken.address}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mr-auto text-blue-400 hover:text-blue-700 hover:font-semibold hover:underline"
