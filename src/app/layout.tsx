@@ -55,7 +55,7 @@ const RootLayout = ({
   // Handle unsupported chain detection
   useEffect(() => {
     if (activeChain && !supportedChains.find((c) => c.id === activeChain.id)) {
-      toast.error("Unsupported chain detected. Switching to a supported chain...");
+      console.error("Unsupported chain detected. Switching to a supported chain...");
       switchToSupportedChain();
     }
   }, [activeChain]);
