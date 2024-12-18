@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAddress } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import { AffiliateInfo, UserRole } from "../types";
 import { GoogleAuthToken, YouTubeAccountInfo } from "../types/affiliateInfo";
 import { generateXAuthUrl } from "../utils/xApiUtils";
@@ -75,7 +75,8 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   disableRoleSelection = false,
 }) => {
   const searchParams = useSearchParams();  // Used to fetch query parameters from the URL
-  const walletAddress = useAddress(); // Fetch the currently connected wallet address
+  const wallet = useActiveWallet();  // Fetch the currently connected wallet
+  const walletAddress = wallet?.getAccount()?.address;
 
   // State variables for form fields and data management
   const [username, setUsername] = useState<string>("");      // Stores the user's input for username

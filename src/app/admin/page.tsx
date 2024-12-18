@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAddress, useSwitchChain, useChainId } from "@thirdweb-dev/react";
-import { Chain } from "@thirdweb-dev/chains";
+import { useActiveWallet } from "thirdweb/react";
+import { Chain } from "thirdweb/chains";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
 
@@ -35,9 +35,9 @@ const ZERO_ADDRESS = ethers.constants.AddressZero; // Constant for zero address
 export default function Admin() {
   const router = useRouter();
   const pathname = usePathname();
-  const address = useAddress();
-  const switchChain = useSwitchChain();
-  const currentChainId = useChainId();
+  const wallet = useActiveWallet();
+  const address = wallet?.getAccount()?.address;
+  const currentChainId = wallet?.getChain()?.id;
   
   // Signer-related state
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
@@ -182,7 +182,7 @@ export default function Admin() {
 
     logs.forEach(log => {
       const tokenKey = log.selectedTokenAddress === ZERO_ADDRESS 
-        ? `${ZERO_ADDRESS}-${log.selectedChain.chainId}`  // Combine ZERO_ADDRESS with chain ID for uniqueness
+        ? `${ZERO_ADDRESS}-${log.selectedChain.id}`  // Combine ZERO_ADDRESS with chain ID for uniqueness
         : log.selectedTokenAddress;
 
       if (!summary[tokenKey]) {
@@ -205,9 +205,9 @@ export default function Admin() {
       toast.info(`Starting payment process for ${log.logId}...`);
 
       // Switch chain if necessary
-      if (currentChainId !== log.selectedChain.chainId) {
+      if (currentChainId !== log.selectedChain.id) {
         try {
-          await switchChain(log.selectedChain.chainId);
+          await wallet?.switchChain(log.selectedChain);
         } catch (error) {
           console.error("Failed to switch chains: ", error);
           toast.error("Failed to switch chains");

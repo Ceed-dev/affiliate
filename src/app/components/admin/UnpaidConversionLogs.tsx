@@ -87,7 +87,7 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   {/* Affiliate Wallet */}
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <Link 
-                      href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.affiliateWallet}`}
+                      href={`${log.selectedChain.blockExplorers?.[0]?.url}/address/${log.affiliateWallet}`}
                       target="_blank"
                       className="text-blue-500 hover:underline"
                     >
@@ -98,7 +98,7 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {log.userWalletAddress ? (
                       <Link 
-                        href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.userWalletAddress}`}
+                        href={`${log.selectedChain.blockExplorers?.[0]?.url}/address/${log.userWalletAddress}`}
                         target="_blank"
                         className="text-blue-500 hover:underline"
                       >
@@ -124,8 +124,8 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                     >
                       {/* Chain icon */}
                       <Image 
-                        src={`/chains/${formatChainName(log.selectedChain.name)}.png`} 
-                        alt={log.selectedChain.name} 
+                        src={`/chains/${formatChainName(log.selectedChain.name!)}.png`} 
+                        alt={log.selectedChain.name!} 
                         width={20} 
                         height={20} 
                       />
@@ -135,18 +135,18 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {log.selectedTokenAddress === ZERO_ADDRESS ? (
                       // If the token address is the zero address, display "Native Token"
-                      <span>Native Token ({(popularTokens[log.selectedChain.chainId] || []).find(token => token.address === ethers.constants.AddressZero)?.symbol})</span>
+                      <span>Native Token ({(popularTokens[log.selectedChain.id] || []).find(token => token.address === ethers.constants.AddressZero)?.symbol})</span>
                     ) : (
                       // Otherwise, display the token address as a link
                       <Link 
-                        href={`${log.selectedChain.explorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
+                        href={`${log.selectedChain.blockExplorers?.[0]?.url}/address/${log.selectedTokenAddress}`}
                         target="_blank"
                         className="text-blue-500 hover:underline"
                       >
                         {/* Display the token symbol if it's a known token */}
-                        {((popularTokens[log.selectedChain.chainId] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
+                        {((popularTokens[log.selectedChain.id] || []).find(token => token.address === log.selectedTokenAddress)?.symbol || "") && (
                           <span className="mr-1">
-                            ({popularTokens[log.selectedChain.chainId].find(token => token.address === log.selectedTokenAddress)?.symbol})
+                            ({popularTokens[log.selectedChain.id].find(token => token.address === log.selectedTokenAddress)?.symbol})
                           </span>
                         )}
                         {log.selectedTokenAddress}

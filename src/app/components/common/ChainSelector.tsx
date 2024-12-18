@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Chain } from "@thirdweb-dev/chains";
-import { useSwitchChain } from "@thirdweb-dev/react";
+import { Chain } from "thirdweb/chains";
+import { useActiveWallet } from "thirdweb/react";
 import Image from "next/image";
 import { useChainContext } from "../../context/chainContext";
 import { getChains } from "../../utils/contracts";
@@ -25,7 +25,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
   const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown visibility state
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference to the dropdown menu element for click-outside detection
   const chains = getChains();                              // List of available chains
-  const switchChain = useSwitchChain();                    // Hook for switching blockchain networks
+  const wallet = useActiveWallet();
 
   // Determines the active chain, preferring `overrideSelectedChain` if provided
   const selectedChain = overrideSelectedChain || contextSelectedChain;
@@ -41,7 +41,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
   const handleChainChange = async (chain: Chain) => {
     if (useSwitch) {
       try {
-        await switchChain(chain.chainId);  // Attempts network switch if useSwitch is true
+        await wallet?.switchChain(chain);  // Attempts network switch if useSwitch is true
         setSelectedChain(chain);           // Sets the selected chain locally
         setDropdownOpen(false);            // Closes dropdown
         toast.success(`Successfully switched to ${chain.name}.`);
@@ -90,8 +90,8 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
         className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
       >
         <Image 
-          src={`/chains/${formatChainName(selectedChain.name)}.png`} 
-          alt={selectedChain.name} 
+          src={`/chains/${formatChainName(selectedChain.name!)}.png`} 
+          alt={selectedChain.name!} 
           width={20} 
           height={20} 
         />
@@ -103,13 +103,13 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             {chains.map((chain) => (
               <button
-                key={chain.chainId}
+                key={chain.id}
                 onClick={() => handleChainChange(chain)}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
               >
                 <Image 
-                  src={`/chains/${formatChainName(chain.name)}.png`} 
-                  alt={chain.name} 
+                  src={`/chains/${formatChainName(chain.name!)}.png`} 
+                  alt={chain.name!} 
                   width={20} 
                   height={20} 
                 />

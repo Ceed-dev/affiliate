@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
-import { useAddress, useDisconnect } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import { formatAddress } from "../utils/formatUtils";
 
 export default function ProjectsLayout({
@@ -15,8 +15,7 @@ export default function ProjectsLayout({
 }>) {
   const router = useRouter();
   const pathname = usePathname();
-  const address = useAddress();
-  const disconnect = useDisconnect();
+  const wallet = useActiveWallet();
   const [showDisconnect, setShowDisconnect] = useState(false);
   const disconnectButtonRef = useRef<HTMLButtonElement | null>(null);
   const disconnectRef = useRef<HTMLButtonElement | null>(null);
@@ -61,11 +60,11 @@ export default function ProjectsLayout({
   }, []);
 
   useEffect(() => {
-    if (!address) {
+    if (!wallet) {
       router.push("/onboarding");
       toast.info("Please connect your wallet.");
     }
-  }, [address, router]);
+  }, [wallet, router]);
 
   return (
     <div className="min-h-screen md:flex">
@@ -186,15 +185,15 @@ export default function ProjectsLayout({
             height={25}
           />
           <span className="font-semibold text-[#757575]">
-            {address ? formatAddress(address) : "Not connected"}
+            {wallet ? formatAddress(wallet.getAccount()?.address!) : "Not connected"}
           </span>
         </button>
 
         {/* Disconnect button that appears on demand */}
-        {showDisconnect && address && (
+        {showDisconnect && wallet && (
           <button
             onClick={() => {
-              disconnect();
+              wallet.disconnect();
               setShowDisconnect(false);
             }}
             ref={disconnectRef}

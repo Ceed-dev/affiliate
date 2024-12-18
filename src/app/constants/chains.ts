@@ -1,33 +1,42 @@
-import { 
-  Chain, 
-  Polygon, PolygonAmoyTestnet, 
-  Arbitrum, ArbitrumNova, ArbitrumSepolia,
-  Avalanche, AvalancheFuji,
-  Binance, BinanceTestnet,
-  MchVerse,
-  HomeVerse,
-  GesoVerse, GesotenVerseTestnet,
-} from "@thirdweb-dev/chains";
+// ====================== TODO: CUSTOM CHAINS ======================
+// The following custom chains (Binance, BinanceTestnet, MchVerse, HomeVerse, GesoVerse, GesotenVerseTestnet,) 
+// are not included in the new `thirdweb/chains` package by default.
+//
+// To add support for these custom chains, manually define each chain
+// using the `Chain` type from `thirdweb/chains` and provide properties like:
+// - `chainId`
+// - `rpc` (RPC URL)
+// - `nativeCurrency` (name, symbol, decimals)
+// - `explorers` (block explorer URL)
+// - `testnet` (true/false)
+//
+// Once defined, import the custom chains and include them in the 
+// `supportedChains` array of the ThirdwebProvider.
+//
+// Example: 
+// export const binance: Chain = { chainId: 56, rpc: ["https://..."], ... };
+// ===============================================================
+
+import {
+  Chain,
+  polygon, polygonAmoy,
+  arbitrum, arbitrumNova, arbitrumSepolia,
+  avalanche, avalancheFuji,
+} from "thirdweb/chains";
 
 // Production chains for mainnet environments
 export const productionChains: Chain[] = [
-  Polygon,
-  Arbitrum,
-  ArbitrumNova,
-  Avalanche,
-  Binance,
-  MchVerse,
-  HomeVerse,
-  GesoVerse,
+  polygon,
+  arbitrum,
+  arbitrumNova,
+  avalanche,
 ];
 
 // Test chains for testnet environments
 export const testChains: Chain[] = [
-  PolygonAmoyTestnet,
-  ArbitrumSepolia,
-  AvalancheFuji,
-  BinanceTestnet,
-  GesotenVerseTestnet,
+  polygonAmoy,
+  arbitrumSepolia,
+  avalancheFuji,
 ];
 
 // RPC URLs for different chains
