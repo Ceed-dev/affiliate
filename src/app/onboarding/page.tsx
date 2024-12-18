@@ -14,10 +14,22 @@ import { createNewUser, isUserProjectOwner, checkUserExistenceAndShowModal, fetc
 
 import { createThirdwebClient } from "thirdweb";
 import { ConnectButton, useActiveWallet, useActiveWalletChain } from "thirdweb/react";
+import { inAppWallet, createWallet } from "thirdweb/wallets";
 
 const client = createThirdwebClient({
   clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID!,
 });
+
+const wallets = [
+  inAppWallet({
+    auth: {
+      options: ["google", "email"],
+    },
+  }),
+  createWallet("io.metamask"),
+  createWallet("com.coinbase.wallet"),
+  createWallet("me.rainbow"),
+];
 
 export default function Onboarding() {
   const router = useRouter();
@@ -148,13 +160,13 @@ export default function Onboarding() {
         {/* Wallet connection button */}
         <ConnectButton
           client={client}
+          wallets={wallets}
+          theme={"light"}
           appMetadata={{
             name: "Qube",
             url: "https://www.0xqube.xyz",
           }}
-          connectModal={{
-            size: "compact",
-          }}
+          connectModal={{ size: "compact" }}
           onConnect={async (wallet) => {
             try {
               const walletAddress = wallet.getAccount()?.address;
