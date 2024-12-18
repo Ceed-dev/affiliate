@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useAddress } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import L from "leaflet";
 import { GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
@@ -93,7 +93,8 @@ export const WorldHeatmap: React.FC<WorldHeatmapProps> = ({
   minZoom = 2,                   // Default minimum zoom level is 2
   useTestData = false,           // Default is false
 }) => {
-  const address = useAddress();  // Get the current user's address
+  const wallet = useActiveWallet();
+  const address = wallet?.getAccount()?.address;  // Get the current user's address
 
   // Select between test data and provided data
   const actualDataPoints = useTestData ? generateTestData() : dataPoints;

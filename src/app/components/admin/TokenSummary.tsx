@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ethers } from "ethers";
-import { Chain } from "@thirdweb-dev/chains"; // Importing Chain type from thirdweb-dev package
+import { Chain } from "thirdweb/chains";
 import { toast } from "react-toastify"; // Importing toast for notifications
 import { popularTokens } from "../../constants/popularTokens"; // Predefined popular tokens list
 import { formatChainName } from "../../utils/formatUtils"; // Utility to format chain names for image sources
@@ -75,8 +75,8 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
                     >
                       {/* Chain icon */}
                       <Image 
-                        src={`/chains/${formatChainName(tokenSummary[tokenKey].chain.name)}.png`} 
-                        alt={tokenSummary[tokenKey].chain.name} 
+                        src={`/chains/${formatChainName(tokenSummary[tokenKey].chain.name!)}.png`} 
+                        alt={tokenSummary[tokenKey].chain.name!} 
                         width={20} 
                         height={20} 
                       />
@@ -88,19 +88,19 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
                     {tokenKey.startsWith(`${ZERO_ADDRESS}-`) ? (
                       // If tokenKey indicates a native token, show "Native Token" with its symbol
                       <span>
-                        Native Token ({(popularTokens[tokenSummary[tokenKey].chain.chainId] || []).find(token => token.address === ZERO_ADDRESS)?.symbol})
+                        Native Token ({(popularTokens[tokenSummary[tokenKey].chain.id] || []).find(token => token.address === ZERO_ADDRESS)?.symbol})
                       </span>
                     ) : (
                       // Otherwise, display the token address as a link
                       <Link 
-                        href={`${tokenSummary[tokenKey].chain.explorers?.[0]?.url}/address/${tokenKey}`}
+                        href={`${tokenSummary[tokenKey].chain.blockExplorers?.[0]?.url}/address/${tokenKey}`}
                         target="_blank"
                         className="text-blue-500 hover:underline"
                       >
                         {/* Display the token symbol if it's a known token */}
-                        {((popularTokens[tokenSummary[tokenKey].chain.chainId] || []).find(token => token.address === tokenKey)?.symbol || "") && (
+                        {((popularTokens[tokenSummary[tokenKey].chain.id] || []).find(token => token.address === tokenKey)?.symbol || "") && (
                           <span className="mr-1">
-                            ({popularTokens[tokenSummary[tokenKey].chain.chainId].find(token => token.address === tokenKey)?.symbol})
+                            ({popularTokens[tokenSummary[tokenKey].chain.id].find(token => token.address === tokenKey)?.symbol})
                           </span>
                         )}
                         {tokenKey} {/* Token address */}

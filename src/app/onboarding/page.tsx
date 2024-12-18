@@ -6,31 +6,35 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 
-import {
-  ConnectWallet,
-  lightTheme,
-  useAddress,
-  useDisconnect,
-  useNetworkMismatch,
-  useSwitchChain,
-  useChain,
-  WalletInstance,
-} from "@thirdweb-dev/react";
 import { AffiliateInfo } from "../types";
 import { UserAccountSetupModal } from "../components/UserAccountSetupModal";
-import { ChainSelector } from "../components/common";
 import { createNewUser, isUserProjectOwner, checkUserExistenceAndShowModal, fetchUserById } from "../utils/userUtils";
-import { useChainContext } from "../context/chainContext";
+// import { ChainSelector } from "../components/common";
+// import { useChainContext } from "../context/chainContext";
+
+import { createThirdwebClient } from "thirdweb";
+import { ConnectButton, useActiveWallet, useActiveWalletChain } from "thirdweb/react";
+import { inAppWallet, createWallet } from "thirdweb/wallets";
+
+const client = createThirdwebClient({
+  clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID!,
+});
+
+const wallets = [
+  inAppWallet({
+    auth: {
+      options: ["google", "email"],
+    },
+  }),
+  createWallet("io.metamask"),
+  createWallet("com.coinbase.wallet"),
+  createWallet("me.rainbow"),
+];
 
 export default function Onboarding() {
   const router = useRouter();
-  const address = useAddress();
-  const disconnect = useDisconnect();
-  const isMismatched = useNetworkMismatch();
-  const switchChain = useSwitchChain();
-  const chain = useChain();
-  const { selectedChain } = useChainContext();
-
+  const wallet = useActiveWallet();
+  const chain = useActiveWalletChain();
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [disableRoleSelection, setDisableRoleSelection] = useState(false); // Role selection control
   const errorShownRef = useRef(false); // Prevent duplicate error messages
@@ -48,16 +52,17 @@ export default function Onboarding() {
         return;
       }
 
+      // TODO: Fix later
       // Switch to the correct network if mismatched
-      if (isMismatched) {
-        try {
-          await switchChain(selectedChain.chainId);
-        } catch (error) {
-          console.error("Failed to switch network:", error);
-          toast.error("Failed to switch network");
-          return;
-        }
-      }
+      // if (isMismatched) {
+      //   try {
+      //     await switchChain(selectedChain.chainId);
+      //   } catch (error) {
+      //     console.error("Failed to switch network:", error);
+      //     toast.error("Failed to switch network");
+      //     return;
+      //   }
+      // }
 
       // Check if user is a project owner
       const isProjectOwner = await isUserProjectOwner(walletAddress);
@@ -80,7 +85,7 @@ export default function Onboarding() {
             errorShownRef.current = true;
             toast.error("You have not yet been granted permission to use the product.", {
               onClose: () => {
-                disconnect();
+                wallet?.disconnect();
                 errorShownRef.current = false;
               },
             });
@@ -90,42 +95,32 @@ export default function Onboarding() {
     }
   };
 
-  // Trigger user check when address or chain changes
+  // Trigger user check when wallet or chain changes
   useEffect(() => {
-    if (address && chain) {
-      handleUserCheck(address);
+    const walletAddress = wallet?.getAccount()?.address;
+    if (walletAddress && chain) {
+      handleUserCheck(walletAddress);
     }
-  }, [address, chain]);
+  }, [wallet, chain]);
 
   // Save user information
   const handleSaveUserInfo = async (info: AffiliateInfo) => {
-    if (address) {
+    const walletAddress = wallet?.getAccount()?.address;
+    if (walletAddress) {
       try {
-        await createNewUser(address, info);
+        await createNewUser(walletAddress, info);
         setIsModalOpen(false);
         // Automatically checks the user after saving info
-        handleUserCheck(address);
+        handleUserCheck(walletAddress);
       } catch (error) {
         console.error("Failed to save user info: ", error);
         toast.error("Failed to save user info");
-        disconnect();
+        wallet.disconnect();
       }
     } else {
       console.error("Wallet address is not set.");
       toast.error("Unexpected error occurred. Please try again.");
-      disconnect();
-    }
-  };
-
-  // Handle wallet connection and user onboarding
-  const handleOnboarding = async (wallet: WalletInstance) => {
-    const walletAddress = await wallet.getAddress();
-
-    try {
-      await handleUserCheck(walletAddress); // Check user upon wallet connection
-    } catch (error: any) {
-      console.error("Failed to check user: ", error);
-      toast.error(`Failed to check user: ${error.message}`);
+      wallet?.disconnect();
     }
   };
 
@@ -143,7 +138,8 @@ export default function Onboarding() {
           <p className="text-xl font-bold font-corporate">Qube</p>
         </Link>
         <span className="hidden md:block">
-          <ChainSelector />
+          {/* TODO: Fix later */}
+          {/* <ChainSelector /> */}
         </span>
       </div>
 
@@ -162,22 +158,28 @@ export default function Onboarding() {
         <p className="mb-20">Sign in to continue</p>
         
         {/* Wallet connection button */}
-        <ConnectWallet
-          className="text-sm rounded-xl transition duration-300 ease-in-out transform hover:scale-105"
-          theme={lightTheme({
-            colors: {
-              accentButtonBg: "#000000",
-              primaryButtonBg: "#000000",
-              primaryButtonText: "#ffffff",
-            },
-          })}
-          style={{ width: "270px" }}
-          switchToActiveChain={true}
-          btnTitle={"Sign in"}
-          modalTitle={"Log in or Sign up"}
-          modalSize={"compact"}
-          onConnect={handleOnboarding} // Handles the onboarding process after wallet connection
-        />  
+        <ConnectButton
+          client={client}
+          wallets={wallets}
+          theme={"light"}
+          appMetadata={{
+            name: "Qube",
+            url: "https://www.0xqube.xyz",
+          }}
+          connectModal={{ size: "compact" }}
+          onConnect={async (wallet) => {
+            try {
+              const walletAddress = wallet.getAccount()?.address;
+              if (walletAddress) {
+                await handleUserCheck(walletAddress);
+              } else {
+                console.error("Failed to retrieve wallet address");
+              }
+            } catch (error) {
+              console.error("Error during wallet connection:", error);
+            }
+          }}
+        />
       </div>
 
       {/* User account setup modal */}
@@ -185,7 +187,7 @@ export default function Onboarding() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          disconnect();
+          wallet?.disconnect();
         }}
         onSave={handleSaveUserInfo}
         disableRoleSelection={disableRoleSelection}

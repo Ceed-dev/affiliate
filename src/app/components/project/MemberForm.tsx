@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useAddress } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import { isAddress } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 import { getUserRoleAndName } from "../../utils/userUtils";
@@ -14,7 +14,8 @@ export const MemberForm: React.FC<MemberFormProps> = ({
   ownerAddresses,
   handleOwnerChange,
 }) => {
-  const address = useAddress();
+  const wallet = useActiveWallet();
+  const address = wallet?.getAccount()?.address;
   const [newOwnerAddress, setNewOwnerAddress] = useState("");
   const [isCheckingNewOwnerAddress, setIsCheckingNewOwnerAddress] = useState(false);
 
