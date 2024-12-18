@@ -30,19 +30,12 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
   // Determines the active chain, preferring `overrideSelectedChain` if provided
   const selectedChain = overrideSelectedChain || contextSelectedChain;
 
-  // Sets the selected chain in context if not overridden
-  const setSelectedChain = (chain: Chain) => {
-    if (!overrideSelectedChain) {
-      setContextSelectedChain(chain);
-    }
-  };
-
   // Handles chain change based on `useSwitch` prop
   const handleChainChange = async (chain: Chain) => {
     if (useSwitch) {
       try {
         await wallet?.switchChain(chain);  // Attempts network switch if useSwitch is true
-        setSelectedChain(chain);           // Sets the selected chain locally
+        setContextSelectedChain(chain);    // Sets the selected chain locally
         setDropdownOpen(false);            // Closes dropdown
         toast.success(`Successfully switched to ${chain.name}.`);
       } catch (error) {
@@ -50,7 +43,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
         toast.error("Failed to switch network.");
       }
     } else {
-      setSelectedChain(chain);             // Only sets the selected chain locally if useSwitch is false
+      setContextSelectedChain(chain);      // Only sets the selected chain locally if useSwitch is false
       setDropdownOpen(false);
     }
   };
