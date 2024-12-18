@@ -3,10 +3,10 @@
 // React and Next.js Imports
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useAddress } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
+import { Chain } from "thirdweb/chains";
 
 // Libraries and External Utilities
-import { getChainByChainIdAsync } from "@thirdweb-dev/chains";
 import { toast } from "react-toastify";
 
 // Components
@@ -24,6 +24,7 @@ import {
 } from "../../utils/firebase";
 import { fetchProjects } from "../../utils/projectUtils";
 import { joinProject } from "../../utils/userUtils";
+import { getChains } from "../../utils/contracts";
 
 // Date, Copy Utilities and Constants
 import { getNextPaymentDate, getTimeZoneSymbol } from "../../utils/dateUtils";
@@ -49,7 +50,8 @@ import { copyToClipboard } from "../../utils/generalUtils";
  * @returns {JSX.Element} Rendered Affiliate project page.
  */
 export default function Affiliate({ params }: { params: { projectId: string } }) {
-  const address = useAddress();
+  const wallet = useActiveWallet();
+  const address = wallet?.getAccount()?.address;
 
   // ========================= State Variables ===========================
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -117,7 +119,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     if (!projectData?.selectedToken) return;
     const fetchChainNameAsync = async () => {
       try {
-        const chain = await getChainByChainIdAsync(projectData.selectedToken.chainId);
+        const chain = getChains().find((chain) => chain.id === projectData.selectedToken.chainId) as Chain;
         setChainName(chain.name);
       } catch (error) {
         console.error("Failed to get chain name:", error);
