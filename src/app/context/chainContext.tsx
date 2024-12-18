@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Chain } from "@thirdweb-dev/chains";
+import { Chain } from "thirdweb/chains";
 import { getChains } from "../utils/contracts";
 
 // Define the shape of the ChainContext
