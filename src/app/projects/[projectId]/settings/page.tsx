@@ -16,6 +16,7 @@ import {
   BrandResourceForm, 
   MemberForm, 
   RewardForm, 
+  TargetingForm,
   SaveButton,
   DeleteProject,
 } from "../../../components/project";
@@ -93,7 +94,10 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     totalPaidOut: 0,
     lastPaymentDate: null,
     isReferralEnabled: false,
-    conversionPoints: []
+    conversionPoints: [],
+    targeting: {
+      audienceCountries: [],
+    }
   };
 
   // Project data states
@@ -286,6 +290,10 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             handleChange={handleChange}
             selectedChain={selectedChain}
             handleConversionPointToggle={handleConversionPointToggle}
+            isEditing={true}
+          />
+          <TargetingForm
+            selectedCountries={projectData.targeting.audienceCountries}
             isEditing={true}
           />
           <SaveButton 
