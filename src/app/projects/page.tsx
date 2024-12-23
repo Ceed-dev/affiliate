@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useAddress } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import { toast } from "react-toastify";
 import { ProjectData } from "../types";
 import { fetchProjects } from "../utils/projectUtils";
@@ -25,7 +25,7 @@ import { ProjectCard } from "../components/project";
  */
 export default function Projects() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const address = useAddress();
+  const wallet = useActiveWallet();
 
   // State variables
   const [projects, setProjects] = useState<ProjectData[]>([]);
@@ -33,10 +33,10 @@ export default function Projects() {
 
   // Fetch the projects owned by the current user
   useEffect(() => {
-    if (address) {
+    if (wallet) {
       const loadProjects = async () => {
         try {
-          const projectsData = await fetchProjects({ ownerAddress: address });
+          const projectsData = await fetchProjects({ ownerAddress: wallet.getAccount()?.address });
           setProjects(projectsData);
         } catch (error) {
           const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred";
@@ -48,7 +48,7 @@ export default function Projects() {
 
       loadProjects();
     }
-  }, [address]);
+  }, [wallet]);
 
   return (
     <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto mb-10 md:my-20">

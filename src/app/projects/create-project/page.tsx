@@ -65,7 +65,7 @@ export default function CreateProject() {
     projectName: "",
     description: "",
     selectedToken: {
-      chainId: selectedChain.chainId, // Chain ID of the selected blockchain
+      chainId: selectedChain.id, // Chain ID of the selected blockchain
       address: "", // Token address associated with the project
       symbol: "", // Token symbol (default empty)
     },
@@ -192,7 +192,7 @@ export default function CreateProject() {
   const handleSaveProject = async () => {
     await saveProject(
       projectData,               // Object containing all the project's main data fields
-      selectedChain.chainId,     // The ID of the blockchain chain selected for this project
+      selectedChain.id,          // The ID of the blockchain chain selected for this project
       conversionPoints,          // Array of conversion points associated with the project
       isReferralEnabled,         // Boolean indicating if the referral feature is enabled
       socialLinkFormError,       // Error state for social link validation

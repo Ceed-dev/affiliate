@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
-import { useAddress, useDisconnect } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import { formatAddress } from "../utils/formatUtils";
 
 export default function AffiliateLayout({
@@ -14,8 +14,7 @@ export default function AffiliateLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const router = useRouter();
   const pathname = usePathname();
-  const address = useAddress();
-  const disconnect = useDisconnect();
+  const wallet = useActiveWallet();
   const [showDisconnect, setShowDisconnect] = useState(false);
   const disconnectButtonRef = useRef<HTMLButtonElement | null>(null);
   const disconnectRef = useRef<HTMLButtonElement | null>(null);
@@ -46,11 +45,11 @@ export default function AffiliateLayout({
 
   // Redirect to onboarding page if the user is not connected
   useEffect(() => {
-    if (!address) {
+    if (!wallet) {
       router.push("/onboarding");
       toast.info("Please connect your wallet.");
     }
-  }, [address, router]);
+  }, [wallet, router]);
 
   // Check if the current path is the marketplace
   const isMarketplacePath = pathname.endsWith("marketplace");
@@ -126,15 +125,15 @@ export default function AffiliateLayout({
             height={25}
           />
           <span className="font-semibold text-white/60">
-            {address ? formatAddress(address) : "Not connected"}
+            {wallet ? formatAddress(wallet.getAccount()?.address!) : "Not connected"}
           </span>
         </button>
         
         {/* Disconnect button that appears on demand */}
-        {showDisconnect && address && (
+        {showDisconnect && wallet && (
           <button
             onClick={() => {
-              disconnect();
+              wallet.disconnect();
               setShowDisconnect(false);
             }}
             className="absolute bottom-20 text-red-500 text-sm py-2 px-4 z-10 border-2 border-red-900 rounded-md transition duration-300 ease-in-out transform hover:scale-105"

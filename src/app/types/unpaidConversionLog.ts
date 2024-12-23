@@ -1,4 +1,4 @@
-import { Chain } from "@thirdweb-dev/chains";
+import { Chain } from "thirdweb/chains";
 
 export type UnpaidConversionLog = {
   logId: string;

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { useAddress } from "@thirdweb-dev/react";
+import { useActiveWallet } from "thirdweb/react";
 import cloneDeep from "lodash/cloneDeep";
-import { getChainByChainIdAsync, Chain } from "@thirdweb-dev/chains";
+import { Chain } from "thirdweb/chains";
 
 // Types
 import { ProjectData, ImageType, PreviewData } from "../../../types";
@@ -30,6 +30,7 @@ import {
   updateProject,
 } from "../../../utils/projectUtils";
 import { fetchProjects } from "../../../utils/projectUtils";
+import { getChains } from "../../../utils/contracts";
 
 /**
  * Project Settings Page
@@ -68,7 +69,8 @@ export default function Settings({ params }: { params: { projectId: string } }) 
 
   // Temporarily restricting project deletion access to the admin's wallet address.
   // This will likely be reverted to allow general user access in the future.
-  const isAdmin = useAddress() === "0x329980D088Ba66B3d459AE3d396a722437801689";
+  const wallet = useActiveWallet();
+  const isAdmin = wallet?.getAccount()?.address === "0x329980D088Ba66B3d459AE3d396a722437801689";
 
   // Default values for initializing project data
   const defaultProjectData: ProjectData = {
@@ -151,7 +153,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
         });
   
         // Fetch the blockchain chain data for the selected chain ID and set `selectedChain`
-        const chain = await getChainByChainIdAsync(data.selectedToken.chainId);
+        const chain = getChains().find((chain) => chain.id === data.selectedToken.chainId) as Chain;
         setSelectedChain(chain);
       } catch (error) {
         // Capture and display errors that occur during data fetch
