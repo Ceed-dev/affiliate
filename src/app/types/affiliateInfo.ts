@@ -7,6 +7,7 @@ export type AffiliateInfo = {
   email: string;                           // The email address of the affiliate user
   role: UserRole;                          // The role of the user, either "ProjectOwner" or "Affiliate"
   projectUrl?: string;                     // The URL of the project (required if the role is "ProjectOwner")
+  audienceCountry?: string;                // Optional: The country of the affiliate's target audience
   xAuthToken?: XAuthToken;                 // Optional: X authentication token data, if the user has connected an X account
   xAccountInfo?: XAccountInfo;             // Optional: X account information, if the user has connected an X account
   googleAuthToken?: GoogleAuthToken;       // Optional: Google authentication token data, if the user has connected a Google account
