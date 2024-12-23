@@ -11,6 +11,7 @@ import {
   BrandResourceForm, 
   MemberForm, 
   RewardForm, 
+  TargetingForm,
   SaveButton 
 } from "../../components/project";
 
@@ -92,6 +93,11 @@ export default function CreateProject() {
     // Referral and conversion point settings
     isReferralEnabled: false,
     conversionPoints: [],
+
+    // Targeting settings for the project
+    targeting: {
+      audienceCountries: [], // List of countries for audience targeting
+    },
   }); 
 
   // Preview data for displaying project images before upload
@@ -105,6 +111,9 @@ export default function CreateProject() {
 
   // Stores all conversion points added to the project
   const [conversionPoints, setConversionPoints] = useState<ConversionPoint[]>([]);
+
+  // Stores the selected audience countries for the project
+  const [audienceCountries, setAudienceCountries] = useState<string[]>([]);
 
   // Tracks the presence of validation errors in the social links form.
   // - `true` indicates that one or more fields contain errors.
@@ -194,6 +203,7 @@ export default function CreateProject() {
       projectData,               // Object containing all the project's main data fields
       selectedChain.id,          // The ID of the blockchain chain selected for this project
       conversionPoints,          // Array of conversion points associated with the project
+      audienceCountries,         // Array of selected audience countries for targeting
       isReferralEnabled,         // Boolean indicating if the referral feature is enabled
       socialLinkFormError,       // Error state for social link validation
       tokenError,                // Error state for token selection
@@ -238,6 +248,10 @@ export default function CreateProject() {
           handleUpdateConversionPoints={updateConversionPoints}
           setTokenError={setTokenError}
           setRedirectLinkError={setRedirectLinkError}
+        />
+        <TargetingForm
+          selectedCountries={audienceCountries}
+          setSelectedCountries={setAudienceCountries}
         />
         <SaveButton
           onClick={handleSaveProject}
