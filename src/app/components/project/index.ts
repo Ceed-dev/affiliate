@@ -2,6 +2,7 @@ import { GeneralForm } from "./GeneralForm";
 import { BrandResourceForm } from "./BrandResourceForm";
 import { MemberForm } from "./MemberForm";
 import { RewardForm } from "./RewardForm";
+import { TargetingForm } from "./TargetingForm";
 import { SaveButton } from "./SaveButton";
 import { DeleteProject } from "./DeleteProject";
 import { ProjectHeader } from "./ProjectHeader";
@@ -14,6 +15,7 @@ export {
   BrandResourceForm,
   MemberForm,
   RewardForm,
+  TargetingForm,
   SaveButton,
   DeleteProject,
   ProjectHeader,
