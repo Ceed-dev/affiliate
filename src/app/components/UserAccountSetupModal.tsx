@@ -3,10 +3,12 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useActiveWallet } from "thirdweb/react";
+import { Dropdown } from "./common/Dropdown";
 import { AffiliateInfo, UserRole } from "../types";
 import { GoogleAuthToken, YouTubeAccountInfo } from "../types/affiliateInfo";
 import { generateXAuthUrl } from "../utils/xApiUtils";
 import { generateGoogleAuthUrl, getGoogleTokens, getYouTubeAccountInfo } from "../utils/googleApiUtils";
+import { countries } from "../constants/targetingOptions";
 import { API_ENDPOINTS } from "../constants/xApiConstants";
 
 type RoleSelectButtonProps = {
@@ -84,6 +86,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const [email, setEmail] = useState<string>("");            // Stores the user's input for email
   const [role, setRole] = useState<UserRole>("ProjectOwner"); // Manages selected user role
   const [projectUrl, setProjectUrl] = useState<string>("");  // Project URL input for ProjectOwner role
+  const [audienceCountry, setAudienceCountry] = useState<string>(""); // Stores the user's selected country
   const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false); // Enables save button when inputs are valid
 
   // State variables for X API authentication and user data
@@ -108,7 +111,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     if (isOpen) {
       setIsSaveEnabled(validateInputs());  // Function to validate the user inputs
     }
-  }, [username, email, role, projectUrl, xUserData, youtubeUserData, isOpen]);
+  }, [username, email, role, projectUrl, audienceCountry, xUserData, youtubeUserData, isOpen]);
 
   // Loads user input and API data from localStorage
   const loadLocalStorageData = () => {
@@ -116,6 +119,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     setEmail(localStorage.getItem("email") || "");           // Load stored email
     setRole((localStorage.getItem("role") as UserRole) || "ProjectOwner"); // Load user role
     setProjectUrl(localStorage.getItem("projectUrl") || ""); // Load project URL if applicable
+    setAudienceCountry(localStorage.getItem("audienceCountry") || ""); // Load selected country if available
 
     // Load X API authentication token data if available
     const storedXAuthTokenData = localStorage.getItem("xAuthTokenData");
@@ -175,14 +179,19 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     if (isOpen) localStorage.setItem("projectUrl", projectUrl); // Store project URL in localStorage
   }, [projectUrl, isOpen]);
 
-  // Validates user inputs (username, email, role, and project URL)
+  useEffect(() => {
+    if (isOpen) localStorage.setItem("audienceCountry", audienceCountry); // Store audienceCountry in localStorage
+  }, [audienceCountry, isOpen]);  
+
+  // Validates user inputs (username, email, role, project URL, and audienceCountry)
   const validateInputs = () => {
     return (
       validateUsername(username) &&
       validateEmail(email) &&
       validateRole(role) &&
       (role !== "ProjectOwner" || validateUrl(projectUrl)) && // Only validate project URL for ProjectOwner
-      (!isProduction || role !== "Affiliate" || xUserData !== null || youtubeUserData !== null) // Ensure one account is connected for Affiliate, Skip check if not production
+      (!isProduction || role !== "Affiliate" || xUserData !== null || youtubeUserData !== null) && // Ensure one account is connected for Affiliate, Skip check if not production
+      (role !== "Affiliate" || audienceCountry.trim().length > 0) // Ensure country is selected if role is Affiliate
     );
   };
 
@@ -351,6 +360,11 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       userInfo.projectUrl = projectUrl;
     }
 
+    // If the user is an Affiliate, include the selected country
+    if (role === "Affiliate" && audienceCountry) {
+      userInfo.audienceCountry = audienceCountry;
+    }
+
     // If the user connected their X account, include token and account info
     if (xAuthTokenData && xUserData) {
       userInfo.xAuthToken = xAuthTokenData;
@@ -374,6 +388,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
     localStorage.removeItem("email");
     localStorage.removeItem("role");
     localStorage.removeItem("projectUrl");
+    localStorage.removeItem("audienceCountry");
     localStorage.removeItem("xAuthTokenData");
     localStorage.removeItem("xUserData");
     localStorage.removeItem("googleAuthTokenData");
@@ -617,6 +632,21 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Audience Country Select Dropdown Menu */}
+          {role === "Affiliate" && (
+            <div className="space-y-2">
+              <div>
+                <label className="text-sm font-semibold">Country <span className="text-red-500">*</span></label>
+                <p className="text-xs text-black/50">Which country are your audience primarily based in?</p>
+              </div>
+              <Dropdown
+                options={countries}
+                selectedValues={audienceCountry}
+                setSelectedValues={(audienceCountry) => setAudienceCountry(audienceCountry as string)}
+              />
             </div>
           )}
 
