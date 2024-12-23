@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "react-toastify";
-import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp } from "firebase/firestore";
+import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp, Query, CollectionReference, DocumentData } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
@@ -348,9 +348,10 @@ export const saveProject = async (
 export async function fetchProjects(options: {
   projectId?: string; // Fetch a single project by ID
   ownerAddress?: string; // Filter projects by owner address
+  audienceCountry?: string; // Filter projects by audience country
   onEachProject?: (project: ProjectData) => void; // Callback for each project
 } = {}): Promise<ProjectData[]> {
-  const { projectId, ownerAddress, onEachProject } = options;
+  const { projectId, ownerAddress, audienceCountry, onEachProject } = options;
 
   try {
     let querySnapshot;
@@ -366,10 +367,18 @@ export async function fetchProjects(options: {
       }
     } else {
       // Construct the Firestore query
-      const projectCollection = collection(db, "projects");
-      const q = ownerAddress
-        ? query(projectCollection, where("ownerAddresses", "array-contains", ownerAddress))
-        : projectCollection;
+      const projectCollection = collection(db, "projects") as CollectionReference<DocumentData>;
+      let q: Query<DocumentData> = projectCollection;
+
+      // Add ownerAddress filter if provided
+      if (ownerAddress) {
+        q = query(q, where("ownerAddresses", "array-contains", ownerAddress));
+      }
+
+      // Add audienceCountry filter if provided
+      if (audienceCountry) {
+        q = query(q, where("targeting.audienceCountries", "array-contains", audienceCountry));
+      }
 
       querySnapshot = await getDocs(q);
     }
