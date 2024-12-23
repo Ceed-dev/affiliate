@@ -77,6 +77,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
   const searchParams = useSearchParams();  // Used to fetch query parameters from the URL
   const wallet = useActiveWallet();  // Fetch the currently connected wallet
   const walletAddress = wallet?.getAccount()?.address;
+  const isProduction = process.env.NEXT_PUBLIC_ENVIRONMENT === "production";
 
   // State variables for form fields and data management
   const [username, setUsername] = useState<string>("");      // Stores the user's input for username
@@ -181,7 +182,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       validateEmail(email) &&
       validateRole(role) &&
       (role !== "ProjectOwner" || validateUrl(projectUrl)) && // Only validate project URL for ProjectOwner
-      (role !== "Affiliate" || xUserData !== null || youtubeUserData !== null) // Ensure one account is connected for Affiliate
+      (!isProduction || role !== "Affiliate" || xUserData !== null || youtubeUserData !== null) // Ensure one account is connected for Affiliate, Skip check if not production
     );
   };
 
@@ -467,7 +468,14 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
           {/* X, YouTube Connect Button */}
           {role === "Affiliate" && (
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Mainly Used SNS <span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold">
+                Mainly Used SNS
+                {isProduction ? (
+                  <span className="text-red-500"> *</span>
+                ) : (
+                  <p className="text-yellow-500 text-xs">(Not required in staging environment)</p>
+                )}
+              </label>
 
               <div className="flex flex-row gap-3">
 
