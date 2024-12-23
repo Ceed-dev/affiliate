@@ -33,6 +33,9 @@ export async function createNewUser(
 ): Promise<string> {
   const userDocRef = doc(db, "users", walletAddress);
 
+  // Check if the environment is production
+  const isProduction = process.env.NEXT_PUBLIC_ENVIRONMENT === "production";
+
   // Initialize a new user object with required fields and conditional access control
   const newUser: UserData = {
     username: userInfo.username,
@@ -40,8 +43,8 @@ export async function createNewUser(
     role: userInfo.role,
     createdAt: new Date(),
     updatedAt: new Date(),
-    // Allow or deny access based on user role
-    allowed: userInfo.role === "ProjectOwner" ? false : true,
+    // Allow or deny access based on user role and environment
+    allowed: userInfo.role === "ProjectOwner" && isProduction ? false : true,
   };
 
   // Conditionally add additional fields based on user role and available data
