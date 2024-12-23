@@ -235,6 +235,7 @@ export const createRemoveImage = (
  * @param projectData - The project data to be saved.
  * @param selectedChainId - The ID of the selected blockchain chain.
  * @param conversionPoints - An array of conversion points.
+ * @param audienceCountries - Array of selected audience countries.
  * @param isReferralEnabled - Flag indicating if the referral feature is enabled.
  * @param socialLinkFormError - Boolean indicating if there are errors in social links.
  * @param tokenError - Boolean indicating if there are errors in token selection.
@@ -248,6 +249,7 @@ export const saveProject = async (
   projectData: ProjectData,
   selectedChainId: number,
   conversionPoints: ConversionPoint[],
+  audienceCountries: string[],
   isReferralEnabled: boolean,
   socialLinkFormError: boolean,
   tokenError: boolean,
@@ -263,7 +265,8 @@ export const saveProject = async (
     true,
     tokenError,
     conversionPoints,
-    redirectLinkError
+    redirectLinkError,
+    audienceCountries,
   );
 
   if (!isValid) return false;
@@ -282,6 +285,9 @@ export const saveProject = async (
       ...point,
       isActive: index === 0 ? true : point.isActive,
     })),
+    targeting: {
+      audienceCountries,
+    },
   };
 
   const result = await saveNewProjectToFirestore(updatedProjectData);
