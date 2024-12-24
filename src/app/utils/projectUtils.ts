@@ -349,9 +349,10 @@ export async function fetchProjects(options: {
   projectId?: string; // Fetch a single project by ID
   ownerAddress?: string; // Filter projects by owner address
   audienceCountry?: string; // Filter projects by audience country
+  joinedProjectIds?: string[]; // Include these project IDs even if they don't match other filters
   onEachProject?: (project: ProjectData) => void; // Callback for each project
 } = {}): Promise<ProjectData[]> {
-  const { projectId, ownerAddress, audienceCountry, onEachProject } = options;
+  const { projectId, ownerAddress, audienceCountry, joinedProjectIds, onEachProject } = options;
 
   try {
     let querySnapshot;
@@ -384,6 +385,7 @@ export async function fetchProjects(options: {
     }
 
     const projects: ProjectData[] = [];
+    const projectIds = new Set<string>();
 
     const processDoc = (docData: any, docId: string) => {
       const convertTimestamp = (timestamp?: Timestamp | null) => timestamp?.toDate() || null;
@@ -410,8 +412,23 @@ export async function fetchProjects(options: {
         const data = doc.data();
         if (isValidProjectData(data)) {
           projects.push(processDoc(data, doc.id));
+          projectIds.add(doc.id);
         }
       });
+    }
+
+    // Add joinedProjectIds that are not already in the project list
+    if (joinedProjectIds && joinedProjectIds.length > 0) {
+      const missingProjectIds = joinedProjectIds.filter((id) => !projectIds.has(id));
+
+      for (const projectId of missingProjectIds) {
+        const docRef = doc(db, "projects", projectId);
+        const projectDoc = await getDoc(docRef);
+
+        if (projectDoc.exists() && isValidProjectData(projectDoc.data())) {
+          projects.push(processDoc(projectDoc.data(), projectDoc.id));
+        }
+      }
     }
 
     return projects;
