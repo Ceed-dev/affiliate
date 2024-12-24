@@ -39,12 +39,19 @@ export default function Marketplace() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const userData = await fetchUserById(address!);
+        if (!address) {
+          toast.error("Wallet address is not available");
+          return;
+        }
+
+        // Fetch user data
+        const userData = await fetchUserById(address);
         const audienceCountry = userData?.audienceCountry || undefined;
+        const joinedProjectIds = userData?.joinedProjectIds || [];
 
         // Fetch all projects, featured project data, and marketplace banner data
         const [projectsData, featuredProjectData, bannerData] = await Promise.all([
-          fetchProjects({ audienceCountry }),
+          fetchProjects({ audienceCountry, joinedProjectIds }),
           getFeaturedProject(),
           getMarketplaceBanner(),
         ]);
