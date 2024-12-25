@@ -3,21 +3,26 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { Dropdown } from "./components/common/Dropdown";
 import { 
-  navLinks, trustedPartners, calendlyLink, 
-  achievements, clientLogos, 
+  languageOptions, navLinks, trustedPartners, 
+  calendlyLink, achievements, clientLogos, 
   faqs, socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
 
 export default function Home() {
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL as string;
+  const DEFAULT_LANGUAGE = "en"; // Default language
 
-  // Get search parameters from the URL
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   // State to track if the role in query parameter is "affiliate"
   const [isAffiliate, setIsAffiliate] = useState(false);
+
+  // State to track the selected language
+  const [language, setLanguage] = useState("en"); // Default to English
 
   useEffect(() => {
     // Retrieve the "role" parameter from the searchParams
@@ -25,6 +30,48 @@ export default function Home() {
     // Set isAffiliate to true if "role" is "affiliate"
     setIsAffiliate(role === "affiliate");
   }, [searchParams]); // Run effect whenever searchParams changes
+
+  useEffect(() => {
+    // Extract supported languages from languageOptions
+    const supportedLanguages = languageOptions.map(option => option.value);
+  
+    // Retrieve the "lg" parameter from the searchParams
+    const lg = searchParams.get("lg");
+    
+    if (lg && supportedLanguages.includes(lg)) {
+      setLanguage(lg);
+    } else {
+      setLanguage(DEFAULT_LANGUAGE); // Fallback to default language if no valid "lg" parameter is found
+    }
+  }, [searchParams]);
+
+  // Function to handle URL updates for language or role changes
+  const updateQueryParams = (params: { lg?: string; role?: string }) => {
+    const currentParams = new URLSearchParams(searchParams.toString());
+
+    // Update the parameters
+    if (params.lg) currentParams.set("lg", params.lg);
+    if (params.role) currentParams.set("role", params.role);
+
+    // Push the updated URL
+    router.push(`?${currentParams.toString()}`);
+  };
+
+  // Function to handle language change
+  const changeLanguage = (selectedLabel: string) => {
+    // Find the value corresponding to the selected label
+    const selectedOption = languageOptions.find(
+      (option) => option.label === selectedLabel
+    );
+
+    if (!selectedOption) {
+      console.warn(`Language option with label "${selectedLabel}" not found.`);
+      return; // Exit early if the selected label is invalid
+    }
+
+    // Update the language in the URL
+    updateQueryParams({ lg: selectedOption.value });
+  };
 
   const [faqActiveIndex, setFaqActiveIndex] = useState<number | null>(null);
 
@@ -130,12 +177,23 @@ export default function Home() {
               </Link>
             ))}
             {/* Conditionally render an additional link based on isAffiliate */}
-            <Link 
-              href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
-              className="hover:text-gray-500"
+            <button 
+              onClick={() =>
+                updateQueryParams({
+                  role: isAffiliate ? "projectOwner" : "affiliate",
+                  lg: language, // Maintain the current language
+                })
+              }
+              className="hover:text-gray-500 cursor-pointer"
             >
               {isAffiliate ? "Publisher" : "KOL/Guild"}
-            </Link>
+            </button>
+            {/* Language Dropdown */}
+            <Dropdown
+              options={languageOptions.map((option) => option.label)}
+              selectedValues={languageOptions.find((option) => option.value === language)?.label || "English"}
+              setSelectedValues={(value) => changeLanguage(value as string)}
+            />
           </div>
 
           {/* Launch Button */}
@@ -174,13 +232,23 @@ export default function Home() {
                 </Link>
               ))}
               {/* Conditionally render an additional link based on isAffiliate in mobile view */}
-              <Link 
-                href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
-                className="py-2 hover:text-gray-500"
-                onClick={() => setMenuOpen(false)}
+              <button 
+                onClick={() =>
+                  updateQueryParams({
+                    role: isAffiliate ? "projectOwner" : "affiliate",
+                    lg: language, // Maintain the current language
+                  })
+                }
+                className="hover:text-gray-500 cursor-pointer text-left mb-3"
               >
                 {isAffiliate ? "Publisher" : "KOL/Guild"}
-              </Link>
+              </button>
+              {/* Language Dropdown */}
+              <Dropdown
+                options={languageOptions.map((option) => option.label)}
+                selectedValues={languageOptions.find((option) => option.value === language)?.label || "English"}
+                setSelectedValues={(value) => changeLanguage(value as string)}
+              />
             </nav>
           </div>
         )}

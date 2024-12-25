@@ -1,3 +1,9 @@
+// List of language options with labels for display and values for selection
+export const languageOptions = [
+  { label: "English", value: "en" },
+  { label: "日本語", value: "ja" },
+];
+
 // Navigation links used in the main navbar
 export const navLinks = [
   { id: "#", label: "Home" },
