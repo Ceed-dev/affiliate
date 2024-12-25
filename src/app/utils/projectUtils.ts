@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "react-toastify";
-import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp } from "firebase/firestore";
+import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp, Query, CollectionReference, DocumentData } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
@@ -235,6 +235,7 @@ export const createRemoveImage = (
  * @param projectData - The project data to be saved.
  * @param selectedChainId - The ID of the selected blockchain chain.
  * @param conversionPoints - An array of conversion points.
+ * @param audienceCountries - Array of selected audience countries.
  * @param isReferralEnabled - Flag indicating if the referral feature is enabled.
  * @param socialLinkFormError - Boolean indicating if there are errors in social links.
  * @param tokenError - Boolean indicating if there are errors in token selection.
@@ -248,6 +249,7 @@ export const saveProject = async (
   projectData: ProjectData,
   selectedChainId: number,
   conversionPoints: ConversionPoint[],
+  audienceCountries: string[],
   isReferralEnabled: boolean,
   socialLinkFormError: boolean,
   tokenError: boolean,
@@ -263,7 +265,8 @@ export const saveProject = async (
     true,
     tokenError,
     conversionPoints,
-    redirectLinkError
+    redirectLinkError,
+    audienceCountries,
   );
 
   if (!isValid) return false;
@@ -282,6 +285,9 @@ export const saveProject = async (
       ...point,
       isActive: index === 0 ? true : point.isActive,
     })),
+    targeting: {
+      audienceCountries,
+    },
   };
 
   const result = await saveNewProjectToFirestore(updatedProjectData);
@@ -342,9 +348,11 @@ export const saveProject = async (
 export async function fetchProjects(options: {
   projectId?: string; // Fetch a single project by ID
   ownerAddress?: string; // Filter projects by owner address
+  audienceCountry?: string; // Filter projects by audience country
+  joinedProjectIds?: string[]; // Include these project IDs even if they don't match other filters
   onEachProject?: (project: ProjectData) => void; // Callback for each project
 } = {}): Promise<ProjectData[]> {
-  const { projectId, ownerAddress, onEachProject } = options;
+  const { projectId, ownerAddress, audienceCountry, joinedProjectIds, onEachProject } = options;
 
   try {
     let querySnapshot;
@@ -360,15 +368,24 @@ export async function fetchProjects(options: {
       }
     } else {
       // Construct the Firestore query
-      const projectCollection = collection(db, "projects");
-      const q = ownerAddress
-        ? query(projectCollection, where("ownerAddresses", "array-contains", ownerAddress))
-        : projectCollection;
+      const projectCollection = collection(db, "projects") as CollectionReference<DocumentData>;
+      let q: Query<DocumentData> = projectCollection;
+
+      // Add ownerAddress filter if provided
+      if (ownerAddress) {
+        q = query(q, where("ownerAddresses", "array-contains", ownerAddress));
+      }
+
+      // Add audienceCountry filter if provided
+      if (audienceCountry) {
+        q = query(q, where("targeting.audienceCountries", "array-contains", audienceCountry));
+      }
 
       querySnapshot = await getDocs(q);
     }
 
     const projects: ProjectData[] = [];
+    const projectIds = new Set<string>();
 
     const processDoc = (docData: any, docId: string) => {
       const convertTimestamp = (timestamp?: Timestamp | null) => timestamp?.toDate() || null;
@@ -395,8 +412,23 @@ export async function fetchProjects(options: {
         const data = doc.data();
         if (isValidProjectData(data)) {
           projects.push(processDoc(data, doc.id));
+          projectIds.add(doc.id);
         }
       });
+    }
+
+    // Add joinedProjectIds that are not already in the project list
+    if (joinedProjectIds && joinedProjectIds.length > 0) {
+      const missingProjectIds = joinedProjectIds.filter((id) => !projectIds.has(id));
+
+      for (const projectId of missingProjectIds) {
+        const docRef = doc(db, "projects", projectId);
+        const projectDoc = await getDoc(docRef);
+
+        if (projectDoc.exists() && isValidProjectData(projectDoc.data())) {
+          projects.push(processDoc(projectDoc.data(), projectDoc.id));
+        }
+      }
     }
 
     return projects;

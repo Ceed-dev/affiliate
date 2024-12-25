@@ -4,7 +4,9 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useActiveWallet } from "thirdweb/react";
 import { ProjectData } from "../../types";
+import { fetchUserById } from "../../utils/userUtils";
 import { fetchProjects } from "../../utils/projectUtils";
 import { ProjectCard } from "../../components/project";
 import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
@@ -24,6 +26,8 @@ import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSetting
  */
 export default function Marketplace() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const wallet = useActiveWallet();
+  const address = wallet?.getAccount()?.address;
   
   // State variables
   const [projects, setProjects] = useState<ProjectData[]>([]);
@@ -35,9 +39,19 @@ export default function Marketplace() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
+        if (!address) {
+          toast.error("Wallet address is not available");
+          return;
+        }
+
+        // Fetch user data
+        const userData = await fetchUserById(address);
+        const audienceCountry = userData?.audienceCountry || undefined;
+        const joinedProjectIds = userData?.joinedProjectIds || [];
+
         // Fetch all projects, featured project data, and marketplace banner data
         const [projectsData, featuredProjectData, bannerData] = await Promise.all([
-          fetchProjects(),
+          fetchProjects({ audienceCountry, joinedProjectIds }),
           getFeaturedProject(),
           getMarketplaceBanner(),
         ]);

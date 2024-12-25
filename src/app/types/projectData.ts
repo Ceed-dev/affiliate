@@ -52,6 +52,9 @@ export type ProjectData = {
   lastPaymentDate: Date | null; // Date of the last payment made
   isReferralEnabled: boolean; // Indicates if the referral feature is enabled for the project
   conversionPoints: ConversionPoint[]; // List of conversion points for the project
+  targeting: {
+    audienceCountries: string[]; // Array of country names for audience targeting
+  };
   // ==============================================
   // DO NOT DELETE THIS!!
   // Purpose: This comment preserves the reference to the embed images feature, allowing us to track where related code existed.

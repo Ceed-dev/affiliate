@@ -54,6 +54,9 @@ export async function createNewUser(
   
   if (userInfo.role === "Affiliate") {
     newUser.joinedProjectIds = [];
+    if (userInfo.audienceCountry) {
+      newUser.audienceCountry = userInfo.audienceCountry;
+    }
   }
 
   // Optionally add X and Google Auth token data if provided
