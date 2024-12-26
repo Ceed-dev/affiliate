@@ -186,24 +186,57 @@ export const socialMediaLinks = [
   { src: "/brand-assets/telegram-white.png", alt: "Telegram", url: "https://t.me/qubexyz", size: 25 },
 ];
 
-// Footer links categorized under "Company" and "Help"
-export const footerLinks = {
-  "Company": [
-    { url: "#", label: "Home" },
-    // Keeping about link commented out for future use
-    // { url: "https://qube2-succery.vercel.app/corporate", label: "About" },
-    { url: "https://docs.google.com/forms/d/1csWLltBq0j3ddaiDv5W3iAndu2v5YZ1QfTQpULWIUP8/prefill", label: "Contact" },
-    { url: "#", label: "Career (Coming Soon)" },
-  ],
-  "Help": [
-    { url: `${calendlyLink}`, label: "Book Demo" },
+export const footerTaglines = {
+  en: `
+    <p>
+      The strongest growth driver for your<br />game.<br />
+      Launch Campaign and Acquire<br />targeted users.
+    </p>
+  `,
+  ja: `
+    <p>
+      ゲームの成長を最大限に引き出す力。<br />
+      キャンペーンを立ち上げ、<br />
+      ターゲットユーザーを獲得しましょう。
+    </p>
+  `,
+};
+
+export const footerContent = {
+  en: [
     {
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/terms-and-conditions`,
-      label: "Terms and Conditions",
+      category: "Company",
+      links: [
+        { label: "Home", url: "#" },
+        { label: "Contact", url: "https://docs.google.com/forms/d/1csWLltBq0j3ddaiDv5W3iAndu2v5YZ1QfTQpULWIUP8/prefill" },
+        { label: "Career (Coming Soon)", url: "#" },
+      ],
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy`,
-      label: "Privacy Policy",
+      category: "Help",
+      links: [
+        { label: "Book Demo", url: calendlyLink },
+        { label: "Terms and Conditions", url: `${process.env.NEXT_PUBLIC_BASE_URL}/terms-and-conditions` },
+        { label: "Privacy Policy", url: `${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy` },
+      ],
+    },
+  ],
+  ja: [
+    {
+      category: "会社情報",
+      links: [
+        { label: "ホーム", url: "#" },
+        { label: "お問い合わせ", url: "https://docs.google.com/forms/d/1csWLltBq0j3ddaiDv5W3iAndu2v5YZ1QfTQpULWIUP8/prefill" },
+        { label: "採用情報（近日公開）", url: "#" },
+      ],
+    },
+    {
+      category: "ヘルプ",
+      links: [
+        { label: "デモ予約", url: calendlyLink },
+        { label: "利用規約", url: `${process.env.NEXT_PUBLIC_BASE_URL}/terms-and-conditions` },
+        { label: "プライバシーポリシー", url: `${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy` },
+      ],
     },
   ],
 };
