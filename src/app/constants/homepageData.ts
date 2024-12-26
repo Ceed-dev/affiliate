@@ -47,6 +47,12 @@ export const homepageContent: HomepageContent = {
         description: "Get an opportunity to work with the best games in this industry now.",
         image: "/assets/homepage/image-4.png",
       },
+      about2: {
+        title1: "Turn your influence ",
+        title2: "into revenue",
+        description: "Have you built a thriving community without knowing how to generate income? We're here to support you!",
+        image: "/assets/homepage/image-5.png",
+      },
     },
     projectOwner: {
       hero: {
@@ -62,6 +68,12 @@ export const homepageContent: HomepageContent = {
         title3: "Amplify your reach",
         description: "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth.",
         image: "/assets/homepage/image-1.png",
+      },
+      about2: {
+        title1: "Pay Only for ",
+        title2: "Measurable Results",
+        description: "Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes.",
+        image: "/assets/homepage/image-2.png",
       },
     },
   },
