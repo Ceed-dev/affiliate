@@ -350,27 +350,18 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate
-                ? "Turn your influence "
-                : "Pay Only for "
-              }
+              {content.about2.title1}
               <br className="hidden lg:block" />
-              {isAffiliate
-                ? "into revenue"
-                : "Measurable Results"
-              }
+              {content.about2.title2}
             </h1>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Have you built a thriving community without knowing how to generate income? We're here to support you!"
-                : "Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes."
-              }
+              {content.about2.description}
             </p>
           </div>
           {/* Image */}
           <Image
-            src={`/assets/homepage/image-${isAffiliate ? "5" : "2"}.png`}
-            alt={`Image ${isAffiliate ? "5" : "2"}`}
+            src={content.about2.image}
+            alt={content.about2.image}
             width={600}
             height={600}
             quality={100}
