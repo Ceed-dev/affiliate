@@ -131,10 +131,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
       {/* Dropdown options */}
       {isOpen && (
         <ul
-          className={`absolute z-10 w-full bg-white border border-[#D9D9D9] rounded-lg shadow-md max-h-48 overflow-y-auto ${
+          className={`absolute z-10 w-full text-black bg-white border border-[#D9D9D9] rounded-lg shadow-md max-h-48 overflow-y-auto ${
             direction === "up" ? "bottom-full mb-2" : "top-full mt-2"
           }`}
-          style={{ maxHeight: `${maxHeight}px`, overflowY: "auto" }}
+          style={{
+            maxHeight: `${maxHeight}px`,
+            overflowY: "auto",
+            minWidth: "120px",
+          }}
         >
           {/* "All" option for multiple selection */}
           {allowMultiple && (
@@ -177,6 +181,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               className={`p-2 text-sm cursor-pointer hover:bg-gray-100 flex items-center gap-2 ${
                 isSelected(option) ? "bg-gray-200 font-bold" : ""
               }`}
+              style={{ whiteSpace: "nowrap" }}
             >
               <span
                 className={`w-4 h-4 border-2 rounded flex items-center justify-center ${

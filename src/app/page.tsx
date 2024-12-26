@@ -3,21 +3,26 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { Dropdown } from "./components/common/Dropdown";
 import { 
-  navLinks, trustedPartners, calendlyLink, 
-  achievements, clientLogos, 
-  faqs, socialMediaLinks, footerLinks,
+  languageOptions, navLinks, homepageContent, 
+  trustedPartners, calendlyLink, clientLogos, 
+  socialMediaLinks, footerTaglines, footerContent,
 } from "./constants/homepageData";
 
 export default function Home() {
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL as string;
+  const DEFAULT_LANGUAGE = "en"; // Default language
 
-  // Get search parameters from the URL
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   // State to track if the role in query parameter is "affiliate"
   const [isAffiliate, setIsAffiliate] = useState(false);
+
+  // State to track the selected language
+  const [language, setLanguage] = useState("en"); // Default to English
 
   useEffect(() => {
     // Retrieve the "role" parameter from the searchParams
@@ -25,6 +30,56 @@ export default function Home() {
     // Set isAffiliate to true if "role" is "affiliate"
     setIsAffiliate(role === "affiliate");
   }, [searchParams]); // Run effect whenever searchParams changes
+
+  useEffect(() => {
+    // Extract supported languages from languageOptions
+    const supportedLanguages = languageOptions.map(option => option.value);
+  
+    // Retrieve the "lg" parameter from the searchParams
+    const lg = searchParams.get("lg");
+    
+    if (lg && supportedLanguages.includes(lg)) {
+      setLanguage(lg);
+    } else {
+      setLanguage(DEFAULT_LANGUAGE); // Fallback to default language if no valid "lg" parameter is found
+    }
+  }, [searchParams]);
+
+  // Function to handle URL updates for language or role changes
+  const updateQueryParams = (params: { lg?: string; role?: string }) => {
+    const currentParams = new URLSearchParams(searchParams.toString());
+
+    // Update the parameters
+    if (params.lg) currentParams.set("lg", params.lg);
+    if (params.role) currentParams.set("role", params.role);
+
+    // Push the updated URL
+    router.push(`?${currentParams.toString()}`);
+  };
+
+  // Function to handle language change
+  const changeLanguage = (selectedLabel: string) => {
+    // Find the value corresponding to the selected label
+    const selectedOption = languageOptions.find(
+      (option) => option.label === selectedLabel
+    );
+
+    if (!selectedOption) {
+      console.warn(`Language option with label "${selectedLabel}" not found.`);
+      return; // Exit early if the selected label is invalid
+    }
+
+    // Update the language in the URL
+    updateQueryParams({ lg: selectedOption.value });
+  };
+
+  // Determine the role key based on the `isAffiliate` state.
+  // This key will be used to fetch the appropriate content from the homepageContent object.
+  const roleKey = isAffiliate ? "affiliate" : "projectOwner";
+
+  // Retrieve the content for the current language and role key.
+  // If the content for the selected language is not found, fallback to the English version for "projectOwner".
+  const content = homepageContent[language]?.[roleKey] ?? homepageContent["en"][roleKey];
 
   const [faqActiveIndex, setFaqActiveIndex] = useState<number | null>(null);
 
@@ -130,12 +185,23 @@ export default function Home() {
               </Link>
             ))}
             {/* Conditionally render an additional link based on isAffiliate */}
-            <Link 
-              href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
-              className="hover:text-gray-500"
+            <button 
+              onClick={() =>
+                updateQueryParams({
+                  role: isAffiliate ? "projectOwner" : "affiliate",
+                  lg: language, // Maintain the current language
+                })
+              }
+              className="hover:text-gray-500 cursor-pointer"
             >
               {isAffiliate ? "Publisher" : "KOL/Guild"}
-            </Link>
+            </button>
+            {/* Language Dropdown */}
+            <Dropdown
+              options={languageOptions.map((option) => option.label)}
+              selectedValues={languageOptions.find((option) => option.value === language)?.label || "English"}
+              setSelectedValues={(value) => changeLanguage(value as string)}
+            />
           </div>
 
           {/* Launch Button */}
@@ -174,13 +240,23 @@ export default function Home() {
                 </Link>
               ))}
               {/* Conditionally render an additional link based on isAffiliate in mobile view */}
-              <Link 
-                href={isAffiliate ? BASE_URL : `${BASE_URL}?role=affiliate`}
-                className="py-2 hover:text-gray-500"
-                onClick={() => setMenuOpen(false)}
+              <button 
+                onClick={() =>
+                  updateQueryParams({
+                    role: isAffiliate ? "projectOwner" : "affiliate",
+                    lg: language, // Maintain the current language
+                  })
+                }
+                className="hover:text-gray-500 cursor-pointer text-left mb-3"
               >
                 {isAffiliate ? "Publisher" : "KOL/Guild"}
-              </Link>
+              </button>
+              {/* Language Dropdown */}
+              <Dropdown
+                options={languageOptions.map((option) => option.label)}
+                selectedValues={languageOptions.find((option) => option.value === language)?.label || "English"}
+                setSelectedValues={(value) => changeLanguage(value as string)}
+              />
             </nav>
           </div>
         )}
@@ -194,7 +270,7 @@ export default function Home() {
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
               <span className="relative inline-block">
-                {isAffiliate ? "Ready to Amplify" : "Drive Acquisition,"}
+                {content.hero.titleLine1}
                 {/* Underline Image */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
                   <img
@@ -204,25 +280,16 @@ export default function Home() {
                   />
                 </div>
               </span>
-              {isAffiliate ? " Your Influence ?" : " Amplify Revenue"}
+              {content.hero.titleLine2}
             </h1>
             <h2 className="text-lg md:text-3xl mb-5">
-              {isAffiliate
-                ? "Elevate your influence and connect with impactful audiences"
-                : "Ready to Grow with a Network that Rewards Results?"
-              }
+              {content.hero.subtitle}
             </h2>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Collaborate with Qube to access a powerful network for gaming brands."
-                : "Our network connects you with gaming influencers and guilds across Asia,"
-              }
+              {content.hero.descriptionLine1}
               <br className="hidden md:block" />
               <span className="ml-1 md:ml-0">
-                {isAffiliate
-                  ? "Amplify your reach and strengthen your presence in the Web3 world."
-                  : "enabling large-scale audience reach and conversion."
-                }
+                {content.hero.descriptionLine2}
               </span>
             </p>
           </div>
@@ -253,27 +320,24 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate ? "Connect with " : "Build Partnerships"}
+              {content.about1.title1}
               <br className="hidden lg:block" />
               {!isAffiliate && (
                 <>
-                  <span className="mx-2 lg:mx-0">that</span>
+                  <span className="mx-2 lg:mx-0">{content.about1.title2}</span>
                   <br className="hidden lg:block" />
                 </>
               )}
-              {isAffiliate ? "the top web3 games" : "Amplify your reach"}
+              {content.about1.title3}
             </h1>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Get an opportunity to work with the best games in this industry now."
-                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth."
-              }
+              {content.about1.description}
             </p>
           </div>
           {/* Image */}
           <Image
-            src={`/assets/homepage/image-${isAffiliate ? "4" : "1"}.png`}
-            alt={`Image ${isAffiliate ? "4" : "1"}`}
+            src={content.about1.image}
+            alt={content.about1.image}
             width={600}
             height={600}
             quality={100}
@@ -286,27 +350,18 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate
-                ? "Turn your influence "
-                : "Pay Only for "
-              }
+              {content.about2.title1}
               <br className="hidden lg:block" />
-              {isAffiliate
-                ? "into revenue"
-                : "Measurable Results"
-              }
+              {content.about2.title2}
             </h1>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Have you built a thriving community without knowing how to generate income? We're here to support you!"
-                : "Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes."
-              }
+              {content.about2.description}
             </p>
           </div>
           {/* Image */}
           <Image
-            src={`/assets/homepage/image-${isAffiliate ? "5" : "2"}.png`}
-            alt={`Image ${isAffiliate ? "5" : "2"}`}
+            src={content.about2.image}
+            alt={content.about2.image}
             width={600}
             height={600}
             quality={100}
@@ -319,27 +374,18 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate
-                ? "Track Your Impact "
-                : "Access Campaign "
-              }
+              {content.about3.title1}
               <br className="hidden lg:block" />
-              {isAffiliate
-                ? "with Qube Analytics"
-                : "Analytics & Reporting"
-              }
+              {content.about3.title2}
             </h1>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Track engagement, reach, and conversions to measure success and optimize future strategies. Make data-driven decisions to maximize your community's impact."
-                : "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth."
-              }
+              {content.about3.description}
             </p>
           </div>
           {/* Image */}
           <Image
-            src={`/assets/homepage/image-${isAffiliate ? "6" : "3"}.png`}
-            alt={`Image ${isAffiliate ? "6" : "3"}`}
+            src={content.about3.image}
+            alt={content.about3.image}
             width={600}
             height={600}
             quality={100}
@@ -349,10 +395,12 @@ export default function Home() {
 
         {/* Achievements */}
         <section id="achievements" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Achievements</h1>
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">
+            {content.achievements.title}
+          </h1>
           {/* Achievement Cards */}
           <div className="flex flex-col lg:flex-row gap-12 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
-            {achievements.map((achievement, index) => (
+            {content.achievements.items.map((achievement: { count: string; label: string }, index: number) => (
               <div key={index} className="bg-white rounded-lg py-5 lg:px-5 xl:px-10 flex-1">
                 <p className="mb-5">{achievement.count}</p>
                 <p>{achievement.label}</p>
@@ -363,7 +411,9 @@ export default function Home() {
 
         {/* Our Clients */}
         <section id="clients" className="pt-28 pb-20">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Our Clients</h1>
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">
+            {content.clients.title}
+          </h1>
           {/* Client Logo Auto Scroll */}
           <div className="overflow-x-auto" ref={scrollRef}>
             <div className="flex items-center justify-start space-x-6 px-6">
@@ -397,12 +447,11 @@ export default function Home() {
         <section id="faq" className="pt-28 pb-20 w-11/12 lg:w-2/3 mx-auto">
           {/* Toggle Title */}
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">
-            <span className="block md:hidden">FAQ</span>
-            <span className="hidden md:block">Frequently Asked Questions</span>
+            {content.faq.title}
           </h1>
           {/* Q&As */}
           <div className="p-10 md:px-20">
-            {faqs.map((faq, index) => (
+            {content.faq.items.map((faq: { question: string; answer: string }, index: number) => (
               <div key={index} className="mb-5">
                 <div
                   className="cursor-pointer text-md lg:text-lg xl:text-2xl flex flex-row justify-between font-semibold"
@@ -431,10 +480,10 @@ export default function Home() {
 
         {/* Contact Us */}
         <section className="md:hidden w-11/12 mx-auto rounded-md text-center font-bold text-3xl bg-lime-300 text-black p-10">
-          <p>Let&apos;s grab some<br />time and explore!</p>
+          <p dangerouslySetInnerHTML={{ __html: content.contactUs.message }}></p>
           <Link href={calendlyLink} target="_blank">
             <button className="text-white text-xl bg-black rounded-lg shadow-md w-full py-4 mt-10">
-              Contact Us
+              {content.contactUs.buttonLabel}
             </button>
           </Link>
         </section>
@@ -475,16 +524,16 @@ export default function Home() {
                 </Link>
               ))}
             </div>
-            <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
+            <p dangerouslySetInnerHTML={{ __html: footerTaglines[language as "en" | "ja"] }} />
           </div>
           {/* Other Links */}
           <div className="flex flex-row gap-10 md:gap-16 lg:gap-28">
-            {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category} className="flex flex-col gap-5">
-                <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
-                {links.map(link => (
+            {footerContent[language as "en" | "ja"]?.map((category, index) => (
+              <div key={index} className="flex flex-col gap-5">
+                <h3 className="font-bold text-lime-300 text-xl">{category.category}</h3>
+                {category.links.map((link, linkIndex) => (
                   <Link
-                    key={link.label}
+                    key={linkIndex}
                     href={link.url}
                     target="_blank"
                     className="hover:text-slate-400"
