@@ -374,27 +374,18 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate
-                ? "Track Your Impact "
-                : "Access Campaign "
-              }
+              {content.about3.title1}
               <br className="hidden lg:block" />
-              {isAffiliate
-                ? "with Qube Analytics"
-                : "Analytics & Reporting"
-              }
+              {content.about3.title2}
             </h1>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Track engagement, reach, and conversions to measure success and optimize future strategies. Make data-driven decisions to maximize your community's impact."
-                : "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth."
-              }
+              {content.about3.description}
             </p>
           </div>
           {/* Image */}
           <Image
-            src={`/assets/homepage/image-${isAffiliate ? "6" : "3"}.png`}
-            alt={`Image ${isAffiliate ? "6" : "3"}`}
+            src={content.about3.image}
+            alt={content.about3.image}
             width={600}
             height={600}
             quality={100}
