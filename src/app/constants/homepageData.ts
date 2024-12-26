@@ -67,6 +67,9 @@ export const homepageContent: HomepageContent = {
           { count: "11,000+", label: "Onboarding Users" },
         ],
       },
+      clients: {
+        title: "Our Clients",
+      },
     },
     projectOwner: {
       hero: {
@@ -102,6 +105,9 @@ export const homepageContent: HomepageContent = {
           { count: "2,000,000+", label: "Gamers Reach" },
           { count: "11,000+", label: "Onboarding Users" },
         ],
+      },
+      clients: {
+        title: "Our Clients",
       },
     },
   },

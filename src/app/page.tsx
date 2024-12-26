@@ -411,7 +411,9 @@ export default function Home() {
 
         {/* Our Clients */}
         <section id="clients" className="pt-28 pb-20">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">Our Clients</h1>
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">
+            {content.clients.title}
+          </h1>
           {/* Client Logo Auto Scroll */}
           <div className="overflow-x-auto" ref={scrollRef}>
             <div className="flex items-center justify-start space-x-6 px-6">
