@@ -9,7 +9,7 @@ import { Dropdown } from "./components/common/Dropdown";
 import { 
   languageOptions, navLinks, homepageContent, 
   trustedPartners, calendlyLink, clientLogos, 
-  socialMediaLinks, footerLinks,
+  socialMediaLinks, footerTaglines, footerContent,
 } from "./constants/homepageData";
 
 export default function Home() {
@@ -524,16 +524,16 @@ export default function Home() {
                 </Link>
               ))}
             </div>
-            <p>The strongest growth driver for your<br />game.<br />Launch Campaign and Acquire<br />targeted users.</p>
+            <p dangerouslySetInnerHTML={{ __html: footerTaglines[language as "en" | "ja"] }} />
           </div>
           {/* Other Links */}
           <div className="flex flex-row gap-10 md:gap-16 lg:gap-28">
-            {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category} className="flex flex-col gap-5">
-                <h3 className="font-bold text-lime-300 text-xl">{category}</h3>
-                {links.map(link => (
+            {footerContent[language as "en" | "ja"]?.map((category, index) => (
+              <div key={index} className="flex flex-col gap-5">
+                <h3 className="font-bold text-lime-300 text-xl">{category.category}</h3>
+                {category.links.map((link, linkIndex) => (
                   <Link
-                    key={link.label}
+                    key={linkIndex}
                     href={link.url}
                     target="_blank"
                     className="hover:text-slate-400"
