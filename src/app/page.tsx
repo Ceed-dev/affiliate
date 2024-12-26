@@ -9,7 +9,7 @@ import { Dropdown } from "./components/common/Dropdown";
 import { 
   languageOptions, navLinks, homepageContent, 
   trustedPartners, calendlyLink, clientLogos, 
-  faqs, socialMediaLinks, footerLinks,
+  socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
 
 export default function Home() {
@@ -447,12 +447,11 @@ export default function Home() {
         <section id="faq" className="pt-28 pb-20 w-11/12 lg:w-2/3 mx-auto">
           {/* Toggle Title */}
           <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10 text-center">
-            <span className="block md:hidden">FAQ</span>
-            <span className="hidden md:block">Frequently Asked Questions</span>
+            {content.faq.title}
           </h1>
           {/* Q&As */}
           <div className="p-10 md:px-20">
-            {faqs.map((faq, index) => (
+            {content.faq.items.map((faq: { question: string; answer: string }, index: number) => (
               <div key={index} className="mb-5">
                 <div
                   className="cursor-pointer text-md lg:text-lg xl:text-2xl flex flex-row justify-between font-semibold"
