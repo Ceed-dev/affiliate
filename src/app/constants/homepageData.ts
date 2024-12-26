@@ -70,6 +70,23 @@ export const homepageContent: HomepageContent = {
       clients: {
         title: "Our Clients",
       },
+      faq: {
+        title: "Frequently Asked Questions",
+        items: [
+          {
+            question: "Can I run customized affiliate campaigns?",
+            answer: "Absolutely. You can customize the affiliate campaigns based on your goals, target audience, and reward structures. Launch an unique affiliate campaign only for your project and maximize the output.",
+          },
+          {
+            question: "What kind of support do you provide?",
+            answer: "We are here to support you with the entire process. We will help you from planning the campaign to execution including technical support.",
+          },
+          {
+            question: "How are affiliate payouts handled?",
+            answer: "Our platform supports secure payouts in both fiat and cryptocurrencies. Affiliates can choose their payout method, with all transactions recorded on the blockchain for transparency.",
+          },
+        ],
+      },
     },
     projectOwner: {
       hero: {
@@ -109,6 +126,23 @@ export const homepageContent: HomepageContent = {
       clients: {
         title: "Our Clients",
       },
+      faq: {
+        title: "Frequently Asked Questions",
+        items: [
+          {
+            question: "Can I run customized affiliate campaigns?",
+            answer: "Absolutely. You can customize the affiliate campaigns based on your goals, target audience, and reward structures. Launch an unique affiliate campaign only for your project and maximize the output.",
+          },
+          {
+            question: "What kind of support do you provide?",
+            answer: "We are here to support you with the entire process. We will help you from planning the campaign to execution including technical support.",
+          },
+          {
+            question: "How are affiliate payouts handled?",
+            answer: "Our platform supports secure payouts in both fiat and cryptocurrencies. Affiliates can choose their payout method, with all transactions recorded on the blockchain for transparency.",
+          },
+        ],
+      },
     },
   },
 };
@@ -135,22 +169,6 @@ export const clientLogos = [
   "/brand-assets/champions-tcg.png",
   "/brand-assets/buddy-arena.png",
   "/brand-assets/chain-colosseum-phoenix.png",
-];
-
-// Frequently Asked Questions (FAQ) section content
-export const faqs = [
-  {
-    question: "Can I run customized affiliate campaigns?",
-    answer: "Absolutely. You can customize the affiliate campaigns based on your goals, target audience, and reward structures. Launch an unique affiliate campaign only for your project and maximize the output.",
-  },
-  {
-    question: "What kind of support do you provide?",
-    answer: "We are here to support you with the entire process. We will help you from planning the campaign to execution including technical support.",
-  },
-  {
-    question: "How are affiliate payouts handled?",
-    answer: "Our platform supports secure payouts in both fiat and cryptocurrencies. Affiliates can choose their payout method, with all transactions recorded on the blockchain for transparency.",
-  },
 ];
 
 // Social media links for the footer or other sections
