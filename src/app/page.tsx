@@ -7,7 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Dropdown } from "./components/common/Dropdown";
 import { 
-  languageOptions, navLinks, trustedPartners, 
+  languageOptions, navLinks, homepageContent, trustedPartners, 
   calendlyLink, achievements, clientLogos, 
   faqs, socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
@@ -72,6 +72,14 @@ export default function Home() {
     // Update the language in the URL
     updateQueryParams({ lg: selectedOption.value });
   };
+
+  // Determine the role key based on the `isAffiliate` state.
+  // This key will be used to fetch the appropriate content from the homepageContent object.
+  const roleKey = isAffiliate ? "affiliate" : "projectOwner";
+
+  // Retrieve the content for the current language and role key.
+  // If the content for the selected language is not found, fallback to the English version for "projectOwner".
+  const content = homepageContent[language]?.[roleKey] ?? homepageContent["en"][roleKey];
 
   const [faqActiveIndex, setFaqActiveIndex] = useState<number | null>(null);
 
@@ -262,7 +270,7 @@ export default function Home() {
           <div className="text-center">
             <h1 className="text-2xl md:text-5xl font-bold mb-6 md:mb-10 relative">
               <span className="relative inline-block">
-                {isAffiliate ? "Ready to Amplify" : "Drive Acquisition,"}
+                {content.hero.titleLine1}
                 {/* Underline Image */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
                   <img
@@ -272,25 +280,16 @@ export default function Home() {
                   />
                 </div>
               </span>
-              {isAffiliate ? " Your Influence ?" : " Amplify Revenue"}
+              {content.hero.titleLine2}
             </h1>
             <h2 className="text-lg md:text-3xl mb-5">
-              {isAffiliate
-                ? "Elevate your influence and connect with impactful audiences"
-                : "Ready to Grow with a Network that Rewards Results?"
-              }
+              {content.hero.subtitle}
             </h2>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Collaborate with Qube to access a powerful network for gaming brands."
-                : "Our network connects you with gaming influencers and guilds across Asia,"
-              }
+              {content.hero.descriptionLine1}
               <br className="hidden md:block" />
               <span className="ml-1 md:ml-0">
-                {isAffiliate
-                  ? "Amplify your reach and strengthen your presence in the Web3 world."
-                  : "enabling large-scale audience reach and conversion."
-                }
+                {content.hero.descriptionLine2}
               </span>
             </p>
           </div>
