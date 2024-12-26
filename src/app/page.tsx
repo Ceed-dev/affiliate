@@ -480,10 +480,10 @@ export default function Home() {
 
         {/* Contact Us */}
         <section className="md:hidden w-11/12 mx-auto rounded-md text-center font-bold text-3xl bg-lime-300 text-black p-10">
-          <p>Let&apos;s grab some<br />time and explore!</p>
+          <p dangerouslySetInnerHTML={{ __html: content.contactUs.message }}></p>
           <Link href={calendlyLink} target="_blank">
             <button className="text-white text-xl bg-black rounded-lg shadow-md w-full py-4 mt-10">
-              Contact Us
+              {content.contactUs.buttonLabel}
             </button>
           </Link>
         </section>

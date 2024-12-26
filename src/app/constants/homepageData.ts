@@ -87,6 +87,10 @@ export const homepageContent: HomepageContent = {
           },
         ],
       },
+      contactUs: {
+        message: "Let&apos;s grab some<br />time and explore!",
+        buttonLabel: "Contact Us",
+      },
     },
     projectOwner: {
       hero: {
@@ -142,6 +146,10 @@ export const homepageContent: HomepageContent = {
             answer: "Our platform supports secure payouts in both fiat and cryptocurrencies. Affiliates can choose their payout method, with all transactions recorded on the blockchain for transparency.",
           },
         ],
+      },
+      contactUs: {
+        message: "Let&apos;s grab some<br />time and explore!",
+        buttonLabel: "Contact Us",
       },
     },
   },
