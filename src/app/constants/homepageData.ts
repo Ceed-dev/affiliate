@@ -13,6 +13,46 @@ export const navLinks = [
   { id: "#faq", label: "FAQ" },
 ];
 
+// Define the structure for role-specific content.
+// This allows dynamic content management for different user roles.
+type RoleContent = Record<string, any>;
+
+// Define the structure for the homepage content.
+// It supports multilingual data (language) and role-specific content (affiliate, projectOwner).
+type HomepageContent = {
+  [language: string]: {
+    affiliate: RoleContent;
+    projectOwner: RoleContent;
+  };
+};
+
+// Homepage content data structure
+// - Supports multiple languages (e.g., "en", "ja").
+// - Includes role-specific sections for "affiliate" and "projectOwner".
+// - Each role has a set of sections, such as "hero".
+export const homepageContent: HomepageContent = {
+  en: {
+    affiliate: {
+      hero: {
+        titleLine1: "Ready to Amplify",
+        titleLine2: "Your Influence?",
+        subtitle: "Elevate your influence and connect with impactful audiences",
+        descriptionLine1: "Collaborate with Qube to access a powerful network for gaming brands.",
+        descriptionLine2: "Amplify your reach and strengthen your presence in the Web3 world.",
+      },
+    },
+    projectOwner: {
+      hero: {
+        titleLine1: "Drive Acquisition,",
+        titleLine2: "Amplify Revenue",
+        subtitle: "Ready to Grow with a Network that Rewards Results?",
+        descriptionLine1: "Our network connects you with gaming influencers and guilds across Asia,",
+        descriptionLine2: "enabling large-scale audience reach and conversion.",
+      },
+    },
+  },
+};
+
 // List of trusted partners and their logos
 export const trustedPartners = [
   { logoUrl: "/brand-assets/double-jump-tokyo.png", name: "doublejump.tokyo" },
