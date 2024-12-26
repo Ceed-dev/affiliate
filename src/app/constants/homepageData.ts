@@ -40,6 +40,13 @@ export const homepageContent: HomepageContent = {
         descriptionLine1: "Collaborate with Qube to access a powerful network for gaming brands.",
         descriptionLine2: "Amplify your reach and strengthen your presence in the Web3 world.",
       },
+      about1: {
+        title1: "Connect with ",
+        title2: "",
+        title3: "the top web3 games",
+        description: "Get an opportunity to work with the best games in this industry now.",
+        image: "/assets/homepage/image-4.png",
+      },
     },
     projectOwner: {
       hero: {
@@ -48,6 +55,13 @@ export const homepageContent: HomepageContent = {
         subtitle: "Ready to Grow with a Network that Rewards Results?",
         descriptionLine1: "Our network connects you with gaming influencers and guilds across Asia,",
         descriptionLine2: "enabling large-scale audience reach and conversion.",
+      },
+      about1: {
+        title1: "Build Partnerships",
+        title2: "that",
+        title3: "Amplify your reach",
+        description: "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth.",
+        image: "/assets/homepage/image-1.png",
       },
     },
   },

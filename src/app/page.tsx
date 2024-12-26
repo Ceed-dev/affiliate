@@ -320,27 +320,24 @@ export default function Home() {
           {/* Text */}
           <div className="flex-1 text-center lg:text-start">
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold mb-5 lg:mb-10">
-              {isAffiliate ? "Connect with " : "Build Partnerships"}
+              {content.about1.title1}
               <br className="hidden lg:block" />
               {!isAffiliate && (
                 <>
-                  <span className="mx-2 lg:mx-0">that</span>
+                  <span className="mx-2 lg:mx-0">{content.about1.title2}</span>
                   <br className="hidden lg:block" />
                 </>
               )}
-              {isAffiliate ? "the top web3 games" : "Amplify your reach"}
+              {content.about1.title3}
             </h1>
             <p className="text-md md:text-xl">
-              {isAffiliate
-                ? "Get an opportunity to work with the best games in this industry now."
-                : "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth."
-              }
+              {content.about1.description}
             </p>
           </div>
           {/* Image */}
           <Image
-            src={`/assets/homepage/image-${isAffiliate ? "4" : "1"}.png`}
-            alt={`Image ${isAffiliate ? "4" : "1"}`}
+            src={content.about1.image}
+            alt={content.about1.image}
             width={600}
             height={600}
             quality={100}
