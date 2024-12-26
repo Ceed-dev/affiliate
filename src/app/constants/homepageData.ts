@@ -53,6 +53,12 @@ export const homepageContent: HomepageContent = {
         description: "Have you built a thriving community without knowing how to generate income? We're here to support you!",
         image: "/assets/homepage/image-5.png",
       },
+      about3: {
+        title1: "Track Your Impact ",
+        title2: "with Qube Analytics",
+        description: "Track engagement, reach, and conversions to measure success and optimize future strategies. Make data-driven decisions to maximize your community's impact.",
+        image: "/assets/homepage/image-6.png",
+      },
     },
     projectOwner: {
       hero: {
@@ -74,6 +80,12 @@ export const homepageContent: HomepageContent = {
         title2: "Measurable Results",
         description: "Benefit from a performance-based model where you only pay for successful conversions and measurable outcomes.",
         image: "/assets/homepage/image-2.png",
+      },
+      about3: {
+        title1: "Access Campaign ",
+        title2: "Analytics & Reporting",
+        description: "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth.",
+        image: "/assets/homepage/image-3.png",
       },
     },
   },
