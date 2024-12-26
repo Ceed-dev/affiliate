@@ -59,6 +59,14 @@ export const homepageContent: HomepageContent = {
         description: "Track engagement, reach, and conversions to measure success and optimize future strategies. Make data-driven decisions to maximize your community's impact.",
         image: "/assets/homepage/image-6.png",
       },
+      achievements: {
+        title: "Achievements",
+        items: [
+          { count: "3,000+", label: "Registered Affiliates" },
+          { count: "2,000,000+", label: "Gamers Reach" },
+          { count: "11,000+", label: "Onboarding Users" },
+        ],
+      },
     },
     projectOwner: {
       hero: {
@@ -87,6 +95,14 @@ export const homepageContent: HomepageContent = {
         description: "Identify best KOL/Guild/Community with audiences aligned to enhance your game growth.",
         image: "/assets/homepage/image-3.png",
       },
+      achievements: {
+        title: "Achievements",
+        items: [
+          { count: "3,000+", label: "Registered Affiliates" },
+          { count: "2,000,000+", label: "Gamers Reach" },
+          { count: "11,000+", label: "Onboarding Users" },
+        ],
+      },
     },
   },
 };
@@ -102,13 +118,6 @@ export const trustedPartners = [
 
 // Calendly link used for scheduling meetings
 export const calendlyLink = "https://calendly.com/badhan998877/badhan-meeting";
-
-// Achievements to display in the "Achievements" section
-export const achievements = [
-  { count: "3,000+", label: "Registered Affiliates" },
-  { count: "2,000,000+", label: "Gamers Reach" },
-  { count: "11,000+", label: "Onboarding Users" },
-];
 
 // Client logos to display in the "Our Clients" section
 export const clientLogos = [

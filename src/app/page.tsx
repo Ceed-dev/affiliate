@@ -7,8 +7,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Dropdown } from "./components/common/Dropdown";
 import { 
-  languageOptions, navLinks, homepageContent, trustedPartners, 
-  calendlyLink, achievements, clientLogos, 
+  languageOptions, navLinks, homepageContent, 
+  trustedPartners, calendlyLink, clientLogos, 
   faqs, socialMediaLinks, footerLinks,
 } from "./constants/homepageData";
 
@@ -395,10 +395,12 @@ export default function Home() {
 
         {/* Achievements */}
         <section id="achievements" className="pt-28 pb-20 px-10 lg:px-0 lg:w-11/12 lg:mx-auto text-center">
-          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">Achievements</h1>
+          <h1 className="text-2xl md:text-5xl font-bold mb-5 lg:mb-10">
+            {content.achievements.title}
+          </h1>
           {/* Achievement Cards */}
           <div className="flex flex-col lg:flex-row gap-12 px-5 py-14 rounded-lg justify-around bg-lime-400 text-black font-bold text-lg md:text-3xl">
-            {achievements.map((achievement, index) => (
+            {content.achievements.items.map((achievement: { count: string; label: string }, index: number) => (
               <div key={index} className="bg-white rounded-lg py-5 lg:px-5 xl:px-10 flex-1">
                 <p className="mb-5">{achievement.count}</p>
                 <p>{achievement.label}</p>
