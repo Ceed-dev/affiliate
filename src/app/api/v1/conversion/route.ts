@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: Check the request rate limit for the API key.
-    if (!checkRateLimit(apiKey)) {
+    if (!checkRateLimit(apiKey, "cv")) {
       const response = NextResponse.json(
         {
           error: {
