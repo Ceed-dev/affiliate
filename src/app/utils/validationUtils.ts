@@ -310,47 +310,42 @@ export const applySecurityHeaders = (response: NextResponse) => {
   response.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self';");
 };
 
-// Rate limiter configuration
-const rateLimiter = new LRUCache<string, number>({
-  max: 1000, // Maximum number of cache entries (supports up to 1000 unique API keys)
-  ttl: 60 * 60 * 1000, // Cache expiration time (1 hour in milliseconds)
-  allowStale: false, // Do not allow stale (expired) entries to be used
+// Rate limiter configuration for Conversion API
+const cvRateLimiter = new LRUCache<string, number>({
+  max: 1000, // Maximum number of unique API keys tracked
+  ttl: 60 * 60 * 1000, // 1 hour in milliseconds
+  allowStale: false,
+});
+
+// Rate limiter configuration for Click API
+const clickRateLimiter = new LRUCache<string, number>({
+  max: 1000, // Maximum number of unique referralIds/IPs tracked
+  ttl: 60 * 1000, // 1 minute in milliseconds
+  allowStale: false,
 });
 
 /**
- * Checks if the provided API key has exceeded the rate limit.
- * This function ensures that each API key can only make a limited
- * number of requests (300 requests per hour in this implementation).
+ * General rate limit check function for different APIs.
  * 
- * How it works:
- * - Retrieves the current request count for the given API key.
- * - If the count exceeds or equals the limit (300), it returns `false`
- *   indicating that the request should be rejected.
- * - Otherwise, it increments the count for the API key, resets its TTL,
- *   and returns `true` to allow the request.
- * 
- * Why use `LRUCache`:
- * - Efficient in-memory storage to track API key usage.
- * - Automatically evicts the least recently used entries when the `max`
- *   limit is reached.
- * - Ensures that outdated entries (older than 1 hour) are not used
- *   for rate-limiting decisions.
-
- * @param apiKey - The API key to check.
+ * @param key - The unique identifier (API key for Conversion, `<referralId>-<IP>` for Click).
+ * @param type - The type of action ("cv" for Conversion API or "click" for Click API).
  * @returns {boolean} - Returns `true` if the request is allowed, `false` otherwise.
  */
-export function checkRateLimit(apiKey: string): boolean {
-  // Retrieve the current request count for the API key, defaulting to 0
-  const currentCount = rateLimiter.get(apiKey) || 0;
+export function checkRateLimit(key: string, type: "cv" | "click"): boolean {
+  // Select the appropriate rate limiter and limit
+  const rateLimiter = type === "cv" ? cvRateLimiter : clickRateLimiter;
+  const limit = type === "cv" ? 300 : 10;
 
-  // If the request count exceeds the limit (300 requests/hour), reject the request
-  if (currentCount >= 300) {
+  // Retrieve the current request count for the key
+  const currentCount = rateLimiter.get(key) || 0;
+
+  // Check if the request count exceeds the limit
+  if (currentCount >= limit) {
     return false; // Rate limit exceeded
   }
 
   // Increment the request count and update the cache
-  rateLimiter.set(apiKey, currentCount + 1);
+  rateLimiter.set(key, currentCount + 1);
 
-  // Allow the request
-  return true;
+  return true; // Allow the request
 }
