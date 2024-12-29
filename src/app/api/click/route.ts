@@ -5,6 +5,7 @@ import {
 } from "../../utils/firebase";
 import { fetchProjects } from "../../utils/projectUtils";
 import { fetchLocationData } from "../../utils/countryUtils";
+import { checkRateLimit } from "../../utils/validationUtils";
 import { ClickData } from "../../types";
 
 /**
@@ -78,8 +79,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Step 4: If location data is valid, log the click data
-    if (locationData?.country_name) {
+    // Step 4: Rate limit check
+    const clickKey = `${referralId}-${ip}`;
+    const isRateLimitAllowed = checkRateLimit(clickKey, "click");
+
+    // Step 5: If location data is valid, log the click data
+    if (isRateLimitAllowed && locationData?.country_name) {
       const clickData: ClickData = {
         timestamp: new Date(),
         ip: ip,
@@ -92,15 +97,20 @@ export async function GET(request: NextRequest) {
       await logClickData(referralId, clickData);
     }
 
-    // Step 5: If a target URL is provided, skip project data retrieval and redirect
+    // Step 6: If a target URL is provided, skip project data retrieval and redirect
     if (targetUrl) {
       const decodedTargetUrl = decodeURIComponent(targetUrl);
       const url = new URL(decodedTargetUrl);
-      url.searchParams.append("r", referralId);
+
+      // Add referralId only if rate limit is allowed
+      if (isRateLimitAllowed) {
+        url.searchParams.append("r", referralId);
+      }
+
       return NextResponse.redirect(url.toString(), 302);
     }
 
-    // Step 6: Fetch referral data using the referral ID
+    // Step 7: Fetch referral data using the referral ID
     const referralData = await fetchReferralData(referralId);
     if (!referralData) {
       return NextResponse.json(
@@ -109,7 +119,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Step 7: Fetch project data using the projectId from referralData
+    // Step 8: Fetch project data using the projectId from referralData
     const projectDataArray = await fetchProjects({ projectId: referralData.projectId });
 
     if (!projectDataArray || projectDataArray.length === 0) {
@@ -121,9 +131,13 @@ export async function GET(request: NextRequest) {
 
     const projectData = projectDataArray[0]; // Retrieve the first project data
 
-    // Step 8: Redirect the user to the project's redirect URL with the referral ID as a query parameter
+    // Step 9: Redirect the user to the project's redirect URL with the referral ID as a query parameter
     const url = new URL(projectData.redirectUrl);
-    url.searchParams.append("r", referralId);
+
+    // Add referralId only if rate limit is allowed
+    if (isRateLimitAllowed) {
+      url.searchParams.append("r", referralId);
+    }
 
     return NextResponse.redirect(url.toString(), 302);
 
