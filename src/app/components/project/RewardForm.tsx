@@ -308,7 +308,9 @@ export const RewardForm: React.FC<RewardFormProps> = ({
   // Validate redirect URL
   const handleRedirectUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const url = event.target.value;
-    const isValid = (() => {
+
+    // Validate URL format
+    const isValidUrl = (() => {
       try {
         new URL(url);
         return true;
@@ -317,7 +319,23 @@ export const RewardForm: React.FC<RewardFormProps> = ({
       }
     })();
 
-    setRedirectUrlError(isValid ? "" : "Invalid redirect URL.");
+    // Validate Telegram Mini App link format
+    const isTelegramValid = url.startsWith("https://t.me/") 
+      ? /^https:\/\/t\.me\/[a-zA-Z0-9_]+\/[a-zA-Z0-9_]+$/.test(url) 
+      : true;
+
+    // Combine both validations
+    const isValid = isValidUrl && isTelegramValid;
+
+    // Update error state and propagate changes
+    if (!isValidUrl) {
+      setRedirectUrlError("Invalid redirect URL.");
+    } else if (!isTelegramValid) {
+      setRedirectUrlError("Invalid Telegram Mini App link format. Use: https://t.me/botusername/appname");
+    } else {
+      setRedirectUrlError("");
+    }
+
     setRedirectLinkError?.(!isValid);
     handleChange("redirectUrl")(event);
   };
