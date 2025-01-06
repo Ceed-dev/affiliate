@@ -308,7 +308,9 @@ export const RewardForm: React.FC<RewardFormProps> = ({
   // Validate redirect URL
   const handleRedirectUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const url = event.target.value;
-    const isValid = (() => {
+
+    // Validate URL format
+    const isValidUrl = (() => {
       try {
         new URL(url);
         return true;
@@ -317,7 +319,23 @@ export const RewardForm: React.FC<RewardFormProps> = ({
       }
     })();
 
-    setRedirectUrlError(isValid ? "" : "Invalid redirect URL.");
+    // Validate Telegram Mini App link format
+    const isTelegramValid = url.startsWith("https://t.me/") 
+      ? /^https:\/\/t\.me\/[a-zA-Z0-9_]+\/[a-zA-Z0-9_]+$/.test(url) 
+      : true;
+
+    // Combine both validations
+    const isValid = isValidUrl && isTelegramValid;
+
+    // Update error state and propagate changes
+    if (!isValidUrl) {
+      setRedirectUrlError("Invalid redirect URL.");
+    } else if (!isTelegramValid) {
+      setRedirectUrlError("Invalid Telegram Mini App link format. Use: https://t.me/botusername/appname");
+    } else {
+      setRedirectUrlError("");
+    }
+
     setRedirectLinkError?.(!isValid);
     handleChange("redirectUrl")(event);
   };
@@ -871,6 +889,22 @@ export const RewardForm: React.FC<RewardFormProps> = ({
               placeholder="Enter the redirect URL"
             />
           </div>
+
+          {redirectUrl.startsWith("https://t.me/") && (
+            <p className="text-blue-500 text-sm mt-2">
+              The entered URL matches the Telegram Mini App link format. For Telegram Mini Apps, please use the following format:
+              <span className="block font-medium">https://t.me/botusername/appname</span>
+              For more details, check the 
+              <a
+                href="https://core.telegram.org/bots/webapps#direct-link-mini-apps"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 underline ml-1"
+              >
+                official documentation
+              </a>.
+            </p>
+          )}
 
           {/* Error message display for invalid URLs */}
           {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
