@@ -58,7 +58,14 @@ export async function GET(request: NextRequest) {
         if (targetUrl) {
           const decodedTargetUrl = decodeURIComponent(targetUrl);
           const url = new URL(decodedTargetUrl);
-          url.searchParams.append("r", referralId);
+
+          // Add the appropriate parameter based on the link type
+          if (decodedTargetUrl.startsWith("https://t.me/")) {
+            url.searchParams.append("startapp", referralId); // Telegram Mini App link
+          } else {
+            url.searchParams.append("r", referralId); // Standard link
+          }
+          
           return NextResponse.redirect(url.toString(), 302);
         }
       }
@@ -74,7 +81,14 @@ export async function GET(request: NextRequest) {
       if (targetUrl) {
         const decodedTargetUrl = decodeURIComponent(targetUrl);
         const url = new URL(decodedTargetUrl);
-        url.searchParams.append("r", referralId);
+
+        // Add the appropriate parameter based on the link type
+        if (decodedTargetUrl.startsWith("https://t.me/")) {
+          url.searchParams.append("startapp", referralId); // Telegram Mini App link
+        } else {
+          url.searchParams.append("r", referralId); // Standard link
+        }
+
         return NextResponse.redirect(url.toString(), 302);
       }
     }
@@ -104,7 +118,12 @@ export async function GET(request: NextRequest) {
 
       // Add referralId only if rate limit is allowed
       if (isRateLimitAllowed) {
-        url.searchParams.append("r", referralId);
+        // Add the appropriate parameter based on the link type
+        if (decodedTargetUrl.startsWith("https://t.me/")) {
+          url.searchParams.append("startapp", referralId); // Telegram Mini App link
+        } else {
+          url.searchParams.append("r", referralId); // Standard link
+        }
       }
 
       return NextResponse.redirect(url.toString(), 302);
@@ -136,7 +155,11 @@ export async function GET(request: NextRequest) {
 
     // Add referralId only if rate limit is allowed
     if (isRateLimitAllowed) {
-      url.searchParams.append("r", referralId);
+      if (projectData.redirectUrl.startsWith("https://t.me/")) {
+        url.searchParams.append("startapp", referralId); // Telegram Mini App link
+      } else {
+        url.searchParams.append("r", referralId); // Standard link
+      }
     }
 
     return NextResponse.redirect(url.toString(), 302);
