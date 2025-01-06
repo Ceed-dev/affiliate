@@ -872,6 +872,22 @@ export const RewardForm: React.FC<RewardFormProps> = ({
             />
           </div>
 
+          {redirectUrl.startsWith("https://t.me/") && (
+            <p className="text-blue-500 text-sm mt-2">
+              The entered URL matches the Telegram Mini App link format. For Telegram Mini Apps, please use the following format:
+              <span className="block font-medium">https://t.me/botusername/appname</span>
+              For more details, check the 
+              <a
+                href="https://core.telegram.org/bots/webapps#direct-link-mini-apps"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 underline ml-1"
+              >
+                official documentation
+              </a>.
+            </p>
+          )}
+
           {/* Error message display for invalid URLs */}
           {redirectUrlError && <p className="text-red-500 text-xs mt-1">{redirectUrlError}</p>}
         </div>
