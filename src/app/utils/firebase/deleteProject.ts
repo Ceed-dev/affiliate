@@ -1,6 +1,6 @@
 import { ref, listAll, deleteObject, getStorage } from "firebase/storage";
 import { db } from "./firebaseConfig";
-import { collection, doc, getDocs, query, where, runTransaction } from "firebase/firestore";
+import { collection, doc, getDocs, query, where, runTransaction, deleteDoc, DocumentReference, CollectionReference } from "firebase/firestore";
 import { logErrorToFirestore } from "./logErrorToFirestore";
 
 const storage = getStorage();
@@ -22,6 +22,50 @@ const deleteAllFilesInFolder = async (folderPath: string) => {
   }
 };
 
+/**
+ * Recursively deletes all subcollections for a given document.
+ * 
+ * @param docRef - Reference to the document whose subcollections are to be deleted.
+ * @param subcollectionNames - An array of subcollection names to delete (e.g., `['clicks', 'conversionLogs']`).
+ */
+const deleteSubcollectionsRecursively = async (
+  docRef: DocumentReference,
+  subcollectionNames: string[]
+) => {
+  for (const subcollectionName of subcollectionNames) {
+    const subcollectionRef: CollectionReference = collection(docRef, subcollectionName);
+    const subDocsSnapshot = await getDocs(subcollectionRef);
+
+    for (const subDoc of subDocsSnapshot.docs) {
+      // Recursively call this function if nested subcollections exist (optional)
+      await deleteDoc(subDoc.ref);
+    }
+  }
+};
+
+/**
+ * Deletes referral documents and their subcollections for a given project ID.
+ * 
+ * @param projectId - The ID of the project whose referrals and subcollections should be deleted.
+ */
+const deleteReferralsAndSubcollections = async (projectId: string) => {
+  const referralQuery = query(collection(db, "referrals"), where("projectId", "==", projectId));
+  const referralSnapshot = await getDocs(referralQuery);
+
+  for (const referralDoc of referralSnapshot.docs) {
+    // Define the subcollections to delete (e.g., clicks and conversionLogs)
+    const subcollectionsToDelete = ["clicks", "conversionLogs", "paymentTransactions", "tweets", "youtubeVideos"];
+
+    // Delete subcollections for each referral document
+    await deleteSubcollectionsRecursively(referralDoc.ref, subcollectionsToDelete);
+
+    // Delete the referral document itself
+    await deleteDoc(referralDoc.ref);
+  }
+
+  console.log(`Referrals and related subcollections for project ${projectId} deleted successfully.`);
+};
+
 // Project deletion function (including storage deletion)
 export const deleteProjectFromFirebase = async (projectId: string) => {
   try {
@@ -36,15 +80,7 @@ export const deleteProjectFromFirebase = async (projectId: string) => {
       transaction.delete(apiKeyDocRef);
       console.log(`API Key for project ${projectId} marked for deletion in apiKeys collection.`);
 
-      // Step 3: Remove the referral link from the referrals collection
-      const referralQuery = query(collection(db, "referrals"), where("projectId", "==", projectId));
-      const referralSnapshot = await getDocs(referralQuery);
-      referralSnapshot.forEach((doc) => {
-        transaction.delete(doc.ref);
-      });
-      console.log(`Referrals related to project ${projectId} marked for deletion.`);
-
-      // Step 4: Remove the corresponding project ID from joinedProjectIds for each user in the users collection.
+      // Step 3: Remove the corresponding project ID from joinedProjectIds for each user in the users collection.
       const userSnapshot = await getDocs(collection(db, "users"));
       userSnapshot.forEach((userDoc) => {
         const userData = userDoc.data();
@@ -55,6 +91,9 @@ export const deleteProjectFromFirebase = async (projectId: string) => {
       });
       console.log(`Project ${projectId} removed from joinedProjectIds in users collection.`);
     });
+
+    // Step 4: Delete referrals and related subcollections
+    await deleteReferralsAndSubcollections(projectId);
 
     // Step 5: Delete the images for the project from Firebase Storage
     const projectImagesPath = `projectImages/${projectId}`;
