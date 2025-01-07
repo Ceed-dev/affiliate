@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "react-toastify";
-import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp, Query, CollectionReference, DocumentData } from "firebase/firestore";
+import { doc, collection, getDoc, getDocs, setDoc, updateDoc, query, where, Timestamp, Query, CollectionReference, DocumentData } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
@@ -549,5 +549,23 @@ export const fetchProjectVisibility = async (projectId: string): Promise<boolean
   } catch (error) {
     console.error("Error fetching project visibility:", error);
     throw error;
+  }
+};
+
+/**
+ * Updates the visibility of a project on the marketplace.
+ *
+ * @param projectId - The ID of the project to update.
+ * @param isVisible - The new visibility state to set (true for visible, false for hidden).
+ * @returns {Promise<void>} - Resolves when the update is successful, rejects with an error otherwise.
+ */
+export const updateProjectVisibility = async (projectId: string, isVisible: boolean): Promise<void> => {
+  try {
+    const projectDocRef = doc(db, "projects", projectId);
+    await updateDoc(projectDocRef, { isVisibleOnMarketplace: isVisible });
+    console.log(`Project ${projectId} visibility updated to: ${isVisible ? "Visible" : "Hidden"}`);
+  } catch (error) {
+    console.error(`Error updating visibility for project ${projectId}:`, error);
+    throw new Error("Failed to update project visibility.");
   }
 };

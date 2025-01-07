@@ -15,7 +15,7 @@ import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/
 
 // Utility Functions
 import { getApiKeyData } from "../../utils/firebase";
-import { fetchProjectVisibility } from "../../utils/projectUtils";
+import { fetchProjectVisibility, updateProjectVisibility } from "../../utils/projectUtils";
 import { fetchReferralPerformanceByProjectId } from "../../utils/referralUtils";
 import { copyToClipboard } from "../../utils/generalUtils";
 import { useWindowSize } from "../../hooks/useWindowSize";
@@ -179,10 +179,14 @@ export default function Dashboard({ params }: { params: { projectId: string } })
             {/* Toggle Button */}
             <ToggleButton
               isOn={projectVisibility}
-              onToggle={(value) => {
-                setProjectVisibility(value);
-                console.log(`Project visibility set to: ${value ? "Visible" : "Hidden"}`);
-                // Call a function to update the visibility state in the database
+              onToggle={async (value) => {
+                try {
+                  await updateProjectVisibility(params.projectId, value);
+                  setProjectVisibility(value);
+                  toast.info(`Project visibility set to: ${value ? "Visible" : "Hidden"}`);
+                } catch (error: any) {
+                  toast.error("Failed to update project visibility:", error);
+                }
               }}
             />
           </div>
