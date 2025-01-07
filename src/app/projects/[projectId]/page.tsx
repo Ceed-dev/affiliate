@@ -15,6 +15,7 @@ import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/
 
 // Utility Functions
 import { getApiKeyData } from "../../utils/firebase";
+import { fetchProjectVisibility } from "../../utils/projectUtils";
 import { fetchReferralPerformanceByProjectId } from "../../utils/referralUtils";
 import { copyToClipboard } from "../../utils/generalUtils";
 import { useWindowSize } from "../../hooks/useWindowSize";
@@ -94,6 +95,35 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
     fetchApiKey();
   }, [params.projectId]);
+
+  useEffect(() => {
+    /**
+     * Fetches the visibility state of the project from Firestore
+     * and updates the `projectVisibility` state.
+     * 
+     * This function ensures the visibility state is properly
+     * retrieved and applied to the toggle button, allowing
+     * users to adjust the visibility as needed.
+     */
+    const fetchVisibility = async () => {
+      try {
+        // Fetch the project's visibility state from Firestore
+        const visibility = await fetchProjectVisibility(params.projectId);
+  
+        // Update the local state with the retrieved visibility value
+        setProjectVisibility(visibility);
+  
+        console.log(`Fetched project visibility: ${visibility ? "Visible" : "Hidden"}`);
+      } catch (error) {
+        // Log and display an error message if fetching fails
+        console.error("Failed to fetch project visibility:", error);
+        toast.error("Failed to fetch project visibility.");
+      }
+    };
+  
+    // Call the function to fetch visibility state when component mounts
+    fetchVisibility();
+  }, [params.projectId]);  
 
   return (
     <div className="min-h-screen space-y-5 md:space-y-10 px-4 md:px-10 lg:px-20 pb-10 md:py-20">

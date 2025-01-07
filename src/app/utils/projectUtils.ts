@@ -524,3 +524,30 @@ export const deleteProject = async (
     setDeleteInput(""); // Reset input after successful deletion
   }
 };
+
+/**
+ * Fetches the visibility state of a project from Firestore.
+ * 
+ * @param projectId - The ID of the project to fetch visibility state for.
+ * @returns {Promise<boolean>} - The visibility state of the project on the marketplace.
+ */
+export const fetchProjectVisibility = async (projectId: string): Promise<boolean> => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    const projectSnapshot = await getDoc(projectRef);
+
+    if (!projectSnapshot.exists()) {
+      throw new Error(`Project with ID ${projectId} not found.`);
+    }
+
+    const projectData = projectSnapshot.data();
+    if (typeof projectData.isVisibleOnMarketplace !== "boolean") {
+      throw new Error("Visibility field is missing or invalid in project data.");
+    }
+
+    return projectData.isVisibleOnMarketplace;
+  } catch (error) {
+    console.error("Error fetching project visibility:", error);
+    throw error;
+  }
+};
