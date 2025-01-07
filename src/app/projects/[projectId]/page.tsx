@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { AnalyticsCard, BarChart } from "../../components/common";
 import { WorldHeatmap } from "../../components/WorldHeatmap";
 import { AffiliatePerformanceList } from "../../components/project";
+import { ToggleButton } from "../../components/ToggleButton";
 
 // Types
 import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/referralTypes";
@@ -41,6 +42,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [loadingClickData, setLoadingClickData] = useState(true);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [projectVisibility, setProjectVisibility] = useState<boolean>(false);
 
   // Detect screen width to adjust "the bar chart" and "the heatmap" based on viewport size
   const width = useWindowSize();
@@ -101,36 +103,60 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
       {/* API Key Display */}
       {apiKey && (
-        <div className="bg-[#F5F5F5] p-5 rounded-lg">
-          <h2 className="font-semibold">API KEY</h2>
-          <p className="text-[#757575] flex flex-row items-center gap-4">
-            {/* Toggle for showing/hiding API Key */}
-            <button onClick={() => setShowApiKey(!showApiKey)}>
-              <Image
-                src={`/assets/common/visibility-${showApiKey ? "off-" : ""}black.png`}
-                alt="Visibility Icon"
-                height={20}
-                width={20}
-              />
-            </button>
-            {/* Display or Mask API Key */}
-            {showApiKey ? (
-              <button
-                onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
-                className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
-              >
-                <span className="break-all mr-2">{apiKey}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Left Block: API Key */}
+          <div className="bg-[#F5F5F5] p-5 rounded-lg">
+            <h2 className="font-semibold">API KEY</h2>
+            <p className="text-[#757575] flex flex-row items-center gap-4">
+              {/* Toggle for showing/hiding API Key */}
+              <button onClick={() => setShowApiKey(!showApiKey)}>
                 <Image
-                  src="/assets/common/content-copy-black.png"
-                  alt="copy icon"
-                  width={20}
+                  src={`/assets/common/visibility-${showApiKey ? "off-" : ""}black.png`}
+                  alt="Visibility Icon"
                   height={20}
+                  width={20}
                 />
               </button>
-            ) : (
-              apiKey.split("").map(() => "*").join("")
-            )}
-          </p>
+              {/* Display or Mask API Key */}
+              {showApiKey ? (
+                <button
+                  onClick={() => copyToClipboard(apiKey, "API Key copied to clipboard", "Failed to copy API Key")}
+                  className="w-full cursor-pointer hover:underline flex flex-row items-center justify-between"
+                >
+                  <span className="break-all mr-2">{apiKey}</span>
+                  <Image
+                    src="/assets/common/content-copy-black.png"
+                    alt="copy icon"
+                    width={20}
+                    height={20}
+                  />
+                </button>
+              ) : (
+                apiKey.split("").map(() => "*").join("")
+              )}
+            </p>
+          </div>
+
+          {/* Right Block: Toggle Button */}
+          <div className="bg-[#F5F5F5] p-5 rounded-lg">
+            <h2 className="font-semibold">
+              Visibility
+              <span className="text-[#757575] text-xs ml-1">
+                Toggle project visibility on Marketplace
+              </span>
+            </h2>
+
+            {/* Toggle Button */}
+            <ToggleButton
+              isOn={projectVisibility}
+              onToggle={(value) => {
+                setProjectVisibility(value);
+                console.log(`Project visibility set to: ${value ? "Visible" : "Hidden"}`);
+                // Call a function to update the visibility state in the database
+              }}
+            />
+          </div>
+
         </div>
       )}
 
