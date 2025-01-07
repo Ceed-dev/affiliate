@@ -98,6 +98,9 @@ export default function CreateProject() {
     targeting: {
       audienceCountries: [], // List of countries for audience targeting
     },
+
+    // Marketplace visibility setting
+    isVisibleOnMarketplace: process.env.NEXT_PUBLIC_ENVIRONMENT === "production" ? false : true, // Environment-dependent default
   }); 
 
   // Preview data for displaying project images before upload
