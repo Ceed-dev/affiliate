@@ -410,7 +410,13 @@ export async function fetchProjects(options: {
       // Handle multiple documents case
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (isValidProjectData(data)) {
+
+        // Check if project data is valid and visible on the marketplace
+        // If ownerAddress is provided, ignore isVisibleOnMarketplace
+        if (
+          isValidProjectData(data) &&
+          (ownerAddress || data.isVisibleOnMarketplace)
+        ) {
           projects.push(processDoc(data, doc.id));
           projectIds.add(doc.id);
         }
