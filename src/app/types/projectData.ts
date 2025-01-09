@@ -51,6 +51,7 @@ export type ProjectData = {
   totalPaidOut: number; // Total amount paid out to affiliates
   lastPaymentDate: Date | null; // Date of the last payment made
   isReferralEnabled: boolean; // Indicates if the referral feature is enabled for the project
+  isVisibleOnMarketplace: boolean; // Indicates if the project is visible on the marketplace
   conversionPoints: ConversionPoint[]; // List of conversion points for the project
   targeting: {
     audienceCountries: string[]; // Array of country names for audience targeting

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "react-toastify";
-import { doc, collection, getDoc, getDocs, setDoc, query, where, Timestamp, Query, CollectionReference, DocumentData } from "firebase/firestore";
+import { doc, collection, getDoc, getDocs, setDoc, updateDoc, query, where, Timestamp, Query, CollectionReference, DocumentData } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
@@ -410,7 +410,13 @@ export async function fetchProjects(options: {
       // Handle multiple documents case
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (isValidProjectData(data)) {
+
+        // Check if project data is valid and visible on the marketplace
+        // If ownerAddress is provided, ignore isVisibleOnMarketplace
+        if (
+          isValidProjectData(data) &&
+          (ownerAddress || data.isVisibleOnMarketplace)
+        ) {
           projects.push(processDoc(data, doc.id));
           projectIds.add(doc.id);
         }
@@ -522,5 +528,50 @@ export const deleteProject = async (
   } finally {
     setIsDeleting(false);
     setDeleteInput(""); // Reset input after successful deletion
+  }
+};
+
+/**
+ * Fetches the visibility state of a project from Firestore.
+ * 
+ * @param projectId - The ID of the project to fetch visibility state for.
+ * @returns {Promise<boolean>} - The visibility state of the project on the marketplace.
+ */
+export const fetchProjectVisibility = async (projectId: string): Promise<boolean> => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    const projectSnapshot = await getDoc(projectRef);
+
+    if (!projectSnapshot.exists()) {
+      throw new Error(`Project with ID ${projectId} not found.`);
+    }
+
+    const projectData = projectSnapshot.data();
+    if (typeof projectData.isVisibleOnMarketplace !== "boolean") {
+      throw new Error("Visibility field is missing or invalid in project data.");
+    }
+
+    return projectData.isVisibleOnMarketplace;
+  } catch (error) {
+    console.error("Error fetching project visibility:", error);
+    throw error;
+  }
+};
+
+/**
+ * Updates the visibility of a project on the marketplace.
+ *
+ * @param projectId - The ID of the project to update.
+ * @param isVisible - The new visibility state to set (true for visible, false for hidden).
+ * @returns {Promise<void>} - Resolves when the update is successful, rejects with an error otherwise.
+ */
+export const updateProjectVisibility = async (projectId: string, isVisible: boolean): Promise<void> => {
+  try {
+    const projectDocRef = doc(db, "projects", projectId);
+    await updateDoc(projectDocRef, { isVisibleOnMarketplace: isVisible });
+    console.log(`Project ${projectId} visibility updated to: ${isVisible ? "Visible" : "Hidden"}`);
+  } catch (error) {
+    console.error(`Error updating visibility for project ${projectId}:`, error);
+    throw new Error("Failed to update project visibility.");
   }
 };
