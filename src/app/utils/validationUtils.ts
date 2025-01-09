@@ -81,6 +81,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     typeof data.totalPaidOut === "number" &&
     (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
     typeof data.isReferralEnabled === "boolean" &&
+    typeof data.isVisibleOnMarketplace === "boolean" &&
     isValidConversionPoints(data.conversionPoints) &&
     isValidTargeting(data.targeting)
   );
