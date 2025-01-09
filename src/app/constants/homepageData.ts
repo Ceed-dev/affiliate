@@ -62,9 +62,9 @@ export const homepageContent: HomepageContent = {
       achievements: {
         title: "Achievements",
         items: [
-          { count: "3,000+", label: "Registered Affiliates" },
-          { count: "2,000,000+", label: "Gamers Reach" },
-          { count: "11,000+", label: "Onboarding Users" },
+          { count: "3k", label: "Registered Affiliates" },
+          { count: "1.7M", label: "Gamers Reach" },
+          { count: "700k+", label: "Onboarding Users" },
         ],
       },
       clients: {
@@ -122,9 +122,10 @@ export const homepageContent: HomepageContent = {
       achievements: {
         title: "Achievements",
         items: [
-          { count: "3,000+", label: "Registered Affiliates" },
-          { count: "2,000,000+", label: "Gamers Reach" },
-          { count: "11,000+", label: "Onboarding Users" },
+          { count: "3k", label: "Registered Affiliates" },
+          { count: "1.7M", label: "Gamers Reach" },
+          { count: "700k+", label: "Onboarding Users" },
+          { count: "-", label: "TG Game & LINE Games" },
         ],
       },
       clients: {
