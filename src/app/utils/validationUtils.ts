@@ -151,16 +151,18 @@ export const validateProjectData = (
 
   // Additional checks for new projects
   if (isNewProject) {
-    // Check if selectedToken has both address and symbol
-    if (!projectData.selectedToken.address || !projectData.selectedToken.symbol) {
-      toast.error("Both token address and symbol are required.");
-      return false;
-    }
+    if (!projectData.isUsingXpReward) {
+      // Validate token-related fields if not using XP rewards
+      if (!projectData.selectedToken.address || !projectData.selectedToken.symbol) {
+        toast.error("Both token address and symbol are required.");
+        return false;
+      }
 
-    // Check for token selection errors
-    if (tokenError) {
-      toast.error("Please correct the token selection errors before proceeding.");
-      return false;
+      // Check for token selection errors
+      if (tokenError) {
+        toast.error("Please correct the token selection errors before proceeding.");
+        return false;
+      }
     }
 
     // Check for at least one conversion point
