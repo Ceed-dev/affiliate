@@ -237,6 +237,7 @@ export const createRemoveImage = (
  * @param conversionPoints - An array of conversion points.
  * @param audienceCountries - Array of selected audience countries.
  * @param isReferralEnabled - Flag indicating if the referral feature is enabled.
+ * @param isUsingXpReward - Flag indicating if XP points are used as the reward.
  * @param socialLinkFormError - Boolean indicating if there are errors in social links.
  * @param tokenError - Boolean indicating if there are errors in token selection.
  * @param redirectLinkError - Boolean indicating if there's an error in the redirect link.
@@ -251,6 +252,7 @@ export const saveProject = async (
   conversionPoints: ConversionPoint[],
   audienceCountries: string[],
   isReferralEnabled: boolean,
+  isUsingXpReward: boolean,
   socialLinkFormError: boolean,
   tokenError: boolean,
   redirectLinkError: boolean,
@@ -267,6 +269,7 @@ export const saveProject = async (
     conversionPoints,
     redirectLinkError,
     audienceCountries,
+    isUsingXpReward,
   );
 
   if (!isValid) return false;
@@ -281,6 +284,7 @@ export const saveProject = async (
       symbol: projectData.selectedToken.symbol,
     },
     isReferralEnabled,
+    isUsingXpReward,
     conversionPoints: conversionPoints.map((point, index) => ({
       ...point,
       isActive: index === 0 ? true : point.isActive,

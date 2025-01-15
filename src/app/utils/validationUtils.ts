@@ -100,6 +100,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
  * @param conversionPoints - Array of conversion points associated with the project (required only for new projects).
  * @param redirectLinkError - Boolean indicating errors in the redirect URL field (required only for new projects).
  * @param audienceCountries - Array of selected audience countries (required only for new projects).
+ * @param isUsingXpReward - Boolean indicating if XP rewards are used.
  * @returns `true` if validation passes; `false` if validation fails.
  */
 export const validateProjectData = (
@@ -109,7 +110,8 @@ export const validateProjectData = (
   tokenError?: boolean,
   conversionPoints?: ConversionPoint[],
   redirectLinkError?: boolean,
-  audienceCountries?: string[]
+  audienceCountries?: string[],
+  isUsingXpReward?: boolean,
 ): boolean => {
   // Check required text fields
   if (!projectData.projectName.trim()) {
@@ -151,7 +153,7 @@ export const validateProjectData = (
 
   // Additional checks for new projects
   if (isNewProject) {
-    if (!projectData.isUsingXpReward) {
+    if (!isUsingXpReward) {
       // Validate token-related fields if not using XP rewards
       if (!projectData.selectedToken.address || !projectData.selectedToken.symbol) {
         toast.error("Both token address and symbol are required.");
