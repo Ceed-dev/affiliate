@@ -67,7 +67,6 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
   return (
     typeof data.projectName === "string" &&
     typeof data.description === "string" &&
-    isValidSelectedToken(data.selectedToken) &&
     typeof data.logo === "string" &&
     typeof data.cover === "string" &&
     typeof data.websiteUrl === "string" &&
@@ -82,6 +81,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
     typeof data.isReferralEnabled === "boolean" &&
     typeof data.isVisibleOnMarketplace === "boolean" &&
+    typeof data.isUsingXpReward === "boolean" &&
+    (data.isUsingXpReward || isValidSelectedToken(data.selectedToken)) && // Ensure selectedToken is valid if XP is not used
     isValidConversionPoints(data.conversionPoints) &&
     isValidTargeting(data.targeting)
   );
