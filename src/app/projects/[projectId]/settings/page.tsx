@@ -95,6 +95,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     lastPaymentDate: null,
     isReferralEnabled: false,
     isVisibleOnMarketplace: false,
+    isUsingXpReward: false,
     conversionPoints: [],
     targeting: {
       audienceCountries: [],

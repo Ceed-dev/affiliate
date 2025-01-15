@@ -101,6 +101,9 @@ export default function CreateProject() {
 
     // Marketplace visibility setting
     isVisibleOnMarketplace: process.env.NEXT_PUBLIC_ENVIRONMENT === "production" ? false : true, // Environment-dependent default
+
+    // XP reward system setting
+    isUsingXpReward: false, // Indicates whether XP points are used as a reward, default is false
   }); 
 
   // Preview data for displaying project images before upload
