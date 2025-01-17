@@ -67,7 +67,6 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
   return (
     typeof data.projectName === "string" &&
     typeof data.description === "string" &&
-    isValidSelectedToken(data.selectedToken) &&
     typeof data.logo === "string" &&
     typeof data.cover === "string" &&
     typeof data.websiteUrl === "string" &&
@@ -82,6 +81,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     (data.lastPaymentDate === null || data.lastPaymentDate.toDate() instanceof Date) &&
     typeof data.isReferralEnabled === "boolean" &&
     typeof data.isVisibleOnMarketplace === "boolean" &&
+    typeof data.isUsingXpReward === "boolean" &&
+    (data.isUsingXpReward || isValidSelectedToken(data.selectedToken)) && // Ensure selectedToken is valid if XP is not used
     isValidConversionPoints(data.conversionPoints) &&
     isValidTargeting(data.targeting)
   );
@@ -99,6 +100,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
  * @param conversionPoints - Array of conversion points associated with the project (required only for new projects).
  * @param redirectLinkError - Boolean indicating errors in the redirect URL field (required only for new projects).
  * @param audienceCountries - Array of selected audience countries (required only for new projects).
+ * @param isUsingXpReward - Boolean indicating if XP rewards are used.
  * @returns `true` if validation passes; `false` if validation fails.
  */
 export const validateProjectData = (
@@ -108,7 +110,8 @@ export const validateProjectData = (
   tokenError?: boolean,
   conversionPoints?: ConversionPoint[],
   redirectLinkError?: boolean,
-  audienceCountries?: string[]
+  audienceCountries?: string[],
+  isUsingXpReward?: boolean,
 ): boolean => {
   // Check required text fields
   if (!projectData.projectName.trim()) {
@@ -150,16 +153,18 @@ export const validateProjectData = (
 
   // Additional checks for new projects
   if (isNewProject) {
-    // Check if selectedToken has both address and symbol
-    if (!projectData.selectedToken.address || !projectData.selectedToken.symbol) {
-      toast.error("Both token address and symbol are required.");
-      return false;
-    }
+    if (!isUsingXpReward) {
+      // Validate token-related fields if not using XP rewards
+      if (!projectData.selectedToken.address || !projectData.selectedToken.symbol) {
+        toast.error("Both token address and symbol are required.");
+        return false;
+      }
 
-    // Check for token selection errors
-    if (tokenError) {
-      toast.error("Please correct the token selection errors before proceeding.");
-      return false;
+      // Check for token selection errors
+      if (tokenError) {
+        toast.error("Please correct the token selection errors before proceeding.");
+        return false;
+      }
     }
 
     // Check for at least one conversion point
