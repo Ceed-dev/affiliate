@@ -82,7 +82,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {conversionPoint.rewardAmount || conversionPoint.percentage}
           </span>
           <span className={`${textColorClass} text-sm`}>
-            {conversionPoint.paymentType === "FixedAmount" ? project.selectedToken.symbol : "%"}
+            {conversionPoint.paymentType === "FixedAmount" 
+              ? project.isUsingXpReward
+                ? "XP" 
+                : project.selectedToken.symbol 
+              : "%"}
           </span>
         </div>
       )}
