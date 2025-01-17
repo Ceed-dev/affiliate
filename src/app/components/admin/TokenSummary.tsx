@@ -11,7 +11,7 @@ const ZERO_ADDRESS = ethers.constants.AddressZero; // Zero address constant for 
 
 // TokenSummaryProps interface defines the structure of the props
 interface TokenSummaryProps {
-  tokenSummary: Record<string, { amount: number; chain: Chain }>; // tokenSummary contains a record of token data by address
+  tokenSummary: Record<string, { amount: number; chain?: Chain }>; // tokenSummary contains a record of token data by address
   unpaidLogsLoading: boolean; // Indicates if unpaid logs are currently loading
 }
 
@@ -69,38 +69,44 @@ export const TokenSummary: React.FC<TokenSummaryProps> = ({
                 <tr key={tokenKey}>
                   {/* Chain information with a button that shows a toast notification */}
                   <td className="px-6 py-4">
-                    <button 
-                      className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
-                      onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenKey].chain.name}`)}
-                    >
-                      {/* Chain icon */}
-                      <Image 
-                        src={`/chains/${formatChainName(tokenSummary[tokenKey].chain.name!)}.png`} 
-                        alt={tokenSummary[tokenKey].chain.name!} 
-                        width={20} 
-                        height={20} 
-                      />
-                    </button>
+                    {tokenKey === "XP" ? (
+                      <span className="text-sm text-gray-500 italic">N/A</span>
+                    ) : (
+                      <button 
+                        className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
+                        onClick={() => toast.info(`Selected chain: ${tokenSummary[tokenKey].chain?.name}`)}
+                      >
+                        {/* Chain icon */}
+                        <Image 
+                          src={`/chains/${formatChainName(tokenSummary[tokenKey].chain?.name!)}.png`} 
+                          alt={tokenSummary[tokenKey].chain?.name!} 
+                          width={20} 
+                          height={20} 
+                        />
+                      </button>
+                    )}
                   </td>
 
                   {/* Token address or native token display */}
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    {tokenKey.startsWith(`${ZERO_ADDRESS}-`) ? (
+                    {tokenKey === "XP" ? (
+                      <span>XP</span>
+                    ) : tokenKey.startsWith(`${ZERO_ADDRESS}-`) ? (
                       // If tokenKey indicates a native token, show "Native Token" with its symbol
                       <span>
-                        Native Token ({(popularTokens[tokenSummary[tokenKey].chain.id] || []).find(token => token.address === ZERO_ADDRESS)?.symbol})
+                        Native Token ({(popularTokens[tokenSummary[tokenKey].chain!.id] || []).find(token => token.address === ZERO_ADDRESS)?.symbol})
                       </span>
                     ) : (
                       // Otherwise, display the token address as a link
                       <Link 
-                        href={`${tokenSummary[tokenKey].chain.blockExplorers?.[0]?.url}/address/${tokenKey}`}
+                        href={`${tokenSummary[tokenKey].chain?.blockExplorers?.[0]?.url}/address/${tokenKey}`}
                         target="_blank"
                         className="text-blue-500 hover:underline"
                       >
                         {/* Display the token symbol if it's a known token */}
-                        {((popularTokens[tokenSummary[tokenKey].chain.id] || []).find(token => token.address === tokenKey)?.symbol || "") && (
+                        {((popularTokens[tokenSummary[tokenKey].chain!.id] || []).find(token => token.address === tokenKey)?.symbol || "") && (
                           <span className="mr-1">
-                            ({popularTokens[tokenSummary[tokenKey].chain.id].find(token => token.address === tokenKey)?.symbol})
+                            ({popularTokens[tokenSummary[tokenKey].chain!.id].find(token => token.address === tokenKey)?.symbol})
                           </span>
                         )}
                         {tokenKey} {/* Token address */}
