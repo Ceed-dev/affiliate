@@ -3,7 +3,7 @@ import { ConversionPoint } from "../../types";
 
 type ConversionPointsTableProps = {
   conversionPoints: ConversionPoint[]; // Array of conversion points with their details
-  tokenSymbol: string; // Token symbol for rewards
+  tokenSymbol: string; // Token symbol for rewards. If XP points are used, this will display "XP" instead of a token symbol.
   chainName: string;   // Chain name where rewards are given
 };
 
@@ -26,7 +26,9 @@ export const ConversionPointsTable: React.FC<ConversionPointsTableProps> = ({ co
       ) : (
         // Informational message for active conversion points
         <p className="text-sm text-white/60">
-          {`Earn ${tokenSymbol} for each successful referral on ${chainName}. Join the project to start referring other people.`}
+          {tokenSymbol === "XP"
+            ? `Earn XP for each successful referral. Join the project to start referring other people.`
+            : `Earn ${tokenSymbol} for each successful referral on ${chainName}. Join the project to start referring other people.`}
         </p>
       )}
 

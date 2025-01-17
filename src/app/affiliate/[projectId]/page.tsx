@@ -285,7 +285,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     description="(This month)"
                     loading={loading.referral || loading.conversionLogs}
                     value={totalEarnings}
-                    unit={projectData.selectedToken.symbol}
+                    unit={projectData.isUsingXpReward ? "XP" : projectData.selectedToken.symbol}
                     isDarkBackground={true}
                   />
                   <AnalyticsCard
@@ -335,8 +335,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
           {/* Conversion Points Table */}
           <ConversionPointsTable 
             conversionPoints={projectData.conversionPoints}
-            tokenSymbol={projectData.selectedToken.symbol}
-            chainName={chainName ?? ""}
+            tokenSymbol={projectData.isUsingXpReward ? "XP" : projectData.selectedToken.symbol}
+            chainName={projectData.isUsingXpReward ? "" : chainName ?? ""}
           />
   
         </div>
