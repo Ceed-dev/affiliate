@@ -56,7 +56,7 @@ export default function Admin() {
   // State for unpaid conversion logs and token summary
   const [unpaidConversionLogs, setUnpaidConversionLogs] = useState<UnpaidConversionLog[]>([]);
   const [tokenSummary, setTokenSummary] = useState<{ 
-    [tokenAddress: string]: { amount: number, chain: Chain } 
+    [tokenAddress: string]: { amount: number, chain?: Chain } 
   }>({});
 
   // Active tab management
@@ -178,16 +178,28 @@ export default function Admin() {
 
   // Function to summarize token data from unpaid conversion logs
   const summarizeTokens = (logs: UnpaidConversionLog[]) => {
-    const summary: { [key: string]: { amount: number, chain: Chain } } = {};
+    const summary: { [key: string]: { amount: number, chain?: Chain } } = {};
 
     logs.forEach(log => {
-      const tokenKey = log.selectedTokenAddress === ZERO_ADDRESS 
-        ? `${ZERO_ADDRESS}-${log.selectedChain.id}`  // Combine ZERO_ADDRESS with chain ID for uniqueness
-        : log.selectedTokenAddress;
+      // Determine if the reward type is XP
+      const isXpReward = log.selectedTokenAddress === "";
 
+      // Set the tokenKey based on whether it's XP or not
+      const tokenKey = isXpReward
+      ? "XP" // Use "XP" as the key for XP rewards
+      : log.selectedTokenAddress === ZERO_ADDRESS 
+        ? `${ZERO_ADDRESS}-${log.selectedChain.id}` // Combine ZERO_ADDRESS with chain ID for uniqueness
+        : log.selectedTokenAddress;
+      
+      // Initialize the summary entry if it doesn't exist
       if (!summary[tokenKey]) {
-        summary[tokenKey] = { amount: 0, chain: log.selectedChain };
+        summary[tokenKey] = { 
+          amount: 0, 
+          chain: isXpReward ? undefined : log.selectedChain // XP rewards have no chain
+        };
       }
+
+      // Accumulate the reward amount
       summary[tokenKey].amount += log.amount;
     });
 
