@@ -101,6 +101,9 @@ export default function CreateProject() {
 
     // Marketplace visibility setting
     isVisibleOnMarketplace: process.env.NEXT_PUBLIC_ENVIRONMENT === "production" ? false : true, // Environment-dependent default
+
+    // XP reward system setting
+    isUsingXpReward: false, // Indicates whether XP points are used as a reward, default is false
   }); 
 
   // Preview data for displaying project images before upload
@@ -111,6 +114,9 @@ export default function CreateProject() {
 
   // Boolean state to enable or disable the referral feature for the project
   const [isReferralEnabled, setIsReferralEnabled] = useState<boolean>(false);
+
+  // Boolean state to enable or disable the use of XP points as a reward for the project
+  const [isUsingXpReward, setIsUsingXpReward] = useState<boolean>(false);
 
   // Stores all conversion points added to the project
   const [conversionPoints, setConversionPoints] = useState<ConversionPoint[]>([]);
@@ -208,6 +214,7 @@ export default function CreateProject() {
       conversionPoints,          // Array of conversion points associated with the project
       audienceCountries,         // Array of selected audience countries for targeting
       isReferralEnabled,         // Boolean indicating if the referral feature is enabled
+      isUsingXpReward,           // Boolean indicating if XP points are used as a reward
       socialLinkFormError,       // Error state for social link validation
       tokenError,                // Error state for token selection
       redirectLinkError,         // Error state for redirect link validation
@@ -242,11 +249,13 @@ export default function CreateProject() {
           handleOwnerChange={handleOwnerChange}
         />
         <RewardForm
+          isUsingXpReward={isUsingXpReward}
           isReferralEnabled={isReferralEnabled}
           selectedToken={projectData.selectedToken}
           conversionPoints={conversionPoints}
           redirectUrl={projectData.redirectUrl}
           handleChange={handleChange}
+          setIsUsingXpReward={setIsUsingXpReward}
           setIsReferralEnabled={setIsReferralEnabled}
           handleUpdateConversionPoints={updateConversionPoints}
           setTokenError={setTokenError}

@@ -90,6 +90,7 @@ const SelectButton: React.FC<SelectButtonProps> = ({
 // Type definition for RewardForm component props
 type RewardFormProps = {
   // Required properties
+  isUsingXpReward: boolean; // Controls whether XP points are used as a reward
   isReferralEnabled: boolean; // Controls the state of referral feature
   selectedToken: SelectedToken; // Selected token data object
   conversionPoints: ConversionPoint[]; // Array of conversion points
@@ -98,6 +99,7 @@ type RewardFormProps = {
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void; // Function to handle form input changes
 
   // Optional properties
+  setIsUsingXpReward?: (value: boolean) => void; // Function to toggle XP reward state
   setIsReferralEnabled?: (value: boolean) => void; // Function to toggle referral state
   selectedChain?: Chain | null; // Selected blockchain chain info (optional, defaults to context if omitted)
   handleUpdateConversionPoints?: (action: "add" | "remove", point?: ConversionPoint) => void; // Function to add/remove conversion points
@@ -110,6 +112,7 @@ type RewardFormProps = {
 // RewardForm component definition
 export const RewardForm: React.FC<RewardFormProps> = ({
   // Required props
+  isUsingXpReward,
   isReferralEnabled,
   selectedToken,
   conversionPoints,
@@ -117,6 +120,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
   handleChange,
   
   // Optional props
+  setIsUsingXpReward,
   setIsReferralEnabled,
   selectedChain: selectedChainProp,
   handleUpdateConversionPoints,
@@ -258,6 +262,57 @@ export const RewardForm: React.FC<RewardFormProps> = ({
     }
   }, [selectedToken.address, isTokenAddressValid, isErc20Token, isFetchingTokenDetails, setTokenError]);
 
+  /**
+   * Resets all states related to reward configuration.
+   * - Clears token settings.
+   * - Resets conversion points to an initial state.
+   * - Disables referral feature.
+   * - Ensures data consistency when switching reward modes.
+   */
+  const resetForXpReward = () => {
+    // Reset token-related states (token address, symbol, balance, etc.)
+    initializeTokenStates();
+    setSelectedTokenLabel("other");
+    handleChange("selectedToken.address")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+    handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+
+    // Reset all conversion points by iterating over them and removing each one
+    conversionPoints.forEach((point) => {
+      handleUpdateConversionPoints?.("remove", point);
+    });
+
+    // Reset the state for creating a new conversion point
+    setNewConversionPoint({
+      id: "", // ID will be generated dynamically later
+      title: "", // Clear the title field
+      paymentType: "FixedAmount", // Default to FixedAmount for the payment type
+      rewardAmount: 0, // Reset reward amount
+    });
+    setRewardAmountInput("0"); // Reset the input field for reward amount
+    setTitleCharCount(0); // Reset character count for the title field
+
+    // Disable the referral feature
+    setIsReferralEnabled?.(false);
+  };
+
+  /**
+   * Handles toggling XP reward mode.
+   * - Resets relevant states whenever the mode is toggled (on or off).
+   * - Provides feedback to the user about the reset action.
+   *
+   * @param value - The new state of the XP reward mode (true for enabled, false for disabled).
+   */
+  const handleXpRewardToggle = (value: boolean) => {
+    setIsUsingXpReward?.(value);
+
+    // Reset states regardless of whether XP mode is enabled or disabled
+    resetForXpReward();
+
+    // Notify the user of the reset
+    const mode = value ? "enabled" : "disabled";
+    toast.info(`XP Reward mode ${mode}. Token settings and conversion points have been reset.`);
+  };
+
   // ===== TIER MANAGEMENT =====
 
   // State for managing tiers
@@ -366,132 +421,146 @@ export const RewardForm: React.FC<RewardFormProps> = ({
       <h1 className="text-2xl font-bold">Rewards</h1>
 
       <div className="space-y-5">
-  
-        {/* Referral Feature ON/OFF Button */}
+
+        {/* XP Reward Feature ON/OFF Button */}
         <SelectButton
-          isSelected={isReferralEnabled}
-          onClick={() => setIsReferralEnabled?.(!isReferralEnabled)}
-          title="Referrals"
-          description="Enabling the referral feature ensures that both affiliates and users who cause conversions receive rewards."
-          warningText="This toggle button cannot be changed after initial setup."
+          isSelected={isUsingXpReward}
+          onClick={() => handleXpRewardToggle(!isUsingXpReward)}
+          title="Use XP Points"
+          description="Enable this option to use XP points as rewards instead of tokens. Affiliates will earn XP points upon successful conversions."
+          warningText="Once enabled, this setting cannot be changed, and token-based rewards will be disabled."
           disabled={isEditing}
         />
-    
-        {/* Chain & Token Selection */}
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold">
-            Chain & Token <span className="text-red-500">* </span>
-          </h2>
-          <p className="text-gray-500 text-sm">
-            {isEditing ? "Not editable" : "Chain & Token address cannot be edited after initial setup."}
-          </p>
-
-          {/* Chain Selector and Token Selection */}
-          <div className="flex flex-col md:flex-row justify-start items-center gap-2">
-            <div className="w-full md:w-auto flex flex-row gap-2">
-              <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
-
-              {/* Token Selector */}
-              <select
-                value={selectedTokenLabel}
-                onChange={(e) => {
-                  const selectedSymbol = e.target.value;
-                  setSelectedTokenLabel(selectedSymbol);
-
-                  if (selectedSymbol === "other") {
-                    handleChange("selectedToken.address")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
-                    handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
-                  } else {
-                    setIsTokenAddressValid(true);
-                    setIsErc20Token(true);
-                    const token = popularTokens[selectedChain.id]?.find(token => token.symbol === selectedSymbol);
-                    if (token) {
-                      handleChange("selectedToken.address")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
-                      handleChange("selectedToken.symbol")({ target: { value: token.symbol } } as React.ChangeEvent<HTMLInputElement>);
-                    }
-                  }
-                }}
-                className={`flex-1 md:flex-none p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
-                disabled={isEditing}
-              >
-                {isEditing ? (
-                  <option>{selectedToken.symbol}</option>
-                ) : (
-                  <>
-                    <option value="" disabled>Select a token</option>
-                    {(popularTokens[selectedChain.id] || []).map((token) => (
-                      <option key={token.address} value={token.symbol}>
-                        {token.symbol}
-                      </option>
-                    ))}
-                    <option value="other">Other Token</option>
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* Custom Token Address Input */}
-            <input
-              readOnly={isEditing || selectedTokenLabel !== "other"}
-              type="text"
-              value={selectedToken.address === ZERO_ADDRESS ? "Native Token" : selectedToken.address}
-              onChange={(e) => {
-                const address = e.target.value.trim();
-                handleChange("selectedToken.address")(e);
-
-                if (address === "") {
-                  setIsTokenAddressValid(true);
-                  setIsErc20Token(true);
-                  initializeTokenStates();
-                  handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
-                } else if (address !== ZERO_ADDRESS) {
-                  fetchTokenDetails(address);
-                }
-              }}
-              placeholder="Enter token contract address"
-              className={`w-full md:w-auto grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedTokenLabel !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+  
+        {!isUsingXpReward && (
+          <>
+            {/* Referral Feature ON/OFF Button */}
+            <SelectButton
+              isSelected={isReferralEnabled}
+              onClick={() => setIsReferralEnabled?.(!isReferralEnabled)}
+              title="Referrals"
+              description="Enabling the referral feature ensures that both affiliates and users who cause conversions receive rewards."
+              warningText="This toggle button cannot be changed after initial setup."
+              disabled={isEditing}
             />
-          </div>
+        
+            {/* Chain & Token Selection */}
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold">
+                Chain & Token <span className="text-red-500">* </span>
+              </h2>
+              <p className="text-gray-500 text-sm">
+                {isEditing ? "Not editable" : "Chain & Token address cannot be edited after initial setup."}
+              </p>
 
-          {/* Validation Messages */}
-          {!isTokenAddressValid && <p className="text-red-500 text-sm pl-2">Invalid token address.</p>}
-          {!isErc20Token && <p className="text-red-500 text-sm pl-2">Address is not an ERC20 token contract.</p>}
-          {isFetchingTokenDetails && (
-            <div className="flex flex-row gap-3">
-              <Image
-                src="/assets/common/loading.png"
-                alt="loading"
-                width={20}
-                height={20}
-                className="animate-spin"
-              />
-              <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
+              {/* Chain Selector and Token Selection */}
+              <div className="flex flex-col md:flex-row justify-start items-center gap-2">
+                <div className="w-full md:w-auto flex flex-row gap-2">
+                  <ChainSelector useSwitch={true} isEditing={isEditing} overrideSelectedChain={selectedChain} />
+
+                  {/* Token Selector */}
+                  <select
+                    value={selectedTokenLabel}
+                    onChange={(e) => {
+                      const selectedSymbol = e.target.value;
+                      setSelectedTokenLabel(selectedSymbol);
+
+                      if (selectedSymbol === "other") {
+                        handleChange("selectedToken.address")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                        handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                      } else {
+                        setIsTokenAddressValid(true);
+                        setIsErc20Token(true);
+                        const token = popularTokens[selectedChain.id]?.find(token => token.symbol === selectedSymbol);
+                        if (token) {
+                          handleChange("selectedToken.address")({ target: { value: token.address } } as React.ChangeEvent<HTMLInputElement>);
+                          handleChange("selectedToken.symbol")({ target: { value: token.symbol } } as React.ChangeEvent<HTMLInputElement>);
+                        }
+                      }
+                    }}
+                    className={`flex-1 md:flex-none p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+                    disabled={isEditing}
+                  >
+                    {isEditing ? (
+                      <option>{selectedToken.symbol}</option>
+                    ) : (
+                      <>
+                        <option value="" disabled>Select a token</option>
+                        {(popularTokens[selectedChain.id] || []).map((token) => (
+                          <option key={token.address} value={token.symbol}>
+                            {token.symbol}
+                          </option>
+                        ))}
+                        <option value="other">Other Token</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                {/* Custom Token Address Input */}
+                <input
+                  readOnly={isEditing || selectedTokenLabel !== "other"}
+                  type="text"
+                  value={selectedToken.address === ZERO_ADDRESS ? "Native Token" : selectedToken.address}
+                  onChange={(e) => {
+                    const address = e.target.value.trim();
+                    handleChange("selectedToken.address")(e);
+
+                    if (address === "") {
+                      setIsTokenAddressValid(true);
+                      setIsErc20Token(true);
+                      initializeTokenStates();
+                      handleChange("selectedToken.symbol")({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                    } else if (address !== ZERO_ADDRESS) {
+                      fetchTokenDetails(address);
+                    }
+                  }}
+                  placeholder="Enter token contract address"
+                  className={`w-full md:w-auto grow p-2 border border-[#D1D5DB] rounded-lg outline-none ${isEditing || selectedTokenLabel !== "other" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+                />
+              </div>
+
+              {/* Validation Messages */}
+              {!isTokenAddressValid && <p className="text-red-500 text-sm pl-2">Invalid token address.</p>}
+              {!isErc20Token && <p className="text-red-500 text-sm pl-2">Address is not an ERC20 token contract.</p>}
+              {isFetchingTokenDetails && (
+                <div className="flex flex-row gap-3">
+                  <Image
+                    src="/assets/common/loading.png"
+                    alt="loading"
+                    width={20}
+                    height={20}
+                    className="animate-spin"
+                  />
+                  <p className="text-gray-900 animate-pulse">Fetching Token Details...</p>
+                </div>
+              )}
+
+              {/* Token Information */}
+              {!isEditing && tokenSymbol && tokenBalance && (
+                <div className="flex flex-row justify-around">
+                  <p><span className="font-semibold">Token:</span> {tokenSymbol}</p>
+                  <p>/</p>
+                  <p><span className="font-semibold">Balance:</span> {formatBalance(tokenBalance)}</p>
+                  <p>/</p>
+                  <p><span className="font-semibold">Allowance:</span> -</p>
+                </div>
+              )}
+
+              {/* Explorer Link */}
+              {isEditing && selectedChain?.blockExplorers?.length && selectedToken.address !== ZERO_ADDRESS && (
+                <Link
+                  href={`${selectedChain.blockExplorers[0].url}/address/${selectedToken.address}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mr-auto text-blue-400 hover:text-blue-700 hover:font-semibold hover:underline"
+                >
+                  &rarr; View on Explorer
+                </Link>
+              )}
             </div>
-          )}
-
-          {/* Token Information */}
-          {!isEditing && tokenSymbol && tokenBalance && (
-            <div className="flex flex-row justify-around">
-              <p><span className="font-semibold">Token:</span> {tokenSymbol}</p>
-              <p>/</p>
-              <p><span className="font-semibold">Balance:</span> {formatBalance(tokenBalance)}</p>
-              <p>/</p>
-              <p><span className="font-semibold">Allowance:</span> -</p>
-            </div>
-          )}
-
-          {/* Explorer Link */}
-          {isEditing && selectedChain?.blockExplorers?.length && selectedToken.address !== ZERO_ADDRESS && (
-            <Link
-              href={`${selectedChain.blockExplorers[0].url}/address/${selectedToken.address}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mr-auto text-blue-400 hover:text-blue-700 hover:font-semibold hover:underline"
-            >
-              &rarr; View on Explorer
-            </Link>
-          )}
-        </div>
+          </>
+        )}
 
         {/* Conversion Points Setup Section: Configure rewards for affiliates based on the type of conversion point */}
         {!isEditing && (
@@ -516,15 +585,17 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                   title="Fixed Amount"
                   description="Reward affiliates with tokens for each successful referral."
                 />
-                <SelectButton
-                  isSelected={newConversionPoint.paymentType === "RevenueShare"}
-                  onClick={() => {
-                    setTierEntries([]);
-                    handlePaymentTypeChange("RevenueShare");
-                  }}
-                  title="Revenue Share"
-                  description="Reward affiliates with a percentage of the revenue they help generate."
-                />
+                {!isUsingXpReward && (
+                  <SelectButton
+                    isSelected={newConversionPoint.paymentType === "RevenueShare"}
+                    onClick={() => {
+                      setTierEntries([]);
+                      handlePaymentTypeChange("RevenueShare");
+                    }}
+                    title="Revenue Share"
+                    description="Reward affiliates with a percentage of the revenue they help generate."
+                  />
+                )}
               </div>
 
               {/* Conversion Point Title */}
@@ -563,7 +634,9 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     You can enter an integer or a value up to two decimal places. The value must be between 0.01 and 10000.
                   </p>
                   <div className="rounded-lg border border-[#D1D5DB] flex items-center">
-                    <span className="w-[200px] md:w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">Token Units:</span>
+                    <span className="w-[200px] md:w-[150px] text-[#6B7280] bg-gray-100 p-2 mr-2 rounded-l-lg">
+                      {isUsingXpReward ? "XP Units:" : "Token Units:"}
+                    </span>
                     <input
                       type="text" // Use text to handle intermediate states like "1." or ".0"
                       value={rewardAmountInput}
@@ -576,7 +649,7 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                         }
                       }}
                       className="w-full outline-none pr-2"
-                      placeholder="Enter token units"
+                      placeholder={isUsingXpReward ? "Enter XP units" : "Enter token units"}
                     />
                   </div>
                 </div>
@@ -789,7 +862,8 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     <p className="text-sm text-gray-500">
                       {/* Display reward type and amount */}
                       {point.paymentType} :{" "}
-                      {point.paymentType === "FixedAmount" && `${point.rewardAmount} Tokens`}
+                      {point.paymentType === "FixedAmount" &&
+                        `${point.rewardAmount} ${isUsingXpReward ? "XP" : "Tokens"}`}
                       {point.paymentType === "RevenueShare" && `${point.percentage}%`}
                       {point.paymentType === "Tiered" && (
                         <span

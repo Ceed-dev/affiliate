@@ -95,6 +95,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     lastPaymentDate: null,
     isReferralEnabled: false,
     isVisibleOnMarketplace: false,
+    isUsingXpReward: false,
     conversionPoints: [],
     targeting: {
       audienceCountries: [],
@@ -284,6 +285,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             handleOwnerChange={handleOwnerChange}
           />
           <RewardForm
+            isUsingXpReward={projectData.isUsingXpReward}
             isReferralEnabled={projectData.isReferralEnabled}
             selectedToken={projectData.selectedToken}
             conversionPoints={projectData.conversionPoints}
