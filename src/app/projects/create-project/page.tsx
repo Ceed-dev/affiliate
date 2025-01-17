@@ -249,11 +249,13 @@ export default function CreateProject() {
           handleOwnerChange={handleOwnerChange}
         />
         <RewardForm
+          isUsingXpReward={isUsingXpReward}
           isReferralEnabled={isReferralEnabled}
           selectedToken={projectData.selectedToken}
           conversionPoints={conversionPoints}
           redirectUrl={projectData.redirectUrl}
           handleChange={handleChange}
+          setIsUsingXpReward={setIsUsingXpReward}
           setIsReferralEnabled={setIsReferralEnabled}
           handleUpdateConversionPoints={updateConversionPoints}
           setTokenError={setTokenError}
