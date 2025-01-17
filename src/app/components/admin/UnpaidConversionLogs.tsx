@@ -118,22 +118,28 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   </td>
                   {/* Chain button */}
                   <td className="px-6 py-4">
-                    <button 
-                      className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
-                      onClick={() => toast.info(`Selected chain: ${log.selectedChain.name}`)}
-                    >
-                      {/* Chain icon */}
-                      <Image 
-                        src={`/chains/${formatChainName(log.selectedChain.name!)}.png`} 
-                        alt={log.selectedChain.name!} 
-                        width={20} 
-                        height={20} 
-                      />
-                    </button>
+                    {log.selectedTokenAddress === "" ? (
+                      <span>N/A</span>
+                    ) : (
+                      <button 
+                        className="flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 rounded-md shadow-md transition duration-300 ease-in-out"
+                        onClick={() => toast.info(`Selected chain: ${log.selectedChain.name}`)}
+                      >
+                        {/* Chain icon */}
+                        <Image 
+                          src={`/chains/${formatChainName(log.selectedChain.name!)}.png`} 
+                          alt={log.selectedChain.name!} 
+                          width={20} 
+                          height={20} 
+                        />
+                      </button>
+                    )}
                   </td>
                   {/* Token Address */}
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    {log.selectedTokenAddress === ZERO_ADDRESS ? (
+                    {log.selectedTokenAddress === "" ? (
+                      <span>XP</span>
+                    ) : log.selectedTokenAddress === ZERO_ADDRESS ? (
                       // If the token address is the zero address, display "Native Token"
                       <span>Native Token ({(popularTokens[log.selectedChain.id] || []).find(token => token.address === ethers.constants.AddressZero)?.symbol})</span>
                     ) : (
@@ -167,26 +173,30 @@ export const UnpaidConversionLogs: React.FC<UnpaidConversionLogsProps> = ({
                   <td className="px-6 py-4 text-sm text-gray-900">{log.conversionId}</td>
                   {/* Actions: Pay button */}
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    <button 
-                      className={`bg-[#25D366] hover:bg-[#25D366]/80 hover:shadow-lg text-white px-3 py-1 rounded ${processingLogId === log.logId ? "cursor-not-allowed opacity-50" : ""}`}
-                      onClick={() => handlePay(log)}
-                      disabled={processingLogId === log.logId} // Disable button if the log is being processed
-                    >
-                      {processingLogId === log.logId ? (
-                        <div className="flex items-center pr-4 gap-2">
-                          <Image
-                            src="/assets/common/loading.png"
-                            height={20}
-                            width={20}
-                            alt="loading"
-                            className="animate-spin"
-                          />
-                          Processing...
-                        </div>
-                      ) : (
-                        "Pay"
-                      )}
-                    </button>
+                    {log.selectedTokenAddress === "" ? (
+                      <span>N/A</span>
+                    ) : (
+                      <button 
+                        className={`bg-[#25D366] hover:bg-[#25D366]/80 hover:shadow-lg text-white px-3 py-1 rounded ${processingLogId === log.logId ? "cursor-not-allowed opacity-50" : ""}`}
+                        onClick={() => handlePay(log)}
+                        disabled={processingLogId === log.logId} // Disable button if the log is being processed
+                      >
+                        {processingLogId === log.logId ? (
+                          <div className="flex items-center pr-4 gap-2">
+                            <Image
+                              src="/assets/common/loading.png"
+                              height={20}
+                              width={20}
+                              alt="loading"
+                              className="animate-spin"
+                            />
+                            Processing...
+                          </div>
+                        ) : (
+                          "Pay"
+                        )}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
