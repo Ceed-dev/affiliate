@@ -862,7 +862,8 @@ export const RewardForm: React.FC<RewardFormProps> = ({
                     <p className="text-sm text-gray-500">
                       {/* Display reward type and amount */}
                       {point.paymentType} :{" "}
-                      {point.paymentType === "FixedAmount" && `${point.rewardAmount} Tokens`}
+                      {point.paymentType === "FixedAmount" &&
+                        `${point.rewardAmount} ${isUsingXpReward ? "XP" : "Tokens"}`}
                       {point.paymentType === "RevenueShare" && `${point.percentage}%`}
                       {point.paymentType === "Tiered" && (
                         <span
