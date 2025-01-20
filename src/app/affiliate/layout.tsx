@@ -8,6 +8,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { useActiveWallet } from "thirdweb/react";
 import { formatAddress } from "../utils/formatUtils";
+import { useXPContext } from "../context/xpContext";
 
 export default function AffiliateLayout({
   children,
@@ -18,6 +19,7 @@ export default function AffiliateLayout({
   const [showDisconnect, setShowDisconnect] = useState(false);
   const disconnectButtonRef = useRef<HTMLButtonElement | null>(null);
   const disconnectRef = useRef<HTMLButtonElement | null>(null);
+  const { totalXpPoints } = useXPContext();
 
   // Function to toggle the display of the disconnect button
   const toggleDisconnectButton = () => {
@@ -59,8 +61,8 @@ export default function AffiliateLayout({
       {/* Sidebar for desktop view, top navigation bar for mobile */}
       <div className="md:bg-[#222222] flex flex-row md:flex-col md:fixed md:h-full w-full md:w-64 px-3 md:px-7 py-3 md:py-7">
         <div 
-          className={`w-full flex flex-row items-center ${
-            isMarketplacePath ? "justify-center md:justify-start" : "justify-between"
+          className={`w-full flex flex-row items-center justify-between ${
+            isMarketplacePath && "md:justify-start"
           }`}
         >
           {/* Back button visible only on mobile for non-marketplace pages */}
@@ -94,8 +96,8 @@ export default function AffiliateLayout({
             <p className="text-xl font-bold font-corporate">Qube</p>
           </Link>
           
-          {/* Placeholder for right alignment */}
-          <div className="w-[25px] h-[25px] md:hidden" />
+          {/* XP points display in the header for mobile view */}
+          <div className="md:hidden">{totalXpPoints} XP</div>
         </div>
 
         {/* Marketplace link in sidebar for desktop view */}
@@ -112,11 +114,24 @@ export default function AffiliateLayout({
           <span className="font-semibold">Projects</span>
         </Link>
 
+        {/* XP points display in the sidebar for desktop view */}
+        <div
+          className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-auto"
+        >
+          <Image
+            src="/assets/common/paid-white.png"
+            alt="XP"
+            width={25}
+            height={25}
+          />
+          <span className="font-semibold">{totalXpPoints} XP</span>
+        </div>
+
         {/* Account button with disconnect option in sidebar for desktop view */}
         <button
           onClick={toggleDisconnectButton}
           ref={disconnectButtonRef}
-          className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-auto"
+          className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-5"
         >
           <Image
             src="/assets/common/account-circle-white.png"
@@ -136,7 +151,7 @@ export default function AffiliateLayout({
               wallet.disconnect();
               setShowDisconnect(false);
             }}
-            className="absolute bottom-20 text-red-500 text-sm py-2 px-4 z-10 border-2 border-red-900 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
+            className="absolute bottom-20 text-red-500 bg-black text-sm py-2 px-4 z-10 border-2 border-red-900 rounded-md transition duration-300 ease-in-out transform hover:scale-105"
             ref={disconnectRef}
           >
             Disconnect
