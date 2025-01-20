@@ -5,11 +5,13 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useActiveWallet } from "thirdweb/react";
+import { useXPContext } from "../../context/xpContext";
 import { ProjectData } from "../../types";
 import { fetchUserById } from "../../utils/userUtils";
 import { fetchProjects } from "../../utils/projectUtils";
-import { ProjectCard } from "../../components/project";
 import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
+import { calculateTotalXpPoints } from "../../utils/xpUtils";
+import { ProjectCard } from "../../components/project";
 
 /**
  * Marketplace Component
@@ -34,6 +36,8 @@ export default function Marketplace() {
   const [loading, setLoading] = useState<boolean>(true);
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const { setTotalXpPoints } = useXPContext();
+  const [joinedProjectIds, setJoinedProjectIds] = useState<string[]>([]);
 
   // Fetch project data on component mount
   useEffect(() => {
@@ -48,6 +52,7 @@ export default function Marketplace() {
         const userData = await fetchUserById(address);
         const audienceCountry = userData?.audienceCountry || undefined;
         const joinedProjectIds = userData?.joinedProjectIds || [];
+        setJoinedProjectIds(joinedProjectIds);
 
         // Fetch all projects, featured project data, and marketplace banner data
         const [projectsData, featuredProjectData, bannerData] = await Promise.all([
@@ -77,6 +82,38 @@ export default function Marketplace() {
 
     loadProjects();
   }, []);
+
+  /**
+   * useEffect hook for calculating and updating XP points for the user.
+   * 
+   * This hook runs whenever the `address` or `joinedProjectIds` change.
+   * It calculates the user's total XP points based on the joined projects and updates the context state.
+   * 
+   * - If the user's wallet address or joined project IDs are not available, the calculation is skipped.
+   * - A loading state is managed using `setXpLoading`.
+   * - Errors during calculation are logged and displayed using a toast notification.
+   */
+  useEffect(() => {
+    const calculateXpPoints = async () => {
+      try {
+        // Skip calculation if the user's address or joined projects are unavailable
+        if (!address || joinedProjectIds.length === 0) return;
+
+        // Calculate total XP points for the user
+        const totalXp = await calculateTotalXpPoints(joinedProjectIds, address);
+
+        // Update the context with the calculated XP points
+        setTotalXpPoints(totalXp);
+      } catch (error) {
+        // Log the error and show a toast notification
+        console.error("Error calculating XP points:", error);
+        toast.error("Failed to calculate XP points.");
+      }
+    };
+
+    // Invoke the calculation function whenever dependencies change
+    calculateXpPoints();
+  }, [address, joinedProjectIds, setTotalXpPoints]);
 
   return (
     <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto pb-10 md:py-20">
