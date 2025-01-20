@@ -6,20 +6,31 @@ import { ReferralData, ClickData, ConversionLog, AffiliatePerformanceData } from
 import { TweetData, YouTubeVideoData } from "../types/affiliateInfo";
 
 /**
- * Fetches all referrals for a specific project, including user data, click data, conversion data, tweet data, and YouTube video data.
+ * Fetches all referrals for a specific project and optionally filters by affiliate wallet,
+ * including user data, click data, conversion data, tweet data, and YouTube video data.
  *
  * @param {string} projectId - The ID of the project to fetch referrals for.
+ * @param {string} [affiliateWallet] - Optional wallet address of the affiliate to filter referrals.
  * @returns {Promise<AffiliatePerformanceData[]>} - A promise resolving to an array of affiliate performance data.
  * 
  * This function retrieves referral documents associated with a specified project from Firestore.
  * For each referral, it fetches user information, click data, conversion data, tweet data, and YouTube video data.
  */
-export async function fetchReferralPerformanceByProjectId(projectId: string): Promise<AffiliatePerformanceData[]> {
+export async function fetchReferralPerformanceByProjectId(
+  projectId: string,
+  affiliateWallet?: string,
+): Promise<AffiliatePerformanceData[]> {
   const referrals: AffiliatePerformanceData[] = [];
 
   try {
-    // Query referrals collection by project ID
-    const q = query(collection(db, "referrals"), where("projectId", "==", projectId));
+    // Base query for referrals collection by project ID
+    let q = query(collection(db, "referrals"), where("projectId", "==", projectId));
+
+    // Add affiliate wallet filter if provided
+    if (affiliateWallet) {
+      q = query(q, where("affiliateWallet", "==", affiliateWallet));
+    }
+
     const querySnapshot = await getDocs(q);
 
     for (const docSnapshot of querySnapshot.docs) {
