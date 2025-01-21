@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useActiveWallet } from "thirdweb/react";
 import { useXPContext } from "../../context/xpContext";
-import { ProjectData } from "../../types";
+import { useMarketplaceContext } from "../../context/marketplaceContext";
 import { fetchUserById } from "../../utils/userUtils";
 import { fetchProjects } from "../../utils/projectUtils";
 import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
@@ -30,58 +30,90 @@ export default function Marketplace() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const wallet = useActiveWallet();
   const address = wallet?.getAccount()?.address;
-  
-  // State variables
-  const [projects, setProjects] = useState<ProjectData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
-  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
-  const { setTotalXpPoints } = useXPContext();
+
+  const [loading, setLoading] = useState<boolean>(false);
   const [joinedProjectIds, setJoinedProjectIds] = useState<string[]>([]);
 
-  // Fetch project data on component mount
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        if (!address) {
-          toast.error("Wallet address is not available");
-          return;
-        }
+  const {
+    projects,
+    setProjects,
+    featuredProjectId,
+    setFeaturedProjectId,
+    bannerMessage,
+    setBannerMessage,
+    selectedCategory,
+  } = useMarketplaceContext();
+  
+  const { setTotalXpPoints } = useXPContext();
 
-        // Fetch user data
+  // Fetches the Featured Project ID and updates the context state.
+  // This hook runs only if the featured project ID is not already available.
+  useEffect(() => {
+    const fetchFeaturedProjectId = async () => {
+      if (featuredProjectId) return; // Skip if data already exists
+
+      try {
+        const data = await getFeaturedProject();
+        if (data) setFeaturedProjectId(data.projectId);
+      } catch (error) {
+        console.error("Failed to fetch featured project:", error);
+      }
+    };
+
+    fetchFeaturedProjectId();
+  }, [featuredProjectId, setFeaturedProjectId]);
+
+  // Fetches the Banner Message for the Marketplace and updates the context state.
+  // This hook runs only if the banner message is not already available.
+  useEffect(() => {
+    const fetchBannerMessage = async () => {
+      if (bannerMessage) return; // Skip if data already exists
+
+      try {
+        const data = await getMarketplaceBanner();
+        if (data) setBannerMessage(data.message);
+      } catch (error) {
+        console.error("Failed to fetch banner message:", error);
+      }
+    };
+
+    fetchBannerMessage();
+  }, [bannerMessage, setBannerMessage]);
+
+  // Fetches projects and updates the context state.
+  // Additionally, fetches and updates the user's joined project IDs.
+  // This hook avoids unnecessary API calls if the data is already available.
+  useEffect(() => {
+    const fetchProjectsData = async () => {
+      if (!address) {
+        toast.error("Wallet address is not available");
+        return;
+      }
+
+      try {
+        // Fetch user data and update joinedProjectIds state
         const userData = await fetchUserById(address);
         const audienceCountry = userData?.audienceCountry || undefined;
         const joinedProjectIds = userData?.joinedProjectIds || [];
         setJoinedProjectIds(joinedProjectIds);
 
-        // Fetch all projects, featured project data, and marketplace banner data
-        const [projectsData, featuredProjectData, bannerData] = await Promise.all([
-          fetchProjects({ audienceCountry, joinedProjectIds }),
-          getFeaturedProject(),
-          getMarketplaceBanner(),
-        ]);
+        // Skip API call if projects are already loaded
+        if (projects.length > 0) return;
 
-        // Set the featured project ID if available
-        if (featuredProjectData) {
-          setFeaturedProjectId(featuredProjectData.projectId);
-        }
+        setLoading(true);
 
-        // Set the banner message if available
-        if (bannerData) {
-          setBannerMessage(bannerData.message);
-        }
-
-        setProjects(projectsData);
+        // Fetch project data and update context state
+        const data = await fetchProjects({ audienceCountry, joinedProjectIds });
+        setProjects(data);
       } catch (error) {
-        const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred";
-        toast.error(`Error: ${errorMessage}`);
+        console.error("Failed to fetch projects:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProjects();
-  }, []);
+    fetchProjectsData();
+  }, [address, projects, setProjects, setJoinedProjectIds]);
 
   /**
    * useEffect hook for calculating and updating XP points for the user.
