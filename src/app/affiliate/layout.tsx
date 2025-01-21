@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { useActiveWallet } from "thirdweb/react";
 import { formatAddress } from "../utils/formatUtils";
 import { useXPContext } from "../context/xpContext";
+import { useMarketplaceContext } from "../context/marketplaceContext";
 
 export default function AffiliateLayout({
   children,
@@ -20,6 +21,7 @@ export default function AffiliateLayout({
   const disconnectButtonRef = useRef<HTMLButtonElement | null>(null);
   const disconnectRef = useRef<HTMLButtonElement | null>(null);
   const { totalXpPoints } = useXPContext();
+  const { selectedCategory, setSelectedCategory } = useMarketplaceContext();
 
   // Function to toggle the display of the disconnect button
   const toggleDisconnectButton = () => {
@@ -56,9 +58,6 @@ export default function AffiliateLayout({
   // Check if the current path is the marketplace
   const isMarketplacePath = pathname.endsWith("marketplace");
   
-  // TODO: Fix this later
-  const [selectedCategory, setSelectedCategory] = useState<string>("Kaia");
-
   return (
     <div className="min-h-screen bg-black text-white md:flex">
       {/* Sidebar for desktop view, top navigation bar for mobile */}
@@ -159,12 +158,11 @@ export default function AffiliateLayout({
 
         {isMarketplacePath && (
           <div className="hidden md:flex flex-col gap-5 border-t-2 border-white/5 pt-5 mt-5">
-            {/* Kaia Link */}
-            <Link
-              href={`/affiliate/marketplace?type=kaia`}
+            <button
               className={`flex items-center gap-3 rounded-xl p-3 ${
-                true ? "bg-white hover:bg-white/60 text-black" : "bg-white/5 hover:bg-white/10"
+                selectedCategory === "Kaia" ? "bg-white hover:bg-white/60 text-black" : "bg-white/5 hover:bg-white/10"
               }`}
+              onClick={() => setSelectedCategory("Kaia")}
             >
               <Image
                 src={`/brand-assets/kaia.png`}
@@ -173,23 +171,21 @@ export default function AffiliateLayout({
                 height={25}
               />
               <span className="font-semibold">Kaia</span>
-            </Link>
-
-            {/* GameFi Link */}
-            <Link
-              href={`/affiliate/marketplace?type=gameFi`}
+            </button>
+            <button
               className={`flex items-center gap-3 rounded-xl p-3 ${
-                false ? "bg-white hover:bg-white/60 text-black" : "bg-white/5 hover:bg-white/10"
+                selectedCategory === "GameFi" ? "bg-white hover:bg-white/60 text-black" : "bg-white/5 hover:bg-white/10"
               }`}
+              onClick={() => setSelectedCategory("GameFi")}
             >
               <Image
-                src={`/assets/common/sports-esports-${false ? "black" : "white"}.png`}
+                src={`/assets/common/sports-esports-${selectedCategory === "GameFi" ? "black" : "white"}.png`}
                 alt="GameFi"
                 width={25}
                 height={25}
               />
               <span className="font-semibold">GameFi</span>
-            </Link>
+            </button>
           </div>
         )}
 
