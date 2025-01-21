@@ -5,11 +5,13 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useActiveWallet } from "thirdweb/react";
-import { ProjectData } from "../../types";
+import { useXPContext } from "../../context/xpContext";
+import { useMarketplaceContext } from "../../context/marketplaceContext";
 import { fetchUserById } from "../../utils/userUtils";
 import { fetchProjects } from "../../utils/projectUtils";
+import { getFeaturedProject, getMarketplaceBanner, getKaiaProjects } from "../../utils/appSettingsUtils";
+import { calculateTotalXpPoints } from "../../utils/xpUtils";
 import { ProjectCard } from "../../components/project";
-import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
 
 /**
  * Marketplace Component
@@ -28,55 +30,154 @@ export default function Marketplace() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const wallet = useActiveWallet();
   const address = wallet?.getAccount()?.address;
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [joinedProjectIds, setJoinedProjectIds] = useState<string[]>([]);
+
+  const {
+    projects,
+    setProjects,
+    featuredProjectId,
+    setFeaturedProjectId,
+    bannerMessage,
+    setBannerMessage,
+    selectedCategory,
+    kaiaProjectIds,
+    setKaiaProjectIds,
+  } = useMarketplaceContext();
   
-  // State variables
-  const [projects, setProjects] = useState<ProjectData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
-  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const { setTotalXpPoints } = useXPContext();
 
-  // Fetch project data on component mount
+  // Fetches the Featured Project ID and updates the context state.
+  // This hook runs only if the featured project ID is not already available.
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        if (!address) {
-          toast.error("Wallet address is not available");
-          return;
-        }
+    const fetchFeaturedProjectId = async () => {
+      if (featuredProjectId) return; // Skip if data already exists
 
-        // Fetch user data
+      try {
+        const data = await getFeaturedProject();
+        if (data) setFeaturedProjectId(data.projectId);
+      } catch (error) {
+        console.error("Failed to fetch featured project:", error);
+      }
+    };
+
+    fetchFeaturedProjectId();
+  }, [featuredProjectId, setFeaturedProjectId]);
+
+  // Fetches the Banner Message for the Marketplace and updates the context state.
+  // This hook runs only if the banner message is not already available.
+  useEffect(() => {
+    const fetchBannerMessage = async () => {
+      if (bannerMessage) return; // Skip if data already exists
+
+      try {
+        const data = await getMarketplaceBanner();
+        if (data) setBannerMessage(data.message);
+      } catch (error) {
+        console.error("Failed to fetch banner message:", error);
+      }
+    };
+
+    fetchBannerMessage();
+  }, [bannerMessage, setBannerMessage]);
+
+  // Fetches the Kaia project IDs for the Marketplace and updates the context state.
+  // This hook runs only if the Kaia project IDs are not already available in the context.
+  useEffect(() => {
+    const fetchKaiaProjectIds = async () => {
+      if (kaiaProjectIds.length > 0) return; // Skip if data already exists
+
+      try {
+        const data = await getKaiaProjects();
+        if (data) setKaiaProjectIds(data);
+      } catch (error) {
+        console.error("Failed to fetch Kaia project IDs:", error);
+      }
+    };
+
+    fetchKaiaProjectIds();
+  }, [kaiaProjectIds, setKaiaProjectIds]);
+
+  // Fetches projects and updates the context state.
+  // Additionally, fetches and updates the user's joined project IDs.
+  // This hook avoids unnecessary API calls if the data is already available.
+  useEffect(() => {
+    const fetchProjectsData = async () => {
+      if (!address) {
+        toast.error("Wallet address is not available");
+        return;
+      }
+
+      try {
+        // Fetch user data and update joinedProjectIds state
         const userData = await fetchUserById(address);
         const audienceCountry = userData?.audienceCountry || undefined;
         const joinedProjectIds = userData?.joinedProjectIds || [];
+        setJoinedProjectIds(joinedProjectIds);
 
-        // Fetch all projects, featured project data, and marketplace banner data
-        const [projectsData, featuredProjectData, bannerData] = await Promise.all([
-          fetchProjects({ audienceCountry, joinedProjectIds }),
-          getFeaturedProject(),
-          getMarketplaceBanner(),
-        ]);
+        // Skip API call if projects are already loaded
+        if (projects.length > 0) return;
 
-        // Set the featured project ID if available
-        if (featuredProjectData) {
-          setFeaturedProjectId(featuredProjectData.projectId);
-        }
+        setLoading(true);
 
-        // Set the banner message if available
-        if (bannerData) {
-          setBannerMessage(bannerData.message);
-        }
-
-        setProjects(projectsData);
+        // Fetch project data and update context state
+        const data = await fetchProjects({ audienceCountry, joinedProjectIds });
+        setProjects(data);
       } catch (error) {
-        const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred";
-        toast.error(`Error: ${errorMessage}`);
+        console.error("Failed to fetch projects:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProjects();
-  }, []);
+    fetchProjectsData();
+  }, [address, projects, setProjects, setJoinedProjectIds]);
+
+  /**
+   * useEffect hook for calculating and updating XP points for the user.
+   * 
+   * This hook runs whenever the `address` or `joinedProjectIds` change.
+   * It calculates the user's total XP points based on the joined projects and updates the context state.
+   * 
+   * - If the user's wallet address or joined project IDs are not available, the calculation is skipped.
+   * - A loading state is managed using `setXpLoading`.
+   * - Errors during calculation are logged and displayed using a toast notification.
+   */
+  useEffect(() => {
+    const calculateXpPoints = async () => {
+      try {
+        // Skip calculation if the user's address or joined projects are unavailable
+        if (!address || joinedProjectIds.length === 0) return;
+
+        // Calculate total XP points for the user
+        const totalXp = await calculateTotalXpPoints(joinedProjectIds, address);
+
+        // Update the context with the calculated XP points
+        setTotalXpPoints(totalXp);
+      } catch (error) {
+        // Log the error and show a toast notification
+        console.error("Error calculating XP points:", error);
+        toast.error("Failed to calculate XP points.");
+      }
+    };
+
+    // Invoke the calculation function whenever dependencies change
+    calculateXpPoints();
+  }, [address, joinedProjectIds, setTotalXpPoints]);
+
+  // Filter projects based on the selected category
+  const filteredProjects = projects.filter((project) => {
+    if (selectedCategory === "Kaia") {
+      // Show only projects in the Kaia category
+      return kaiaProjectIds.includes(project.id!);
+    } else if (selectedCategory === "GameFi") {
+      // Show projects NOT in the Kaia category (or other logic for GameFi)
+      return !kaiaProjectIds.includes(project.id!);
+    }
+    // Default to showing all projects if no specific category is selected
+    return true;
+  });
 
   return (
     <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto pb-10 md:py-20">
@@ -110,7 +211,7 @@ export default function Marketplace() {
           />
           <p className="font-semibold text-lg animate-pulse">Loading...</p>
         </div>
-      ) : projects.length === 0 ? (
+      ) : filteredProjects.length === 0 ? (
         // Message for no projects available
         <div className="text-center mt-10">
           <p className="text-md">No projects</p>
@@ -119,12 +220,12 @@ export default function Marketplace() {
       ) : (
         // Project Cards Grid
         <div className="grid grid-cols-2 gap-4">
-          {featuredProjectId && projects.find((project) => project.id === featuredProjectId) ? (
+          {featuredProjectId && filteredProjects.find((project) => project.id === featuredProjectId) ? (
             <>
               {/* Display featured project as a large card */}
               <div className="col-span-2 mb-6 md:mb-10 transition duration-300 ease-in-out transform hover:scale-105">
                 <ProjectCard
-                  project={projects.find((project) => project.id === featuredProjectId)!}
+                  project={filteredProjects.find((project) => project.id === featuredProjectId)!}
                   linkUrl={`${baseUrl}/affiliate/${featuredProjectId}`}
                   isDarkBackground={true}
                   isFeatured={true}
@@ -132,7 +233,7 @@ export default function Marketplace() {
               </div>
               
               {/* Display other projects in regular 2-column grid */}
-              {projects
+              {filteredProjects
                 .filter((project) => project.id !== featuredProjectId)
                 .map((project) => (
                   <ProjectCard
@@ -146,7 +247,7 @@ export default function Marketplace() {
             </>
           ) : (
             // Display all projects in regular 2-column grid if there's no featured project
-            projects.map((project) => (
+            filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}

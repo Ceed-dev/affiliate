@@ -91,3 +91,28 @@ export async function updateMarketplaceBanner(message: string | null): Promise<v
     throw new Error("Failed to update marketplace banner.");
   }
 }
+
+/**
+ * Retrieves the list of Kaia project IDs from the appSettings collection in Firestore.
+ *
+ * @returns {Promise<string[]>} - An array of project IDs belonging to Kaia, or an empty array if not found.
+ */
+export async function getKaiaProjects(): Promise<string[]> {
+  try {
+    // Reference to the `kaiaProjects` document in the `appSettings` collection
+    const docRef = doc(db, "appSettings", "kaiaProjects");
+    const docSnapshot = await getDoc(docRef);
+
+    if (docSnapshot.exists()) {
+      const data = docSnapshot.data();
+      // Ensure projectIds is an array of strings or return an empty array if not present
+      return Array.isArray(data.projectIds) ? data.projectIds : [];
+    } else {
+      console.warn("No Kaia projects found in appSettings.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching Kaia projects:", error);
+    throw new Error("Failed to fetch Kaia projects.");
+  }
+}
