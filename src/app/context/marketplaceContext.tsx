@@ -10,6 +10,8 @@ type MarketplaceContextType = {
   setBannerMessage: (message: string | null) => void; // Function to update banner message
   selectedCategory: string; // Selected category (e.g., "Kaia" or "GameFi")
   setSelectedCategory: (category: string) => void; // Function to update the selected category
+  kaiaProjectIds: string[]; // List of Kaia project IDs
+  setKaiaProjectIds: (ids: string[]) => void; // Function to update Kaia project IDs
 };
 
 // Create context
@@ -20,6 +22,7 @@ export const MarketplaceProvider = ({ children }: { children: ReactNode }) => {
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("Kaia");
+  const [kaiaProjectIds, setKaiaProjectIds] = useState<string[]>([]);
 
   return (
     <MarketplaceContext.Provider
@@ -32,6 +35,8 @@ export const MarketplaceProvider = ({ children }: { children: ReactNode }) => {
         setBannerMessage,
         selectedCategory,
         setSelectedCategory,
+        kaiaProjectIds,
+        setKaiaProjectIds,
       }}
     >
       {children}
