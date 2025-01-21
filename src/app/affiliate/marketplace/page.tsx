@@ -166,6 +166,19 @@ export default function Marketplace() {
     calculateXpPoints();
   }, [address, joinedProjectIds, setTotalXpPoints]);
 
+  // Filter projects based on the selected category
+  const filteredProjects = projects.filter((project) => {
+    if (selectedCategory === "Kaia") {
+      // Show only projects in the Kaia category
+      return kaiaProjectIds.includes(project.id!);
+    } else if (selectedCategory === "GameFi") {
+      // Show projects NOT in the Kaia category (or other logic for GameFi)
+      return !kaiaProjectIds.includes(project.id!);
+    }
+    // Default to showing all projects if no specific category is selected
+    return true;
+  });
+
   return (
     <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto pb-10 md:py-20">
       {/* Banner Message */}
@@ -198,7 +211,7 @@ export default function Marketplace() {
           />
           <p className="font-semibold text-lg animate-pulse">Loading...</p>
         </div>
-      ) : projects.length === 0 ? (
+      ) : filteredProjects.length === 0 ? (
         // Message for no projects available
         <div className="text-center mt-10">
           <p className="text-md">No projects</p>
@@ -207,12 +220,12 @@ export default function Marketplace() {
       ) : (
         // Project Cards Grid
         <div className="grid grid-cols-2 gap-4">
-          {featuredProjectId && projects.find((project) => project.id === featuredProjectId) ? (
+          {featuredProjectId && filteredProjects.find((project) => project.id === featuredProjectId) ? (
             <>
               {/* Display featured project as a large card */}
               <div className="col-span-2 mb-6 md:mb-10 transition duration-300 ease-in-out transform hover:scale-105">
                 <ProjectCard
-                  project={projects.find((project) => project.id === featuredProjectId)!}
+                  project={filteredProjects.find((project) => project.id === featuredProjectId)!}
                   linkUrl={`${baseUrl}/affiliate/${featuredProjectId}`}
                   isDarkBackground={true}
                   isFeatured={true}
@@ -220,7 +233,7 @@ export default function Marketplace() {
               </div>
               
               {/* Display other projects in regular 2-column grid */}
-              {projects
+              {filteredProjects
                 .filter((project) => project.id !== featuredProjectId)
                 .map((project) => (
                   <ProjectCard
@@ -234,7 +247,7 @@ export default function Marketplace() {
             </>
           ) : (
             // Display all projects in regular 2-column grid if there's no featured project
-            projects.map((project) => (
+            filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
