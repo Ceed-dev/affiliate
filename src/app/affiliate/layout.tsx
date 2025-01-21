@@ -55,49 +55,92 @@ export default function AffiliateLayout({
 
   // Check if the current path is the marketplace
   const isMarketplacePath = pathname.endsWith("marketplace");
+  
+  // TODO: Fix this later
+  const [selectedCategory, setSelectedCategory] = useState<string>("Kaia");
 
   return (
     <div className="min-h-screen bg-black text-white md:flex">
       {/* Sidebar for desktop view, top navigation bar for mobile */}
       <div className="md:bg-[#222222] flex flex-row md:flex-col md:fixed md:h-full w-full md:w-64 px-3 md:px-7 py-3 md:py-7">
-        <div 
-          className={`w-full flex flex-row items-center justify-between ${
-            isMarketplacePath && "md:justify-start"
-          }`}
-        >
-          {/* Back button visible only on mobile for non-marketplace pages */}
-          {!isMarketplacePath ? (
+        <div className="w-full">
+          <div 
+            className={`w-full flex flex-row items-center justify-between ${
+              isMarketplacePath && "md:justify-start"
+            }`}
+          >
+            {/* Back button visible only on mobile for non-marketplace pages */}
+            {!isMarketplacePath ? (
+              <Link
+                href="/affiliate/marketplace"
+                className="md:hidden transition duration-300 ease-in-out transform hover:-translate-y-1"
+              >
+                <Image
+                  src="/assets/common/chevron-left-white.png"
+                  alt="Go Back Icon"
+                  width={25}
+                  height={25}
+                />
+              </Link>
+            ): (
+              <div className="w-[25px] h-[25px] md:hidden" />
+            )}
+            
+            {/* Qube logo and brand name */}
             <Link
-              href="/affiliate/marketplace"
-              className="md:hidden transition duration-300 ease-in-out transform hover:-translate-y-1"
+              href="/#"
+              className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
             >
               <Image
-                src="/assets/common/chevron-left-white.png"
-                alt="Go Back Icon"
-                width={25}
-                height={25}
+                src="/qube.png"
+                alt="qube.png"
+                width={30}
+                height={30}
               />
+              <p className="text-xl font-bold font-corporate">Qube</p>
             </Link>
-          ): (
-            <div className="w-[25px] h-[25px] md:hidden" />
+            
+            {/* XP points display in the header for mobile view */}
+            <div className="md:hidden">{totalXpPoints} XP</div>
+          </div>
+          
+          {/* Mobile Tab Bar */}
+          {isMarketplacePath && (
+            <div className="w-full bg-[#222222] flex md:hidden rounded-lg py-1 px-2 my-2">
+              <button
+                className={`flex-1 flex flex-row justify-center gap-2 py-1 transition-all duration-300 ease-in-out ${
+                  selectedCategory === "Kaia"
+                    ? "bg-black rounded-lg text-white scale-105 shadow-lg"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setSelectedCategory("Kaia")}
+              >
+                <Image
+                  src={`/brand-assets/kaia.png`}
+                  alt="Kaia"
+                  width={25}
+                  height={25}
+                />
+                Kaia
+              </button>
+              <button
+                className={`flex-1 flex flex-row justify-center gap-2 py-1 transition-all duration-300 ease-in-out ${
+                  selectedCategory === "GameFi"
+                    ? "bg-black rounded-lg text-white scale-105 shadow-lg"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setSelectedCategory("GameFi")}
+              >
+                <Image
+                  src={`/assets/common/sports-esports-${selectedCategory === "GameFi" ? "white" : "black"}.png`}
+                  alt="GameFi"
+                  width={25}
+                  height={25}
+                />
+                GameFi
+              </button>
+            </div>
           )}
-          
-          {/* Qube logo and brand name */}
-          <Link
-            href="/#"
-            className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
-          >
-            <Image
-              src="/qube.png"
-              alt="qube.png"
-              width={30}
-              height={30}
-            />
-            <p className="text-xl font-bold font-corporate">Qube</p>
-          </Link>
-          
-          {/* XP points display in the header for mobile view */}
-          <div className="md:hidden">{totalXpPoints} XP</div>
         </div>
 
         {/* Marketplace link in sidebar for desktop view */}
