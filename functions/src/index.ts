@@ -147,43 +147,43 @@ export const onUserCreated = functions.firestore
  * Function triggered when a new conversion log is created in Firestore.
  * Sends a Slack notification with conversion details.
  */
-export const onConversionLogCreated = functions.firestore
-  .document("referrals/{referralId}/conversionLogs/{logId}")
-  .onCreate(async (snap, context) => {
-    const newConversionLog = snap.data();
-    const referralId = context.params.referralId;
+// export const onConversionLogCreated = functions.firestore
+//   .document("referrals/{referralId}/conversionLogs/{logId}")
+//   .onCreate(async (snap, context) => {
+//     const newConversionLog = snap.data();
+//     const referralId = context.params.referralId;
 
-    if (newConversionLog) {
-      // Fetch additional details from the database
-      const referralDoc = await db.doc(`referrals/${referralId}`).get();
-      const referralData = referralDoc.data();
-      const affiliateWallet = referralData?.affiliateWallet;
-      const projectId = referralData?.projectId;
+//     if (newConversionLog) {
+//       // Fetch additional details from the database
+//       const referralDoc = await db.doc(`referrals/${referralId}`).get();
+//       const referralData = referralDoc.data();
+//       const affiliateWallet = referralData?.affiliateWallet;
+//       const projectId = referralData?.projectId;
 
-      const projectDoc = await db.doc(`projects/${projectId}`).get();
-      const projectData = projectDoc.data();
-      const selectedTokenAddress = projectData?.selectedTokenAddress;
-      const projectName = projectData?.projectName;
+//       const projectDoc = await db.doc(`projects/${projectId}`).get();
+//       const projectData = projectDoc.data();
+//       const selectedTokenAddress = projectData?.selectedTokenAddress;
+//       const projectName = projectData?.projectName;
 
-      const userDoc = await db.doc(`users/${affiliateWallet}`).get();
-      const userData = userDoc.data();
-      const email = userData?.email;
+//       const userDoc = await db.doc(`users/${affiliateWallet}`).get();
+//       const userData = userDoc.data();
+//       const email = userData?.email;
 
-      const message = {
-        type: "conversion_log_created",
-        timestamp: newConversionLog.timestamp.toDate(),
-        amount: newConversionLog.amount,
-        affiliateWallet,
-        selectedTokenAddress,
-        email,
-        referralId,
-        projectPage: `https://www.0xqube.xyz/affiliate/${projectId}`,
-        logId: context.params.logId,
-        projectName,
-      };
-      await sendSlackNotification(message);
-    }
-  });
+//       const message = {
+//         type: "conversion_log_created",
+//         timestamp: newConversionLog.timestamp.toDate(),
+//         amount: newConversionLog.amount,
+//         affiliateWallet,
+//         selectedTokenAddress,
+//         email,
+//         referralId,
+//         projectPage: `https://www.0xqube.xyz/affiliate/${projectId}`,
+//         logId: context.params.logId,
+//         projectName,
+//       };
+//       await sendSlackNotification(message);
+//     }
+//   });
 
 /**
  * Function triggered when an error is logged in Firestore.
