@@ -11,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 // 2. Project Modules
 import { ChainProvider, useChainContext } from "./context/chainContext";
 import { XPProvider } from "./context/xpContext";
+import { MarketplaceProvider } from "./context/marketplaceContext";
 import { getChains } from "./utils/contracts";
 
 // 3. Styles
@@ -89,7 +90,9 @@ const App = ({ children }: { children: React.ReactNode }) => {
     <ThirdwebProvider>
       <ChainProvider>
         <XPProvider>
-          <RootLayout>{children}</RootLayout>
+          <MarketplaceProvider>
+            <RootLayout>{children}</RootLayout>
+          </MarketplaceProvider>
         </XPProvider>
       </ChainProvider>
     </ThirdwebProvider>
