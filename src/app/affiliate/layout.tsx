@@ -114,6 +114,42 @@ export default function AffiliateLayout({
           <span className="font-semibold">Projects</span>
         </Link>
 
+        {isMarketplacePath && (
+          <div className="hidden md:flex flex-col gap-5 border-t-2 border-white/5 pt-5 mt-5">
+            {/* Kaia Link */}
+            <Link
+              href={`/affiliate/marketplace?type=kaia`}
+              className={`flex items-center gap-3 rounded-xl p-3 ${
+                true ? "bg-white hover:bg-white/60 text-black" : "bg-white/5 hover:bg-white/10"
+              }`}
+            >
+              <Image
+                src={`/brand-assets/kaia.png`}
+                alt="Kaia"
+                width={25}
+                height={25}
+              />
+              <span className="font-semibold">Kaia</span>
+            </Link>
+
+            {/* GameFi Link */}
+            <Link
+              href={`/affiliate/marketplace?type=gameFi`}
+              className={`flex items-center gap-3 rounded-xl p-3 ${
+                false ? "bg-white hover:bg-white/60 text-black" : "bg-white/5 hover:bg-white/10"
+              }`}
+            >
+              <Image
+                src={`/assets/common/sports-esports-${false ? "black" : "white"}.png`}
+                alt="GameFi"
+                width={25}
+                height={25}
+              />
+              <span className="font-semibold">GameFi</span>
+            </Link>
+          </div>
+        )}
+
         {/* XP points display in the sidebar for desktop view */}
         <div
           className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-auto"
