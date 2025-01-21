@@ -9,7 +9,7 @@ import { useXPContext } from "../../context/xpContext";
 import { useMarketplaceContext } from "../../context/marketplaceContext";
 import { fetchUserById } from "../../utils/userUtils";
 import { fetchProjects } from "../../utils/projectUtils";
-import { getFeaturedProject, getMarketplaceBanner } from "../../utils/appSettingsUtils";
+import { getFeaturedProject, getMarketplaceBanner, getKaiaProjects } from "../../utils/appSettingsUtils";
 import { calculateTotalXpPoints } from "../../utils/xpUtils";
 import { ProjectCard } from "../../components/project";
 
@@ -42,6 +42,8 @@ export default function Marketplace() {
     bannerMessage,
     setBannerMessage,
     selectedCategory,
+    kaiaProjectIds,
+    setKaiaProjectIds,
   } = useMarketplaceContext();
   
   const { setTotalXpPoints } = useXPContext();
@@ -79,6 +81,23 @@ export default function Marketplace() {
 
     fetchBannerMessage();
   }, [bannerMessage, setBannerMessage]);
+
+  // Fetches the Kaia project IDs for the Marketplace and updates the context state.
+  // This hook runs only if the Kaia project IDs are not already available in the context.
+  useEffect(() => {
+    const fetchKaiaProjectIds = async () => {
+      if (kaiaProjectIds.length > 0) return; // Skip if data already exists
+
+      try {
+        const data = await getKaiaProjects();
+        if (data) setKaiaProjectIds(data);
+      } catch (error) {
+        console.error("Failed to fetch Kaia project IDs:", error);
+      }
+    };
+
+    fetchKaiaProjectIds();
+  }, [kaiaProjectIds, setKaiaProjectIds]);
 
   // Fetches projects and updates the context state.
   // Additionally, fetches and updates the user's joined project IDs.
