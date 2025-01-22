@@ -170,13 +170,13 @@ export const calendlyLink = "https://calendly.com/badhan998877/badhan-meeting";
 
 // Client logos to display in the "Our Clients" section
 export const clientLogos = [
-  "/brand-assets/dark-blood-reborn.png",
-  "/brand-assets/snpit.png",
-  "/brand-assets/oshi3.png",
+  "/brand-assets/rumble-kong-league.png",
+  "/brand-assets/overtake.png",
+  "/brand-assets/goat-gaming.png",
+  "/brand-assets/delabs-games.png",
   "/brand-assets/farcana.png",
   "/brand-assets/starheroes.png",
-  "/brand-assets/champions-tcg.png",
-  "/brand-assets/buddy-arena.png",
+  "/brand-assets/tgwiz.png",
   "/brand-assets/chain-colosseum-phoenix.png",
 ];
 
