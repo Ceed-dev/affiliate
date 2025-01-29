@@ -90,9 +90,10 @@ export default function CreateProject() {
     totalPaidOut: 0,
     lastPaymentDate: null,
 
-    // Referral and conversion point settings
+    // Referral, conversion point and external campaigns settings
     isReferralEnabled: false,
     conversionPoints: [],
+    externalCampaigns: [],
 
     // Targeting settings for the project
     targeting: {
