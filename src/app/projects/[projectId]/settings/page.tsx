@@ -130,6 +130,10 @@ export default function Settings({ params }: { params: { projectId: string } }) 
   const [deleteInput, setDeleteInput] = useState(""); // Input field for confirming project deletion
   const [isDeleting, setIsDeleting] = useState(false); // If true, deletion is in progress
 
+  // State to control the visibility of the fixed "Save" button
+  // If true, the fixed "Save" button is displayed at the bottom of the screen
+  const [showFixedSaveButton, setShowFixedSaveButton] = useState(true);
+
   // ========================== Data Fetching ==========================
   
   useEffect(() => {
@@ -175,6 +179,32 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     // Invoke fetchData immediately upon component mounting and any time `params.projectId` changes
     fetchData();
   }, [params.projectId]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Get the footer "Save" button element
+      const footerSaveButton = document.querySelector("#footer-save-button");
+      if (footerSaveButton) {
+        // Get the bounding rectangle of the footer button
+        const rect = footerSaveButton.getBoundingClientRect();
+        
+        // Check if the footer button is within the visible viewport
+        const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
+        
+        // If the footer button is visible, hide the fixed "Save" button
+        // Otherwise, show the fixed "Save" button
+        setShowFixedSaveButton(!isVisible);
+      }
+    };
+
+    // Attach the scroll event listener
+    window.addEventListener("scroll", handleScroll);
+    
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // ========================== Function Definitions ==========================
 
@@ -299,25 +329,27 @@ export default function Settings({ params }: { params: { projectId: string } }) 
             selectedCountries={projectData.targeting.audienceCountries}
             isEditing={true}
           />
-          <SaveButton 
-            onClick={handleUpdateProject}
-            disabled={!hasChanges()}
-          >
-            {isUpdating ? (
-              <div className="flex flex-row items-center justify-center gap-5">
-                <Image 
-                  src="/assets/common/loading.png"
-                  height={30} 
-                  width={30} 
-                  alt="loading.png" 
-                  className="animate-spin" 
-                />
-                <span className="animate-pulse">Updating...</span>
-              </div>
-            ) : (
-              "Update"
-            )}
-          </SaveButton>
+          <div id="footer-save-button" className={`${hasChanges() && "animate-bounce"}`}>
+            <SaveButton 
+              onClick={handleUpdateProject}
+              disabled={!hasChanges()}
+            >
+              {isUpdating ? (
+                <div className="flex flex-row items-center justify-center gap-5">
+                  <Image 
+                    src="/assets/common/loading.png"
+                    height={30} 
+                    width={30} 
+                    alt="loading.png" 
+                    className="animate-spin" 
+                  />
+                  <span className="animate-pulse">Updating...</span>
+                </div>
+              ) : (
+                "Update"
+              )}
+            </SaveButton>
+          </div>
 
           {/* Project Delete Field */}
           {isAdmin && (
@@ -329,6 +361,30 @@ export default function Settings({ params }: { params: { projectId: string } }) 
               isDeleting={isDeleting}
               setIsDeleting={setIsDeleting}
             />
+          )}
+
+          {showFixedSaveButton && (
+            <div className={`fixed bottom-5 z-10 w-full max-w-4xl pr-8 ${hasChanges() && "animate-bounce"}`}>
+              <SaveButton 
+                onClick={handleUpdateProject}
+                disabled={!hasChanges()}
+              >
+                {isUpdating ? (
+                  <div className="flex flex-row items-center justify-center gap-5">
+                    <Image 
+                      src="/assets/common/loading.png"
+                      height={30} 
+                      width={30} 
+                      alt="loading.png" 
+                      className="animate-spin" 
+                    />
+                    <span className="animate-pulse">Updating...</span>
+                  </div>
+                ) : (
+                  "Update"
+                )}
+              </SaveButton>
+            </div>
           )}
         </div>
       )}
