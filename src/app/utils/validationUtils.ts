@@ -7,7 +7,10 @@ import { NextResponse } from "next/server";
 import { LRUCache } from "lru-cache";
 
 // Project-specific types
-import { ProjectData, ReferralData, ConversionPoint, Tier, SelectedToken } from "../types";
+import { 
+  ProjectData, ReferralData, ConversionPoint,
+  Tier, SelectedToken, ExternalCampaign
+} from "../types";
 
 /**
  * Validate the structure of project data to ensure it conforms to ProjectData type.
@@ -63,6 +66,23 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     );
   };
 
+  // Validate the externalCampaigns array
+  const isValidExternalCampaign = (campaign: any): campaign is ExternalCampaign => {
+    return (
+      typeof campaign === "object" &&
+      campaign !== null &&
+      typeof campaign.campaignId === "string" &&
+      campaign.campaignId.trim() !== "" &&
+      typeof campaign.source === "string" &&
+      campaign.source.trim() !== "" &&
+      (typeof campaign.label === "string" || campaign.label === undefined)
+    );
+  };
+
+  const isValidExternalCampaigns = (campaigns: any[]): boolean => {
+    return Array.isArray(campaigns) && campaigns.every(isValidExternalCampaign);
+  };
+
   // Validate the full structure of a project with its conversion points
   return (
     typeof data.projectName === "string" &&
@@ -84,6 +104,7 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     typeof data.isUsingXpReward === "boolean" &&
     (data.isUsingXpReward || isValidSelectedToken(data.selectedToken)) && // Ensure selectedToken is valid if XP is not used
     isValidConversionPoints(data.conversionPoints) &&
+    isValidExternalCampaigns(data.externalCampaigns) &&
     isValidTargeting(data.targeting)
   );
 }
