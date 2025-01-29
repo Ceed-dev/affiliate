@@ -97,6 +97,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     isVisibleOnMarketplace: false,
     isUsingXpReward: false,
     conversionPoints: [],
+    externalCampaigns: [],
     targeting: {
       audienceCountries: [],
     }
