@@ -256,6 +256,9 @@ export const createRemoveImage = (
  * @param projectData - The project data to be saved.
  * @param selectedChainId - The ID of the selected blockchain chain.
  * @param conversionPoints - An array of conversion points.
+ * @param externalCampaigns - List of external campaigns associated with the project.
+ *                             This allows linking the project with campaigns from external ASPs like A8.net.
+ *                             Each campaign includes the ASP name, campaign ID, and an optional label.
  * @param audienceCountries - Array of selected audience countries.
  * @param isReferralEnabled - Flag indicating if the referral feature is enabled.
  * @param isUsingXpReward - Flag indicating if XP points are used as the reward.
@@ -271,6 +274,7 @@ export const saveProject = async (
   projectData: ProjectData,
   selectedChainId: number,
   conversionPoints: ConversionPoint[],
+  externalCampaigns: ExternalCampaign[],
   audienceCountries: string[],
   isReferralEnabled: boolean,
   isUsingXpReward: boolean,
@@ -310,6 +314,7 @@ export const saveProject = async (
       ...point,
       isActive: index === 0 ? true : point.isActive,
     })),
+    externalCampaigns,
     targeting: {
       audienceCountries,
     },

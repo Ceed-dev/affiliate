@@ -229,6 +229,7 @@ export default function CreateProject() {
       projectData,               // Object containing all the project's main data fields
       selectedChain.id,          // The ID of the blockchain chain selected for this project
       conversionPoints,          // Array of conversion points associated with the project
+      externalCampaigns,         // List of external campaigns linked to this project (e.g., A8.net)
       audienceCountries,         // Array of selected audience countries for targeting
       isReferralEnabled,         // Boolean indicating if the referral feature is enabled
       isUsingXpReward,           // Boolean indicating if XP points are used as a reward
