@@ -12,12 +12,14 @@ import {
   MemberForm, 
   RewardForm, 
   TargetingForm,
+  ExternalCampaignForm,
   SaveButton 
 } from "../../components/project";
 
 // Utilities
 import {
   handleUpdateConversionPoints,
+  handleUpdateExternalCampaigns,
   createHandleChange,
   createHandleOwnerChange,
   createHandleImageChange,
@@ -26,7 +28,7 @@ import {
 } from "../../utils/projectUtils";
 
 // Types and Interfaces
-import { ProjectData, ImageType, PreviewData, ConversionPoint } from "../../types";
+import { ProjectData, ImageType, PreviewData, ConversionPoint, ExternalCampaign } from "../../types";
 
 // Context Providers
 import { useChainContext } from "../../context/chainContext";
@@ -122,6 +124,9 @@ export default function CreateProject() {
   // Stores all conversion points added to the project
   const [conversionPoints, setConversionPoints] = useState<ConversionPoint[]>([]);
 
+  // Stores all external campaign mappings associated with the project
+  const [externalCampaigns, setExternalCampaigns] = useState<ExternalCampaign[]>([]);
+
   // Stores the selected audience countries for the project
   const [audienceCountries, setAudienceCountries] = useState<string[]>([]);
 
@@ -161,6 +166,17 @@ export default function CreateProject() {
    */
   const updateConversionPoints = (action: "add" | "remove", point?: ConversionPoint) => 
     handleUpdateConversionPoints(action, point, setConversionPoints);
+
+  /**
+   * Handles adding or removing external campaigns in the project data.
+   * - Uses `handleUpdateExternalCampaigns` to modify the external campaigns list based on the specified action.
+   * - The `setExternalCampaigns` state updater is passed to ensure the project data is updated.
+   *
+   * @param action - The action to perform, either "add" or "remove".
+   * @param campaign - The external campaign to add or remove (optional).
+   */
+  const updateExternalCampaigns = (action: "add" | "remove", campaign?: ExternalCampaign) =>
+    handleUpdateExternalCampaigns(action, campaign, setExternalCampaigns);
 
   // Initialize `handleChange` with `setProjectData` to create an event handler function.
   // This handler updates specific fields within the `projectData` state using dot notation for nested properties.
@@ -265,6 +281,10 @@ export default function CreateProject() {
         <TargetingForm
           selectedCountries={audienceCountries}
           setSelectedCountries={setAudienceCountries}
+        />
+        <ExternalCampaignForm 
+          externalCampaigns={externalCampaigns} 
+          updateExternalCampaigns={updateExternalCampaigns} 
         />
         <SaveButton
           onClick={handleSaveProject}

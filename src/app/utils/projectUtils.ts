@@ -6,7 +6,7 @@ import { db } from "./firebase/firebaseConfig";
 import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFirebase } from "./firebase";
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
 import { isValidProjectData, validateProjectData } from "./validationUtils";
-import { ProjectData, ImageType, PreviewData, ConversionPoint } from "../types";
+import { ProjectData, ImageType, PreviewData, ConversionPoint, ExternalCampaign } from "../types";
 
 /**
  * Checks if a project with the given ID exists in the Firestore 'projects' collection.
@@ -84,6 +84,27 @@ export const handleUpdateConversionPoints = (
   setConversionPoints(prevPoints => {
     if (action === "add" && point) return [...prevPoints, point];
     if (action === "remove" && point?.id) return prevPoints.filter(p => p.id !== point.id);
+    return prevPoints;
+  });
+};
+
+/**
+ * Updates the external campaign mappings based on the specified action.
+ * - If action is "add" and a valid external campaign is provided, it adds the campaign to the list.
+ * - If action is "remove" and a valid campaign ID is provided, it removes the campaign from the list.
+ *
+ * @param action - Specifies whether to add or remove an external campaign ("add" | "remove").
+ * @param point - The external campaign object to be added or removed (optional).
+ * @param setExternalCampaigns - State updater function for external campaigns.
+ */
+export const handleUpdateExternalCampaigns = (
+  action: "add" | "remove",
+  point: ExternalCampaign | undefined,
+  setExternalCampaigns: Dispatch<SetStateAction<ExternalCampaign[]>>
+) => {
+  setExternalCampaigns(prevPoints => {
+    if (action === "add" && point) return [...prevPoints, point];
+    if (action === "remove" && point?.campaignId) return prevPoints.filter(p => p.campaignId !== point.campaignId);
     return prevPoints;
   });
 };
