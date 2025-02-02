@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { ExternalCampaign } from "../../types";
 
 // Type definition for ExternalCampaignForm component props
@@ -72,18 +73,39 @@ export const ExternalCampaignForm: React.FC<ExternalCampaignFormProps> = ({
               </tr>
             </thead>
             <tbody>
-              {/* Placeholder for campaigns (to be dynamically populated) */}
-              <tr>
-                <td className="p-2 border text-center">A8.net</td>
-                <td className="p-2 border text-center">12345</td>
-                <td className="p-2 border text-center">A8.net - Campaign A</td>
-                <td className="p-2 border text-center">
-                  <button className="text-red-500 hover:text-red-700">Remove</button>
-                </td>
-              </tr>
+              {externalCampaigns.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="p-4 text-center text-gray-500">
+                    No external campaigns added yet.
+                  </td>
+                </tr>
+              ) : (
+                externalCampaigns.map((campaign) => (
+                  <tr key={campaign.campaignId}>
+                    <td className="p-2 border text-center">{campaign.source}</td>
+                    <td className="p-2 border text-center">{campaign.campaignId}</td>
+                    <td className="p-2 border text-center">{campaign.label || "—"}</td>
+                    <td className="p-2 border text-center">
+                      <button
+                        onClick={() => updateExternalCampaigns("remove", campaign)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Image 
+                          src="/assets/common/trash.png" 
+                          alt="trash.png" 
+                          height={20} 
+                          width={20} 
+                          className="transition duration-300 ease-in-out transform hover:scale-125" 
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
       </div>
     </>
   );
