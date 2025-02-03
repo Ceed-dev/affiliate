@@ -1,5 +1,6 @@
 import { db } from "./firebase/firebaseConfig";
-import { getFirestore, doc, getDoc, setDoc, collection } from "firebase/firestore";
+import { getFirestore, doc, getDoc, getDocs, setDoc, collection } from "firebase/firestore";
+import { ExternalCampaign } from "../types";
 
 /**
  * Validates the API key for an ASP (e.g., A8.net, ValueCommerce).
@@ -72,5 +73,42 @@ export const saveAspConversionData = async (conversionData: {
   } catch (error) {
     console.error("Error saving ASP conversion data:", error);
     return null;
+  }
+};
+
+/**
+ * Fetches conversion data from Firestore for the specified external campaigns.
+ *
+ * - Iterates over each campaignId in `externalCampaigns`.
+ * - Retrieves all conversion data stored under `aspConversions/{campaignId}/conversions`.
+ * - Returns a merged array of all conversion records.
+ *
+ * @param {ExternalCampaign[]} externalCampaigns - List of ASP campaign mappings for the project.
+ * @returns {Promise<object[]>} - Returns an array of conversion data objects.
+ */
+export const fetchAspConversionsByCampaigns = async (
+  externalCampaigns: ExternalCampaign[]
+): Promise<object[]> => {
+  try {
+    let allConversions: object[] = [];
+
+    // Loop through each campaign and fetch its conversion data
+    for (const campaign of externalCampaigns) {
+      const campaignId = campaign.campaignId;
+      const conversionsRef = collection(db, "aspConversions", campaignId, "conversions");
+
+      // Fetch all conversion documents within the campaign
+      const querySnapshot = await getDocs(conversionsRef);
+      const campaignConversions = querySnapshot.docs.map((doc) => doc.data());
+      console.log(campaignConversions);
+
+      // Merge the results
+      allConversions = [...allConversions, ...campaignConversions];
+    }
+
+    return allConversions;
+  } catch (error) {
+    console.error("Error fetching ASP conversions:", error);
+    return [];
   }
 };
