@@ -59,9 +59,8 @@ export const ExternalCampaignForm: React.FC<ExternalCampaignFormProps> = ({
                 onChange={(e) => setCampaignSource(e.target.value)}
               >
                 <option value="">Select ASP</option>
-                <option value="A8.net">A8.net</option>
-                <option value="ValueCommerce">ValueCommerce</option>
-                <option value="Rakuten">Rakuten Affiliate</option>
+                <option value="AFRo">AFRo</option>
+                <option value="Adways">Adways</option>
               </select>
             </div>
 
