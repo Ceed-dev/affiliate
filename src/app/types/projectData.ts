@@ -32,6 +32,15 @@ export type SelectedToken = {
 };
 
 /**
+ * Represents an external campaign mapping between Qube and ASPs.
+ */
+export type ExternalCampaign = {
+  campaignId: string; // Unique campaign ID assigned by the ASP
+  source: string; // Name of the ASP (e.g., "A8.net", "ValueCommerce")
+  label: string; // Human-readable label for better identification (e.g., "A8.net - Campaign A")
+};
+
+/**
  * Main data structure for a project with details about setup, branding, and conversion points.
  */
 export type ProjectData = {
@@ -54,6 +63,7 @@ export type ProjectData = {
   isVisibleOnMarketplace: boolean; // Indicates if the project is visible on the marketplace
   isUsingXpReward: boolean; // Indicates if XP points are used as the reward for this project
   conversionPoints: ConversionPoint[]; // List of conversion points for the project
+  externalCampaigns: ExternalCampaign[]; // List of ASP campaign mappings associated with the project
   targeting: {
     audienceCountries: string[]; // Array of country names for audience targeting
   };

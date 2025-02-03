@@ -12,12 +12,14 @@ import { ToggleButton } from "../../components/ToggleButton";
 
 // Types
 import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/referralTypes";
+import { ExternalCampaign } from "../../types";
 
 // Utility Functions
 import { getApiKeyData } from "../../utils/firebase";
-import { fetchProjectVisibility, updateProjectVisibility } from "../../utils/projectUtils";
+import { fetchProjects, fetchProjectVisibility, updateProjectVisibility } from "../../utils/projectUtils";
 import { fetchReferralPerformanceByProjectId } from "../../utils/referralUtils";
 import { copyToClipboard } from "../../utils/generalUtils";
+import { fetchAspConversionsByCampaigns } from "../../utils/postbackUtils";
 import { useWindowSize } from "../../hooks/useWindowSize";
 
 /**
@@ -44,6 +46,8 @@ export default function Dashboard({ params }: { params: { projectId: string } })
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
   const [projectVisibility, setProjectVisibility] = useState<boolean>(false);
+  const [externalCampaigns, setExternalCampaigns] = useState<ExternalCampaign[]>([]);
+  const [aspConversions, setAspConversions] = useState<object[]>([]);
 
   // Detect screen width to adjust "the bar chart" and "the heatmap" based on viewport size
   const width = useWindowSize();
@@ -124,6 +128,63 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     // Call the function to fetch visibility state when component mounts
     fetchVisibility();
   }, [params.projectId]);  
+
+  useEffect(() => {
+    /**
+     * Fetches the project data and extracts `externalCampaigns` for tracking ASP conversions.
+     */
+    const fetchProjectData = async () => {
+      try {
+        // Retrieve project data from Firestore
+        const projectDataArray = await fetchProjects({ projectId: params.projectId });
+
+        // Ensure project data is found
+        if (!projectDataArray || projectDataArray.length === 0) {
+          console.error("Project data not found for the provided project ID.");
+          return;
+        }
+
+        const data = projectDataArray[0]; // Take the first item in the array
+
+        // Set externalCampaigns state if available
+        if (data.externalCampaigns && Array.isArray(data.externalCampaigns)) {
+          setExternalCampaigns(data.externalCampaigns);
+        }
+      } catch (error) {
+        console.error("Error fetching project data:", error);
+        toast.error("Failed to load project data.");
+      }
+    };
+
+    fetchProjectData();
+  }, [params.projectId]);
+
+  // Fetch ASP conversions after external campaigns are set
+  useEffect(() => {
+    /**
+     * Fetches ASP conversion data based on externalCampaigns.
+     */
+    const fetchAspConversions = async () => {
+      try {
+        // Ensure external campaigns exist before fetching conversions
+        if (!externalCampaigns || externalCampaigns.length === 0) {
+          console.log("No external campaigns found for this project.");
+          return;
+        }
+
+        // Fetch ASP conversion data
+        const conversions = await fetchAspConversionsByCampaigns(externalCampaigns);
+
+        // Store the retrieved data in state
+        setAspConversions(conversions);
+      } catch (error) {
+        console.error("Error fetching ASP conversions:", error);
+        toast.error("Failed to load ASP conversion data.");
+      }
+    };
+
+    fetchAspConversions();
+  }, [externalCampaigns]); // Runs when externalCampaigns change
 
   return (
     <div className="min-h-screen space-y-5 md:space-y-10 px-4 md:px-10 lg:px-20 pb-10 md:py-20">
@@ -249,6 +310,44 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
       {/* Affiliate Performance List */}
       <AffiliatePerformanceList referrals={referralData} />
+
+      {/* ASP Conversion Data Table */}
+      <div className="mt-10">
+        <h2 className="font-bold text-xl">ASP Conversions</h2>
+
+        {aspConversions.length === 0 ? (
+          <p className="text-gray-500 mt-2">No conversion data available for this project.</p>
+        ) : (
+          <div className="overflow-x-auto mt-3">
+            <table className="w-full border border-gray-300 rounded-lg">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">ASP</th>
+                  <th className="p-2 border">Campaign ID</th>
+                  <th className="p-2 border">Click ID</th>
+                  <th className="p-2 border">Event</th>
+                  <th className="p-2 border">Value</th>
+                  <th className="p-2 border">Currency</th>
+                  <th className="p-2 border">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {aspConversions.map((conversion: any, index: number) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-2 border text-center">{conversion.source}</td>
+                    <td className="p-2 border text-center">{conversion.campaign_id}</td>
+                    <td className="p-2 border text-center">{conversion.click_id}</td>
+                    <td className="p-2 border text-center">{conversion.event_name}</td>
+                    <td className="p-2 border text-center">{conversion.event_value}</td>
+                    <td className="p-2 border text-center">{conversion.currency}</td>
+                    <td className="p-2 border text-center">{new Date(conversion.timestamp).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
       
     </div>
   );  

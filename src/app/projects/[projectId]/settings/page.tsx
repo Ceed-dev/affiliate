@@ -17,6 +17,7 @@ import {
   MemberForm, 
   RewardForm, 
   TargetingForm,
+  ExternalCampaignForm,
   SaveButton,
   DeleteProject,
 } from "../../../components/project";
@@ -97,6 +98,7 @@ export default function Settings({ params }: { params: { projectId: string } }) 
     isVisibleOnMarketplace: false,
     isUsingXpReward: false,
     conversionPoints: [],
+    externalCampaigns: [],
     targeting: {
       audienceCountries: [],
     }
@@ -328,6 +330,9 @@ export default function Settings({ params }: { params: { projectId: string } }) 
           <TargetingForm
             selectedCountries={projectData.targeting.audienceCountries}
             isEditing={true}
+          />
+          <ExternalCampaignForm
+            externalCampaigns={projectData.externalCampaigns}
           />
           <div id="footer-save-button" className={`${hasChanges() && "animate-bounce"}`}>
             <SaveButton 

@@ -1,4 +1,4 @@
-import { ProjectData, ConversionPoint, PaymentType, Tier, SelectedToken } from "./projectData";
+import { ProjectData, ConversionPoint, PaymentType, Tier, SelectedToken, ExternalCampaign } from "./projectData";
 import { ImageType, PreviewData } from "./imageType";
 import { ReferralData } from "./referralData";
 import { AffiliateInfo, UserRole } from "./affiliateInfo";
@@ -17,6 +17,7 @@ export type {
   PaymentType,
   Tier,
   SelectedToken,
+  ExternalCampaign,
   ImageType,
   PreviewData,
   ReferralData,
