@@ -272,15 +272,29 @@ export default function Home() {
               <span className="relative inline-block">
                 {content.hero.titleLine1}
                 {/* Underline Image */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
-                  <img
-                    src="/assets/homepage/blue-stylized-underline.png"
-                    alt="Stylized Underline"
-                    className="w-full"
-                  />
-                </div>
+                {language === "en" && (
+                  <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
+                    <img
+                      src="/assets/homepage/blue-stylized-underline.png"
+                      alt="Stylized Underline"
+                      className="w-full"
+                    />
+                  </div>
+                )}
               </span>
-              {content.hero.titleLine2}
+              <span className="relative inline-block">
+                {content.hero.titleLine2}
+                {/* Underline Image */}
+                {language === "ja" && (
+                  <div className="absolute left-1/2 transform -translate-x-1/2 mt-[-5px] w-[200px] md:w-[400px]">
+                    <img
+                      src="/assets/homepage/blue-stylized-underline.png"
+                      alt="Stylized Underline"
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </span>
             </h1>
             <h2 className="text-lg md:text-3xl mb-5">
               {content.hero.subtitle}
