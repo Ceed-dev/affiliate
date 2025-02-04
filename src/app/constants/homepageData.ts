@@ -154,6 +154,129 @@ export const homepageContent: HomepageContent = {
       },
     },
   },
+  ja: {
+    affiliate: {
+      hero: {
+        titleLine1: "業界唯一の",
+        titleLine2: "web3特化アフィリエイトサービス",
+        subtitle: "プロジェクトに貢献し、報酬を獲得するチャンス",
+        descriptionLine1: "Qubeと協力して、ゲームブランド向けの強力なネットワークにアクセスしましょう。",
+        descriptionLine2: "リーチを拡大し、web3の世界での存在感を強化しましょう。",
+      },
+      about1: {
+        title1: "トップクラスのweb3ゲームと繋がろう",
+        title2: "",
+        title3: "",
+        description: "業界をリードする多種多様なゲームとあなたを繋ぎます。",
+        image: "/assets/homepage/image-4.png",
+      },
+      about2: {
+        title1: "あなたの影響力を収益に",
+        title2: "",
+        description: "収益化の方法がわからないまま、活気あるコミュニティを築いていませんか？私たちがサポートします！",
+        image: "/assets/homepage/image-5.png",
+      },
+      about3: {
+        title1: "Qube Analyticsが",
+        title2: "あなたの影響力を追跡",
+        description: "エンゲージメントやリーチ、コンバージョンなどの項目から成果を測定し、より最適な戦略形成をサポート。データに基づいた選択でより大きなコミュニティの影響力へ。",
+        image: "/assets/homepage/image-6.png",
+      },
+      achievements: {
+        title: "実績",
+        items: [
+          { count: "3k", label: "登録アフィリエイト数" },
+          { count: "1.7M", label: "ゲーマーリーチ数" },
+          { count: "700k+", label: "オンボーディングユーザー数" },
+        ],
+      },
+      clients: {
+        title: "クライアント",
+      },
+      faq: {
+        title: "よくある質問",
+        items: [
+          {
+            question: "アフィリエイトキャンペーンはカスタマイズできますか？",
+            answer: "もちろんです！目標やターゲットオーディエンス、報酬構造などに基づいて、キャンペーンを柔軟にカスタマイズできます。あなただけのユニークなキャンペーンを作り上げることで、より良い成果が見込めます。",
+          },
+          {
+            question: "どのようなサポートを提供していますか？",
+            answer: "キャンペーンの企画から実行に至るまで、全ての段階で全力でサポートいたします。キャンペーンの戦略から技術的なサポートまで、何なりとお申し付けください。",
+          },
+          {
+            question: "アフィリエイトの支払いはどのように処理されますか？",
+            answer: "当プラットフォームでは、法定通貨と暗号通貨の両方で安全な支払いをサポートしています。各キャンペーンで支払い方法を選択でき、すべての取引が透明性のためにブロックチェーン上に記録されます。",
+          },
+        ],
+      },
+      contactUs: {
+        message: "時間を調整してお話ししましょう！",
+        buttonLabel: "お問い合わせ",
+      },
+    },
+    projectOwner: {
+      hero: {
+        titleLine1: "web3マーケットでのアフィリエイトなら",
+        titleLine2: "Qube",
+        subtitle: "dappの成長／web3での収益化を目指す全ての方へ",
+        descriptionLine1: "Qubeはアジア全域のインフルエンサーやギルドとあなたを繋ぎ、",
+        descriptionLine2: "より多くのユーザーへあなたのプロダクトを届けます。",
+      },
+      about1: {
+        title1: "強固なパートナーシップで",
+        title2: "リーチの拡大へ",
+        title3: "",
+        description: "あなたのゲームの成長への手助けとなる様々なKOLやギルド、コミュニティをご用意しています。",
+        image: "/assets/homepage/image-1.png",
+      },
+      about2: {
+        title1: "支払いは測定可能な成果のみに",
+        title2: "",
+        description: "完全成果報酬型によって、お支払いは成功したコンバージョンと測定可能な成果だけ。",
+        image: "/assets/homepage/image-2.png",
+      },
+      about3: {
+        title1: "キャンペーンのレポート、成果をチェック",
+        title2: "",
+        description: "適切なKOLやギルド、コミュニティを分析することで、より大きな成長へ。",
+        image: "/assets/homepage/image-3.png",
+      },
+      achievements: {
+        title: "実績",
+        items: [
+          { count: "3k", label: "登録アフィリエイト数" },
+          { count: "1.7M", label: "ゲーマーリーチ数" },
+          { count: "700k+", label: "オンボーディングユーザー数" },
+          { count: "-", label: "TGゲーム & LINEゲーム" },
+        ],
+      },
+      clients: {
+        title: "クライアント",
+      },
+      faq: {
+        title: "よくある質問",
+        items: [
+          {
+            question: "アフィリエイトキャンペーンはカスタマイズできますか？",
+            answer: "もちろんです！目標やターゲットオーディエンス、報酬構造などに基づいて、キャンペーンを柔軟にカスタマイズできます。あなただけのユニークなキャンペーンを作り上げることで、より良い成果が見込めます。",
+          },
+          {
+            question: "どのようなサポートを提供していますか？",
+            answer: "キャンペーンの企画から実行に至るまで、全ての段階で全力でサポートいたします。キャンペーンの戦略から技術的なサポートまで、何なりとお申し付けください。",
+          },
+          {
+            question: "アフィリエイトの支払いはどのように処理されますか？",
+            answer: "当プラットフォームでは、法定通貨と暗号通貨の両方で安全な支払いをサポートしています。各キャンペーンで支払い方法を選択でき、すべての取引が透明性のためにブロックチェーン上に記録されます。",
+          },
+        ],
+      },
+      contactUs: {
+        message: "時間を調整してお話ししましょう！",
+        buttonLabel: "お問い合わせ",
+      },
+    },
+  },
 };
 
 // List of trusted partners and their logos
@@ -196,9 +319,9 @@ export const footerTaglines = {
   `,
   ja: `
     <p>
-      ゲームの成長を最大限に引き出す力。<br />
-      キャンペーンを立ち上げ、<br />
-      ターゲットユーザーを獲得しましょう。
+      web3で成果報酬型マーケティングならQube。<br />
+      キャンペーンを開始して<br />
+      更なるユーザーの獲得へ。
     </p>
   `,
 };
@@ -224,11 +347,11 @@ export const footerContent = {
   ],
   ja: [
     {
-      category: "会社情報",
+      category: "会社",
       links: [
         { label: "ホーム", url: "#" },
-        { label: "お問い合わせ", url: "https://docs.google.com/forms/d/1csWLltBq0j3ddaiDv5W3iAndu2v5YZ1QfTQpULWIUP8/prefill" },
-        { label: "採用情報（近日公開）", url: "#" },
+        { label: "コンタクト", url: "https://docs.google.com/forms/d/1csWLltBq0j3ddaiDv5W3iAndu2v5YZ1QfTQpULWIUP8/prefill" },
+        { label: "キャリア（近日公開予定）", url: "#" },
       ],
     },
     {
