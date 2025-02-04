@@ -21,7 +21,7 @@ interface LocationData {
 export async function fetchLocationData(ip: string): Promise<LocationData> {
   try {
     // Make a request to the ipstack API to fetch location data for the given IP
-    const response = await fetch(`http://api.ipstack.com/${ip}?access_key=${ipstackApiKey}`);
+    const response = await fetch(`https://api.ipstack.com/${ip}?access_key=${ipstackApiKey}&output=json`);
 
     // Use type assertion to tell TypeScript that the response is of type LocationData
     const locationData = await response.json() as LocationData;
