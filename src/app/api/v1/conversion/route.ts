@@ -95,6 +95,21 @@ export async function POST(request: NextRequest) {
     // Extract validated parameters from the request body.
     const { referralId, conversionId, revenue, userWalletAddress, click_id } = validationResult.data;
 
+    const aspReferralIds = process.env.NEXT_PUBLIC_ASP_REFERRALS?.split(",") || [];
+    const isAspReferral = aspReferralIds.includes(referralId);
+    if (isAspReferral && !click_id) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "MISSING_CLICK_ID",
+            message: "click_id is required for ASP conversions.",
+            details: { referralId }
+          }
+        },
+        { status: 400 }
+      );
+    }
+
     // Step 3: Fetch referral data from Firestore using the referral ID.
     let referralData;
     try {
@@ -319,8 +334,8 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress
     );
 
-    // Step 12: Send conversion data to ASP Webhook (only if click_id is present)
-    if (click_id) {
+    // Step 12: Send conversion data to ASP Webhook (only if referral belongs to an ASP and click_id is present)
+    if (isAspReferral && click_id) {
       const aspWebhookUrlBase = process.env.NEXT_PUBLIC_ASP_WEBHOOK;
 
       if (!aspWebhookUrlBase) {
