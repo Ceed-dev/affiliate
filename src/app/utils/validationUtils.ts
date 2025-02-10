@@ -283,6 +283,12 @@ export const conversionRequestSchema = z.object({
     .refine((val) => !val || ethers.utils.isAddress(val), {
       message: "Invalid wallet address.",
     }),
+  
+  /**
+   * Click ID - an optional string field representing the identifier from ASP.
+   * If provided, it must be a valid non-empty string.
+   */
+  click_id: z.string().optional(),
 });
 
 /**
