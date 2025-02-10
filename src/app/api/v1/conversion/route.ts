@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract validated parameters from the request body.
-    const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
+    const { referralId, conversionId, revenue, userWalletAddress, click_id } = validationResult.data;
 
     // Step 3: Fetch referral data from Firestore using the referral ID.
     let referralData;
@@ -319,7 +319,32 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress
     );
 
-    // Step 12: Return a success response.
+    // Step 12: Send conversion data to ASP Webhook (only if click_id is present)
+    if (click_id) {
+      const aspWebhookUrlBase = process.env.NEXT_PUBLIC_ASP_WEBHOOK;
+
+      if (!aspWebhookUrlBase) {
+        console.error("ASP Webhook URL is not configured in environment variables.");
+      } else {
+        const aspWebhookUrl = new URL(aspWebhookUrlBase);
+
+        // Add required parameters
+        aspWebhookUrl.searchParams.append("identifier", click_id);
+        aspWebhookUrl.searchParams.append("supplier_id", "89");
+
+        try {
+          const webhookResponse = await fetch(aspWebhookUrl.toString(), { method: "GET" });
+
+          if (!webhookResponse.ok) {
+            console.error("Failed to send conversion data to ASP:", await webhookResponse.text());
+          }
+        } catch (error) {
+          console.error("Error sending conversion data to ASP:", error);
+        }
+      }
+    }
+
+    // Step 13: Return a success response.
     const response = NextResponse.json(
       {
         message: "Conversion successfully recorded.",
