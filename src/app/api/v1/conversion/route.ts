@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     // Extract validated parameters from the request body.
     const { referralId, conversionId, revenue, userWalletAddress, click_id } = validationResult.data;
 
-    const aspReferralIds = process.env.NEXT_PUBLIC_ASP_REFERRALS?.split(",") || [];
+    const aspReferralIds = process.env.ASP_REFERRALS?.split(",") || [];
     const isAspReferral = aspReferralIds.includes(referralId);
     if (isAspReferral && !click_id) {
       return NextResponse.json(
@@ -334,27 +334,25 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress
     );
 
-    // Step 12: Send conversion data to ASP Webhook (only if referral belongs to an ASP and click_id is present)
+    // Step 12: Send conversion data to Heroku Webhook (which acts as a proxy for ASP)
     if (isAspReferral && click_id) {
-      const aspWebhookUrlBase = process.env.NEXT_PUBLIC_ASP_WEBHOOK;
+      const herokuWebhookUrl = process.env.HEROKU_WEBHOOK_URL;
 
-      if (!aspWebhookUrlBase) {
-        console.error("ASP Webhook URL is not configured in environment variables.");
+      if (!herokuWebhookUrl) {
+        console.error("Heroku Webhook URL is not configured in environment variables.");
       } else {
-        const aspWebhookUrl = new URL(aspWebhookUrlBase);
-
-        // Add required parameters
-        aspWebhookUrl.searchParams.append("identifier", click_id);
-        aspWebhookUrl.searchParams.append("supplier_id", "89");
-
         try {
-          const webhookResponse = await fetch(aspWebhookUrl.toString(), { method: "GET" });
+          const herokuResponse = await fetch(herokuWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ click_id }),
+          });
 
-          if (!webhookResponse.ok) {
-            console.error("Failed to send conversion data to ASP:", await webhookResponse.text());
+          if (!herokuResponse.ok) {
+            console.error("Failed to send conversion data to Heroku Webhook:", await herokuResponse.text());
           }
-        } catch (error) {
-          console.error("Error sending conversion data to ASP:", error);
+        } catch (error: any) {
+          console.error("Error sending conversion data to Heroku Webhook:", error.message);
         }
       }
     }
