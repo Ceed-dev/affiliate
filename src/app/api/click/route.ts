@@ -10,12 +10,23 @@ import { ClickData } from "../../types";
 
 /**
  * Handles the GET request when a referral link is clicked.
- * Logs click data and redirects the user to either the provided target URL (if available) 
+ * Logs click data and redirects the user to either the provided target URL (if available)
  * or the project-defined redirect URL retrieved from the database.
- * 
+ *
+ * This function also handles tracking parameters such as:
+ * - `r` (referralId): Used to track the affiliate referral.
+ * - `click_id` (optional): Passed from ASP and forwarded to the destination to maintain tracking consistency.
+ *
  * Two cases are handled:
- * 1. If a target URL (t) is provided in the query parameters, the user is redirected to that URL.
+ * 1. If a target URL (`t`) is provided in the query parameters, the user is redirected to that URL.
+ *    - The referral ID (`r`) and `click_id` (if available) are appended to the target URL.
  * 2. If no target URL is provided, the project data is fetched from the database to obtain the redirect URL.
+ *    - The referral ID (`r`) and `click_id` (if available) are appended to the project's redirect URL.
+ *
+ * Additional Features:
+ * - Retrieves IP-based geolocation data to log country and city information.
+ * - Implements rate limiting to prevent excessive tracking requests.
+ * - Logs errors if geolocation data is unavailable or request processing fails.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -23,6 +34,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const referralId = searchParams.get("r");
     const targetUrl = searchParams.get("t");  // If the target URL is specified directly
+    const clickId = searchParams.get("click_id");
 
     if (!referralId) {
       return NextResponse.json(
@@ -64,6 +76,9 @@ export async function GET(request: NextRequest) {
             url.searchParams.append("startapp", referralId); // Telegram Mini App link
           } else {
             url.searchParams.append("r", referralId); // Standard link
+            if (clickId) {
+              url.searchParams.append("click_id", clickId);
+            }
           }
           
           return NextResponse.redirect(url.toString(), 302);
@@ -87,6 +102,9 @@ export async function GET(request: NextRequest) {
           url.searchParams.append("startapp", referralId); // Telegram Mini App link
         } else {
           url.searchParams.append("r", referralId); // Standard link
+          if (clickId) {
+            url.searchParams.append("click_id", clickId);
+          }
         }
 
         return NextResponse.redirect(url.toString(), 302);
@@ -123,6 +141,9 @@ export async function GET(request: NextRequest) {
           url.searchParams.append("startapp", referralId); // Telegram Mini App link
         } else {
           url.searchParams.append("r", referralId); // Standard link
+          if (clickId) {
+            url.searchParams.append("click_id", clickId);
+          }
         }
       }
 
@@ -159,6 +180,9 @@ export async function GET(request: NextRequest) {
         url.searchParams.append("startapp", referralId); // Telegram Mini App link
       } else {
         url.searchParams.append("r", referralId); // Standard link
+        if (clickId) {
+          url.searchParams.append("click_id", clickId);
+        }
       }
     }
 
