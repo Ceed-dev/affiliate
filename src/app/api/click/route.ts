@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 2: Retrieve IP address and user agent from request headers
-    const ip = request.headers.get("x-forwarded-for") || request.ip;
+    const ipHeader = request.headers.get("x-forwarded-for");
+    const ip = ipHeader ? ipHeader.split(",")[0].trim() : request.ip;
     if (!ip) {
       return NextResponse.json(
         { error: "IP address not found" },
