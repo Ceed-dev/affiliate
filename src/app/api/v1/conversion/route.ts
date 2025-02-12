@@ -93,7 +93,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract validated parameters from the request body.
-    const { referralId, conversionId, revenue, userWalletAddress } = validationResult.data;
+    const { referralId, conversionId, revenue, userWalletAddress, click_id } = validationResult.data;
+
+    const aspReferralIds = process.env.ASP_REFERRALS?.split(",") || [];
+    const isAspReferral = aspReferralIds.includes(referralId);
+    if (isAspReferral && !click_id) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "MISSING_CLICK_ID",
+            message: "click_id is required for ASP conversions.",
+            details: { referralId }
+          }
+        },
+        { status: 400 }
+      );
+    }
 
     // Step 3: Fetch referral data from Firestore using the referral ID.
     let referralData;
@@ -319,7 +334,30 @@ export async function POST(request: NextRequest) {
       validatedUserWalletAddress
     );
 
-    // Step 12: Return a success response.
+    // Step 12: Send conversion data to Heroku Webhook (which acts as a proxy for ASP)
+    if (isAspReferral && click_id) {
+      const herokuWebhookUrl = process.env.HEROKU_WEBHOOK_URL;
+
+      if (!herokuWebhookUrl) {
+        console.error("Heroku Webhook URL is not configured in environment variables.");
+      } else {
+        try {
+          const herokuResponse = await fetch(herokuWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ click_id }),
+          });
+
+          if (!herokuResponse.ok) {
+            console.error("Failed to send conversion data to Heroku Webhook:", await herokuResponse.text());
+          }
+        } catch (error: any) {
+          console.error("Error sending conversion data to Heroku Webhook:", error.message);
+        }
+      }
+    }
+
+    // Step 13: Return a success response.
     const response = NextResponse.json(
       {
         message: "Conversion successfully recorded.",
