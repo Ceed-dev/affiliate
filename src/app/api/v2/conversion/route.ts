@@ -159,7 +159,11 @@ export async function POST(request: NextRequest) {
           console.log("📡 [INFO] Sending postback to:", postbackUrl);
           console.log("🔍 [DEBUG] Postback Parameters:", postbackParams);
 
-          fetch("/api/postback", {
+          // Use NEXT_PUBLIC_BASE_URL for an absolute path
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; 
+          const postbackEndpoint = `${baseUrl}/api/postback`;
+
+          fetch(postbackEndpoint, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
