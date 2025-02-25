@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import axios from "axios";
 import { db } from "../../../utils/firebase/firebaseConfig";
 import { doc, getDoc, collection, runTransaction, Timestamp, increment } from "firebase/firestore";
 import { validateApiKey } from "../../../utils/firebase";
@@ -163,17 +164,17 @@ export async function POST(request: NextRequest) {
           const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; 
           const postbackEndpoint = `${baseUrl}/api/postback`;
 
-          fetch(postbackEndpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-internal-api-key": process.env.INTERNAL_API_KEY as string,
-            },
-            body: JSON.stringify({ postbackUrl, params: postbackParams }),
-          })
-            .then((res) => res.json())
-            .then((data) => console.log("✅ [SUCCESS] Postback response:", data))
-            .catch((err) => console.error("❌ [ERROR] Postback failed:", err.message));
+          const response = await axios.post(postbackEndpoint, 
+            { postbackUrl, params: postbackParams },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-internal-api-key": process.env.INTERNAL_API_KEY as string,
+              },
+            }
+          );
+
+          console.log("✅ [SUCCESS] Postback response:", response.data);
         } catch (error: any) {
           console.error("❌ [ERROR] Postback preparation failed:", error.message);
         }
