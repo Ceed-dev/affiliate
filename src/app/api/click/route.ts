@@ -294,7 +294,13 @@ export async function GET(request: NextRequest) {
 
     // --- 8) Redirect user with trackingId appended ---
     const url = new URL(redirectUrl);
-    url.searchParams.append("trackingId", trackingId);
+
+    if (redirectUrl.startsWith("https://t.me/")) {
+      url.searchParams.append("startapp", trackingId);
+    } else {
+      url.searchParams.append("trackingId", trackingId);
+    }
+
     return NextResponse.redirect(url.toString());
   } catch (error: any) {
     console.error("❌ [ERROR] Unexpected error:", error.message);
