@@ -72,6 +72,17 @@ export async function POST(request: NextRequest) {
 
     try {
       await runTransaction(db, async (transaction) => {
+        // --- Fetch existing user or ASP document for transaction ---
+        const userOrAspCollection = trackingData.type === "ASP" ? "asps" : "users";
+        const userOrAspRef = doc(db, userOrAspCollection, trackingData.ids.affiliatorId);
+
+        // Retrieve user or ASP data from Firestore (ensuring we have `firstConversionAt`)
+        const userOrAspSnap = await transaction.get(userOrAspRef);
+        const userOrAspData = userOrAspSnap.exists() ? userOrAspSnap.data() : null;
+
+        // Compute firstConversionAt for user/ASP (if not already set)
+        const userFirstConversionAt = userOrAspData?.aggregatedStats?.conversionStats?.timestamps?.firstConversionAt ?? Timestamp.now();
+
         const campaignLinksCollection =
           trackingData.type === "ASP" ? "aspCampaignLinks" : "individualCampaignLinks";
 
@@ -120,6 +131,47 @@ export async function POST(request: NextRequest) {
           [`rewardStats.isPaid.unpaidCount`]: increment(1),
 
           [`timestamps.updatedAt`]: Timestamp.now(),
+        });
+
+        // --- Aggregate conversion stats into the project's document ---
+        const projectRef = doc(db, "projects", trackingData.ids.campaignId);
+
+        // Determine the correct aggregation path (ASP or INDIVIDUAL)
+        const conversionPath = `aggregatedStats.${trackingData.type}.conversionStats`;
+        const rewardPath = `aggregatedStats.${trackingData.type}.rewardStats`;
+
+        transaction.update(projectRef, {
+          [`${conversionPath}.total`]: increment(1),
+          [`${conversionPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
+          [`${conversionPath}.byMonth.${yyyy}-${mm}`]: increment(1),
+          [`${conversionPath}.byConversionPoint.${conversionId}`]: increment(1),
+          ...(country && { [`${conversionPath}.byCountry.${country}`]: increment(1) }),
+          [`${conversionPath}.timestamps.lastConversionAt`]: Timestamp.now(),
+          [`${conversionPath}.timestamps.firstConversionAt`]: 
+            projectData?.aggregatedStats?.[trackingData.type]?.conversionStats?.timestamps?.firstConversionAt ?? Timestamp.now(),
+
+          [`${rewardPath}.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(rewardDetails.amount),
+          [`${rewardPath}.byRewardUnit.${rewardKey}.totalAmount`]: increment(rewardDetails.amount),
+          [`${rewardPath}.isPaid.unpaidCount`]: increment(1),
+        });
+
+        // --- Aggregate conversion stats into the user's or ASP's document ---
+        // Dynamically determine aggregation path
+        const userConversionPath = `aggregatedStats.conversionStats`;
+        const userRewardPath = `aggregatedStats.rewardStats`;
+
+        transaction.update(userOrAspRef, {
+        [`${userConversionPath}.total`]: increment(1),
+        [`${userConversionPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
+        [`${userConversionPath}.byMonth.${yyyy}-${mm}`]: increment(1),
+        [`${userConversionPath}.byConversionPoint.${conversionId}`]: increment(1),
+        ...(country && { [`${userConversionPath}.byCountry.${country}`]: increment(1) }),
+        [`${userConversionPath}.timestamps.lastConversionAt`]: Timestamp.now(),
+        [`${userConversionPath}.timestamps.firstConversionAt`]: userFirstConversionAt,
+
+        [`${userRewardPath}.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(rewardDetails.amount),
+        [`${userRewardPath}.byRewardUnit.${rewardKey}.totalAmount`]: increment(rewardDetails.amount),
+        [`${userRewardPath}.isPaid.unpaidCount`]: increment(1),
         });
 
         transaction.delete(trackingRef);
