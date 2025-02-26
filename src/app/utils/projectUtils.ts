@@ -318,6 +318,7 @@ export const saveProject = async (
     targeting: {
       audienceCountries,
     },
+    capiVersion: "v2",
   };
 
   const result = await saveNewProjectToFirestore(updatedProjectData);
