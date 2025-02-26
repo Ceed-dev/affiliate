@@ -308,7 +308,22 @@ export async function joinProject(
 
     // If user is already a part of the project, return the existing referral ID
     if (userData.joinedProjectIds.includes(projectId)) {
-      return await getExistingReferralId(walletAddress, projectId);
+      if (capiVersion === "v2") {
+        const q = query(
+          collection(db, "individualCampaignLinks"),
+          where("ids.userId", "==", walletAddress),
+          where("ids.campaignId", "==", projectId)
+        );
+
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          return querySnapshot.docs[0].id;
+        }
+
+        console.log("ℹ️ [INFO] No existing individual campaign link found, proceeding to create a new one.");
+      } else {
+        return await getExistingReferralId(walletAddress, projectId);
+      }
     }
 
     // Prevent new participants if all conversion points are inactive
