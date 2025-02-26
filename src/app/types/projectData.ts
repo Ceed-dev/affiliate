@@ -67,6 +67,7 @@ export type ProjectData = {
   targeting: {
     audienceCountries: string[]; // Array of country names for audience targeting
   };
+  capiVersion?: "v1" | "v2"; // (Optional) API version used for tracking conversions (if not set, default to "v1")
   // ==============================================
   // DO NOT DELETE THIS!!
   // Purpose: This comment preserves the reference to the embed images feature, allowing us to track where related code existed.
