@@ -83,6 +83,11 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     return Array.isArray(campaigns) && campaigns.every(isValidExternalCampaign);
   };
 
+  // Validate capiVersion (if it exists)
+  const isValidCapiVersion = (version: any): boolean => {
+    return version === undefined || version === "v1" || version === "v2";
+  };
+
   // Validate the full structure of a project with its conversion points
   return (
     typeof data.projectName === "string" &&
@@ -105,7 +110,8 @@ export function isValidProjectData(data: DocumentData): data is ProjectData {
     (data.isUsingXpReward || isValidSelectedToken(data.selectedToken)) && // Ensure selectedToken is valid if XP is not used
     isValidConversionPoints(data.conversionPoints) &&
     isValidExternalCampaigns(data.externalCampaigns) &&
-    isValidTargeting(data.targeting)
+    isValidTargeting(data.targeting) &&
+    isValidCapiVersion(data.capiVersion)
   );
 }
 

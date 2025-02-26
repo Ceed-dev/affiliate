@@ -1,7 +1,7 @@
 // Firebase Imports
 import { db } from "./firebase/firebaseConfig";
 import { 
-  doc, getDoc, getDocs, setDoc, updateDoc, collection,
+  doc, getDoc, getDocs, addDoc, setDoc, updateDoc, collection,
   query, where, Timestamp
 } from "firebase/firestore";
 
@@ -273,6 +273,8 @@ export const getUserRoleAndName = async (walletAddress: string): Promise<UserRol
  * @param projectId - The ID of the project to join
  * @param walletAddress - The wallet address of the user attempting to join
  * @param allConversionPointsInactive - Boolean flag indicating if all conversion points are inactive
+ * @param capiVersion - The CAPI version implemented by the project ("v1" or "v2"). Determines whether a referral ID (v1) 
+ *                      or tracking ID (v2) should be generated and returned.
  * @returns {Promise<string>} The referral ID if join is successful, or an empty string if it fails
  * @throws Error if joining the project fails due to an invalid user state or other issues
  */
@@ -280,6 +282,7 @@ export async function joinProject(
   projectId: string, 
   walletAddress: string,
   allConversionPointsInactive: boolean,
+  capiVersion?: string,
 ): Promise<string> {
   const userDocRef = doc(db, "users", walletAddress);
 
@@ -305,7 +308,22 @@ export async function joinProject(
 
     // If user is already a part of the project, return the existing referral ID
     if (userData.joinedProjectIds.includes(projectId)) {
-      return await getExistingReferralId(walletAddress, projectId);
+      if (capiVersion === "v2") {
+        const q = query(
+          collection(db, "individualCampaignLinks"),
+          where("ids.userId", "==", walletAddress),
+          where("ids.campaignId", "==", projectId)
+        );
+
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          return querySnapshot.docs[0].id;
+        }
+
+        console.log("ℹ️ [INFO] No existing individual campaign link found, proceeding to create a new one.");
+      } else {
+        return await getExistingReferralId(walletAddress, projectId);
+      }
     }
 
     // Prevent new participants if all conversion points are inactive
@@ -320,8 +338,59 @@ export async function joinProject(
     await setDoc(userDocRef, userData);
 
     toast.success("You have successfully joined the project!");
-    // Generate and return a new referral ID for the project
-    return await createAndReturnNewReferralId(walletAddress, projectId);
+
+    // Generate and return a new referral or tracking ID based on CAPI version
+    if (capiVersion === "v2") {
+      try {
+        const campaignLinkRef = await addDoc(collection(db, "individualCampaignLinks"), {
+          ids: {
+            userId: walletAddress,
+            campaignId: projectId,
+          },
+          isActive: true,
+          redirectUrl: "",
+          clickStats: {
+            byCountry: {},
+            byDay: {},
+            byMonth: {},
+            total: 0,
+          },
+          conversionStats: {
+            byConversionPoint: {},
+            byCountry: {},
+            byDay: {},
+            byMonth: {},
+            total: 0,
+          },
+          rewardStats: {
+            byRewardUnit: {},
+            isPaid: {
+              paidCount: 0,
+              unpaidCount: 0,
+            },
+          },
+          timestamps: {
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+          },
+        });
+    
+        const linkId = campaignLinkRef.id;
+    
+        await updateDoc(campaignLinkRef, {
+          redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?type=individual&id=${linkId}`,
+          "timestamps.updatedAt": Timestamp.now(),
+        });
+    
+        return linkId;
+      } catch (error) {
+        console.error("❌ [ERROR] Failed to create individual campaign link:", error);
+        throw new Error("Failed to create individual campaign link");
+      }
+    } else {
+      // Default to CAPI v1 behavior (generate a referral ID)
+      return await createAndReturnNewReferralId(walletAddress, projectId);
+    }
 
   } catch (error: any) {
     const errorMessage = error.message || "Unknown error occurred";
