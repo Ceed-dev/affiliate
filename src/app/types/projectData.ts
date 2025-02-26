@@ -68,6 +68,79 @@ export type ProjectData = {
     audienceCountries: string[]; // Array of country names for audience targeting
   };
   capiVersion?: "v1" | "v2"; // (Optional) API version used for tracking conversions (if not set, default to "v1")
+  // New aggregated stats field (Optional for compatibility with v1 projects)
+  aggregatedStats?: {
+    ASP: {
+      clickStats: {
+        total: number;
+        byCountry: Record<string, number>;
+        byDay: Record<string, number>;
+        byMonth: Record<string, number>;
+        timestamps: {
+          firstClickAt: Date | null;
+          lastClickAt: Date | null;
+        };
+      };
+      conversionStats: {
+        total: number;
+        byConversionPoint: Record<string, number>;
+        byCountry: Record<string, number>;
+        byDay: Record<string, number>;
+        byMonth: Record<string, number>;
+        timestamps: {
+          firstConversionAt: Date | null;
+          lastConversionAt: Date | null;
+        };
+      };
+      rewardStats: {
+        byRewardUnit: Record<string, { 
+          totalAmount: number; 
+          paidAmount: number;
+          unpaidAmount: number; 
+        }>;
+        isPaid: { paidCount: number; unpaidCount: number };
+        timestamps: {
+          firstPaidAt: Date | null;
+          lastPaidAt: Date | null;
+        };
+      };
+    };
+    INDIVIDUAL: {
+      clickStats: {
+        total: number;
+        byCountry: Record<string, number>;
+        byDay: Record<string, number>;
+        byMonth: Record<string, number>;
+        timestamps: {
+          firstClickAt: Date | null;
+          lastClickAt: Date | null;
+        };
+      };
+      conversionStats: {
+        total: number;
+        byConversionPoint: Record<string, number>;
+        byCountry: Record<string, number>;
+        byDay: Record<string, number>;
+        byMonth: Record<string, number>;
+        timestamps: {
+          firstConversionAt: Date | null;
+          lastConversionAt: Date | null;
+        };
+      };
+      rewardStats: {
+        byRewardUnit: Record<string, { 
+          totalAmount: number; 
+          paidAmount: number;
+          unpaidAmount: number; 
+        }>;
+        isPaid: { paidCount: number; unpaidCount: number };
+        timestamps: {
+          firstPaidAt: Date | null;
+          lastPaidAt: Date | null;
+        };
+      };
+    };
+  };
   // ==============================================
   // DO NOT DELETE THIS!!
   // Purpose: This comment preserves the reference to the embed images feature, allowing us to track where related code existed.
