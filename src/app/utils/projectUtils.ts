@@ -319,6 +319,70 @@ export const saveProject = async (
       audienceCountries,
     },
     capiVersion: "v2",
+    aggregatedStats: {
+      ASP: {
+        clickStats: {
+          total: 0,
+          byCountry: {},
+          byDay: {},
+          byMonth: {},
+          timestamps: {
+            firstClickAt: null,
+            lastClickAt: null,
+          },
+        },
+        conversionStats: {
+          total: 0,
+          byConversionPoint: {},
+          byCountry: {},
+          byDay: {},
+          byMonth: {},
+          timestamps: {
+            firstConversionAt: null,
+            lastConversionAt: null,
+          },
+        },
+        rewardStats: {
+          byRewardUnit: {},
+          isPaid: { paidCount: 0, unpaidCount: 0 },
+          timestamps: {
+            firstPaidAt: null,
+            lastPaidAt: null,
+          },
+        },
+      },
+      INDIVIDUAL: {
+        clickStats: {
+          total: 0,
+          byCountry: {},
+          byDay: {},
+          byMonth: {},
+          timestamps: {
+            firstClickAt: null,
+            lastClickAt: null,
+          },
+        },
+        conversionStats: {
+          total: 0,
+          byConversionPoint: {},
+          byCountry: {},
+          byDay: {},
+          byMonth: {},
+          timestamps: {
+            firstConversionAt: null,
+            lastConversionAt: null,
+          },
+        },
+        rewardStats: {
+          byRewardUnit: {},
+          isPaid: { paidCount: 0, unpaidCount: 0 },
+          timestamps: {
+            firstPaidAt: null,
+            lastPaidAt: null,
+          },
+        },
+      },
+    },
   };
 
   const result = await saveNewProjectToFirestore(updatedProjectData);

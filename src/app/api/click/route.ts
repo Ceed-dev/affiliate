@@ -226,6 +226,18 @@ export async function GET(request: NextRequest) {
 
     try {
       await runTransaction(db, async (transaction) => {
+        // --- Fetch existing user or ASP document for transaction ---
+        const userOrAspId = type === "asp" ? campaignLinkData.ids.aspId : campaignLinkData.ids.userId;
+        const userOrAspCollection = type === "asp" ? "asps" : "users";
+        const userOrAspRef = doc(db, userOrAspCollection, userOrAspId);
+
+        // Retrieve user or ASP data from Firestore (ensuring we have `firstClickAt`)
+        const userOrAspSnap = await transaction.get(userOrAspRef);
+        const userOrAspData = userOrAspSnap.exists() ? userOrAspSnap.data() : null;
+
+        // Compute firstClickAt for user/ASP (if not already set)
+        const userFirstClickAt = userOrAspData?.aggregatedStats?.clickStats?.timestamps?.firstClickAt ?? Timestamp.now();
+
         // Verify campaign link existence within transaction
         const campaignRef = doc(db, colName, campaignLinkId);
         const campaignSnap = await transaction.get(campaignRef);
@@ -260,6 +272,119 @@ export async function GET(request: NextRequest) {
           ...(location.country && {
             [`clickStats.byCountry.${location.country}`]: increment(1),
           }),
+        });
+
+        // --- Aggregate click stats into the project's document ---
+        const projectRef = doc(db, "projects", campaignId);
+
+        // Check if `aggregatedStats` exists in the project document
+        if (!projectData?.aggregatedStats) {
+          transaction.set(projectRef, {
+            aggregatedStats: {
+              ASP: {
+                clickStats: {
+                  total: 0,
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstClickAt: null, lastClickAt: null },
+                },
+                conversionStats: {
+                  total: 0,
+                  byConversionPoint: {},
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstConversionAt: null, lastConversionAt: null },
+                },
+                rewardStats: {
+                  byRewardUnit: {},
+                  isPaid: { paidCount: 0, unpaidCount: 0 },
+                  timestamps: { firstPaidAt: null, lastPaidAt: null },
+                },
+              },
+              INDIVIDUAL: {
+                clickStats: {
+                  total: 0,
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstClickAt: null, lastClickAt: null },
+                },
+                conversionStats: {
+                  total: 0,
+                  byConversionPoint: {},
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstConversionAt: null, lastConversionAt: null },
+                },
+                rewardStats: {
+                  byRewardUnit: {},
+                  isPaid: { paidCount: 0, unpaidCount: 0 },
+                  timestamps: { firstPaidAt: null, lastPaidAt: null },
+                },
+              },
+            },
+          }, { merge: true });
+        }
+
+        // Determine the correct aggregation path (ASP or INDIVIDUAL)
+        const aggregationPath = `aggregatedStats.${type.toUpperCase()}.clickStats`;
+
+        // Update click statistics in the project's aggregatedStats
+        transaction.update(projectRef, {
+          [`${aggregationPath}.total`]: increment(1),
+          [`${aggregationPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
+          [`${aggregationPath}.byMonth.${yyyy}-${mm}`]: increment(1),
+          ...(location.country && {
+            [`${aggregationPath}.byCountry.${location.country}`]: increment(1),
+          }),
+          [`${aggregationPath}.timestamps.lastClickAt`]: Timestamp.now(),
+          [`${aggregationPath}.timestamps.firstClickAt`]: projectData?.aggregatedStats?.[type.toUpperCase()]?.clickStats?.timestamps?.firstClickAt ?? Timestamp.now(),
+        });
+
+        // --- Aggregate click stats into the user's or ASP's document ---
+        // Check if `aggregatedStats` exists in the user or ASP document
+        if (!userOrAspData?.aggregatedStats) {
+          transaction.set(userOrAspRef, {
+            aggregatedStats: {
+              clickStats: {
+                total: 0,
+                byCountry: {},
+                byDay: {},
+                byMonth: {},
+                timestamps: { firstClickAt: null, lastClickAt: null },
+              },
+              conversionStats: {
+                total: 0,
+                byConversionPoint: {},
+                byCountry: {},
+                byDay: {},
+                byMonth: {},
+                timestamps: { firstConversionAt: null, lastConversionAt: null },
+              },
+              rewardStats: {
+                byRewardUnit: {},
+                isPaid: { paidCount: 0, unpaidCount: 0 },
+                timestamps: { firstPaidAt: null, lastPaidAt: null },
+              },
+            },
+          }, { merge: true });
+        }
+
+        // Dynamically determine `aggregationPath`
+        const userAggregationPath = `aggregatedStats.clickStats`;
+
+        transaction.update(userOrAspRef, {
+          [`${userAggregationPath}.total`]: increment(1),
+          [`${userAggregationPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
+          [`${userAggregationPath}.byMonth.${yyyy}-${mm}`]: increment(1),
+          ...(location.country && {
+            [`${userAggregationPath}.byCountry.${location.country}`]: increment(1),
+          }),
+          [`${userAggregationPath}.timestamps.lastClickAt`]: Timestamp.now(),
+          [`${userAggregationPath}.timestamps.firstClickAt`]: userFirstClickAt,
         });
 
         // Store trackingId in the global "trackingIds" collection
