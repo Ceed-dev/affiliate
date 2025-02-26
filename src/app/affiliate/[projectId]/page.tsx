@@ -177,12 +177,16 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const generateReferralLink = (data: ProjectData, referralId: string | null) => {
     if (!referralId) return "";
 
-    // Conditional logic to check if the project ID matches the DBR project
+    // DBR project: Always use old referral link format
     if (data.id === "FX26BxKbDVuJvaCtcTDf") {
-      // Use the old referral link format for DBR project compatibility
       return `${data.redirectUrl}?r=${referralId}`;
-    } else {
-      // Use the new referral link format with the target URL (`t`) for all other projects
+    } 
+    // v2 projects: Use trackingId for new referral link format
+    else if (data.capiVersion === "v2") {
+      return `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?type=individual&id=${referralId}`;
+    } 
+    // Default case (v1 or undefined): Use old referral link format
+    else {
       return `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(data.redirectUrl)}`;
     }
   };
