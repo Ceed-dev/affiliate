@@ -153,7 +153,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   const handleJoinProject = async () => {
     const allConversionPointsInactive = projectData!.conversionPoints.every(point => !point.isActive);
     try {
-      const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive);
+      const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive, projectData?.capiVersion);
       setReferralId(referralId);
     } catch (error) {
       handleError("join project", error);
