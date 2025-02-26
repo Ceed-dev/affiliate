@@ -277,6 +277,58 @@ export async function GET(request: NextRequest) {
         // --- Aggregate click stats into the project's document ---
         const projectRef = doc(db, "projects", campaignId);
 
+        // Check if `aggregatedStats` exists in the project document
+        if (!projectData?.aggregatedStats) {
+          transaction.set(projectRef, {
+            aggregatedStats: {
+              ASP: {
+                clickStats: {
+                  total: 0,
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstClickAt: null, lastClickAt: null },
+                },
+                conversionStats: {
+                  total: 0,
+                  byConversionPoint: {},
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstConversionAt: null, lastConversionAt: null },
+                },
+                rewardStats: {
+                  byRewardUnit: {},
+                  isPaid: { paidCount: 0, unpaidCount: 0 },
+                  timestamps: { firstPaidAt: null, lastPaidAt: null },
+                },
+              },
+              INDIVIDUAL: {
+                clickStats: {
+                  total: 0,
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstClickAt: null, lastClickAt: null },
+                },
+                conversionStats: {
+                  total: 0,
+                  byConversionPoint: {},
+                  byCountry: {},
+                  byDay: {},
+                  byMonth: {},
+                  timestamps: { firstConversionAt: null, lastConversionAt: null },
+                },
+                rewardStats: {
+                  byRewardUnit: {},
+                  isPaid: { paidCount: 0, unpaidCount: 0 },
+                  timestamps: { firstPaidAt: null, lastPaidAt: null },
+                },
+              },
+            },
+          }, { merge: true });
+        }
+
         // Determine the correct aggregation path (ASP or INDIVIDUAL)
         const aggregationPath = `aggregatedStats.${type.toUpperCase()}.clickStats`;
 
@@ -293,6 +345,34 @@ export async function GET(request: NextRequest) {
         });
 
         // --- Aggregate click stats into the user's or ASP's document ---
+        // Check if `aggregatedStats` exists in the user or ASP document
+        if (!userOrAspData?.aggregatedStats) {
+          transaction.set(userOrAspRef, {
+            aggregatedStats: {
+              clickStats: {
+                total: 0,
+                byCountry: {},
+                byDay: {},
+                byMonth: {},
+                timestamps: { firstClickAt: null, lastClickAt: null },
+              },
+              conversionStats: {
+                total: 0,
+                byConversionPoint: {},
+                byCountry: {},
+                byDay: {},
+                byMonth: {},
+                timestamps: { firstConversionAt: null, lastConversionAt: null },
+              },
+              rewardStats: {
+                byRewardUnit: {},
+                isPaid: { paidCount: 0, unpaidCount: 0 },
+                timestamps: { firstPaidAt: null, lastPaidAt: null },
+              },
+            },
+          }, { merge: true });
+        }
+
         // Dynamically determine `aggregationPath`
         const userAggregationPath = `aggregatedStats.clickStats`;
 
