@@ -38,15 +38,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid API key" }, { status: 403 });
     }
 
-    // Step 5: Validate conversionId exists in the project
-    const projectRef = doc(db, "projects", trackingData.ids.campaignId);
-    const projectSnap = await getDoc(projectRef);
-    if (!projectSnap.exists()) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    // Step 5: Validate conversionId exists in the campaign
+    const campaignRef = doc(db, "campaigns", trackingData.ids.campaignId);
+    const campaignSnap = await getDoc(campaignRef);
+    if (!campaignSnap.exists()) {
+      return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
-    const projectData = projectSnap.data();
-    const conversionPoints = projectData.conversionPoints || [];
+    const campaignData = campaignSnap.data();
+    const conversionPoints = campaignData.conversionPoints || [];
     const conversionPoint = conversionPoints.find((point: any) => point.id === conversionId);
 
     if (!conversionPoint) {
@@ -59,13 +59,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 7: Prepare reward details
-    const rewardDetails = {
-      type: projectData.isUsingXpReward ? "xp" : "token",
-      amount: conversionPoint.rewardAmount,
-      unit: projectData.isUsingXpReward ? "XP" : projectData.selectedToken.symbol,
-      tokenAddress: projectData.isUsingXpReward ? null : projectData.selectedToken.address ?? null,
-      chainId: projectData.isUsingXpReward ? null : projectData.selectedToken.chainId ?? null,
-      metadata: null, // Reserved for future use
+    const rewardId = conversionPoint.rewardId; // Conversion point now stores a reference to rewardId
+    const baseReward = campaignData.rewards?.[rewardId];
+
+    if (!baseReward) {
+      return NextResponse.json({ error: "Reward details not found" }, { status: 404 });
+    }
+
+    // Merge reward details with conversion-specific amount
+    const finalRewardDetails = {
+      ...baseReward,
+      amount: conversionPoint.rewardDetails.amount, // Amount is specific to the conversion point
     };
 
     let clickLogData: any = null;
@@ -100,7 +104,7 @@ export async function POST(request: NextRequest) {
         const conversionLogRef = doc(collection(db, `${campaignLinksCollection}/${trackingData.ids.linkId}/conversionLogs`));
         transaction.set(conversionLogRef, {
           ids: { trackingId, conversionId, clickLogId: trackingData.ids.clickLogId },
-          rewardDetails,
+          finalRewardDetails,
           country,
           timestamps: { createdAt: Timestamp.now(), paidAt: null },
           isPaid: false,
@@ -109,38 +113,36 @@ export async function POST(request: NextRequest) {
         transaction.update(clickLogRef, { "ids.conversionLogId": conversionLogRef.id });
 
         // Step 9: Update Conversion Statistics
-        const campaignRef = doc(db, campaignLinksCollection, trackingData.ids.linkId);
+        const campaignLinkRef = doc(db, campaignLinksCollection, trackingData.ids.linkId);
         const currentDate = new Date();
         const yyyy = currentDate.getFullYear();
         const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
         const dd = String(currentDate.getDate()).padStart(2, "0");
 
-        const rewardKey = rewardDetails.type === "xp"
+        const rewardKey = finalRewardDetails.type === "xp"
           ? "XP"
-          : `${rewardDetails.chainId}-${rewardDetails.tokenAddress}-${rewardDetails.unit}`;
+          : `${finalRewardDetails.chainId}-${finalRewardDetails.tokenAddress}-${finalRewardDetails.unit}`;
 
-        transaction.update(campaignRef, {
+        transaction.update(campaignLinkRef, {
           [`conversionStats.total`]: increment(1),
           [`conversionStats.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
           [`conversionStats.byMonth.${yyyy}-${mm}`]: increment(1),
           [`conversionStats.byConversionPoint.${conversionId}`]: increment(1),
           ...(country && { [`conversionStats.byCountry.${country}`]: increment(1) }),
 
-          [`rewardStats.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(rewardDetails.amount),
-          [`rewardStats.byRewardUnit.${rewardKey}.totalAmount`]: increment(rewardDetails.amount),
+          [`rewardStats.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(finalRewardDetails.amount),
+          [`rewardStats.byRewardUnit.${rewardKey}.totalAmount`]: increment(finalRewardDetails.amount),
           [`rewardStats.isPaid.unpaidCount`]: increment(1),
 
           [`timestamps.updatedAt`]: Timestamp.now(),
         });
 
-        // --- Aggregate conversion stats into the project's document ---
-        const projectRef = doc(db, "projects", trackingData.ids.campaignId);
-
+        // --- Aggregate conversion stats into the campaign's document ---
         // Determine the correct aggregation path (ASP or INDIVIDUAL)
         const conversionPath = `aggregatedStats.${trackingData.type}.conversionStats`;
         const rewardPath = `aggregatedStats.${trackingData.type}.rewardStats`;
 
-        transaction.update(projectRef, {
+        transaction.update(campaignRef, {
           [`${conversionPath}.total`]: increment(1),
           [`${conversionPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
           [`${conversionPath}.byMonth.${yyyy}-${mm}`]: increment(1),
@@ -148,11 +150,13 @@ export async function POST(request: NextRequest) {
           ...(country && { [`${conversionPath}.byCountry.${country}`]: increment(1) }),
           [`${conversionPath}.timestamps.lastConversionAt`]: Timestamp.now(),
           [`${conversionPath}.timestamps.firstConversionAt`]: 
-            projectData?.aggregatedStats?.[trackingData.type]?.conversionStats?.timestamps?.firstConversionAt ?? Timestamp.now(),
+            campaignData.aggregatedStats?.[trackingData.type]?.conversionStats?.timestamps?.firstConversionAt ?? Timestamp.now(),
 
-          [`${rewardPath}.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(rewardDetails.amount),
-          [`${rewardPath}.byRewardUnit.${rewardKey}.totalAmount`]: increment(rewardDetails.amount),
+          [`${rewardPath}.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(finalRewardDetails.amount),
+          [`${rewardPath}.byRewardUnit.${rewardKey}.totalAmount`]: increment(finalRewardDetails.amount),
           [`${rewardPath}.isPaid.unpaidCount`]: increment(1),
+
+          [`timestamps.updatedAt`]: Timestamp.now(),
         });
 
         // --- Aggregate conversion stats into the user's or ASP's document ---
@@ -161,17 +165,19 @@ export async function POST(request: NextRequest) {
         const userRewardPath = `aggregatedStats.rewardStats`;
 
         transaction.update(userOrAspRef, {
-        [`${userConversionPath}.total`]: increment(1),
-        [`${userConversionPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
-        [`${userConversionPath}.byMonth.${yyyy}-${mm}`]: increment(1),
-        [`${userConversionPath}.byConversionPoint.${conversionId}`]: increment(1),
-        ...(country && { [`${userConversionPath}.byCountry.${country}`]: increment(1) }),
-        [`${userConversionPath}.timestamps.lastConversionAt`]: Timestamp.now(),
-        [`${userConversionPath}.timestamps.firstConversionAt`]: userFirstConversionAt,
+          [`${userConversionPath}.total`]: increment(1),
+          [`${userConversionPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
+          [`${userConversionPath}.byMonth.${yyyy}-${mm}`]: increment(1),
+          [`${userConversionPath}.byConversionPoint.${conversionId}`]: increment(1),
+          ...(country && { [`${userConversionPath}.byCountry.${country}`]: increment(1) }),
+          [`${userConversionPath}.timestamps.lastConversionAt`]: Timestamp.now(),
+          [`${userConversionPath}.timestamps.firstConversionAt`]: userFirstConversionAt,
 
-        [`${userRewardPath}.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(rewardDetails.amount),
-        [`${userRewardPath}.byRewardUnit.${rewardKey}.totalAmount`]: increment(rewardDetails.amount),
-        [`${userRewardPath}.isPaid.unpaidCount`]: increment(1),
+          [`${userRewardPath}.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(finalRewardDetails.amount),
+          [`${userRewardPath}.byRewardUnit.${rewardKey}.totalAmount`]: increment(finalRewardDetails.amount),
+          [`${userRewardPath}.isPaid.unpaidCount`]: increment(1),
+
+          [trackingData.type === "ASP" ? "timestamps.updatedAt" : "updatedAt"]: Timestamp.now(),
         });
 
         transaction.delete(trackingRef);
