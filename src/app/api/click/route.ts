@@ -290,6 +290,7 @@ export async function GET(request: NextRequest) {
           }),
           [`${aggregationPath}.timestamps.lastClickAt`]: Timestamp.now(),
           [`${aggregationPath}.timestamps.firstClickAt`]: campaignData.aggregatedStats?.[type.toUpperCase()]?.clickStats?.timestamps?.firstClickAt ?? Timestamp.now(),
+
           [`timestamps.updatedAt`]: Timestamp.now(),
         });
 
@@ -335,6 +336,7 @@ export async function GET(request: NextRequest) {
           }),
           [`${userAggregationPath}.timestamps.lastClickAt`]: Timestamp.now(),
           [`${userAggregationPath}.timestamps.firstClickAt`]: userFirstClickAt,
+
           [type === "asp" ? "timestamps.updatedAt" : "updatedAt"]: Timestamp.now(),
         });
 
