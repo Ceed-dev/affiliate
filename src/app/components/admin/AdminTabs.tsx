@@ -30,11 +30,11 @@ interface AdminTabsProps {
 export const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, setActiveTab }) => {
   // Define the tab data as an array of objects
   const tabs = [
-    { label: "Unpaid Conversion Logs & Token Summary", value: "unpaidConversionLogs" as ActiveTab },
+    // { label: "Unpaid Conversion Logs & Token Summary", value: "unpaidConversionLogs" as ActiveTab },
     { label: "User Approval", value: "userApproval" as ActiveTab },
-    { label: "Manual Tweet Engagement Update", value: "manualTweetEngagementUpdate" as ActiveTab },
-    { label: "Manual YouTube Video Engagement Update", value: "manualYouTubeVideoEngagementUpdate" as ActiveTab },
-    { label: "App Settings", value: "appSettings" as ActiveTab },
+    // { label: "Manual Tweet Engagement Update", value: "manualTweetEngagementUpdate" as ActiveTab },
+    // { label: "Manual YouTube Video Engagement Update", value: "manualYouTubeVideoEngagementUpdate" as ActiveTab },
+    // { label: "App Settings", value: "appSettings" as ActiveTab },
   ];
 
   return (
