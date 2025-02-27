@@ -60,7 +60,7 @@ export default function Admin() {
   }>({});
 
   // Active tab management
-  const [activeTab, setActiveTab] = useState<ActiveTab>("unpaidConversionLogs");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("userApproval");
 
   // State for unapproved users
   const [unapprovedUsers, setUnapprovedUsers] = useState<UserData[]>([]);
@@ -113,33 +113,33 @@ export default function Admin() {
   // Effect to load unpaid logs and unapproved users after signer initialization
   useEffect(() => {
     if (signer && isSignerInitialized) {
-      loadUnpaidConversionLogs();
+      // loadUnpaidConversionLogs();
       loadUnapprovedUsers();
     }
   }, [signer, isSignerInitialized]);
 
   // Fetch the current app settings on component mount
-  useEffect(() => {
-    const loadAppSettings = async () => {
-      try {
-        // Fetch featured project
-        const featuredData = await getFeaturedProject();
-        setFeaturedProjectData(featuredData);
+  // useEffect(() => {
+  //   const loadAppSettings = async () => {
+  //     try {
+  //       // Fetch featured project
+  //       const featuredData = await getFeaturedProject();
+  //       setFeaturedProjectData(featuredData);
 
-        // Fetch marketplace banner
-        const bannerData = await getMarketplaceBanner();
-        setBannerData(bannerData);
-      } catch (error) {
-        console.error("Error fetching app settings:", error);
-        toast.error("Failed to load app settings.");
-      } finally {
-        setLoadingFeatured(false);
-        setLoadingBanner(false);
-      }
-    };
+  //       // Fetch marketplace banner
+  //       const bannerData = await getMarketplaceBanner();
+  //       setBannerData(bannerData);
+  //     } catch (error) {
+  //       console.error("Error fetching app settings:", error);
+  //       toast.error("Failed to load app settings.");
+  //     } finally {
+  //       setLoadingFeatured(false);
+  //       setLoadingBanner(false);
+  //     }
+  //   };
 
-    loadAppSettings();
-  }, []);
+  //   loadAppSettings();
+  // }, []);
 
   // ========================= END HOOKS & EFFECTS =========================
 
