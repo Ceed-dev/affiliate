@@ -2,7 +2,7 @@
 import { db } from "./firebase/firebaseConfig";
 import { 
   doc, getDoc, getDocs, addDoc, setDoc, updateDoc, collection,
-  query, where, Timestamp
+  query, orderBy, where, Timestamp
 } from "firebase/firestore";
 
 // Utility Functions
@@ -181,8 +181,13 @@ export const fetchUnapprovedUsers = async (): Promise<UserData[]> => {
     // Reference to the users collection in Firestore
     const usersCollectionRef = collection(db, "users");
 
-    // Query to fetch users where "allowed" is false (unapproved users)
-    const unapprovedUsersQuery = query(usersCollectionRef, where("allowed", "==", false));
+    // Query to fetch users where "allowed" is false, ordered by createdAt descending
+    const unapprovedUsersQuery = query(
+      usersCollectionRef,
+      where("allowed", "==", false),
+      orderBy("createdAt", "desc")
+    );
+
     const querySnapshot = await getDocs(unapprovedUsersQuery);
 
     // Transform the query results into UserData objects with date conversions
