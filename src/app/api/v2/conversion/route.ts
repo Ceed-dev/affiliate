@@ -90,6 +90,13 @@ export async function POST(request: NextRequest) {
         const campaignLinksCollection =
           trackingData.type === "ASP" ? "aspCampaignLinks" : "individualCampaignLinks";
 
+        const campaignLinkRef = doc(db, campaignLinksCollection, trackingData.ids.linkId);
+        const campaignLinkSnap = await transaction.get(campaignLinkRef);
+        const campaignLinkData = campaignLinkSnap.exists() ? campaignLinkSnap.data() : null;
+        
+        // Compute firstConversionAt for campaign link (if not already set)
+        const campaignFirstConversionAt = campaignLinkData?.conversionStats?.timestamps?.firstConversionAt ?? Timestamp.now();
+
         const clickLogRef = doc(db, `${campaignLinksCollection}/${trackingData.ids.linkId}/clickLogs/${trackingData.ids.clickLogId}`);
         const clickLogSnap = await transaction.get(clickLogRef);
 
@@ -113,7 +120,6 @@ export async function POST(request: NextRequest) {
         transaction.update(clickLogRef, { "ids.conversionLogId": conversionLogRef.id });
 
         // Step 9: Update Conversion Statistics
-        const campaignLinkRef = doc(db, campaignLinksCollection, trackingData.ids.linkId);
         const currentDate = new Date();
         const yyyy = currentDate.getFullYear();
         const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
@@ -129,6 +135,9 @@ export async function POST(request: NextRequest) {
           [`conversionStats.byMonth.${yyyy}-${mm}`]: increment(1),
           [`conversionStats.byConversionPoint.${conversionId}`]: increment(1),
           ...(country && { [`conversionStats.byCountry.${country}`]: increment(1) }),
+
+          [`conversionStats.timestamps.lastConversionAt`]: Timestamp.now(),
+          [`conversionStats.timestamps.firstConversionAt`]: campaignFirstConversionAt,
 
           [`rewardStats.byRewardUnit.${rewardKey}.unpaidAmount`]: increment(finalRewardDetails.amount),
           [`rewardStats.byRewardUnit.${rewardKey}.totalAmount`]: increment(finalRewardDetails.amount),
