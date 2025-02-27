@@ -3,7 +3,7 @@
  * - Old specification (no `type`): requires `r` (referralId) and `t` (targetUrl),
  *   then logs a legacy click record and redirects to the target URL.
  * - New specification (`type="asp"` or `type="individual"`): requires `id` (campaignLinkId),
- *   retrieves the relevant campaign/project documents from Firestore,
+ *   retrieves the relevant campaign documents from Firestore,
  *   saves a click log, updates statistics, generates a trackingId, and redirects to the final URL.
  * 
  * Common steps:
@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
-    // --- 6) Retrieve the final redirect URL by campaignId from "projects" ---
+    // --- 6) Retrieve the final redirect URL by campaignId from "campaigns" ---
     const { campaignId } = campaignLinkData?.ids || {};
     if (!campaignId) {
       return NextResponse.json(
@@ -151,17 +151,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let projectData: any;
+    let campaignData: any;
     try {
-      projectData = await getDocumentOrThrow("projects", campaignId, "Project not found");
+      campaignData = await getDocumentOrThrow("campaigns", campaignId, "Campaign not found");
     } catch (error: any) {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
-    const { redirectUrl } = projectData;
+    const redirectUrl = campaignData.urls.redirect;
     if (!redirectUrl) {
       return NextResponse.json(
-        { error: "Redirect URL not found in project/campaign link data" },
+        { error: "Redirect URL not found in campaign data" },
         { status: 400 }
       );
     }
@@ -239,10 +239,10 @@ export async function GET(request: NextRequest) {
         const userFirstClickAt = userOrAspData?.aggregatedStats?.clickStats?.timestamps?.firstClickAt ?? Timestamp.now();
 
         // Verify campaign link existence within transaction
-        const campaignRef = doc(db, colName, campaignLinkId);
-        const campaignSnap = await transaction.get(campaignRef);
-        if (!campaignSnap.exists()) {
-          throw new Error(`${type.toUpperCase()} Campaign not found`);
+        const campaignLinkRef = doc(db, colName, campaignLinkId);
+        const campaignLinkSnap = await transaction.get(campaignLinkRef);
+        if (!campaignLinkSnap.exists()) {
+          throw new Error(`${type.toUpperCase()} Campaign Link not found`);
         }
 
         // Create a click log in the sub-collection
@@ -264,7 +264,7 @@ export async function GET(request: NextRequest) {
         const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
         const dd = String(currentDate.getDate()).padStart(2, "0");
 
-        transaction.update(campaignRef, {
+        transaction.update(campaignLinkRef, {
           [`clickStats.total`]: increment(1),
           [`clickStats.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
           [`clickStats.byMonth.${yyyy}-${mm}`]: increment(1),
@@ -274,66 +274,14 @@ export async function GET(request: NextRequest) {
           }),
         });
 
-        // --- Aggregate click stats into the project's document ---
-        const projectRef = doc(db, "projects", campaignId);
-
-        // Check if `aggregatedStats` exists in the project document
-        if (!projectData?.aggregatedStats) {
-          transaction.set(projectRef, {
-            aggregatedStats: {
-              ASP: {
-                clickStats: {
-                  total: 0,
-                  byCountry: {},
-                  byDay: {},
-                  byMonth: {},
-                  timestamps: { firstClickAt: null, lastClickAt: null },
-                },
-                conversionStats: {
-                  total: 0,
-                  byConversionPoint: {},
-                  byCountry: {},
-                  byDay: {},
-                  byMonth: {},
-                  timestamps: { firstConversionAt: null, lastConversionAt: null },
-                },
-                rewardStats: {
-                  byRewardUnit: {},
-                  isPaid: { paidCount: 0, unpaidCount: 0 },
-                  timestamps: { firstPaidAt: null, lastPaidAt: null },
-                },
-              },
-              INDIVIDUAL: {
-                clickStats: {
-                  total: 0,
-                  byCountry: {},
-                  byDay: {},
-                  byMonth: {},
-                  timestamps: { firstClickAt: null, lastClickAt: null },
-                },
-                conversionStats: {
-                  total: 0,
-                  byConversionPoint: {},
-                  byCountry: {},
-                  byDay: {},
-                  byMonth: {},
-                  timestamps: { firstConversionAt: null, lastConversionAt: null },
-                },
-                rewardStats: {
-                  byRewardUnit: {},
-                  isPaid: { paidCount: 0, unpaidCount: 0 },
-                  timestamps: { firstPaidAt: null, lastPaidAt: null },
-                },
-              },
-            },
-          }, { merge: true });
-        }
+        // --- Aggregate click stats into the campaign's document ---
+        const campaignRef = doc(db, "campaigns", campaignId);
 
         // Determine the correct aggregation path (ASP or INDIVIDUAL)
         const aggregationPath = `aggregatedStats.${type.toUpperCase()}.clickStats`;
 
-        // Update click statistics in the project's aggregatedStats
-        transaction.update(projectRef, {
+        // Update click statistics in the campaign's aggregatedStats
+        transaction.update(campaignRef, {
           [`${aggregationPath}.total`]: increment(1),
           [`${aggregationPath}.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
           [`${aggregationPath}.byMonth.${yyyy}-${mm}`]: increment(1),
@@ -341,7 +289,8 @@ export async function GET(request: NextRequest) {
             [`${aggregationPath}.byCountry.${location.country}`]: increment(1),
           }),
           [`${aggregationPath}.timestamps.lastClickAt`]: Timestamp.now(),
-          [`${aggregationPath}.timestamps.firstClickAt`]: projectData?.aggregatedStats?.[type.toUpperCase()]?.clickStats?.timestamps?.firstClickAt ?? Timestamp.now(),
+          [`${aggregationPath}.timestamps.firstClickAt`]: campaignData.aggregatedStats?.[type.toUpperCase()]?.clickStats?.timestamps?.firstClickAt ?? Timestamp.now(),
+          [`timestamps.updatedAt`]: Timestamp.now(),
         });
 
         // --- Aggregate click stats into the user's or ASP's document ---
@@ -349,6 +298,7 @@ export async function GET(request: NextRequest) {
         if (!userOrAspData?.aggregatedStats) {
           transaction.set(userOrAspRef, {
             aggregatedStats: {
+              activeCampaignsCount: 0,
               clickStats: {
                 total: 0,
                 byCountry: {},
@@ -385,6 +335,7 @@ export async function GET(request: NextRequest) {
           }),
           [`${userAggregationPath}.timestamps.lastClickAt`]: Timestamp.now(),
           [`${userAggregationPath}.timestamps.firstClickAt`]: userFirstClickAt,
+          [type === "asp" ? "timestamps.updatedAt" : "updatedAt"]: Timestamp.now(),
         });
 
         // Store trackingId in the global "trackingIds" collection
