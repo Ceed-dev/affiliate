@@ -268,10 +268,15 @@ export async function GET(request: NextRequest) {
           [`clickStats.total`]: increment(1),
           [`clickStats.byDay.${yyyy}-${mm}-${dd}`]: increment(1),
           [`clickStats.byMonth.${yyyy}-${mm}`]: increment(1),
-          [`timestamps.updatedAt`]: Timestamp.now(),
           ...(location.country && {
             [`clickStats.byCountry.${location.country}`]: increment(1),
           }),
+
+          [`clickStats.timestamps.lastClickAt`]: Timestamp.now(),
+          [`clickStats.timestamps.firstClickAt`]: 
+            campaignLinkData.clickStats.timestamps.firstClickAt ?? Timestamp.now(),
+
+          [`timestamps.updatedAt`]: Timestamp.now(),
         });
 
         // --- Aggregate click stats into the campaign's document ---
