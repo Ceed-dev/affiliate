@@ -190,7 +190,7 @@ export const UserAccountSetupModal: React.FC<UserAccountSetupModalProps> = ({
       validateEmail(email) &&
       validateRole(role) &&
       (role !== "ProjectOwner" || validateUrl(projectUrl)) && // Only validate project URL for ProjectOwner
-      (!isProduction || role !== "Affiliate" || xUserData !== null || youtubeUserData !== null) && // Ensure one account is connected for Affiliate, Skip check if not production
+      (!isProduction || role !== "Affiliate" || xAuthTokenData !== null || youtubeUserData !== null) && // Ensure one account is connected for Affiliate, Skip check if not production
       (role !== "Affiliate" || audienceCountry.trim().length > 0) // Ensure country is selected if role is Affiliate
     );
   };
