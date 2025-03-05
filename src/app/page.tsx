@@ -118,19 +118,19 @@ export default function Homepage() {
         <nav className="hidden md:flex space-x-3 lg:space-x-7 items-center text-sm">
           {navLinks.map((link, index) => (
             <React.Fragment key={link.id}>
-              <Link href={link.id} className="hover:text-lime-300">
+              <Link href={link.id} className="hover:text-[#A5E100]">
                 {link.label}
               </Link>
               {/* Add a divider after each link except the last one */}
-              {index < navLinks.length - 1 && <div className="h-11 w-px bg-gray-500"></div>}
+              {index < navLinks.length - 1 && <div className="h-11 w-px bg-[#8E8E8E]"></div>}
             </React.Fragment>
           ))}
 
           {/* Add a divider before the "KOL/Guild" button */}
-          <div className="h-11 w-px bg-gray-500"></div>
+          <div className="h-11 w-px bg-[#8E8E8E]"></div>
 
           {/* Toggle Button for Publisher/KOL */}
-          <button onClick={() => setIsPublisher(!isPublisher)} className="hover:text-lime-300">
+          <button onClick={() => setIsPublisher(!isPublisher)} className="hover:text-[#A5E100]">
             {isPublisher ? "KOL/Guild" : "Publisher"}
           </button>
         </nav>
@@ -140,8 +140,8 @@ export default function Homepage() {
           {/* Launch App Button (Desktop) */}
           <Link
             href="/onboarding"
-            className="hidden md:block px-6 py-2 border-2 border-lime-300 text-black hover:text-lime-300 
-                      bg-lime-300 hover:bg-black rounded-md transition duration-300"
+            className="hidden md:block px-6 py-2 border-2 border-[#A5E100] text-black hover:text-[#A5E100] 
+                      bg-[#A5E100] hover:bg-black rounded-md transition duration-300"
           >
             Launch App
           </Link>
@@ -176,10 +176,10 @@ export default function Homepage() {
         <nav className="w-full">
           <ul className="flex flex-col w-full">
             {navLinks.map((item) => (
-              <li key={item.id} className="border-b border-gray-500">
+              <li key={item.id} className="border-b border-[#8E8E8E]">
                 <Link
                   href={item.id}
-                  className="block text-xl text-center py-5 hover:text-lime-300"
+                  className="block text-xl text-center py-5 hover:text-[#A5E100]"
                   onClick={toggleMenu}
                 >
                   {item.label}
@@ -190,7 +190,7 @@ export default function Homepage() {
             <li>
               <button
                 onClick={() => setIsPublisher(!isPublisher)}
-                className="block w-full text-xl text-center py-5 hover:text-lime-300"
+                className="block w-full text-xl text-center py-5 hover:text-[#A5E100]"
               >
                 {isPublisher ? "KOL/Guild" : "Publisher"}
               </button>
@@ -241,8 +241,8 @@ export default function Homepage() {
             {/* Launch App Button */}
             <Link
               href="/onboarding"
-              className="mt-4 inline-block px-6 py-2 border-2 border-lime-300 text-black hover:text-lime-300 
-                        bg-lime-300 hover:bg-black rounded-md transition duration-300"
+              className="mt-4 inline-block px-6 py-2 border-2 border-[#A5E100] text-black hover:text-[#A5E100] 
+                        bg-[#A5E100] hover:bg-black rounded-md transition duration-300"
             >
               Launch App
             </Link>
