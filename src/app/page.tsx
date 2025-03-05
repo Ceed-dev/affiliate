@@ -430,21 +430,20 @@ export default function Homepage() {
 
         {/* Analytics & Reporting Section */}
         <section className="px-7 2xl:px-40 mt-20 md:mt-60">
-          {/* タイトル */}
+          {/* Title */}
           <div className="text-center text-2xl md:text-5xl font-bold">
-            <h2>
-              {isPublisher ? "ACCESS CAMPAIGN" : "DATA-DRIVEN IMPACT"}
-            </h2>
+            <h2>{isPublisher ? "ACCESS CAMPAIGN" : "DATA-DRIVEN IMPACT"}</h2>
             {isPublisher && <p className="text-lime-400 mt-3 md:mt-5">ANALYTICS & REPORTING</p>}
           </div>
-          {!isPublisher &&
+          
+          {!isPublisher && (
             <p className="text-center text-md md:text-xl text-gray-400 mt-3 md:mt-5">
               Efficiently measure, analyze, and maximize your impact, engagement, reach, and conversions included.
             </p>
-          }
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 md:mt-20">
-            {/* 左側: 統計データ */}
+            {/* Left Side: Statistics Data */}
             <div className="grid grid-cols-2 gap-3 md:gap-6 xl:gap-10">
               {[
                 { title: "Conversions (this month)", value: "123" },
@@ -453,21 +452,15 @@ export default function Homepage() {
                 { title: "Next Payment Date", value: "11.01.2024" }
               ].map((item, index) => (
                 <div key={index} className="relative w-full">
-                  {/* 背景画像 */}
-                  <Image
-                    src="/tmp/3.png"
-                    alt="/tmp/3.png"
-                    width={568} // 適宜調整
-                    height={308}
-                    className="w-full"
-                  />
+                  {/* Background Image */}
+                  <Image src="/tmp/3.png" alt="Stats Background" width={568} height={308} className="w-full" />
                   
-                  {/* タイトル */}
+                  {/* Title */}
                   <p className="absolute top-2 left-4 text-xs md:text-md lg:text-lg text-gray-400">
                     {item.title}
                   </p>
                   
-                  {/* 数値 */}
+                  {/* Value */}
                   <h2 className="absolute inset-0 flex items-center justify-center text-md md:text-lg lg:text-xl xl:text-3xl font-bold">
                     {item.value}
                   </h2>
@@ -475,15 +468,9 @@ export default function Homepage() {
               ))}
             </div>
 
-            {/* 右側: グラフ（画像で表示） */}
+            {/* Right Side: Graph */}
             <div className="flex justify-center">
-              <Image
-                src="/tmp/graph1.png" // ここは適切なパスに変更
-                alt="Analytics Graph"
-                width={500} // 適宜調整
-                height={300}
-                className="w-full max-w-lg"
-              />
+              <Image src="/tmp/graph1.png" alt="Analytics Graph" width={500} height={300} className="w-full max-w-lg" />
             </div>
           </div>
         </section>
