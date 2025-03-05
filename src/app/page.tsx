@@ -34,6 +34,13 @@ export default function Homepage() {
 
   // ================== DATA DEFINITIONS ==================
 
+  const statsData = [
+    { title: "Registered Affiliates", value: "3,000+" },
+    { title: "Gamers Reach", value: "1,700,000+" },
+    { title: "Onboarding Users", value: "700,000+" },
+    { title: "TG Game & LINE Games", value: "1,000,000+" }
+  ];
+
   // Partner data categorized by type
   const partnersData = {
     Game: [
@@ -249,73 +256,23 @@ export default function Homepage() {
 
         <section id="about">
           <div className="max-w-none mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-5 px-7 2xl:px-40">
-            {/* 1つ目のボックス */}
-            <div className="relative w-full">
-              <Image
-                src="/tmp/3.png"
-                alt="Stats Card"
-                width={568}
-                height={308}
-                className="w-full"
-              />
-              <p className="absolute top-2 left-4 text-md text-gray-400">
-                Registered Affiliates
-              </p>
-              <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
-                3,000+
-              </h2>
-            </div>
-
-            {/* 2つ目のボックス */}
-            <div className="relative w-full">
-              <Image
-                src="/tmp/3.png"
-                alt="Stats Card"
-                width={568}
-                height={308}
-                className="w-full"
-              />
-              <p className="absolute top-2 left-4 text-md text-gray-400">
-                Gamers Reach
-              </p>
-              <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
-                1,700,000+
-              </h2>
-            </div>
-
-            {/* 3つ目のボックス */}
-            <div className="relative w-full">
-              <Image
-                src="/tmp/3.png"
-                alt="Stats Card"
-                width={568}
-                height={308}
-                className="w-full"
-              />
-              <p className="absolute top-2 left-4 text-md text-gray-400">
-                Onboarding Users
-              </p>
-              <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
-                700,000+
-              </h2>
-            </div>
-
-            {/* 4つ目のボックス */}
-            <div className="relative w-full">
-              <Image
-                src="/tmp/3.png"
-                alt="Stats Card"
-                width={568}
-                height={308}
-                className="w-full"
-              />
-              <p className="absolute top-2 left-4 text-md text-gray-400">
-                TG Game & LINE Games
-              </p>
-              <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
-                1,000,000+
-              </h2>
-            </div>
+            {statsData.map((stat, index) => (
+              <div key={index} className="relative w-full">
+                <Image
+                  src="/tmp/3.png"
+                  alt="Stats Card"
+                  width={568}
+                  height={308}
+                  className="w-full"
+                />
+                <p className="absolute top-2 left-4 text-md text-gray-400">
+                  {stat.title}
+                </p>
+                <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
+                  {stat.value}
+                </h2>
+              </div>
+            ))}
           </div>
         </section>
 
