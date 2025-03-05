@@ -5,17 +5,43 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-// Homepage data (logos, social media links, footer content)
-import { clientLogos, socialMediaLinks, footerContent } from "./constants/homepageData";
+// Homepage data
+import { 
+  languageOptions, 
+  navLinks, 
+  statsData, 
+  trustedPartners, 
+  partnersData, 
+  kolGuildData, 
+  features, 
+  analyticsStats, 
+  investorLogos, 
+  clientLogos, 
+  socialMediaLinks, 
+  footerContent 
+} from "./constants/homepageData";
 
 export default function Homepage() {
+  // ================== STATE HOOKS ==================
+
   // State for mobile menu
   const [menuOpen, setMenuOpen] = useState(false);
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-  // Function to toggle mobile menu
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
+  // State for active tab in partners section
+  const [activeTab, setActiveTab] = useState<keyof typeof partnersData>("Game");
+
+  // State for publisher mode
+  const [isPublisher, setIsPublisher] = useState(true);
+
+  // State for footer background image
+  const [footerImage, setFooterImage] = useState("/assets/homepage/footer/desktop.png");
+
+  // Reference for scrolling logos
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeDot, setActiveDot] = useState(0);
+
+  // ================== EFFECT HOOKS ==================
 
   // Automatically close mobile menu when resizing to desktop view
   useEffect(() => {
@@ -25,109 +51,47 @@ export default function Homepage() {
       }
     };
 
-    // Add event listener for window resize
     window.addEventListener("resize", handleResize);
-    
-    // Cleanup event listener on component unmount
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // State for footer background image
-  const [footerImage, setFooterImage] = useState("/tmp/footer-desktop.png");
-
-  // Function to update the footer image based on window width
+  // Update footer image based on screen size
   useEffect(() => {
     const updateFooterImage = () => {
-      setFooterImage(window.innerWidth >= 768 ? "/tmp/footer-desktop.png" : "/tmp/footer-mobile.png");
+      setFooterImage(window.innerWidth >= 768 ? "/assets/homepage/footer/desktop.png" : "/assets/homepage/footer/mobile.png");
     };
 
-    // Set the initial footer image based on current window size
-    updateFooterImage();
-
-    // Listen for window resize events and update the footer image accordingly
+    updateFooterImage(); // Set initial state
     window.addEventListener("resize", updateFooterImage);
-
-    // Cleanup event listener when component unmounts
     return () => window.removeEventListener("resize", updateFooterImage);
   }, []);
 
-  // ================== DATA DEFINITIONS ==================
-
-  const statsData = [
-    { title: "Registered Affiliates", value: "3,000+" },
-    { title: "Gamers Reach", value: "1,700,000+" },
-    { title: "Onboarding Users", value: "700,000+" },
-    { title: "TG Game & LINE Games", value: "1,000,000+" }
-  ];
-
-  // Partner data categorized by type
-  const partnersData = {
-    Game: [
-      { name: "VMG.ron", country: "Philippines", role: "Streamer", followers: "340k+ Follower", image: "/tmp/game1.png" },
-      { name: "marksenpai26", country: "Philippines", role: "Tutorial", followers: "142k+ Follower", image: "/tmp/game2.png" },
-      { name: "VLADRAX", country: "Philippines", role: "Streamer", followers: "13k+ Follower", image: "/tmp/game3.png" },
-      { name: "Elisa", country: "France & Spain", role: "Streamer", followers: "50k+ Follower", image: "/tmp/game4.png" },
-    ],
-    NFT: [
-      { name: "David", country: "Vietnam", role: "Creator", followers: "15k+ Follower", image: "/tmp/nft1.png" },
-      { name: "kasotukun", country: "Japan", role: "Creator", followers: "41k+ Follower", image: "/tmp/nft2.png" },
-      { name: "DzT DAO", country: "Japan", role: "Creator", followers: "28k+ Follower", image: "/tmp/nft3.png" },
-    ],
-    Meme: [],
-    DeFi: [],
-  };
-
-  // Features displayed for publishers
-  const features = [
-    { icon: "/tmp/pay1.png", title: "Launch Campaign" },
-    { icon: "/tmp/pay2.png", title: "Dashboard Monitor" },
-    { icon: "/tmp/pay3.png", title: "Pay for the CV only" },
-  ];
-
-  // Sample data for KOL/Guilds
-  const kolGuildData = [
-    { image: "/tmp/connect1.png", name: "Beacon" },
-    { image: "/tmp/connect2.png", name: "Pirate Nation" },
-    { image: "/tmp/connect3.png", name: "Counter Fire" },
-    { image: "/tmp/connect4.png", name: "King Destiny" },
-  ];
-
-  // ================== STATE HOOKS ==================
-  const [activeTab, setActiveTab] = useState<keyof typeof partnersData>("Game");
-  const [isPublisher, setIsPublisher] = useState(true);
-
   // ================== CLIENT LOGO SCROLL MANAGEMENT ==================
+
   const SCROLL_INTERVAL = 10; // Scroll update interval in milliseconds
   const SCROLL_SPEED = 1; // Scroll speed in pixels per update
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeDot, setActiveDot] = useState(0);
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
 
-    // Set up auto-scrolling interval
+    if (!scrollElement) return;
+
     const scrollInterval = setInterval(() => {
-      if (scrollElement) {
-        // Increment scroll position
-        scrollElement.scrollLeft += SCROLL_SPEED;
+      scrollElement.scrollLeft += SCROLL_SPEED;
 
-        // Get the middle position to determine the active logo
-        const middlePosition = scrollElement.scrollLeft + scrollElement.clientWidth / 2;
-        const logoWidth = scrollElement.scrollWidth / (clientLogos.length * 2);
+      // Determine the middle logo position
+      const middlePosition = scrollElement.scrollLeft + scrollElement.clientWidth / 2;
+      const logoWidth = scrollElement.scrollWidth / (clientLogos.length * 2);
+      const currentIndex = Math.floor(middlePosition / logoWidth) % clientLogos.length;
 
-        // Update active dot based on the middle logo
-        const currentIndex = Math.floor(middlePosition / logoWidth) % clientLogos.length;
-        setActiveDot(currentIndex);
+      setActiveDot(currentIndex);
 
-        // Reset scrolling when it reaches the duplicated end
-        if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
-          scrollElement.scrollLeft = 0;
-        }
+      // Reset scrolling when reaching the duplicated end
+      if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
+        scrollElement.scrollLeft = 0;
       }
     }, SCROLL_INTERVAL);
 
-    // Cleanup interval on unmount
     return () => clearInterval(scrollInterval);
   }, []);
 
@@ -144,14 +108,15 @@ export default function Homepage() {
 
         {/* === Center Section: Navigation (Desktop) === */}
         <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
-          <Link href="#" className="hover:text-gray-400">Home</Link>
-          <div className="h-11 w-px bg-white"></div>
-          <Link href="#about" className="hover:text-gray-400">About</Link>
-          <div className="h-11 w-px bg-white"></div>
-          <Link href="#why-us" className="hover:text-gray-400">Why us</Link>
-          <div className="h-11 w-px bg-white"></div>
-          <Link href="#achievements" className="hover:text-gray-400">Achievements</Link>
-          <div className="h-11 w-px bg-white"></div>
+          {navLinks.map((link, index) => (
+            <React.Fragment key={link.id}>
+              <Link href={link.id} className="hover:text-gray-400">
+                {link.label}
+              </Link>
+              {/* Add a divider after each link except the last one */}
+              {index < navLinks.length - 1 && <div className="h-11 w-px bg-white"></div>}
+            </React.Fragment>
+          ))}
 
           {/* Toggle Button for Publisher/KOL */}
           <button onClick={() => setIsPublisher(!isPublisher)} className="hover:text-gray-400">
@@ -195,15 +160,10 @@ export default function Homepage() {
         {/* === Navigation Links === */}
         <nav className="w-full">
           <ul className="flex flex-col w-full">
-            {[
-              { href: "#", label: "Home" },
-              { href: "#about", label: "About" },
-              { href: "#why-us", label: "Why us" },
-              { href: "#achievements", label: "Achievements" },
-            ].map((item, index) => (
-              <li key={index} className="border-b border-[#4A4A4A]">
+            {navLinks.map((item) => (
+              <li key={item.id} className="border-b border-[#4A4A4A]">
                 <Link
-                  href={item.href}
+                  href={item.id}
                   className="block text-xl text-center py-5 hover:text-gray-400"
                   onClick={toggleMenu}
                 >
@@ -230,7 +190,7 @@ export default function Homepage() {
         <section className="relative w-full min-h-[60vh] md:h-screen">
           {/* Desktop Background Image */}
           <Image
-            src="/tmp/1.png"
+            src="/assets/homepage/hero/desktop.png"
             alt="Qube Hero Desktop"
             fill
             className="absolute inset-0 w-full h-full hidden md:block object-cover"
@@ -238,7 +198,7 @@ export default function Homepage() {
           
           {/* Mobile Background Image */}
           <Image
-            src="/tmp/2.png"
+            src="/assets/homepage/hero/mobile.png"
             alt="Qube Hero Mobile"
             fill
             className="absolute inset-0 w-full min-h-[60vh] md:hidden object-cover"
@@ -273,20 +233,25 @@ export default function Homepage() {
           </div>
         </section>
 
+        {/* About Section - Displaying Key Statistics */}
         <section id="about">
           <div className="max-w-none mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-5 px-7 2xl:px-40">
+            {/* Statistics Cards */}
             {statsData.map((stat, index) => (
               <div key={index} className="relative w-full">
+                {/* Background Frame for the Statistic */}
                 <Image
-                  src="/tmp/3.png"
+                  src="/assets/homepage/highlight-frame.png"
                   alt="Stats Card"
                   width={568}
                   height={308}
                   className="w-full"
                 />
+                {/* Title for the Statistic */}
                 <p className="absolute top-2 left-4 text-md text-gray-400">
                   {stat.title}
                 </p>
+                {/* Statistic Value */}
                 <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
                   {stat.value}
                 </h2>
@@ -306,7 +271,7 @@ export default function Homepage() {
           <div className="relative w-full flex flex-col items-center">
             <div className="relative w-full">
               <Image
-                src="/tmp/4.png"
+                src="/assets/homepage/wide-highlight-frame.png"
                 alt="Section Border"
                 width={1920}
                 height={300}
@@ -315,16 +280,10 @@ export default function Homepage() {
 
               {/* Logos */}
               <div className="absolute inset-0 flex flex-wrap justify-center items-center gap-2 lg:gap-16 px-6 py-6">
-                {[
-                  { src: "/brand-assets/double-jump-tokyo.png", alt: "doublejump.tokyo", name: "doublejump.tokyo" },
-                  { src: "/brand-assets/gumi.png", alt: "gumi", name: "gumi" },
-                  { src: "/brand-assets/game-swift.png", alt: "Game Swift", name: "Game Swift" },
-                  { src: "/brand-assets/kaia.png", alt: "Kaia", name: "Kaia" },
-                  { src: "/chains/arbitrum.png", alt: "Arbitrum", name: "Arbitrum" }
-                ].map((logo, index) => (
+                {trustedPartners.map((logo, index) => (
                   <div key={index} className="flex flex-row items-center gap-3">
                     <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
-                      <Image src={logo.src} alt={logo.alt} fill className="rounded-full object-contain" />
+                      <Image src={logo.src} alt={logo.name} fill className="rounded-full object-contain" />
                     </div>
                     <p className="text-xs md:text-xl">{logo.name}</p>
                   </div>
@@ -357,7 +316,7 @@ export default function Homepage() {
                 {/* Tab Menu */}
                 <div className="overflow-x-auto whitespace-nowrap mb-5 md:mb-10">
                   <div className="flex justify-around w-full mx-auto">
-                    {["Game", "NFT", "Meme", "DeFi"].map((tab) => (
+                    {Object.keys(partnersData).map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab as keyof typeof partnersData)}
@@ -405,6 +364,7 @@ export default function Homepage() {
           </div>
         </section>
 
+        {/* Monetization & Measurable Results Section */}
         <section className="px-7 2xl:px-40 mt-20 md:mt-60">
           {/* Title */}
           <div className="text-center text-2xl md:text-5xl font-bold">
@@ -439,9 +399,9 @@ export default function Homepage() {
             <div className="flex justify-center items-center w-full py-10">
               <div className="relative w-full max-w-[1000px] flex items-center justify-center">
                 {/* Desktop Image */}
-                <Image src="/tmp/monetize-desktop.png" alt="Central Icon Desktop" width={600} height={600} className="hidden md:block w-full object-contain" />
+                <Image src="/assets/homepage/influence/desktop.png" alt="Central Icon Desktop" width={600} height={600} className="hidden md:block w-full object-contain" />
                 {/* Mobile Image */}
-                <Image src="/tmp/monetize-mobile.png" alt="Central Icon Mobile" width={300} height={300} className="md:hidden w-full object-contain" />
+                <Image src="/assets/homepage/influence/mobile.png" alt="Central Icon Mobile" width={300} height={300} className="md:hidden w-full object-contain" />
               </div>
             </div>
           )}
@@ -464,15 +424,10 @@ export default function Homepage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 md:mt-20">
             {/* Left Side: Statistics Data */}
             <div className="grid grid-cols-2 gap-3 md:gap-6 xl:gap-10">
-              {[
-                { title: "Conversions (this month)", value: "123" },
-                { title: "Earning (this month)", value: "6,150 USDC" },
-                { title: "Total Clicks (All time)", value: "345" },
-                { title: "Next Payment Date", value: "11.01.2024" }
-              ].map((item, index) => (
+              {analyticsStats.map((item, index) => (
                 <div key={index} className="relative w-full">
                   {/* Background Image */}
-                  <Image src="/tmp/3.png" alt="Stats Background" width={568} height={308} className="w-full" />
+                  <Image src="/assets/homepage/highlight-frame.png" alt="Stats Background" width={568} height={308} className="w-full" />
                   
                   {/* Title */}
                   <p className="absolute top-2 left-4 text-xs md:text-md lg:text-lg text-gray-400">
@@ -489,7 +444,7 @@ export default function Homepage() {
 
             {/* Right Side: Graph */}
             <div className="flex justify-center">
-              <Image src="/tmp/graph1.png" alt="Analytics Graph" width={500} height={300} className="w-full max-w-lg" />
+              <Image src="/assets/homepage/analytics-graph.png" alt="Analytics Graph" width={500} height={300} className="w-full max-w-lg" />
             </div>
           </div>
         </section>
@@ -503,7 +458,7 @@ export default function Homepage() {
             {/* Border Image */}
             <div className="relative w-full">
               <Image
-                src="/tmp/4.png"
+                src="/assets/homepage/wide-highlight-frame.png"
                 alt="Section Border"
                 width={1920}
                 height={300}
@@ -512,11 +467,7 @@ export default function Homepage() {
 
               {/* Investor Logos */}
               <div className="absolute inset-0 flex justify-center items-center gap-5 lg:gap-16 p-5 lg:p-10">
-                {[
-                  { src: "/brand-assets/kusabi.png", name: "KUSABI" },
-                  { src: "/brand-assets/decima.png", name: "DECIMA" },
-                  { src: "/brand-assets/adways.png", name: "ADWAYS" }
-                ].map((investor, index) => (
+                {investorLogos.map((investor, index) => (
                   <div key={index} className="relative w-full h-full">
                     <Image src={investor.src} alt={investor.name} fill className="object-contain" />
                   </div>
