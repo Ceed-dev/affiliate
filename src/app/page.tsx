@@ -98,42 +98,57 @@ export default function Homepage() {
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-2 lg:px-16 xl:px-40 2xl:px-80 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
+      <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-10 lg:px-16 xl:px-60 2xl:px-80 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
 
         {/* === Left Section: Logo === */}
         <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
-          <Image src="/qube.png" alt="Qube Logo" width={36} height={36} />
-          <p className="text-3xl font-corporate">Qube</p>
+          <Image 
+            src="/qube.png" 
+            alt="Qube Logo" 
+            width={0} 
+            height={0} 
+            sizes="(max-width: 640px) 20px, (max-width: 768px) 28px, (max-width: 1024px) 36px, 44px"
+            className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
+          />
+
+          <p className="text-lg md:text-3xl font-corporate">Qube</p>
         </Link>
 
         {/* === Center Section: Navigation (Desktop) === */}
-        <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
+        <nav className="hidden md:flex space-x-3 lg:space-x-7 items-center text-sm">
           {navLinks.map((link, index) => (
             <React.Fragment key={link.id}>
-              <Link href={link.id} className="hover:text-gray-400">
+              <Link href={link.id} className="hover:text-lime-300">
                 {link.label}
               </Link>
               {/* Add a divider after each link except the last one */}
-              {index < navLinks.length - 1 && <div className="h-11 w-px bg-white"></div>}
+              {index < navLinks.length - 1 && <div className="h-11 w-px bg-gray-500"></div>}
             </React.Fragment>
           ))}
 
+          {/* Add a divider before the "KOL/Guild" button */}
+          <div className="h-11 w-px bg-gray-500"></div>
+
           {/* Toggle Button for Publisher/KOL */}
-          <button onClick={() => setIsPublisher(!isPublisher)} className="hover:text-gray-400">
+          <button onClick={() => setIsPublisher(!isPublisher)} className="hover:text-lime-300">
             {isPublisher ? "KOL/Guild" : "Publisher"}
           </button>
         </nav>
 
         {/* === Right Section: Buttons === */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center">
           {/* Launch App Button (Desktop) */}
-          <Link href="/onboarding" className="hidden md:block px-6 py-2 bg-lime-300 text-black font-bold rounded-md hover:bg-lime-200">
+          <Link
+            href="/onboarding"
+            className="hidden md:block px-6 py-2 border-2 border-lime-300 text-black hover:text-lime-300 
+                      bg-lime-300 hover:bg-black rounded-md transition duration-300"
+          >
             Launch App
           </Link>
 
           {/* Hamburger Menu Button (Mobile) */}
           <button onClick={toggleMenu} className="md:hidden">
-            <Image src="/assets/common/menu-white.png" alt="Menu" width={30} height={30} />
+            <Image src="/assets/common/menu-green.png" alt="Menu" width={30} height={30} />
           </button>
         </div>
       </header>
@@ -150,7 +165,7 @@ export default function Homepage() {
           className="w-full flex justify-end px-6 py-4"
         >
           <Image
-            src="/assets/common/close-white.png"
+            src="/assets/common/close-green.png"
             alt="Close Menu"
             width={30}
             height={30}
@@ -161,10 +176,10 @@ export default function Homepage() {
         <nav className="w-full">
           <ul className="flex flex-col w-full">
             {navLinks.map((item) => (
-              <li key={item.id} className="border-b border-[#4A4A4A]">
+              <li key={item.id} className="border-b border-gray-500">
                 <Link
                   href={item.id}
-                  className="block text-xl text-center py-5 hover:text-gray-400"
+                  className="block text-xl text-center py-5 hover:text-lime-300"
                   onClick={toggleMenu}
                 >
                   {item.label}
@@ -175,7 +190,7 @@ export default function Homepage() {
             <li>
               <button
                 onClick={() => setIsPublisher(!isPublisher)}
-                className="block w-full text-xl text-center py-5 hover:text-gray-400"
+                className="block w-full text-xl text-center py-5 hover:text-lime-300"
               >
                 {isPublisher ? "KOL/Guild" : "Publisher"}
               </button>
@@ -226,7 +241,8 @@ export default function Homepage() {
             {/* Launch App Button */}
             <Link
               href="/onboarding"
-              className="mt-4 inline-block px-6 py-2 bg-lime-300 text-black font-bold rounded-md hover:bg-lime-200"
+              className="mt-4 inline-block px-6 py-2 border-2 border-lime-300 text-black hover:text-lime-300 
+                        bg-lime-300 hover:bg-black rounded-md transition duration-300"
             >
               Launch App
             </Link>
