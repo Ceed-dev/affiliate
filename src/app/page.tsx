@@ -201,44 +201,46 @@ export default function Homepage() {
       {/* Main Content Section */}
       <main>
         {/* Hero Section */}
-        <section id="home" className="relative w-full min-h-[60vh] md:h-screen">
-          {/* デスクトップ用背景画像 */}
+        <section className="relative w-full min-h-[60vh] md:h-screen">
+          {/* Desktop Background Image */}
           <Image
             src="/tmp/1.png"
             alt="Qube Hero Desktop"
-            layout="fill"
-            objectFit="cover"
-            className="absolute inset-0 w-full h-full hidden md:block"
+            fill
+            className="absolute inset-0 w-full h-full hidden md:block object-cover"
           />
-          {/* モバイル用背景画像 */}
+          
+          {/* Mobile Background Image */}
           <Image
             src="/tmp/2.png"
             alt="Qube Hero Mobile"
-            layout="fill"
-            objectFit="cover"
-            className="absolute inset-0 w-full min-h-[60vh] md:hidden"
+            fill
+            className="absolute inset-0 w-full min-h-[60vh] md:hidden object-cover"
             style={{ objectPosition: "bottom center" }}
           />
 
-          {/* テキスト & ボタン */}
+          {/* Text & Button Container */}
           <div className="absolute top-[15%] md:top-[30%] w-full md:w-auto md:left-[9%] text-center md:text-left">
-            {/* モバイル用（1行表示） */}
+            {/* Mobile Title (Single Line) */}
             <h1 className="text-2xl md:hidden font-bold leading-tight">
               {isPublisher ? "BUILD FOR WEB3 GAMING" : "AMPLIFY YOUR INFLUENCE"}
             </h1>
 
-            {/* デスクトップ用（2行表示） */}
+            {/* Desktop Title (Two Lines) */}
             <h1 className="hidden md:block text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold leading-tight">
-              {isPublisher ? "BUILD FOR" : "AMPLIFY YOUR"} <br /> {isPublisher ? "WEB3 GAMING" : "INFLUENCE"}
+              {isPublisher ? "BUILD FOR" : "AMPLIFY YOUR"} <br />
+              {isPublisher ? "WEB3 GAMING" : "INFLUENCE"}
             </h1>
 
+            {/* Subtitle */}
             <p className="mt-2 text-lg md:text-3xl">
               {isPublisher ? "Game, Gain, and Grow together" : "Expand, Connect, and Thrive"}
             </p>
 
+            {/* Launch App Button */}
             <Link
               href="/onboarding"
-              className="mt-4 inline-block px-6 py-3 md:px-8 md:py-4 bg-lime-300 text-black font-bold text-base md:text-2xl rounded-md hover:bg-lime-200"
+              className="mt-4 inline-block px-6 py-2 bg-lime-300 text-black font-bold rounded-md hover:bg-lime-200"
             >
               Launch App
             </Link>
