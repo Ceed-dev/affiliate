@@ -315,8 +315,9 @@ export default function Homepage() {
           </div>
         </section>
 
+        {/* Why Us Section */}
         <section id="why-us" className="px-5 md:px-2 lg:px-16 xl:px-40 2xl:px-80 mt-20 md:mt-60">
-          {/* タイトル */}
+          {/* Section Title */}
           <h2 className="text-center text-2xl md:text-5xl font-bold">
             {isPublisher ? "BUILD PARTNERSHIP THAT" : "CONNECT WITH"}
           </h2>
@@ -324,17 +325,17 @@ export default function Homepage() {
             {isPublisher ? "AMPLIFY YOUR REACH" : "TOP WEB3 GAMES"}
           </h2>
           <p className="text-center text-md md:text-xl text-gray-400 mt-3 md:mt-5">
-            {isPublisher 
+            {isPublisher
               ? "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth."
               : "Work with the top games in the industry and seize the opportunity now!"
             }
           </p>
 
-          {/* カード全体の枠 */}
+          {/* Content Section */}
           <div className="flex justify-center mt-10 md:mt-20">
             {isPublisher ? (
               <div className="w-full border border-gray-500 rounded-xl p-3 md:p-6">
-                {/* タブメニュー */}
+                {/* Tab Menu */}
                 <div className="overflow-x-auto whitespace-nowrap mb-5 md:mb-10">
                   <div className="flex justify-around w-full mx-auto">
                     {["Game", "NFT", "Meme", "DeFi"].map((tab) => (
@@ -346,9 +347,7 @@ export default function Homepage() {
                         }`}
                       >
                         {tab}
-                        {/* デフォルトのグレーの線 */}
                         <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gray-600"></span>
-                        {/* アクティブなタブの緑の線（上書き） */}
                         {activeTab === tab && (
                           <span className="absolute bottom-0 left-0 w-full h-[2px] bg-lime-400"></span>
                         )}
@@ -357,28 +356,16 @@ export default function Homepage() {
                   </div>
                 </div>
 
-                {/* タブコンテンツ */}
+                {/* Tab Content */}
                 {partnersData[activeTab].length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-                    {partnersData[activeTab].map((partner, index) => (
-                      <div
-                        key={index}
-                        className="flex gap-4 items-center"
-                      >
-                        {/* プロフィール画像 */}
-                        <Image
-                          src={partner.image}
-                          alt={partner.name}
-                          width={96} // 画像サイズ統一
-                          height={96}
-                          className="rounded-lg w-20 h-20 md:w-24 md:h-24"
-                        />
-
-                        {/* テキスト情報 */}
+                    {partnersData[activeTab].map(({ image, name, country, role, followers }, index) => (
+                      <div key={index} className="flex gap-4 items-center">
+                        <Image src={image} alt={name} width={96} height={96} className="rounded-lg w-20 h-20 md:w-24 md:h-24" />
                         <div className="flex flex-col justify-center">
-                          <h3 className="text-xl font-bold">{partner.name}</h3>
-                          <p className="text-md text-gray-400">{partner.country} ・ {partner.role}</p>
-                          <p className="text-md text-gray-400">{partner.followers}</p>
+                          <h3 className="text-xl font-bold">{name}</h3>
+                          <p className="text-md text-gray-400">{country} ・ {role}</p>
+                          <p className="text-md text-gray-400">{followers}</p>
                         </div>
                       </div>
                     ))}
@@ -389,15 +376,9 @@ export default function Homepage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {kolGuildData.map((game, index) => (
+                {kolGuildData.map(({ image, name }, index) => (
                   <div key={index} className="w-full">
-                    <Image
-                      src={game.image}
-                      alt={game.name}
-                      width={400}
-                      height={250}
-                      className="rounded-xl w-full object-cover"
-                    />
+                    <Image src={image} alt={name} width={400} height={250} className="rounded-xl w-full object-cover" />
                   </div>
                 ))}
               </div>
