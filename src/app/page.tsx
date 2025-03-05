@@ -507,13 +507,14 @@ export default function Homepage() {
           </div>
         </section>
 
-        {/* Our Clients */}
+        {/* Our Clients Section */}
         <section className="2xl:px-40 mt-20 md:mt-60">
+          {/* Section Title */}
           <h1 className="text-center text-2xl md:text-5xl font-bold mb-10 md:mb-20">
             CLIENTS
           </h1>
-          {/* モバイル: 自動スクロール */}
-          {/* Client Logo Auto Scroll */}
+
+          {/* Mobile: Auto-scrolling Client Logos */}
           <div className="block md:hidden overflow-x-auto" ref={scrollRef}>
             <div className="flex items-center justify-start space-x-5">
               {clientLogos.concat(clientLogos).map((logo, index) => (
@@ -529,18 +530,8 @@ export default function Homepage() {
               ))}
             </div>
           </div>
-          {/* Dots Indicator */}
-          {/* <div className="flex justify-center items-center mt-4">
-            {clientLogos.map((_, index) => (
-              <div
-                key={index}
-                className={`rounded-full mx-2 ${
-                  activeDot === index ? "bg-lime-300 h-5 w-5" : "bg-gray-400 h-3 w-3"
-                }`}
-              />
-            ))}
-          </div> */}
-          {/* デスクトップ: グリッドレイアウト */}
+
+          {/* Desktop: Grid Layout for Client Logos */}
           <div className="hidden md:grid grid-cols-4 gap-10 place-items-center">
             {clientLogos.map((logo, index) => (
               <div key={index} className="w-24 h-24 md:w-28 md:h-28">
