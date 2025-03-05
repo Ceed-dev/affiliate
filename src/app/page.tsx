@@ -878,7 +878,7 @@ export default function NewHome() {
                 TG Game & LINE Games
               </p>
               <h2 className="absolute inset-0 flex items-center justify-center text-4xl font-bold">
-                TBA
+                1,000,000+
               </h2>
             </div>
           </div>
