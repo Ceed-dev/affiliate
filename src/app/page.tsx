@@ -550,71 +550,56 @@ export default function Homepage() {
       </main>
 
       <footer className="relative w-full min-h-[50vh] mt-20 md:mt-60">
-        {/* デスクトップ用背景画像 */}
+        {/* Background Image */}
         <Image
-          src="/tmp/footer-desktop.png"
-          alt="Qube Footer Desktop"
+          src={`/tmp/footer-${window.innerWidth >= 768 ? "desktop" : "mobile"}.png`}
+          alt="Qube Footer"
           layout="fill"
           objectFit="cover"
-          className="absolute inset-0 w-full h-full hidden md:block"
+          className="absolute inset-0 w-full h-full"
         />
 
-        {/* モバイル用背景画像 */}
-        <Image
-          src="/tmp/footer-mobile.png"
-          alt="Qube Footer Mobile"
-          layout="fill"
-          objectFit="cover"
-          className="absolute inset-0 w-full h-full md:hidden"
-        />
-
-        {/* フッターコンテンツ */}
+        {/* Footer Content */}
         <div className="relative z-10 flex flex-col items-center text-center pb-5 pt-20 md:pt-32">
-          {/* キャッチコピー */}
+          {/* Catchphrase */}
           <h2 className="text-md md:text-2xl xl:text-4xl font-bold text-lime-400">
             THE STRONGEST GROWTH DRIVER
           </h2>
           <h3 className="text-md md:text-2xl xl:text-4xl font-bold mt-2">FOR YOUR GAME</h3>
 
           <div className="mt-14 md:mt-40 lg:mt-60 flex flex-col md:flex-row gap-6 md:gap-12 lg:gap-28 xl:gap-40">
+            {/* Logo & Social Icons */}
             <div className="flex flex-col items-center md:items-start">
-              {/* Logo */}
-              <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
+              <Link href="#" className="flex items-center gap-3 transition-transform hover:-translate-y-1">
                 <Image src="/qube.png" alt="Qube Logo" width={40} height={40} />
                 <p className="text-2xl lg:text-5xl font-corporate">Qube</p>
               </Link>
 
-              {/* SNSアイコン */}
-              <div className="flex flex-row mx-auto md:mx-0 gap-2 mt-4">
-                {socialMediaLinks.map((link, index) => (
+              {/* Social Media Icons */}
+              <div className="flex gap-2 mt-4">
+                {socialMediaLinks.map(({ url, src, alt, size }, index) => (
                   <Link
                     key={index}
-                    href={link.url}
+                    href={url}
                     target="_blank"
-                    className="bg-black border border-gray-400 hover:border-gray-300 rounded-lg inline-flex justify-center items-center h-7 lg:h-9 w-7 lg:w-9 p-1 transition-shadow hover:shadow-lg"
+                    className="bg-black border border-gray-400 hover:border-gray-300 rounded-lg p-1 transition-shadow hover:shadow-lg flex items-center justify-center w-7 lg:w-9 h-7 lg:h-9"
                   >
-                    <Image
-                      src={link.src}
-                      alt={link.alt}
-                      width={link.size}
-                      height={link.size}
-                      className="object-contain"
-                    />
+                    <Image src={src} alt={alt} width={size} height={size} className="object-contain" />
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* ナビゲーション */}
+            {/* Navigation */}
             <div className="flex flex-row space-x-5 md:space-x-10 lg:space-x-20 text-left text-sm md:text-base">
-              {footerContent["en"].map((category, index) => (
+              {footerContent["en"].map(({ category, links }, index) => (
                 <div key={index}>
-                  <h4 className="text-lime-400 font-semibold">{category.category}</h4>
+                  <h4 className="text-lime-400 font-semibold">{category}</h4>
                   <ul className="mt-2 space-y-2">
-                    {category.links.map((link, linkIndex) => (
+                    {links.map(({ url, label }, linkIndex) => (
                       <li key={linkIndex}>
-                        <a href={link.url} className="hover:text-lime-400">
-                          {link.label}
+                        <a href={url} className="hover:text-lime-400">
+                          {label}
                         </a>
                       </li>
                     ))}
@@ -624,7 +609,7 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* コピーライト */}
+          {/* Copyright */}
           <div className="text-gray-400 text-sm mt-20">
             &copy; {new Date().getFullYear()} All Rights Reserved by Ceed Inc.
           </div>
