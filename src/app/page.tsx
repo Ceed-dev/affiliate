@@ -477,34 +477,31 @@ export default function Homepage() {
 
         {/* Investors Section */}
         <section id="achievements" className="px-7 2xl:px-40 mt-20 md:mt-60">
-          {/* タイトル */}
-          <h2 className="text-center text-2xl md:text-5xl font-bold">
-            INVESTORS
-          </h2>
+          {/* Title */}
+          <h2 className="text-center text-2xl md:text-5xl font-bold">INVESTORS</h2>
 
-          {/* ボーダー画像とロゴ一覧のコンテナ */}
           <div className="flex flex-col items-center mt-10 md:mt-20">
-            {/* ボーダー画像 */}
+            {/* Border Image */}
             <div className="relative w-full">
               <Image
-                src="/tmp/4.png" // Figmaからエクスポートしたボーダー画像
+                src="/tmp/4.png"
                 alt="Section Border"
                 width={1920}
                 height={300}
                 className="w-full h-[80px] md:h-[160px] lg:h-[120px] xl:h-[140px]"
               />
 
-              {/* ロゴ一覧（ボーダー画像の中に収める） */}
+              {/* Investor Logos */}
               <div className="absolute inset-0 flex justify-center items-center gap-5 lg:gap-16 p-5 lg:p-10">
-                <div className="relative w-full h-full">
-                  <Image src="/brand-assets/kusabi.png" alt="KUSABI" fill className="object-contain" />
-                </div>
-                <div className="relative w-full h-full">
-                  <Image src="/brand-assets/decima.png" alt="DECIMA" fill className="object-contain" />
-                </div>
-                <div className="relative w-full h-full">
-                  <Image src="/brand-assets/adways.png" alt="ADWAYS" fill className="object-contain" />
-                </div>
+                {[
+                  { src: "/brand-assets/kusabi.png", name: "KUSABI" },
+                  { src: "/brand-assets/decima.png", name: "DECIMA" },
+                  { src: "/brand-assets/adways.png", name: "ADWAYS" }
+                ].map((investor, index) => (
+                  <div key={index} className="relative w-full h-full">
+                    <Image src={investor.src} alt={investor.name} fill className="object-contain" />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
