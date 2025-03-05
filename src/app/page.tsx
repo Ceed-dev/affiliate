@@ -941,13 +941,13 @@ export default function NewHome() {
                 <div className="flex flex-row items-center gap-3">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
                     <Image
-                      src="/chains/oasys.png"
-                      alt="Oasys"
+                      src="/brand-assets/kaia.png"
+                      alt="Kaia"
                       fill
                       className="rounded-full object-contain"
                     />
                   </div>
-                  <p className="text-xs md:text-xl">Oasys</p>
+                  <p className="text-xs md:text-xl">Kaia</p>
                 </div>
                 <div className="flex flex-row items-center gap-3">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
