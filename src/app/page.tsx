@@ -387,71 +387,45 @@ export default function Homepage() {
         </section>
 
         <section className="px-7 2xl:px-40 mt-20 md:mt-60">
-          {/* タイトル */}
+          {/* Title */}
           <div className="text-center text-2xl md:text-5xl font-bold">
-            <h2>
-              {isPublisher ? "PAY ONLY FOR" : "MONETIZE"}
-            </h2>
+            <h2>{isPublisher ? "PAY ONLY FOR" : "MONETIZE"}</h2>
             <h3 className="text-lime-400 mt-3 md:mt-5">
               {isPublisher ? "MEASURABLE RESULTS" : "YOUR INFLUENCE"}
             </h3>
           </div>
-          {!isPublisher &&
+
+          {!isPublisher && (
             <p className="text-center text-md md:text-xl text-gray-400 mt-3 md:mt-5">
               Have you built a thriving community without knowing how to generate income? We&apos;re here to support you!
             </p>
-          }
+          )}
 
-          {/* カード一覧 */}
-          {isPublisher && (
+          {/* Feature Cards for Publisher */}
+          {isPublisher ? (
             <div className="mt-10 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto">
               {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="aspect-square flex flex-col items-center justify-center border border-gray-600 rounded-lg text-center p-2 md:p-5"
-                >
-                  {/* アイコン */}
+                <div key={index} className="aspect-square flex flex-col items-center justify-center border border-gray-600 rounded-lg text-center p-2 md:p-5">
+                  {/* Icon */}
                   <div className="w-full h-full rounded-lg flex items-center justify-center relative">
-                    <Image 
-                      src={feature.icon} 
-                      alt={feature.title} 
-                      fill // 👈 これを追加（width, heightは不要）
-                      className="object-contain" // 👈 画像のアスペクト比を維持して表示
-                    />
+                    <Image src={feature.icon} alt={feature.title} fill className="object-contain" />
                   </div>
-
-                  {/* タイトル */}
-                  <p className="text-lg md:text-xl font-semibold">
-                    {feature.title}
-                  </p>
+                  {/* Title */}
+                  <p className="text-lg md:text-xl font-semibold">{feature.title}</p>
                 </div>
               ))}
             </div>
-          )}
-
-          {!isPublisher && (
+          ) : (
+            /* Monetization Section for Non-Publishers */
             <div className="flex justify-center items-center w-full py-10">
               <div className="relative w-full max-w-[1000px] flex items-center justify-center">
-                {/* デスクトップ用画像 */}
-                <Image
-                  src="/tmp/monetize-desktop.png"
-                  alt="Central Icon Desktop"
-                  width={600}
-                  height={600}
-                  className="hidden md:block w-full object-contain"
-                />
-                {/* モバイル用画像 */}
-                <Image
-                  src="/tmp/monetize-mobile.png"
-                  alt="Central Icon Mobile"
-                  width={300}
-                  height={300}
-                  className="md:hidden w-full object-contain"
-                />
+                {/* Desktop Image */}
+                <Image src="/tmp/monetize-desktop.png" alt="Central Icon Desktop" width={600} height={600} className="hidden md:block w-full object-contain" />
+                {/* Mobile Image */}
+                <Image src="/tmp/monetize-mobile.png" alt="Central Icon Mobile" width={300} height={300} className="md:hidden w-full object-contain" />
               </div>
             </div>
           )}
-
         </section>
 
         {/* Analytics & Reporting Section */}
