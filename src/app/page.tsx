@@ -1,137 +1,64 @@
 "use client";
 
+// React & Next.js dependencies
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+
+// Homepage data (logos, social media links, footer content)
 import { clientLogos, socialMediaLinks, footerContent } from "./constants/homepageData";
 
-export default function NewHome() {
+export default function Homepage() {
+  // State for mobile menu
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Function to toggle mobile menu
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
+  // Automatically close mobile menu when resizing to desktop view
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMenuOpen(false);
+      }
+    };
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+    
+    // Cleanup event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // ================== DATA DEFINITIONS ==================
+
+  // Partner data categorized by type
   const partnersData = {
     Game: [
-      {
-        name: "VMG.ron",
-        country: "Philippines",
-        role: "Streamer",
-        followers: "340k+ Follower",
-        image: "/tmp/game1.png",
-      },
-      {
-        name: "marksenpai26",
-        country: "Philippines",
-        role: "Tutorial",
-        followers: "142k+ Follower",
-        image: "/tmp/game2.png",
-      },
-      {
-        name: "VLADRAX",
-        country: "Philippines",
-        role: "Streamer",
-        followers: "13k+ Follower",
-        image: "/tmp/game3.png",
-      },
-      {
-        name: "Elisa",
-        country: "France & Spain",
-        role: "Streamer",
-        followers: "50k+ Follower",
-        image: "/tmp/game4.png",
-      },
+      { name: "VMG.ron", country: "Philippines", role: "Streamer", followers: "340k+ Follower", image: "/tmp/game1.png" },
+      { name: "marksenpai26", country: "Philippines", role: "Tutorial", followers: "142k+ Follower", image: "/tmp/game2.png" },
+      { name: "VLADRAX", country: "Philippines", role: "Streamer", followers: "13k+ Follower", image: "/tmp/game3.png" },
+      { name: "Elisa", country: "France & Spain", role: "Streamer", followers: "50k+ Follower", image: "/tmp/game4.png" },
     ],
     NFT: [
-      {
-        name: "David",
-        country: "Vietnam",
-        role: "Creator",
-        followers: "15k+ Follower",
-        image: "/tmp/nft1.png",
-      },
-      {
-        name: "kasotukun",
-        country: "Japan",
-        role: "Creator",
-        followers: "41k+ Follower",
-        image: "/tmp/nft2.png",
-      },
-      {
-        name: "DzT DAO",
-        country: "Japan",
-        role: "Creator",
-        followers: "28k+ Follower",
-        image: "/tmp/nft3.png",
-      },
+      { name: "David", country: "Vietnam", role: "Creator", followers: "15k+ Follower", image: "/tmp/nft1.png" },
+      { name: "kasotukun", country: "Japan", role: "Creator", followers: "41k+ Follower", image: "/tmp/nft2.png" },
+      { name: "DzT DAO", country: "Japan", role: "Creator", followers: "28k+ Follower", image: "/tmp/nft3.png" },
     ],
     Meme: [],
     DeFi: [],
   };
 
-  const [activeTab, setActiveTab] = useState<keyof typeof partnersData>("Game");
-
+  // Features displayed for publishers
   const features = [
-    {
-      icon: "/tmp/pay1.png", // 仮のアイコンパス
-      title: "Launch Campaign",
-    },
-    {
-      icon: "/tmp/pay2.png", // 仮のアイコンパス
-      title: "Dashboard Monitor",
-    },
-    {
-      icon: "/tmp/pay3.png", // 仮のアイコンパス
-      title: "Pay for the CV only",
-    },
+    { icon: "/tmp/pay1.png", title: "Launch Campaign" },
+    { icon: "/tmp/pay2.png", title: "Dashboard Monitor" },
+    { icon: "/tmp/pay3.png", title: "Pay for the CV only" },
   ];
 
-  // ============= BEGIN CLIENT LOGO MANAGEMENT =============
-  const SCROLL_INTERVAL = 10;
-  const SCROLL_SPEED = 1;
-  
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeDot, setActiveDot] = useState(0);
-  
-  useEffect(() => {
-    const scrollElement = scrollRef.current;
-    let scrollAmount = 0;
-  
-    // Set up interval to scroll the element
-    const scrollInterval = setInterval(() => {
-      if (scrollElement) {
-        // Increment the scroll position by the defined scroll speed
-        scrollElement.scrollLeft += SCROLL_SPEED;
-        scrollAmount += SCROLL_SPEED;
-  
-        // Get the middle position of the scroll (to identify which logo is in the center)
-        const middlePosition = scrollElement.scrollLeft + scrollElement.clientWidth / 2;
-  
-        // Calculate the width of each logo (including the duplicated logos for continuous scrolling)
-        const logoWidth = scrollElement.scrollWidth / (clientLogos.length * 2);
-  
-        // Determine which logo is currently in the middle of the screen
-        const currentIndex = Math.floor(middlePosition / logoWidth) % clientLogos.length;
-  
-        // Set the active dot (index) to reflect the current logo in the middle
-        setActiveDot(currentIndex);
-  
-        // Reset the scroll to the beginning when it reaches the end
-        if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
-          scrollElement.scrollLeft = 0;
-          scrollAmount = 0;
-        }
-      }
-    }, SCROLL_INTERVAL);
-  
-    // Clean up the interval on component unmount or update
-    return () => clearInterval(scrollInterval);
-  }, []);  
-  // ============= END CLIENT LOGO MANAGEMENT =============
-
-  const [isPublisher, setIsPublisher] = useState(true);
-
+  // Sample data for KOL/Guilds
   const kolGuildData = [
     { image: "/tmp/connect1.png", name: "Beacon" },
     { image: "/tmp/connect2.png", name: "Pirate Nation" },
@@ -139,17 +66,57 @@ export default function NewHome() {
     { image: "/tmp/connect4.png", name: "King Destiny" },
   ];
 
+  // ================== STATE HOOKS ==================
+  const [activeTab, setActiveTab] = useState<keyof typeof partnersData>("Game");
+  const [isPublisher, setIsPublisher] = useState(true);
+
+  // ================== CLIENT LOGO SCROLL MANAGEMENT ==================
+  const SCROLL_INTERVAL = 10; // Scroll update interval in milliseconds
+  const SCROLL_SPEED = 1; // Scroll speed in pixels per update
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeDot, setActiveDot] = useState(0);
+
+  useEffect(() => {
+    const scrollElement = scrollRef.current;
+
+    // Set up auto-scrolling interval
+    const scrollInterval = setInterval(() => {
+      if (scrollElement) {
+        // Increment scroll position
+        scrollElement.scrollLeft += SCROLL_SPEED;
+
+        // Get the middle position to determine the active logo
+        const middlePosition = scrollElement.scrollLeft + scrollElement.clientWidth / 2;
+        const logoWidth = scrollElement.scrollWidth / (clientLogos.length * 2);
+
+        // Update active dot based on the middle logo
+        const currentIndex = Math.floor(middlePosition / logoWidth) % clientLogos.length;
+        setActiveDot(currentIndex);
+
+        // Reset scrolling when it reaches the duplicated end
+        if (scrollElement.scrollLeft >= scrollElement.scrollWidth / 2) {
+          scrollElement.scrollLeft = 0;
+        }
+      }
+    }, SCROLL_INTERVAL);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(scrollInterval);
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Header */}
       <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-2 lg:px-16 xl:px-40 2xl:px-80 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
-        {/* Logo */}
+
+        {/* === Left Section: Logo === */}
         <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
           <Image src="/qube.png" alt="Qube Logo" width={36} height={36} />
           <p className="text-3xl font-corporate">Qube</p>
         </Link>
 
-        {/* Navigation (Desktop) */}
+        {/* === Center Section: Navigation (Desktop) === */}
         <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
           <Link href="#" className="hover:text-gray-400">Home</Link>
           <div className="h-11 w-px bg-white"></div>
@@ -159,38 +126,76 @@ export default function NewHome() {
           <div className="h-11 w-px bg-white"></div>
           <Link href="#achievements" className="hover:text-gray-400">Achievements</Link>
           <div className="h-11 w-px bg-white"></div>
+
+          {/* Toggle Button for Publisher/KOL */}
           <button onClick={() => setIsPublisher(!isPublisher)} className="hover:text-gray-400">
             {isPublisher ? "KOL/Guild" : "Publisher"}
           </button>
         </nav>
 
-        {/* Launch App Button */}
-        <Link href="/onboarding" className="hidden md:block px-6 py-2 bg-lime-300 text-black font-bold rounded-md hover:bg-lime-200">Launch App</Link>
+        {/* === Right Section: Buttons === */}
+        <div className="flex items-center space-x-4">
+          {/* Launch App Button (Desktop) */}
+          <Link href="/onboarding" className="hidden md:block px-6 py-2 bg-lime-300 text-black font-bold rounded-md hover:bg-lime-200">
+            Launch App
+          </Link>
 
-        {/* Hamburger Menu Button (Mobile) */}
-        <button onClick={toggleMenu} className="md:hidden focus:outline-none">
-          <Image src="/assets/common/menu-white.png" alt="Menu" width={30} height={30} />
-        </button>
+          {/* Hamburger Menu Button (Mobile) */}
+          <button onClick={toggleMenu} className="md:hidden">
+            <Image src="/assets/common/menu-white.png" alt="Menu" width={30} height={30} />
+          </button>
+        </div>
       </header>
 
       {/* Mobile Navigation Menu */}
       <div
-        className={`fixed top-0 left-0 w-full bg-black flex flex-col items-center justify-center transform ${menuOpen ? "translate-y-0" : "-translate-y-full"} transition-transform duration-300 ease-in-out z-50`}
+        className={`fixed top-0 left-0 w-full bg-black flex flex-col items-center justify-center transition-transform duration-300 ease-in-out z-50 ${
+          menuOpen ? "translate-y-0" : "-translate-y-full"
+        }`}
       >
-        {/* Close Button as a Separate Row */}
+        {/* === Close Button === */}
         <button
           onClick={toggleMenu}
           className="w-full flex justify-end px-6 py-4"
         >
-          <Image src="/assets/common/close-white.png" alt="Close Menu" width={30} height={30} />
+          <Image
+            src="/assets/common/close-white.png"
+            alt="Close Menu"
+            width={30}
+            height={30}
+          />
         </button>
-        <Link href="#" className="text-xl hover:text-gray-400 py-5 w-full text-center border-b border-[#4A4A4A]" onClick={toggleMenu}>Home</Link>
-        <Link href="#about" className="text-xl hover:text-gray-400 py-5 w-full text-center border-b border-[#4A4A4A]" onClick={toggleMenu}>About</Link>
-        <Link href="#why-us" className="text-xl hover:text-gray-400 py-5 w-full text-center border-b border-[#4A4A4A]" onClick={toggleMenu}>Why us</Link>
-        <Link href="#achievements" className="text-xl hover:text-gray-400 py-5 w-full text-center border-b border-[#4A4A4A]" onClick={toggleMenu}>Achievements</Link>
-        <button onClick={() => setIsPublisher(!isPublisher)} className="text-xl hover:text-gray-400 py-5 w-full text-center">
-          {isPublisher ? "KOL/Guild" : "Publisher"}
-        </button>
+
+        {/* === Navigation Links === */}
+        <nav className="w-full">
+          <ul className="flex flex-col w-full">
+            {[
+              { href: "#", label: "Home" },
+              { href: "#about", label: "About" },
+              { href: "#why-us", label: "Why us" },
+              { href: "#achievements", label: "Achievements" },
+            ].map((item, index) => (
+              <li key={index} className="border-b border-[#4A4A4A]">
+                <Link
+                  href={item.href}
+                  className="block text-xl text-center py-5 hover:text-gray-400"
+                  onClick={toggleMenu}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+            {/* Publisher / KOL/Guild Toggle Button */}
+            <li>
+              <button
+                onClick={() => setIsPublisher(!isPublisher)}
+                className="block w-full text-xl text-center py-5 hover:text-gray-400"
+              >
+                {isPublisher ? "KOL/Guild" : "Publisher"}
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
 
       {/* Main Content Section */}
