@@ -32,6 +32,25 @@ export default function Homepage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // State for footer background image
+  const [footerImage, setFooterImage] = useState("/tmp/footer-desktop.png");
+
+  // Function to update the footer image based on window width
+  useEffect(() => {
+    const updateFooterImage = () => {
+      setFooterImage(window.innerWidth >= 768 ? "/tmp/footer-desktop.png" : "/tmp/footer-mobile.png");
+    };
+
+    // Set the initial footer image based on current window size
+    updateFooterImage();
+
+    // Listen for window resize events and update the footer image accordingly
+    window.addEventListener("resize", updateFooterImage);
+
+    // Cleanup event listener when component unmounts
+    return () => window.removeEventListener("resize", updateFooterImage);
+  }, []);
+
   // ================== DATA DEFINITIONS ==================
 
   const statsData = [
@@ -552,7 +571,7 @@ export default function Homepage() {
       <footer className="relative w-full min-h-[50vh] mt-20 md:mt-60">
         {/* Background Image */}
         <Image
-          src={`/tmp/footer-${window.innerWidth >= 768 ? "desktop" : "mobile"}.png`}
+          src={footerImage}
           alt="Qube Footer"
           layout="fill"
           objectFit="cover"
