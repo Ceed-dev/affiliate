@@ -278,80 +278,38 @@ export default function Homepage() {
 
         {/* Trusted By Section */}
         <section className="relative w-full px-7 2xl:px-40 mt-20 md:mt-60">
-          {/* タイトル */}
+          {/* Section Title */}
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-10 md:mb-20">
             TRUSTED BY
           </h2>
 
-          {/* ボーダー画像とロゴ一覧のコンテナ */}
+          {/* Border Image & Logos */}
           <div className="relative w-full flex flex-col items-center">
-            {/* ボーダー画像（高さを動的に変更可能にする） */}
             <div className="relative w-full">
               <Image
-                src="/tmp/4.png" // Figmaからエクスポートしたボーダー画像
+                src="/tmp/4.png"
                 alt="Section Border"
                 width={1920}
-                height={300} // 高さを200 → 300 に増やす（状況に応じて変更）
-                className="w-full h-[250px] md:h-[220px] lg:h-[300px] xl:h-[160px]" // md, lg で高さを動的に調整
+                height={300}
+                className="w-full h-[250px] md:h-[220px] lg:h-[300px] xl:h-[160px]"
               />
 
-              {/* ロゴ一覧（ボーダー画像の中に収める） */}
+              {/* Logos */}
               <div className="absolute inset-0 flex flex-wrap justify-center items-center gap-2 lg:gap-16 px-6 py-6">
-                <div className="flex flex-row items-center gap-3">
-                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
-                    <Image
-                      src="/brand-assets/double-jump-tokyo.png"
-                      alt="doublejump.tokyo"
-                      fill
-                      className="rounded-full object-contain"
-                    />
+                {[
+                  { src: "/brand-assets/double-jump-tokyo.png", alt: "doublejump.tokyo", name: "doublejump.tokyo" },
+                  { src: "/brand-assets/gumi.png", alt: "gumi", name: "gumi" },
+                  { src: "/brand-assets/game-swift.png", alt: "Game Swift", name: "Game Swift" },
+                  { src: "/brand-assets/kaia.png", alt: "Kaia", name: "Kaia" },
+                  { src: "/chains/arbitrum.png", alt: "Arbitrum", name: "Arbitrum" }
+                ].map((logo, index) => (
+                  <div key={index} className="flex flex-row items-center gap-3">
+                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
+                      <Image src={logo.src} alt={logo.alt} fill className="rounded-full object-contain" />
+                    </div>
+                    <p className="text-xs md:text-xl">{logo.name}</p>
                   </div>
-                  <p className="text-xs md:text-xl">doublejump.tokyo</p>
-                </div>
-                <div className="flex flex-row items-center gap-3">
-                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
-                    <Image
-                      src="/brand-assets/gumi.png"
-                      alt="gumi"
-                      fill
-                      className="rounded-full object-contain"
-                    />
-                  </div>
-                  <p className="text-xs md:text-xl">gumi</p>
-                </div>
-                <div className="flex flex-row items-center gap-3">
-                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
-                    <Image
-                      src="/brand-assets/game-swift.png"
-                      alt="Game Swift"
-                      fill
-                      className="rounded-full object-contain"
-                    />
-                  </div>
-                  <p className="text-xs md:text-xl">Game Swift</p>
-                </div>
-                <div className="flex flex-row items-center gap-3">
-                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
-                    <Image
-                      src="/brand-assets/kaia.png"
-                      alt="Kaia"
-                      fill
-                      className="rounded-full object-contain"
-                    />
-                  </div>
-                  <p className="text-xs md:text-xl">Kaia</p>
-                </div>
-                <div className="flex flex-row items-center gap-3">
-                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16">
-                    <Image
-                      src="/chains/arbitrum.png"
-                      alt="Arbitrum"
-                      fill
-                      className="rounded-full object-contain"
-                    />
-                  </div>
-                  <p className="text-xs md:text-xl">Arbitrum</p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
