@@ -251,7 +251,7 @@ export default function Homepage() {
 
         {/* About Section - Displaying Key Statistics */}
         <section id="about">
-          <div className="max-w-none mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-5 px-7 2xl:px-40">
+          <div className="max-w-none mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-5 px-7 2xl:px-40">
             {/* Statistics Cards */}
             {statsData.map((stat, index) => (
               <div key={index} className="relative w-full">
