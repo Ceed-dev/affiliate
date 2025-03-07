@@ -26,6 +26,7 @@ const config: Config = {
       },
       fontFamily: {
         corporate: ["Corporation Games Straight", "sans-serif"],
+        chakra: ["Chakra Petch", "sans-serif"],
       },
     },
   },
