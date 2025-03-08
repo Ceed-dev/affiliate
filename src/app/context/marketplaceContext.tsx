@@ -21,7 +21,7 @@ export const MarketplaceProvider = ({ children }: { children: ReactNode }) => {
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("Kaia");
+  const [selectedCategory, setSelectedCategory] = useState<string>(""); // Previously, the default value was set to "Kaia".
   const [kaiaProjectIds, setKaiaProjectIds] = useState<string[]>([]);
 
   return (
