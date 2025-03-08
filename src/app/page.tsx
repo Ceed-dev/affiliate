@@ -21,6 +21,8 @@ import {
   footerContent 
 } from "./constants/homepageData";
 
+import { LanguageToggle } from "./components/common";
+
 export default function Homepage() {
   // ================== STATE HOOKS ==================
 
@@ -36,6 +38,9 @@ export default function Homepage() {
 
   // State for footer background image
   const [footerImage, setFooterImage] = useState("/assets/homepage/footer/desktop.png");
+
+  // State for language toggle
+  const [language, setLanguage] = useState<"en" | "jp">("en");
 
   // Reference for scrolling logos
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -98,7 +103,7 @@ export default function Homepage() {
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-10 lg:px-16 xl:px-60 2xl:px-80 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
+      <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-10 lg:px-16 xl:px-44 2xl:px-72 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
 
         {/* === Left Section: Logo === */}
         <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
@@ -115,7 +120,7 @@ export default function Homepage() {
         </Link>
 
         {/* === Center Section: Navigation (Desktop) === */}
-        <nav className="hidden md:flex space-x-3 lg:space-x-7 items-center text-sm">
+        <nav className="hidden lg:flex space-x-3 lg:space-x-5 xl:space-x-7 items-center text-sm">
           {navLinks.map((link, index) => (
             <React.Fragment key={link.id}>
               <Link href={link.id} className="hover:text-[#A5E100]">
@@ -137,17 +142,21 @@ export default function Homepage() {
 
         {/* === Right Section: Buttons === */}
         <div className="flex items-center">
-          {/* Launch App Button (Desktop) */}
-          <Link
-            href="/onboarding"
-            className="hidden md:block px-6 py-2 border-2 border-[#A5E100] text-black hover:text-[#A5E100] 
-                      bg-[#A5E100] hover:bg-black rounded-md transition duration-300"
-          >
-            Launch App
-          </Link>
+          <div className="hidden lg:flex gap-2 2xl:gap-10">
+            {/* Language Toggle Button (Eng/JA) */}
+            {/* <LanguageToggle language={language} setLanguage={setLanguage} /> */}
+            {/* Launch App Button (Desktop) */}
+            <Link
+              href="/onboarding"
+              className="px-6 py-2 border-2 border-[#A5E100] text-black hover:text-[#A5E100] 
+                        bg-[#A5E100] hover:bg-black rounded-md transition duration-300"
+            >
+              Launch App
+            </Link>
+          </div>
 
           {/* Hamburger Menu Button (Mobile) */}
-          <button onClick={toggleMenu} className="md:hidden">
+          <button onClick={toggleMenu} className="lg:hidden">
             <Image src="/assets/common/menu-green.png" alt="Menu" width={30} height={30} />
           </button>
         </div>
@@ -197,6 +206,11 @@ export default function Homepage() {
             </li>
           </ul>
         </nav>
+        
+        {/* Language Toggle Button (Eng/JA) */}
+        {/* <div className="my-5">
+          <LanguageToggle language={language} setLanguage={setLanguage} />
+        </div> */}
       </div>
 
       {/* Main Content Section */}
