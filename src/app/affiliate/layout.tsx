@@ -61,7 +61,7 @@ export default function AffiliateLayout({
   return (
     <div className="min-h-screen bg-black text-white md:flex">
       {/* Sidebar for desktop view, top navigation bar for mobile */}
-      <div className="md:bg-[#222222] flex flex-row md:flex-col md:fixed md:h-full w-full md:w-64 px-3 md:px-7 py-3 md:py-7">
+      <div className="md:bg-[#222222] flex flex-row md:flex-col md:fixed md:h-full w-full md:w-64 px-3 md:px-7 py-3 md:py-7 relative z-20">
         <div className="w-full">
           <div 
             className={`w-full flex flex-row items-center justify-between ${
@@ -81,14 +81,14 @@ export default function AffiliateLayout({
                   height={25}
                 />
               </Link>
-            ): (
+            ) : (
               <div className="w-[25px] h-[25px] md:hidden" />
             )}
             
             {/* Qube logo and brand name */}
             <Link
               href="/#"
-              className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
+              className="flex flex-row items-center my-5 md:my-0 gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1"
             >
               <Image
                 src="/qube.png"
@@ -100,11 +100,11 @@ export default function AffiliateLayout({
             </Link>
             
             {/* XP points display in the header for mobile view */}
-            <div className="md:hidden">{totalXpPoints} XP</div>
+            <div className="md:hidden opacity-0">{totalXpPoints} XP</div>
           </div>
           
           {/* Mobile Tab Bar */}
-          {isMarketplacePath && (
+          {/* {isMarketplacePath && (
             <div className="w-full bg-[#222222] flex md:hidden rounded-lg py-1 px-2 my-2">
               <button
                 className={`flex-1 flex flex-row justify-center gap-2 py-1 transition-all duration-300 ease-in-out ${
@@ -139,7 +139,7 @@ export default function AffiliateLayout({
                 GameFi
               </button>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Marketplace link in sidebar for desktop view */}
@@ -156,7 +156,7 @@ export default function AffiliateLayout({
           <span className="font-semibold">Projects</span>
         </Link>
 
-        {isMarketplacePath && (
+        {/* {isMarketplacePath && (
           <div className="hidden md:flex flex-col gap-5 border-t-2 border-white/5 pt-5 mt-5">
             <button
               className={`flex items-center gap-3 rounded-xl p-3 ${
@@ -187,11 +187,12 @@ export default function AffiliateLayout({
               <span className="font-semibold">GameFi</span>
             </button>
           </div>
-        )}
+        )} */}
 
         {/* XP points display in the sidebar for desktop view */}
+        {/* Temporarily hidden with "opacity-0" due to design changes */}
         <div
-          className="hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-auto"
+          className="opacity-0 hidden md:flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 md:mt-auto"
         >
           <Image
             src="/assets/common/paid-white.png"
