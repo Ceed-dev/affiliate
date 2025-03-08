@@ -47,7 +47,7 @@ export const MarketplaceProjectCard: React.FC<MarketplaceProjectCardProps> = ({
       >
         {/* Project Title & Description */}
         <h2 className="text-2xl line-clamp-1">{project.projectName}</h2>
-        <p className="text-sm text-gray-400 mt-1 line-clamp-2">{project.description}</p>
+        <p className="text-sm text-gray-400 mt-1 line-clamp-2 min-h-[40px]">{project.description}</p>
         
         {/* Project Cover Image */}
         <div className={`relative rounded-2xl overflow-hidden my-5 ${
