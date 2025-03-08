@@ -11,7 +11,7 @@ import { fetchUserById } from "../../utils/userUtils";
 import { fetchProjects } from "../../utils/projectUtils";
 import { getFeaturedProject, getMarketplaceBanner, getKaiaProjects } from "../../utils/appSettingsUtils";
 import { calculateTotalXpPoints } from "../../utils/xpUtils";
-import { ProjectCard } from "../../components/project";
+import { MarketplaceProjectCard } from "../../components/project";
 
 /**
  * Marketplace Component
@@ -180,84 +180,117 @@ export default function Marketplace() {
   });
 
   return (
-    <div className="w-11/12 sm:w-2/3 lg:w-3/5 mx-auto pb-10 md:py-20">
-      {/* Banner Message */}
-      {bannerMessage && (
-        <div className="bg-[#5865F2] hover:bg-[#5865F2]/90 font-semibold py-3 px-5 mb-6 rounded-lg flex items-center gap-2">
-          {/* Explosion emoji */}
-          <span
-            className="text-2xl bg-white/5 px-2 py-1 rounded-lg"
-            role="img"
-            aria-label="explosion"
-          >
-            💥
-          </span>
-          <span className="text-md md:text-lg lg:text-xl">{bannerMessage}</span>
-        </div>
-      )}
+    <>
+      {/* Background Overlay */}
+      <div 
+        className="absolute top-0 left-0 w-full h-full bg-cover bg-center z-10 opacity-80"
+        style={{
+          backgroundImage: `url('/assets/common/marketplace-bg.png')`,
+          maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 60%)",
+          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 60%)",
+        }}
+      />
 
-      {/* Page Title, hidden on small screens */}
-      <h1 className="hidden md:block text-2xl font-bold mb-5">Projects</h1>
+      {/* Hero Section */}
+      <div className="relative w-full text-center z-20">
+        {/* Title */}
+        <h1 className="md:mt-20 font-chakra text-2xl md:text-4xl bg-gradient-to-r from-[#BFFF0D] to-[#25EAA2] text-transparent bg-clip-text">
+          EARN MORE WITH QUBE
+        </h1>
+        
+        {/* Subtitle */}
+        <p className="text-sm md:text-xl mt-1 md:mt-2 mb-2 md:mb-4">
+          Pick a project and refer to your friend to earn reward
+        </p>
 
-      {loading ? (
-        // Loading Spinner
-        <div className="flex flex-row items-center justify-center gap-5 mt-20">
-          <Image
-            src="/assets/common/loading.png"
-            alt="loading icon"
-            width={50}
-            height={50}
-            className="animate-spin"
-          />
-          <p className="font-semibold text-lg animate-pulse">Loading...</p>
-        </div>
-      ) : filteredProjects.length === 0 ? (
-        // Message for no projects available
-        <div className="text-center mt-10">
-          <p className="text-md">No projects</p>
-          <p className="text-sm text-gray-400">Check back later for new opportunities to join exciting projects.</p>
-        </div>
-      ) : (
-        // Project Cards Grid
-        <div className="grid grid-cols-2 gap-4">
-          {featuredProjectId && filteredProjects.find((project) => project.id === featuredProjectId) ? (
-            <>
-              {/* Display featured project as a large card */}
-              <div className="col-span-2 mb-6 md:mb-10 transition duration-300 ease-in-out transform hover:scale-105">
-                <ProjectCard
-                  project={filteredProjects.find((project) => project.id === featuredProjectId)!}
-                  linkUrl={`${baseUrl}/affiliate/${featuredProjectId}`}
-                  isDarkBackground={true}
-                  isFeatured={true}
-                />
-              </div>
-              
-              {/* Display other projects in regular 2-column grid */}
-              {filteredProjects
-                .filter((project) => project.id !== featuredProjectId)
-                .map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    linkUrl={`${baseUrl}/affiliate/${project.id}`}
-                    isDarkBackground={true}
+        {/* Browse Project Button */}
+        <button 
+          onClick={() => {
+            const section = document.getElementById("marketplace");
+            if (section) {
+              section.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          className="inline-block bg-white text-black font-semibold px-6 py-2 md:mb-10 rounded-full transition 
+                      hover:bg-gradient-to-r hover:from-[#BFFF0D] hover:to-[#25EAA2]"
+        >
+          Browse project
+        </button>
+      </div>
+
+      <div id="marketplace" className="relative z-20 w-11/12 sm:w-2/3 xl:w-3/5 mx-auto pt-7 pb-10 md:pb-20">
+        {/* Banner Message */}
+        {bannerMessage && (
+          <div className="bg-[#5865F2] hover:bg-[#5865F2]/90 font-semibold py-3 px-5 mb-6 rounded-lg flex items-center gap-2">
+            {/* Explosion emoji */}
+            <span
+              className="text-2xl bg-white/5 px-2 py-1 rounded-lg"
+              role="img"
+              aria-label="explosion"
+            >
+              💥
+            </span>
+            <span className="text-md md:text-lg lg:text-xl">{bannerMessage}</span>
+          </div>
+        )}
+
+        {loading ? (
+          // Loading Spinner
+          <div className="flex flex-row items-center justify-center gap-5 mt-20">
+            <Image
+              src="/assets/common/loading.png"
+              alt="loading icon"
+              width={50}
+              height={50}
+              className="animate-spin"
+            />
+            <p className="font-semibold text-lg animate-pulse">Loading...</p>
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          // Message for no projects available
+          <div className="text-center mt-10">
+            <p className="text-md">No projects</p>
+            <p className="text-sm text-gray-400">Check back later for new opportunities to join exciting projects.</p>
+          </div>
+        ) : (
+          // Project Cards Grid
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {featuredProjectId && filteredProjects.find((project) => project.id === featuredProjectId) ? (
+              <>
+                {/* Display featured project as a large card */}
+                <div className="col-span-1 xl:col-span-2">
+                  <MarketplaceProjectCard
+                    project={filteredProjects.find((project) => project.id === featuredProjectId)!}
+                    linkUrl={`${baseUrl}/affiliate/${featuredProjectId}`}
+                    isFeatured={true}
                   />
-                ))
-              }
-            </>
-          ) : (
-            // Display all projects in regular 2-column grid if there's no featured project
-            filteredProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                linkUrl={`${baseUrl}/affiliate/${project.id}`}
-                isDarkBackground={true}
-              />
-            ))
-          )}
-        </div>
-      )}
-    </div>
+                </div>
+                
+                {/* Display other projects in regular 2-column grid */}
+                {filteredProjects
+                  .filter((project) => project.id !== featuredProjectId)
+                  .map((project) => (
+                    <MarketplaceProjectCard
+                      key={project.id}
+                      project={project}
+                      linkUrl={`${baseUrl}/affiliate/${project.id}`}
+                    />
+                  ))
+                }
+              </>
+            ) : (
+              // Display all projects in regular 2-column grid if there's no featured project
+              filteredProjects.map((project) => (
+                <MarketplaceProjectCard
+                  key={project.id}
+                  project={project}
+                  linkUrl={`${baseUrl}/affiliate/${project.id}`}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
