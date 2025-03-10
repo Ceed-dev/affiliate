@@ -21,6 +21,8 @@ import {
   footerContent 
 } from "./constants/homepageData";
 
+import { LanguageToggle } from "./components/common";
+
 export default function Homepage() {
   // ================== STATE HOOKS ==================
 
@@ -30,6 +32,8 @@ export default function Homepage() {
 
   // State for active tab in partners section
   const [activeTab, setActiveTab] = useState<keyof typeof partnersData>("Game");
+  const [indicatorStyle, setIndicatorStyle] = useState({ width: "0px", left: "0px" });
+  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   // State for publisher mode
   const [isPublisher, setIsPublisher] = useState(true);
@@ -37,9 +41,29 @@ export default function Homepage() {
   // State for footer background image
   const [footerImage, setFooterImage] = useState("/assets/homepage/footer/desktop.png");
 
+  // State for language toggle
+  const [language, setLanguage] = useState<"en" | "jp">("en");
+
+  // State for responsive highlight frame
+  const [highlightFrame, setHighlightFrame] = useState("/assets/homepage/wide-highlight-frame.png");
+
   // Reference for scrolling logos
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeDot, setActiveDot] = useState(0);
+
+  // ================== UTILITY FUNCTIONS ==================
+
+  /**
+   * Smoothly scrolls to a section by its ID.
+   * Ensures the section is visible while accounting for the fixed header.
+   * @param id - The ID of the section to scroll to
+   */
+  const scrollToSection = (id: string) => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   // ================== EFFECT HOOKS ==================
 
@@ -65,6 +89,29 @@ export default function Homepage() {
     window.addEventListener("resize", updateFooterImage);
     return () => window.removeEventListener("resize", updateFooterImage);
   }, []);
+
+  // Update highlight frame image based on screen size
+  useEffect(() => {
+    const updateHighlightFrame = () => {
+      setHighlightFrame(window.innerWidth < 768 ? "/assets/homepage/highlight-frame.png" : "/assets/homepage/wide-highlight-frame.png");
+    };
+
+    updateHighlightFrame(); // Set initial state
+    window.addEventListener("resize", updateHighlightFrame);
+    return () => window.removeEventListener("resize", updateHighlightFrame);
+  }, []);
+
+  // Update the sliding indicator position and width when the active tab changes
+  // This ensures the underline smoothly moves to the selected tab with the correct width
+  useEffect(() => {
+    if (tabRefs.current[activeTab]) {
+      const tabElement = tabRefs.current[activeTab]!;
+      setIndicatorStyle({
+        width: `${tabElement.offsetWidth}px`,
+        left: `${tabElement.offsetLeft}px`,
+      });
+    }
+  }, [activeTab]);
 
   // ================== CLIENT LOGO SCROLL MANAGEMENT ==================
 
@@ -98,7 +145,7 @@ export default function Homepage() {
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-10 lg:px-16 xl:px-60 2xl:px-80 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
+      <header className="fixed top-0 left-0 w-full h-[64px] md:h-[87px] px-5 md:px-10 lg:px-16 xl:px-44 2xl:px-72 flex items-center justify-between bg-black/60 backdrop-blur-md border-b border-[#242424] z-40">
 
         {/* === Left Section: Logo === */}
         <Link href="#" className="flex flex-row items-center gap-3 transition duration-300 ease-in-out transform hover:-translate-y-1">
@@ -115,12 +162,15 @@ export default function Homepage() {
         </Link>
 
         {/* === Center Section: Navigation (Desktop) === */}
-        <nav className="hidden md:flex space-x-3 lg:space-x-7 items-center text-sm">
+        <nav className="hidden lg:flex space-x-3 lg:space-x-5 xl:space-x-7 items-center text-sm">
           {navLinks.map((link, index) => (
             <React.Fragment key={link.id}>
-              <Link href={link.id} className="hover:text-[#A5E100]">
+              <button 
+                onClick={() => scrollToSection(link.id)} 
+                className="hover:text-[#A5E100]">
                 {link.label}
-              </Link>
+              </button>
+
               {/* Add a divider after each link except the last one */}
               {index < navLinks.length - 1 && <div className="h-11 w-px bg-[#8E8E8E]"></div>}
             </React.Fragment>
@@ -137,17 +187,21 @@ export default function Homepage() {
 
         {/* === Right Section: Buttons === */}
         <div className="flex items-center">
-          {/* Launch App Button (Desktop) */}
-          <Link
-            href="/onboarding"
-            className="hidden md:block px-6 py-2 border-2 border-[#A5E100] text-black hover:text-[#A5E100] 
-                      bg-[#A5E100] hover:bg-black rounded-md transition duration-300"
-          >
-            Launch App
-          </Link>
+          <div className="hidden lg:flex gap-2 2xl:gap-10">
+            {/* Language Toggle Button (Eng/JA) */}
+            {/* <LanguageToggle language={language} setLanguage={setLanguage} /> */}
+            {/* Launch App Button (Desktop) */}
+            <Link
+              href="/onboarding"
+              className="px-6 py-2 border-2 border-[#A5E100] text-black hover:text-[#A5E100] 
+                        bg-[#A5E100] hover:bg-black rounded-md transition duration-300"
+            >
+              Launch App
+            </Link>
+          </div>
 
           {/* Hamburger Menu Button (Mobile) */}
-          <button onClick={toggleMenu} className="md:hidden">
+          <button onClick={toggleMenu} className="lg:hidden">
             <Image src="/assets/common/menu-green.png" alt="Menu" width={30} height={30} />
           </button>
         </div>
@@ -177,13 +231,15 @@ export default function Homepage() {
           <ul className="flex flex-col w-full">
             {navLinks.map((item) => (
               <li key={item.id} className="border-b border-[#8E8E8E]">
-                <Link
-                  href={item.id}
-                  className="block text-xl text-center py-5 hover:text-[#A5E100]"
-                  onClick={toggleMenu}
+                <button
+                  onClick={() => {
+                    scrollToSection(item.id);
+                    toggleMenu();
+                  }}
+                  className="block text-xl text-center py-5 hover:text-[#A5E100] w-full"
                 >
                   {item.label}
-                </Link>
+                </button>
               </li>
             ))}
             {/* Publisher / KOL/Guild Toggle Button */}
@@ -197,12 +253,17 @@ export default function Homepage() {
             </li>
           </ul>
         </nav>
+        
+        {/* Language Toggle Button (Eng/JA) */}
+        {/* <div className="my-5">
+          <LanguageToggle language={language} setLanguage={setLanguage} />
+        </div> */}
       </div>
 
       {/* Main Content Section */}
       <main>
         {/* Hero Section */}
-        <section className="relative w-full min-h-[60vh] md:h-screen">
+        <section id="#" className="relative w-full min-h-[60vh] md:h-screen">
           {/* Desktop Background Image */}
           <Image
             src="/assets/homepage/hero/desktop.png"
@@ -216,12 +277,12 @@ export default function Homepage() {
             src="/assets/homepage/hero/mobile.png"
             alt="Qube Hero Mobile"
             fill
-            className="absolute inset-0 w-full min-h-[60vh] md:hidden object-cover"
+            className="absolute inset-0 w-full min-h-[70vh] md:hidden object-cover"
             style={{ objectPosition: "bottom center" }}
           />
 
           {/* Text & Button Container */}
-          <div className="absolute top-[15%] md:top-[30%] w-full md:w-auto md:left-[9%] text-center md:text-left">
+          <div className="absolute top-[23%] md:top-[30%] w-full md:w-auto md:left-[9%] text-center md:text-left">
             {/* Mobile Title (Single Line) */}
             <h1 className="text-2xl sm:text-4xl md:hidden font-chakra leading-[108%] tracking-wide">
               {isPublisher ? "BUILD FOR WEB3 GAMING" : "AMPLIFY YOUR INFLUENCE"}
@@ -250,21 +311,21 @@ export default function Homepage() {
         </section>
 
         {/* About Section - Displaying Key Statistics */}
-        <section id="about">
-          <div className="max-w-none mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-5 px-7 2xl:px-40">
+        <section id="about" className="scroll-mt-20 md:scroll-mt-32">
+          <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-24 md:mt-5 px-7 md:px-20 xl:px-36">
             {/* Statistics Cards */}
             {statsData.map((stat, index) => (
               <div key={index} className="relative w-full">
                 {/* Background Frame for the Statistic */}
                 <Image
-                  src="/assets/homepage/highlight-frame.png"
+                  src="/assets/homepage/highlight-frame-glow.png"
                   alt="Stats Card"
                   width={568}
                   height={308}
                   className="w-full"
                 />
                 {/* Title for the Statistic */}
-                <p className="absolute top-2 left-4 text-md text-gray-400">
+                <p className="absolute top-2 left-4 text-md text-[#8E8E8E]">
                   {stat.title}
                 </p>
                 {/* Statistic Value */}
@@ -277,7 +338,7 @@ export default function Homepage() {
         </section>
 
         {/* Trusted By Section */}
-        <section className="relative w-full px-7 2xl:px-40 mt-20 md:mt-60">
+        <section className="relative w-full mt-20 md:mt-60 px-7 md:px-20 xl:px-36">
           {/* Section Title */}
           <h2 className="text-3xl md:text-5xl font-chakra font-medium leading-[108.8%] text-center mb-10 md:mb-20">
             TRUSTED BY
@@ -287,11 +348,11 @@ export default function Homepage() {
           <div className="relative w-full flex flex-col items-center">
             <div className="relative w-full">
               <Image
-                src="/assets/homepage/wide-highlight-frame.png"
+                src={highlightFrame}
                 alt="Section Border"
                 width={1920}
                 height={300}
-                className="w-full h-[250px] md:h-[220px] lg:h-[300px] xl:h-[160px]"
+                className="w-full h-[230px] xl:h-[140px]"
               />
 
               {/* Logos */}
@@ -310,15 +371,15 @@ export default function Homepage() {
         </section>
 
         {/* Why Us Section */}
-        <section id="why-us" className="px-5 md:px-2 lg:px-16 xl:px-40 2xl:px-80 mt-20 md:mt-60">
+        <section id="why-us" className="px-5 md:px-2 lg:px-16 xl:px-40 2xl:px-80 mt-20 md:mt-60 scroll-mt-20 md:scroll-mt-32">
           {/* Section Title */}
           <h2 className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl">
             {isPublisher ? "BUILD PARTNERSHIP THAT" : "CONNECT WITH"}
           </h2>
-          <h2 className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl text-lime-400 mt-3 md:mt-5">
+          <h2 className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl text-[#A5E100] mt-3 md:mt-5">
             {isPublisher ? "AMPLIFY YOUR REACH" : "TOP WEB3 GAMES"}
           </h2>
-          <p className="text-center text-md md:text-xl text-gray-400 mt-3 md:mt-5">
+          <p className="text-center text-md md:text-xl text-[#8E8E8E] mt-3 md:mt-5">
             {isPublisher
               ? "Identify the best KOL/Guild/Community with audiences aligned to enhance your game growth."
               : "Work with the top games in the industry and seize the opportunity now!"
@@ -328,23 +389,31 @@ export default function Homepage() {
           {/* Content Section */}
           <div className="flex justify-center mt-10 md:mt-20">
             {isPublisher ? (
-              <div className="w-full border border-gray-500 rounded-xl p-3 md:p-6">
+              <div className="w-full border border-[#8E8E8E] rounded-xl p-3 md:p-6 md:mx-20">
                 {/* Tab Menu */}
-                <div className="overflow-x-auto whitespace-nowrap mb-5 md:mb-10">
-                  <div className="flex justify-around w-full mx-auto">
+                <div className="relative overflow-x-auto whitespace-nowrap mb-5 md:mb-10">
+                  <div className="flex justify-around w-full mx-auto relative">
+                    {/* Slide indicator for underline animation */}
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gray-600"></span>
+                    <span
+                      className="absolute bottom-0 h-[2px] bg-[#A5E100] transition-all duration-300"
+                      style={indicatorStyle}
+                    ></span>
+
                     {Object.keys(partnersData).map((tab) => (
                       <button
                         key={tab}
+                        ref={(el) => {
+                          if (el) {
+                            tabRefs.current[tab] = el;
+                          }
+                        }}
                         onClick={() => setActiveTab(tab as keyof typeof partnersData)}
                         className={`relative flex-1 text-lg md:text-3xl font-bold px-4 py-2 text-center ${
-                          activeTab === tab ? "text-lime-400" : "text-gray-400 hover:text-gray-200 transition"
+                          activeTab === tab ? "text-[#A5E100]" : "text-[#8E8E8E] hover:text-gray-300 transition"
                         }`}
                       >
                         {tab}
-                        <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gray-600"></span>
-                        {activeTab === tab && (
-                          <span className="absolute bottom-0 left-0 w-full h-[2px] bg-lime-400"></span>
-                        )}
                       </button>
                     ))}
                   </div>
@@ -352,20 +421,25 @@ export default function Homepage() {
 
                 {/* Tab Content */}
                 {partnersData[activeTab].length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                  <div
+                    key={activeTab}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 transition-all duration-500 ease-out opacity-0 translate-y-4 animate-fade-in"
+                  >
                     {partnersData[activeTab].map(({ image, name, country, role, followers }, index) => (
                       <div key={index} className="flex gap-4 items-center">
                         <Image src={image} alt={name} width={96} height={96} className="rounded-lg w-20 h-20 md:w-24 md:h-24" />
                         <div className="flex flex-col justify-center">
                           <h3 className="text-xl font-bold">{name}</h3>
-                          <p className="text-md text-gray-400">{country} ・ {role}</p>
-                          <p className="text-md text-gray-400">{followers}</p>
+                          <p className="text-md text-[#8E8E8E]">{country} ・ {role}</p>
+                          <p className="text-md text-[#8E8E8E]">{followers}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-gray-400">No data available.</p>
+                  <p className="text-center text-[#8E8E8E] transition-all duration-500 opacity-0 animate-fade-in">
+                    No data available.
+                  </p>
                 )}
               </div>
             ) : (
@@ -381,24 +455,24 @@ export default function Homepage() {
         </section>
 
         {/* Monetization & Measurable Results Section */}
-        <section className="px-7 2xl:px-40 mt-20 md:mt-60">
+        <section className="px-7 md:px-20 xl:px-36 mt-20 md:mt-60">
           {/* Title */}
           <div className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl">
             <h2>{isPublisher ? "PAY ONLY FOR" : "MONETIZE"}</h2>
-            <h3 className="font-chakra font-medium leading-[108.8%] text-lime-400 mt-3 md:mt-5">
+            <h3 className="font-chakra font-medium leading-[108.8%] text-[#A5E100] mt-3 md:mt-5">
               {isPublisher ? "MEASURABLE RESULTS" : "YOUR INFLUENCE"}
             </h3>
           </div>
 
           {!isPublisher && (
-            <p className="text-center text-md md:text-xl text-gray-400 mt-3 md:mt-5">
+            <p className="text-center text-md md:text-xl text-[#8E8E8E] mt-3 md:mt-5">
               Have you built a thriving community without knowing how to generate income? We&apos;re here to support you!
             </p>
           )}
 
           {/* Feature Cards for Publisher */}
           {isPublisher ? (
-            <div className="mt-10 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto">
+            <div className="mt-10 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-14 mx-auto">
               {features.map((feature, index) => (
                 <div key={index} className="aspect-square flex flex-col items-center justify-center border border-gray-600 rounded-lg text-center p-2 md:p-5">
                   {/* Icon */}
@@ -424,15 +498,15 @@ export default function Homepage() {
         </section>
 
         {/* Analytics & Reporting Section */}
-        <section className="px-7 2xl:px-40 mt-20 md:mt-60">
+        <section className="px-7 md:px-20 xl:px-36 mt-20 md:mt-60">
           {/* Title */}
           <div className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl">
             <h2>{isPublisher ? "ACCESS CAMPAIGN" : "DATA-DRIVEN IMPACT"}</h2>
-            {isPublisher && <p className="text-lime-400 mt-3 md:mt-5">ANALYTICS & REPORTING</p>}
+            {isPublisher && <p className="text-[#A5E100] mt-3 md:mt-5">ANALYTICS & REPORTING</p>}
           </div>
           
           {!isPublisher && (
-            <p className="text-center text-md md:text-xl text-gray-400 mt-3 md:mt-5">
+            <p className="text-center text-md md:text-xl text-[#8E8E8E] mt-3 md:mt-5">
               Efficiently measure, analyze, and maximize your impact, engagement, reach, and conversions included.
             </p>
           )}
@@ -441,12 +515,12 @@ export default function Homepage() {
             {/* Left Side: Statistics Data */}
             <div className="grid grid-cols-2 gap-3 md:gap-6 xl:gap-10">
               {analyticsStats.map((item, index) => (
-                <div key={index} className="relative w-full">
+                <div key={index} className="relative w-full h-full">
                   {/* Background Image */}
-                  <Image src="/assets/homepage/highlight-frame.png" alt="Stats Background" width={568} height={308} className="w-full" />
+                  <Image src="/assets/homepage/highlight-frame-glow.png" alt="Stats Background" width={568} height={308} className="w-full h-full" />
                   
                   {/* Title */}
-                  <p className="absolute top-2 left-4 text-xs md:text-md lg:text-lg text-gray-400">
+                  <p className="absolute top-2 left-4 text-xs md:text-md lg:text-lg text-[#8E8E8E]">
                     {item.title}
                   </p>
                   
@@ -466,7 +540,7 @@ export default function Homepage() {
         </section>
 
         {/* Investors Section */}
-        <section id="achievements" className="px-7 2xl:px-40 mt-20 md:mt-60">
+        <section id="achievements" className="px-7 md:px-20 xl:px-36 mt-20 md:mt-60 scroll-mt-20 md:scroll-mt-32">
           {/* Title */}
           <h2 className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl">INVESTORS</h2>
 
@@ -474,11 +548,11 @@ export default function Homepage() {
             {/* Border Image */}
             <div className="relative w-full">
               <Image
-                src="/assets/homepage/wide-highlight-frame.png"
+                src={highlightFrame}
                 alt="Section Border"
                 width={1920}
                 height={300}
-                className="w-full h-[80px] md:h-[160px] lg:h-[120px] xl:h-[140px]"
+                className="w-full h-[100px] xl:h-[140px]"
               />
 
               {/* Investor Logos */}
@@ -494,7 +568,7 @@ export default function Homepage() {
         </section>
 
         {/* Our Clients Section */}
-        <section className="2xl:px-40 mt-20 md:mt-60">
+        <section className="md:px-20 xl:px-36 mt-20 md:mt-60">
           {/* Section Title */}
           <h1 className="font-chakra font-medium leading-[108.8%] text-center text-2xl md:text-5xl mb-10 md:mb-20">
             CLIENTS
@@ -520,7 +594,7 @@ export default function Homepage() {
           {/* Desktop: Grid Layout for Client Logos */}
           <div className="hidden md:grid grid-cols-4 gap-10 place-items-center">
             {clientLogos.map((logo, index) => (
-              <div key={index} className="w-24 h-24 md:w-28 md:h-28">
+              <div key={index} className="w-24 h-24 md:w-40 md:h-40">
                 <Image
                   src={logo}
                   alt={`Logo ${index + 1}`}
@@ -548,12 +622,12 @@ export default function Homepage() {
         {/* Footer Content */}
         <div className="relative z-10 flex flex-col items-center text-center pb-5 pt-20 md:pt-32">
           {/* Catchphrase */}
-          <h2 className="font-chakra font-medium leading-[108.8%] text-md md:text-2xl xl:text-4xl text-lime-400">
+          <h2 className="font-chakra font-medium leading-[108.8%] text-md md:text-2xl xl:text-4xl text-[#A5E100]">
             THE STRONGEST GROWTH DRIVER
           </h2>
           <h3 className="font-chakra font-medium leading-[108.8%] text-md md:text-2xl xl:text-4xl mt-2">FOR YOUR GAME</h3>
 
-          <div className="mt-14 md:mt-40 lg:mt-60 flex flex-col md:flex-row gap-6 md:gap-12 lg:gap-28 xl:gap-40">
+          <div className="mt-32 md:mt-40 lg:mt-60 flex flex-col md:flex-row gap-6 md:gap-12 lg:gap-28 xl:gap-40">
             {/* Logo & Social Icons */}
             <div className="flex flex-col items-center md:items-start">
               <Link href="#" className="flex items-center gap-3 transition-transform hover:-translate-y-1">
@@ -568,7 +642,7 @@ export default function Homepage() {
                     key={index}
                     href={url}
                     target="_blank"
-                    className="bg-black border border-gray-400 hover:border-gray-300 rounded-lg p-1 transition-shadow hover:shadow-lg flex items-center justify-center w-7 lg:w-9 h-7 lg:h-9"
+                    className="bg-black border border-[#8E8E8E] hover:border-gray-300 rounded-lg p-1 transition-shadow hover:shadow-lg flex items-center justify-center w-7 lg:w-9 h-7 lg:h-9"
                   >
                     <Image src={src} alt={alt} width={size} height={size} className="object-contain" />
                   </Link>
@@ -580,11 +654,11 @@ export default function Homepage() {
             <div className="flex flex-row space-x-5 md:space-x-10 lg:space-x-20 text-left text-sm md:text-base">
               {footerContent["en"].map(({ category, links }, index) => (
                 <div key={index}>
-                  <h4 className="text-lime-400 font-semibold">{category}</h4>
+                  <h4 className="text-[#A5E100] font-semibold">{category}</h4>
                   <ul className="mt-2 space-y-2">
                     {links.map(({ url, label }, linkIndex) => (
                       <li key={linkIndex}>
-                        <a href={url} className="hover:text-lime-400">
+                        <a href={url} className="hover:text-[#A5E100]">
                           {label}
                         </a>
                       </li>
@@ -596,7 +670,7 @@ export default function Homepage() {
           </div>
 
           {/* Copyright */}
-          <div className="text-gray-400 text-sm mt-20">
+          <div className="text-[#8E8E8E] text-sm mt-20">
             &copy; {new Date().getFullYear()} All Rights Reserved by Ceed Inc.
           </div>
         </div>
