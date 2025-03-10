@@ -20,9 +20,14 @@ const config: Config = {
           "50%": { transform: "scale(1.2)", opacity: "1" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        "fade-in": {
+          "0%": { opacity: "0", transform: "translateY(14px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         checkmarkAppear: "checkmarkAppear 0.5s ease-in-out",
+        "fade-in": "fade-in 0.5s ease-out forwards",
       },
       fontFamily: {
         corporate: ["Corporation Games Straight", "sans-serif"],
