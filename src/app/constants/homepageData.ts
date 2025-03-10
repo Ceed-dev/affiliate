@@ -7,9 +7,9 @@ export const languageOptions = [
 // Navigation links used in the main navbar
 export const navLinks = [
   { id: "#", label: "Home" },
-  { id: "#about", label: "About" },
-  { id: "#why-us", label: "Why us" },
-  { id: "#achievements", label: "Achievements" },
+  { id: "about", label: "About" },
+  { id: "why-us", label: "Why us" },
+  { id: "achievements", label: "Achievements" },
 ];
 
 // Key statistics representing the platform's reach and user engagement
