@@ -250,7 +250,7 @@ export async function GET(request: NextRequest) {
         transaction.set(clickLogRef, {
           ids: {
             trackingId,
-            conversionLogId: null,
+            conversionLogIds: {},
           },
           ...(type === "asp" && { params }),
           location,
