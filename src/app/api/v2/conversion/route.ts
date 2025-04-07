@@ -58,7 +58,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Conversion point is inactive" }, { status: 200 });
     }
 
-    // Step 7: Prepare reward details
+    // Step 7: Prevent duplicate conversion recording for the same trackingId and conversionId
+    const isAlreadyRecorded = trackingData.cvRecorded[conversionId] !== null;
+    if (isAlreadyRecorded) {
+      return NextResponse.json({ message: "Conversion already recorded for this conversionId" }, { status: 200 });
+    }
+
+    // Step 8: Prepare reward details
     const rewardId = conversionPoint.rewardId; // Conversion point now stores a reference to rewardId
     const baseReward = campaignData.rewards?.[rewardId];
 
@@ -107,7 +113,7 @@ export async function POST(request: NextRequest) {
         clickLogData = clickLogSnap.data();
         const country = clickLogData.location?.country || null;
 
-        // Step 8: Log Conversion in Conversion Logs
+        // Step 9: Log Conversion in Conversion Logs
         const conversionLogRef = doc(collection(db, `${campaignLinksCollection}/${trackingData.ids.linkId}/conversionLogs`));
         transaction.set(conversionLogRef, {
           ids: { trackingId, conversionId, clickLogId: trackingData.ids.clickLogId },
@@ -119,7 +125,7 @@ export async function POST(request: NextRequest) {
 
         transaction.update(clickLogRef, { "ids.conversionLogId": conversionLogRef.id });
 
-        // Step 9: Update Conversion Statistics
+        // Step 10: Update Conversion Statistics
         const currentDate = new Date();
         const yyyy = currentDate.getFullYear();
         const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
@@ -189,12 +195,33 @@ export async function POST(request: NextRequest) {
           [trackingData.type === "ASP" ? "timestamps.updatedAt" : "updatedAt"]: Timestamp.now(),
         });
 
-        transaction.delete(trackingRef);
+        // Step 11: Clean up tracking data
+        // If this conversion completes all required conversion points,
+        // delete the tracking record. Otherwise, update the current conversion as recorded.
+        const cvRecorded = trackingData.cvRecorded;
+
+        // Get all other conversion values excluding the current one
+        const otherCvValues = Object.entries(cvRecorded)
+          .filter(([key]) => key !== conversionId)
+          .map(([, value]) => value);
+
+        // If all other conversions have been recorded, this is the last one
+        const isLastConversion = otherCvValues.every((v) => v !== null);
+
+        if (isLastConversion) {
+          // All conversions are now complete → delete the tracking record
+          transaction.delete(trackingRef);
+        } else {
+          // Still waiting on other conversions → update this one and keep tracking
+          transaction.update(trackingRef, {
+            [`cvRecorded.${conversionId}`]: Timestamp.now(),
+          });
+        }
 
         console.log("✅ [SUCCESS] Conversion recorded and trackingId deleted");
       });
 
-      // Step 10: Handle ASP Postback if applicable
+      // Step 12: Handle ASP Postback if applicable
       if (trackingData.type === "ASP") {
         try {
           console.log("📡 [INFO] Preparing postback request for ASP...");
