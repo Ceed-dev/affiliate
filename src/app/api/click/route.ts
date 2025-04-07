@@ -347,6 +347,10 @@ export async function GET(request: NextRequest) {
 
         // Store trackingId in the global "trackingIds" collection
         const trackingRef = doc(db, "trackingIds", trackingId);
+        const initialCvRecorded: { [key: string]: null } = {};
+        for (const point of campaignData.conversionPoints) {
+          initialCvRecorded[point.id] = null;
+        }
         transaction.set(trackingRef, {
           ids: {
             affiliatorId:
@@ -363,6 +367,7 @@ export async function GET(request: NextRequest) {
             expiresAt: null,
           },
           type: type.toUpperCase(),
+          cvRecorded: initialCvRecorded,
         });
       });
 
