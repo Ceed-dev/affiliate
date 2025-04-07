@@ -123,7 +123,9 @@ export async function POST(request: NextRequest) {
           isPaid: false,
         });
 
-        transaction.update(clickLogRef, { "ids.conversionLogId": conversionLogRef.id });
+        transaction.update(clickLogRef, {
+          [`ids.conversionLogIds.${conversionId}`]: conversionLogRef.id,
+        });
 
         // Step 10: Update Conversion Statistics
         const currentDate = new Date();
