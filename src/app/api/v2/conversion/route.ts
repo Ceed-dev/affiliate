@@ -285,7 +285,7 @@ export async function POST(request: NextRequest) {
           const postbackEndpoint = `${baseUrl}/api/postback`;
 
           const response = await axios.post(postbackEndpoint, 
-            { fullPostbackUrl, params: postbackParams },
+            { postbackUrl: fullPostbackUrl, params: postbackParams },
             {
               headers: {
                 "Content-Type": "application/json",
