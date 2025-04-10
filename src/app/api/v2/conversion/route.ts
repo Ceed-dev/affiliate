@@ -236,12 +236,24 @@ export async function POST(request: NextRequest) {
 
           const aspData = aspSnap.data();
           const env = aspData.env;
-          const postbackUrls = aspData.postbackUrls;
-          const postbackUrl = postbackUrls?.[env] || null;
+          const basePostbackUrl = aspData.postbackUrls?.[env] || null;
 
-          if (!postbackUrl) {
+          if (!basePostbackUrl) {
             throw new Error(`No postback URL found for env: ${env}`);
           }
+
+          // Fetch campaign link data to retrieve postback settings for this ASP and campaign
+          const campaignLinkRef = doc(db, "aspCampaignLinks", trackingData.ids.linkId);
+          const campaignLinkSnap = await getDoc(campaignLinkRef);
+
+          if (!campaignLinkSnap.exists()) {
+            throw new Error("Campaign Link data not found");
+          }
+
+          // Extract postback settings and the rule for this conversion point
+          const campaignLinkData = campaignLinkSnap.data();
+          const postbackSettings = campaignLinkData?.postbackSettings;
+          const postbackRule = postbackSettings?.[conversionId];
 
           const paramMappings = aspData.paramMappings || [];
           const postbackParams: Record<string, string> = {};
@@ -253,7 +265,19 @@ export async function POST(request: NextRequest) {
             }
           });
 
-          console.log("📡 [INFO] Sending postback to:", postbackUrl);
+          // Merge additional parameters defined in postbackRule (e.g. event_name)
+          // Ensure appendParams is an object before merging
+          if (postbackRule.appendParams && typeof postbackRule.appendParams === "object") {
+            Object.assign(postbackParams, postbackRule.appendParams);
+          }
+
+          // Build the full postback URL by appending the path if it's defined and valid
+          const fullPostbackUrl =
+            postbackRule.path && typeof postbackRule.path === "string"
+              ? `${basePostbackUrl}/${postbackRule.path}`
+              : basePostbackUrl;
+
+          console.log("📡 [INFO] Sending postback to:", fullPostbackUrl);
           console.log("🔍 [DEBUG] Postback Parameters:", postbackParams);
 
           // Use NEXT_PUBLIC_BASE_URL for an absolute path
@@ -261,7 +285,7 @@ export async function POST(request: NextRequest) {
           const postbackEndpoint = `${baseUrl}/api/postback`;
 
           const response = await axios.post(postbackEndpoint, 
-            { postbackUrl, params: postbackParams },
+            { fullPostbackUrl, params: postbackParams },
             {
               headers: {
                 "Content-Type": "application/json",
