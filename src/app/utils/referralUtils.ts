@@ -1,9 +1,58 @@
-import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
+import { doc, collection, query, where, getDoc, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { fetchUserById } from "./userUtils";
 import { isValidReferralData } from "./validationUtils";
 import { ReferralData, ClickData, ConversionLog, AffiliatePerformanceData } from "../types/referralTypes";
 import { TweetData, YouTubeVideoData } from "../types/affiliateInfo";
+
+/**
+ * fetches all affiliate performance data for a specific campaign (new specification).
+ *
+ * @param {string} campaignId - the id of the campaign to fetch data for.
+ * @returns {promise<{clicks: clickdata[], conversions: conversionlog[]}>} - aggregated affiliate data.
+ */
+export async function fetchCampaignPerformanceBylCampaignId(
+  campaignId: string
+): Promise<{clicks: ClickData[], conversions: ConversionLog[]}> {
+  const performs: {clicks: ClickData[], conversions: ConversionLog[]} = {clicks: [], conversions: []};
+
+  try {
+    const clickLogsRef = collection(db, `aspCampaignLinks/${campaignId}/clickLogs`);
+    const clickLogsSnap = await getDocs(clickLogsRef);
+
+    for (const doc of clickLogsSnap.docs) {
+      const data = doc.data();
+      performs.clicks.push({
+        id: doc.id,
+        timestamp: data.timestamp.toDate(),
+        ip: data.location.ip,
+        country: data.location.country,
+        region: data.location.region,
+        city: data.location.city,
+        userAgent: data.userAgent,
+      });
+    }
+
+    const conversionLogsRef = collection(db, `aspCampaignLinks/${campaignId}/conversionLogs`);
+    const conversionLogsSnap = await getDocs(conversionLogsRef);
+
+    for (const doc of conversionLogsSnap.docs) {
+      const data = doc.data();
+      performs.conversions.push({
+        id: doc.id,
+        timestamp: data.timestamps.createdAt.toDate(),
+        amount: data.finalRewardDetails.amount,
+        conversionId: data.ids.conversionId,
+        isPaid: data.isPaid,
+      });
+    }
+
+    return performs;
+  } catch (error) {
+    console.error("Error fetching campaign referral performance:", error);
+    throw new Error("Failed to fetch campaign performance data.");
+  }
+}
 
 /**
  * Fetches all referrals for a specific project and optionally filters by affiliate wallet,
