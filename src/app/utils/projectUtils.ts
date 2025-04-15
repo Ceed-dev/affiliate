@@ -7,6 +7,7 @@ import { saveApiKeyToFirestore, updateProjectInFirestore, deleteProjectFromFireb
 import { uploadImageAndGetURL } from "./firebase/uploadImageAndGetURL";
 import { isValidProjectData, validateProjectData } from "./validationUtils";
 import { ProjectData, ImageType, PreviewData, ConversionPoint, ExternalCampaign } from "../types";
+import { CampaignData } from "../types/campaign";
 
 /**
  * Checks if a project with the given ID exists in the Firestore 'projects' collection.
@@ -411,6 +412,51 @@ export const saveProject = async (
   return true;
 };
 
+async function fetchCampaignAsProjectLike(): Promise<ProjectData> {
+  const campaignRef = doc(db, "campaigns", "7N9BtaMllIzUwjxZUujQ");
+  const campaignSnap = await getDoc(campaignRef);
+
+  const campaign = campaignSnap.data() as CampaignData;
+
+  const projectLike: ProjectData = {
+    id: campaignSnap.id,
+    projectName: campaign.name,
+    description: campaign.description,
+    selectedToken: {
+      chainId: campaign.rewards.default.chainId!,
+      address: campaign.rewards.default.tokenAddress!,
+      symbol: campaign.rewards.default.unit,
+    },
+    logo: campaign.images.logo,
+    cover: campaign.images.cover,
+    websiteUrl: campaign.urls.website,
+    xUrl: campaign.urls.x,
+    discordUrl: campaign.urls.discord ?? "",
+    ownerAddresses: Object.keys(campaign.members),
+    createdAt: campaign.timestamps.createdAt,
+    updatedAt: campaign.timestamps.updatedAt,
+    redirectUrl: campaign.urls.redirect,
+    totalPaidOut: 0,
+    lastPaymentDate: null,
+    isReferralEnabled: false,
+    isVisibleOnMarketplace: campaign.settings.isVisibleOnMarketplace,
+    isUsingXpReward: false,
+    conversionPoints: campaign.conversionPoints.map((point) => ({
+      id: point.id,
+      title: point.title,
+      paymentType: "FixedAmount",
+      rewardAmount: point.rewardDetails.amount,
+      isActive: point.isActive,
+    })) as ConversionPoint[],
+    externalCampaigns: [],
+    targeting: campaign.targeting,
+    capiVersion: campaign.settings.capiVersion,
+    aggregatedStats: campaign.aggregatedStats,
+  };
+
+  return projectLike;
+}
+
 /**
  * Fetches and formats project data from Firestore.
  * This function can fetch a single project, all projects, or projects filtered by owner address.
@@ -448,6 +494,11 @@ export async function fetchProjects(options: {
   onEachProject?: (project: ProjectData) => void; // Callback for each project
 } = {}): Promise<ProjectData[]> {
   const { projectId, ownerAddress, audienceCountry, joinedProjectIds, onEachProject } = options;
+
+  if (projectId === "7N9BtaMllIzUwjxZUujQ") {
+    const campaignProject = await fetchCampaignAsProjectLike();
+    return [campaignProject];
+  }
 
   try {
     let querySnapshot;
@@ -530,6 +581,11 @@ export async function fetchProjects(options: {
           projects.push(processDoc(projectDoc.data(), projectDoc.id));
         }
       }
+    }
+
+    if (ownerAddress === "0x329980D088Ba66B3d459AE3d396a722437801689") {
+      const campaignProject = await fetchCampaignAsProjectLike();
+      projects.push(campaignProject);
     }
 
     return projects;
