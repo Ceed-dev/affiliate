@@ -12,12 +12,12 @@ import { ToggleButton } from "../../components/ToggleButton";
 
 // Types
 import { ConversionLog, ClickData, AffiliatePerformanceData } from "../../types/referralTypes";
-import { ExternalCampaign } from "../../types";
+import { ExternalCampaign, ProjectData } from "../../types";
 
 // Utility Functions
 import { getApiKeyData } from "../../utils/firebase";
 import { fetchProjects, fetchProjectVisibility, updateProjectVisibility } from "../../utils/projectUtils";
-import { fetchReferralPerformanceByProjectId } from "../../utils/referralUtils";
+import { fetchReferralPerformanceByProjectId, fetchCampaignPerformanceBylCampaignId } from "../../utils/referralUtils";
 import { copyToClipboard } from "../../utils/generalUtils";
 import { fetchAspConversionsByCampaigns } from "../../utils/postbackUtils";
 import { useWindowSize } from "../../hooks/useWindowSize";
@@ -38,6 +38,7 @@ import { useWindowSize } from "../../hooks/useWindowSize";
  */
 export default function Dashboard({ params }: { params: { projectId: string } }) {
   // State variables to store referral, conversion, and click data, along with loading states, API key, and display settings
+  const [projectData, setProjectData] = useState<ProjectData>();
   const [referralData, setReferralData] = useState<AffiliatePerformanceData[]>([]);
   const [conversionData, setConversionData] = useState<ConversionLog[]>([]);
   const [clickData, setClickData] = useState<ClickData[]>([]);
@@ -58,29 +59,46 @@ export default function Dashboard({ params }: { params: { projectId: string } })
 
   // Fetch referral data, including associated click and conversion data, on component mount or project ID change
   useEffect(() => {
-    fetchReferralPerformanceByProjectId(params.projectId)
-      .then(data => {
-        setReferralData(data);
-        
-        // Aggregate all clicks across referrals into a single array and update state
-        const allClicks = data.flatMap(referral => referral.clicks);
-        setClickData(allClicks);
-        setLoadingClickData(false);
+    const funcA = () => {
+      fetchReferralPerformanceByProjectId(params.projectId)
+        .then(data => {
+          setReferralData(data);
+          
+          // Aggregate all clicks across referrals into a single array and update state
+          const allClicks = data.flatMap(referral => referral.clicks);
+          setClickData(allClicks);
+          setLoadingClickData(false);
 
-        // Aggregate all conversion logs across referrals into a single array and update state
-        const allConversions = data.flatMap(referral => referral.conversionLogs);
-        setConversionData(allConversions);
-        setLoadingConversionData(false);
-      })
-      .catch(error => {
-        const message = error instanceof Error ? error.message : "Unknown error";
-        console.error("Error loading referrals:", message);
-        toast.error(`Error loading referrals: ${message}`);
-        
-        // Update loading states in case of error
-        setLoadingClickData(false);
-        setLoadingConversionData(false);
-      });
+          // Aggregate all conversion logs across referrals into a single array and update state
+          const allConversions = data.flatMap(referral => referral.conversionLogs);
+          setConversionData(allConversions);
+          setLoadingConversionData(false);
+        })
+        .catch(error => {
+          const message = error instanceof Error ? error.message : "Unknown error";
+          console.error("Error loading referrals:", message);
+          toast.error(`Error loading referrals: ${message}`);
+          
+          // Update loading states in case of error
+          setLoadingClickData(false);
+          setLoadingConversionData(false);
+        });
+    };
+
+    const funcB = async () => {
+      const data = await fetchCampaignPerformanceBylCampaignId(params.projectId);
+      setClickData(data.clicks);
+      setLoadingClickData(false);
+      setConversionData(data.conversions);
+      setLoadingConversionData(false);
+    }
+
+    if (params.projectId !== "7N9BtaMllIzUwjxZUujQ") {
+      funcA();
+    } else {
+      funcB();
+    }
+
   }, [params.projectId]);
 
   // Fetch and set the API key for the project
@@ -126,7 +144,9 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     };
   
     // Call the function to fetch visibility state when component mounts
-    fetchVisibility();
+    if (params.projectId !== "7N9BtaMllIzUwjxZUujQ") {
+      fetchVisibility();
+    }
   }, [params.projectId]);  
 
   useEffect(() => {
@@ -156,7 +176,17 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       }
     };
 
-    fetchProjectData();
+    const fetchCampaignAsProjectData = async () => {
+      const projectDataArray = await fetchProjects({ projectId: params.projectId });
+      const data = projectDataArray[0]; // Take the first item in the array
+      setProjectData(data);
+    }
+
+    if (params.projectId !== "7N9BtaMllIzUwjxZUujQ") {
+      fetchProjectData();
+    } else {
+      fetchCampaignAsProjectData();
+    }
   }, [params.projectId]);
 
   // Fetch ASP conversions after external campaigns are set
@@ -263,16 +293,22 @@ export default function Dashboard({ params }: { params: { projectId: string } })
           <AnalyticsCard
             title="Conversions"
             description="(All Time)"
-            loading={loadingConversionData}
-            value={conversionData.length}
+            loading={projectData ? false : loadingConversionData}
+            value={projectData
+              ? projectData.aggregatedStats?.ASP.conversionStats.total! + projectData.aggregatedStats?.INDIVIDUAL.conversionStats.total!
+              : conversionData.length
+            }
             unit="TIMES"
           />
           {/* Click Analytics Card */}
           <AnalyticsCard
             title="Clicks"
             description="(All Time)"
-            loading={loadingClickData}
-            value={clickData.length}
+            loading={projectData ? false : loadingClickData}
+            value={projectData
+              ? projectData.aggregatedStats?.ASP.clickStats.total! + projectData.aggregatedStats?.INDIVIDUAL.clickStats.total!
+              : clickData.length
+            }
             unit="TIMES"
           />
         </div>
