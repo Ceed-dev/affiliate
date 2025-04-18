@@ -86,7 +86,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     };
 
     const funcB = async () => {
-      const data = await fetchCampaignPerformanceBylCampaignId(params.projectId);
+      const data = await fetchCampaignPerformanceBylCampaignId();
       setClickData(data.clicks);
       setLoadingClickData(false);
       setConversionData(data.conversions);
@@ -223,7 +223,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       <h1 className="font-bold text-2xl md:text-3xl">Dashboard</h1>
 
       {/* API Key Display */}
-      {apiKey && (
+      {apiKey && params.projectId !== "7N9BtaMllIzUwjxZUujQ" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Left Block: API Key */}
           <div className="bg-[#F5F5F5] p-5 rounded-lg">
@@ -345,45 +345,47 @@ export default function Dashboard({ params }: { params: { projectId: string } })
       />
 
       {/* Affiliate Performance List */}
-      <AffiliatePerformanceList referrals={referralData} />
+      {params.projectId !== "7N9BtaMllIzUwjxZUujQ" && <AffiliatePerformanceList referrals={referralData} />}
 
       {/* ASP Conversion Data Table */}
-      <div className="mt-10">
-        <h2 className="font-bold text-xl">ASP Conversions</h2>
+      {params.projectId !== "7N9BtaMllIzUwjxZUujQ" &&
+        <div className="mt-10">
+          <h2 className="font-bold text-xl">ASP Conversions</h2>
 
-        {aspConversions.length === 0 ? (
-          <p className="text-gray-500 mt-2">No conversion data available for this project.</p>
-        ) : (
-          <div className="overflow-x-auto mt-3">
-            <table className="w-full border border-gray-300 rounded-lg">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="p-2 border">ASP</th>
-                  <th className="p-2 border">Campaign ID</th>
-                  <th className="p-2 border">Click ID</th>
-                  <th className="p-2 border">Event</th>
-                  <th className="p-2 border">Value</th>
-                  <th className="p-2 border">Currency</th>
-                  <th className="p-2 border">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {aspConversions.map((conversion: any, index: number) => (
-                  <tr key={index} className="border-t">
-                    <td className="p-2 border text-center">{conversion.source}</td>
-                    <td className="p-2 border text-center">{conversion.campaign_id}</td>
-                    <td className="p-2 border text-center">{conversion.click_id}</td>
-                    <td className="p-2 border text-center">{conversion.event_name}</td>
-                    <td className="p-2 border text-center">{conversion.event_value}</td>
-                    <td className="p-2 border text-center">{conversion.currency}</td>
-                    <td className="p-2 border text-center">{new Date(conversion.timestamp).toLocaleString()}</td>
+          {aspConversions.length === 0 ? (
+            <p className="text-gray-500 mt-2">No conversion data available for this project.</p>
+          ) : (
+            <div className="overflow-x-auto mt-3">
+              <table className="w-full border border-gray-300 rounded-lg">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-2 border">ASP</th>
+                    <th className="p-2 border">Campaign ID</th>
+                    <th className="p-2 border">Click ID</th>
+                    <th className="p-2 border">Event</th>
+                    <th className="p-2 border">Value</th>
+                    <th className="p-2 border">Currency</th>
+                    <th className="p-2 border">Timestamp</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </thead>
+                <tbody>
+                  {aspConversions.map((conversion: any, index: number) => (
+                    <tr key={index} className="border-t">
+                      <td className="p-2 border text-center">{conversion.source}</td>
+                      <td className="p-2 border text-center">{conversion.campaign_id}</td>
+                      <td className="p-2 border text-center">{conversion.click_id}</td>
+                      <td className="p-2 border text-center">{conversion.event_name}</td>
+                      <td className="p-2 border text-center">{conversion.event_value}</td>
+                      <td className="p-2 border text-center">{conversion.currency}</td>
+                      <td className="p-2 border text-center">{new Date(conversion.timestamp).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      }
       
     </div>
   );  
