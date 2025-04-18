@@ -155,20 +155,23 @@ export default function ProjectsLayout({
               />
               <span className="font-semibold">Dashboard</span>
             </Link>
-            <Link
-              href={`/projects/${projectId}/settings`}
-              className={`flex items-center gap-3 rounded-xl p-3 ${
-                isSettingsPage ? "bg-[#222222] hover:bg-opacity-85 text-white" : "bg-white hover:bg-white/60"
-              }`}
-            >
-              <Image
-                src={`/assets/common/settings-${isSettingsPage ? "white" : "black"}.png`}
-                alt="Settings"
-                width={25}
-                height={25}
-              />
-              <span className="font-semibold">Settings</span>
-            </Link>
+            {/* TODO: Fix later */}
+            {projectId !== "7N9BtaMllIzUwjxZUujQ" &&
+              <Link
+                href={`/projects/${projectId}/settings`}
+                className={`flex items-center gap-3 rounded-xl p-3 ${
+                  isSettingsPage ? "bg-[#222222] hover:bg-opacity-85 text-white" : "bg-white hover:bg-white/60"
+                }`}
+              >
+                <Image
+                  src={`/assets/common/settings-${isSettingsPage ? "white" : "black"}.png`}
+                  alt="Settings"
+                  width={25}
+                  height={25}
+                />
+                <span className="font-semibold">Settings</span>
+              </Link>
+            }
           </div>
         )}
 
