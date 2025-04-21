@@ -587,7 +587,8 @@ export async function fetchProjects(options: {
     if (
       ownerAddress === "0x329980D088Ba66B3d459AE3d396a722437801689" || // Shungo
       ownerAddress === "0x6e0aDF01ac5D52536ae9AB34368Cc646171DBEc1" || // Badhan
-      ownerAddress === "0x5355251E37Aa7a617b95E94A3bef0a04272fe564" // Boxing Star's Owner
+      ownerAddress === "0x5355251E37Aa7a617b95E94A3bef0a04272fe564" || // Boxing Star's Owner
+      ownerAddress === "0x5cF6e510E0C123E1e839376F8Ea1900Bb9B9A6C1"    // wise
     ) {
       const campaignProject = await fetchCampaignAsProjectLike();
       projects.push(campaignProject);
