@@ -216,6 +216,18 @@ export default function Dashboard({ params }: { params: { projectId: string } })
     fetchAspConversions();
   }, [externalCampaigns]); // Runs when externalCampaigns change
 
+  const getCvCount = (type: "ASP" | "INDIVIDUAL", id: string) =>
+    projectData?.aggregatedStats?.[type]?.conversionStats?.byConversionPoint?.[id] ?? 0;
+
+  const connectCount = getCvCount("ASP", "597637LE") + getCvCount("INDIVIDUAL", "597637LE");
+  const purchaseCount = getCvCount("ASP", "646671LZ") + getCvCount("INDIVIDUAL", "646671LZ");
+
+  const unitText = `TIMES${
+    projectData
+      ? ` (Connect: ${connectCount},Purchase: ${purchaseCount})`
+      : ""
+  }`;
+
   return (
     <div className="min-h-screen space-y-5 md:space-y-10 px-4 md:px-10 lg:px-20 pb-10 md:py-20">
       
@@ -298,7 +310,7 @@ export default function Dashboard({ params }: { params: { projectId: string } })
               ? projectData.aggregatedStats?.ASP.conversionStats.total! + projectData.aggregatedStats?.INDIVIDUAL.conversionStats.total!
               : conversionData.length
             }
-            unit="TIMES"
+            unit={unitText}
           />
           {/* Click Analytics Card */}
           <AnalyticsCard
