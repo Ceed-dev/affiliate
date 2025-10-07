@@ -31,28 +31,34 @@ export const MarketplaceProjectCard: React.FC<MarketplaceProjectCardProps> = ({
   isFeatured = false,
 }) => {
   const conversionPoint = project.conversionPoints[0];
-  const rewardText = conversionPoint.paymentType === "FixedAmount" ? 
-    (project.isUsingXpReward ? "XP" : project.selectedToken.symbol) 
-    : "% " + project.selectedToken.symbol;
-  
+  const rewardText =
+    conversionPoint.paymentType === "FixedAmount"
+      ? project.isUsingXpReward
+        ? "XP"
+        : project.selectedToken.symbol
+      : "% " + project.selectedToken.symbol;
+
   const tokenSymbol = project.selectedToken?.symbol || "";
   const tokenImageSrc = ["USDC", "USDT"].includes(tokenSymbol)
     ? `/tokens/${tokenSymbol}.png`
     : "/assets/common/xp.png";
 
   return (
-    <Link href={linkUrl} className="block transition duration-300 ease-in-out transform hover:scale-105">
-      <div
-        className="bg-[#1E1E1E] p-4 rounded-2xl"
-      >
+    <Link
+      href={linkUrl}
+      className="block transition duration-300 ease-in-out transform hover:scale-105"
+    >
+      <div className="bg-[#1E1E1E] p-4 rounded-2xl">
         {/* Project Title & Description */}
         <h2 className="text-2xl line-clamp-1">{project.projectName}</h2>
-        <p className="text-sm text-gray-400 mt-1 line-clamp-2 min-h-[40px]">{project.description}</p>
-        
+        <p className="text-sm text-gray-400 mt-1 line-clamp-2 min-h-[40px]">
+          {project.description}
+        </p>
+
         {/* Project Cover Image */}
-        <div className={`relative rounded-2xl overflow-hidden my-5 ${
-          isFeatured ? "h-[168px] xl:h-[366px]" : "h-[168px]"
-        }`}
+        <div
+          className={`relative rounded-2xl overflow-hidden my-5 ${isFeatured ? "h-[168px] xl:h-[366px]" : "h-[168px]"
+            }`}
         >
           <Image
             src={project.cover as string}
@@ -61,7 +67,7 @@ export const MarketplaceProjectCard: React.FC<MarketplaceProjectCardProps> = ({
             objectFit="cover"
           />
         </div>
-        
+
         {/* Reward Display */}
         <div className="flex items-center gap-3">
           {/* Reward Icon */}
@@ -78,7 +84,8 @@ export const MarketplaceProjectCard: React.FC<MarketplaceProjectCardProps> = ({
             <p className="font-semibold text-xl">
               Earn{" "}
               <span className="bg-gradient-to-r from-[#BFFF0D] to-[#25EAA2] text-transparent bg-clip-text">
-                {conversionPoint.rewardAmount || conversionPoint.percentage} {rewardText}
+                {conversionPoint.rewardAmount || conversionPoint.percentage}{" "}
+                {rewardText}
               </span>{" "}
               each
             </p>

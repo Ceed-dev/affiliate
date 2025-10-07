@@ -14,13 +14,18 @@ import { ProjectHeader, ConversionPointsTable } from "../../components/project";
 import { AnalyticsCard, BarChart } from "../../components/common";
 
 // Types
-import { ProjectData, ReferralData, ConversionLog, ClickData } from "../../types";
+import {
+  ProjectData,
+  ReferralData,
+  ConversionLog,
+  ClickData,
+} from "../../types";
 
 // Firebase and Blockchain Utilities
-import { 
-  fetchReferralData, 
-  fetchConversionLogsForReferrals, 
-  fetchClickData 
+import {
+  fetchReferralData,
+  fetchConversionLogsForReferrals,
+  fetchClickData,
 } from "../../utils/firebase";
 import { fetchProjects } from "../../utils/projectUtils";
 import { joinProject } from "../../utils/userUtils";
@@ -34,22 +39,26 @@ import { copyToClipboard } from "../../utils/generalUtils";
  * Affiliate Page
  * ---------------------------
  * This page displays the details of an affiliate project for users.
- * 
+ *
  * Overview:
  * - Renders project information such as header details, invite codes, analytics, and conversion charts.
  * - Provides users with an interface to join the project and view rewards and conversion points.
  * - Retrieves project data, referral data, and user-specific analytics from the database.
  * - Shows loading states and handles errors for seamless data fetching.
- * 
+ *
  * Props:
  * - `params`: Contains route parameters, specifically the `projectId` which identifies the project.
- * 
+ *
  * @component
  * @param {Object} params - Contains the route parameters.
  * @param {string} params.projectId - The ID of the project to display.
  * @returns {JSX.Element} Rendered Affiliate project page.
  */
-export default function Affiliate({ params }: { params: { projectId: string } }) {
+export default function Affiliate({
+  params,
+}: {
+  params: { projectId: string };
+}) {
   const wallet = useActiveWallet();
   const address = wallet?.getAccount()?.address;
 
@@ -60,7 +69,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   const [conversionLogs, setConversionLogs] = useState<ConversionLog[]>([]);
   const [clickData, setClickData] = useState<ClickData[]>([]);
-  
+
   const [chainName, setChainName] = useState<string | undefined>();
 
   // Loading states
@@ -72,6 +81,28 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   });
 
   const [referralLink, setReferralLink] = useState("");
+
+  const rewardDetailMap: Record<string, string> = {
+    B1fhhOWuJOeOqplddY71: "Earn USDC for each successful app download", // Rumble Kong League
+    sdywOKwPtyQO73exQ3q6: "Earn USDC for each successful game play", // Pirate Nation
+    "9us0pfnEhdgb1N6lxnl1": "Earn USDC for each successful app download", // Dream Lairs
+    Jwm9m1q4HukaEZ7ROZeK: "Earn USDC for each successful game join", // Dittocoin
+    JzS9ZXE0VkBxBv0IkJ8i: "Earn USDC for each successful game join", // Billinaire's Market
+    FUH6shxIRFv7thQE2tLN: "Earn USDC for each successful game play", // AI ARENA
+    FX26BxKbDVuJvaCtcTDf: "Earn USDC for each successful game purchase", // Dark Blood Reborn
+    bP0tcvgOnNJGqu8rSe4E: "Earn USDC for each successful game join on LINE", // SuperZ
+    dbaLbX2wixTiSIO49294:
+      "Earn USDC for each successful photo submission in the game", // Sapien
+    hwLFv1ZSHuuirYf5sAe0: "Earn USDC for each successful wallet connection", // GuildQB
+    iQqjCqHrifP8LdIl7APX: "Earn USDC for each successful app download", // King Of Destiny
+    kBGedqN7PaEeWHtOC9kc: "Earn USDC for each successful game join on LINE", // Sleepagotchi
+    mgLAhism9orScczmehEd: "Earn USDC for each successful Twitter follow", // Walle•X
+    nNdGUmU5GRv20phmFPuz: "Earn USDC for each successful game join", // SCOR
+    u9AE1HbodzDsjhLHV60u: "Earn USDC for each successful game join on LINE", // Boxing Star X (LINE)
+    tdMBbFf9gmff73Wu2iWe: "Earn USDC for each successful game join on Telegram", // Boxing Star X (TG)
+    zOjR2INPRAWKjsKBMJhg:
+      "Earn USDC for each successful app download and trade", // Okto
+  };
 
   // ====================== Effect Hooks =======================
 
@@ -92,7 +123,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       } catch (error) {
         handleError("project", error);
       } finally {
-        setLoading(prev => ({ ...prev, project: false }));
+        setLoading((prev) => ({ ...prev, project: false }));
       }
     };
     fetchProjectDetails();
@@ -108,7 +139,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       } catch (error) {
         handleError("referral", error);
       } finally {
-        setLoading(prev => ({ ...prev, referral: false }));
+        setLoading((prev) => ({ ...prev, referral: false }));
       }
     };
     fetchReferralDetails();
@@ -119,7 +150,9 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     if (!projectData?.selectedToken) return;
     const fetchChainNameAsync = async () => {
       try {
-        const chain = getChains().find((chain) => chain.id === projectData.selectedToken.chainId) as Chain;
+        const chain = getChains().find(
+          (chain) => chain.id === projectData.selectedToken.chainId,
+        ) as Chain;
         setChainName(chain.name);
       } catch (error) {
         console.error("Failed to get chain name:", error);
@@ -136,11 +169,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       try {
         const logs = await fetchConversionLogsForReferrals([referralData]);
         setConversionLogs(logs);
-        setLoading(prev => ({ ...prev, conversionLogs: false }));
-        
+        setLoading((prev) => ({ ...prev, conversionLogs: false }));
+
         const clicks = await fetchClickData(referralId!);
         setClickData(clicks);
-        setLoading(prev => ({ ...prev, clickData: false }));
+        setLoading((prev) => ({ ...prev, clickData: false }));
       } catch (error) {
         handleError("conversionLogs or clickData", error);
       }
@@ -151,9 +184,16 @@ export default function Affiliate({ params }: { params: { projectId: string } })
   // ====================== Helper Functions =======================
 
   const handleJoinProject = async () => {
-    const allConversionPointsInactive = projectData!.conversionPoints.every(point => !point.isActive);
+    const allConversionPointsInactive = projectData!.conversionPoints.every(
+      (point) => !point.isActive,
+    );
     try {
-      const referralId = await joinProject(params.projectId, address!, allConversionPointsInactive, projectData?.capiVersion);
+      const referralId = await joinProject(
+        params.projectId,
+        address!,
+        allConversionPointsInactive,
+        projectData?.capiVersion,
+      );
       setReferralId(referralId);
     } catch (error) {
       handleError("join project", error);
@@ -162,29 +202,32 @@ export default function Affiliate({ params }: { params: { projectId: string } })
 
   /**
    * Generates the referral link based on the project data and referral ID.
-   * 
+   *
    * For the project with ID "FX26BxKbDVuJvaCtcTDf" (DBR project), the old referral link format is used to ensure
    * compatibility, preventing the need for existing clients and affiliates to update their referral links.
-   * 
+   *
    * For all other projects, the new referral link format is used, including the target URL (`t`) as a query parameter.
-   * This approach reduces unnecessary database lookups by passing the redirect URL directly, improving performance 
+   * This approach reduces unnecessary database lookups by passing the redirect URL directly, improving performance
    * and reducing latency on the server side. The API can then use this URL for redirection without additional queries.
-   * 
+   *
    * @param {ProjectData} data - The project data containing redirect URL and project ID
    * @param {string | null} referralId - The referral ID associated with the affiliate
    * @returns {string} - The generated referral link based on the project's compatibility requirements
    */
-  const generateReferralLink = (data: ProjectData, referralId: string | null) => {
+  const generateReferralLink = (
+    data: ProjectData,
+    referralId: string | null,
+  ) => {
     if (!referralId) return "";
 
     // DBR project: Always use old referral link format
     if (data.id === "FX26BxKbDVuJvaCtcTDf") {
       return `${data.redirectUrl}?r=${referralId}`;
-    } 
+    }
     // v2 projects: Use trackingId for new referral link format
     else if (data.capiVersion === "v2") {
       return `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?type=individual&id=${referralId}`;
-    } 
+    }
     // Default case (v1 or undefined): Use old referral link format
     else {
       return `${process.env.NEXT_PUBLIC_BASE_URL}/api/click?r=${referralId}&t=${encodeURIComponent(data.redirectUrl)}`;
@@ -197,18 +240,31 @@ export default function Affiliate({ params }: { params: { projectId: string } })
     toast.error(`Error in ${context}: ${message}`);
   };
 
-  const calculateEarningsAndConversions = (conversionLogs: ConversionLog[], currentMonth: Date) => {
-    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const filteredLogs = conversionLogs.filter(log => {
+  const calculateEarningsAndConversions = (
+    conversionLogs: ConversionLog[],
+    currentMonth: Date,
+  ) => {
+    const startOfMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      1,
+    );
+    const filteredLogs = conversionLogs.filter((log) => {
       const logDate = new Date(log.timestamp);
       return logDate >= startOfMonth;
     });
 
-    const totalEarnings = filteredLogs.reduce((sum, log) => sum + log.amount, 0);
+    const totalEarnings = filteredLogs.reduce(
+      (sum, log) => sum + log.amount,
+      0,
+    );
     return { totalEarnings, totalConversions: filteredLogs.length };
   };
 
-  const { totalEarnings, totalConversions } = calculateEarningsAndConversions(conversionLogs, new Date());
+  const { totalEarnings, totalConversions } = calculateEarningsAndConversions(
+    conversionLogs,
+    new Date(),
+  );
 
   return (
     <div>
@@ -227,9 +283,8 @@ export default function Affiliate({ params }: { params: { projectId: string } })
       ) : (
         // Main Content
         <div className="min-h-screen w-full md:max-w-2xl lg:max-w-4xl mx-auto px-3 pb-20 space-y-5">
-  
           {/* Header */}
-          <ProjectHeader 
+          <ProjectHeader
             cover={projectData.cover as string}
             logo={projectData.logo as string}
             projectName={projectData.projectName}
@@ -248,7 +303,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               Join Project
             </button>
           )}
-  
+
           {/* Invite Code Panel */}
           {referralLink && (
             <div className="bg-[#222222] rounded-xl p-5 mx-3">
@@ -260,17 +315,19 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               <button
                 type="button"
                 className="bg-white/5 hover:bg-white/10 font-semibold w-full rounded-full py-2 mt-3 transition duration-300 ease-in-out transform hover:scale-105"
-                onClick={() => copyToClipboard(
-                  referralLink,
-                  "Referral link copied to clipboard!",
-                  "Failed to copy referral link. Please try again."
-                )}
+                onClick={() =>
+                  copyToClipboard(
+                    referralLink,
+                    "Referral link copied to clipboard!",
+                    "Failed to copy referral link. Please try again.",
+                  )
+                }
               >
                 Copy
               </button>
             </div>
           )}
-  
+
           {address && referralId && referralData && (
             <>
               {/* Analytics */}
@@ -289,7 +346,11 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                     description="(This month)"
                     loading={loading.referral || loading.conversionLogs}
                     value={totalEarnings}
-                    unit={projectData.isUsingXpReward ? "XP" : projectData.selectedToken.symbol}
+                    unit={
+                      projectData.isUsingXpReward
+                        ? "XP"
+                        : projectData.selectedToken.symbol
+                    }
                     isDarkBackground={true}
                   />
                   <AnalyticsCard
@@ -308,7 +369,7 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                   />
                 </div>
               </div>
-  
+
               {/* Conversion Chart */}
               <div className="space-y-2 mx-3">
                 <h1 className="font-bold text-xl">Click/Conversion Chart</h1>
@@ -320,13 +381,18 @@ export default function Affiliate({ params }: { params: { projectId: string } })
                       width={30}
                       height={30}
                       className="animate-spin"
-                    /> 
-                    <p className="animate-pulse font-semibold text-gray-600">Loading data...</p>
+                    />
+                    <p className="animate-pulse font-semibold text-gray-600">
+                      Loading data...
+                    </p>
                   </div>
                 ) : (
                   <div className="bg-[#222222] rounded-lg p-2">
                     <BarChart
-                      dataMap={{"Conversions": conversionLogs, "Clicks": clickData}}
+                      dataMap={{
+                        Conversions: conversionLogs,
+                        Clicks: clickData,
+                      }}
                       timeRange="week"
                       isDarkBackground={true}
                     />
@@ -335,17 +401,21 @@ export default function Affiliate({ params }: { params: { projectId: string } })
               </div>
             </>
           )}
-  
+
           {/* Conversion Points Table */}
-          <ConversionPointsTable 
+          <ConversionPointsTable
             conversionPoints={projectData.conversionPoints}
-            tokenSymbol={projectData.isUsingXpReward ? "XP" : projectData.selectedToken.symbol}
-            chainName={projectData.isUsingXpReward ? "" : chainName ?? ""}
+            tokenSymbol={
+              projectData.isUsingXpReward
+                ? "XP"
+                : projectData.selectedToken.symbol
+            }
+            chainName={projectData.isUsingXpReward ? "" : (chainName ?? "")}
+            rewardDetail={rewardDetailMap[projectData.id!]}
           />
-  
         </div>
       )}
-  
+
       {/* Join Project Button */}
       {projectData && !referralId && (
         <div className="md:hidden bg-black w-full py-3 px-5 fixed bottom-0 border-t border-white/10">
